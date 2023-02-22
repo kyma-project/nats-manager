@@ -1,0 +1,31 @@
+# permissions for end users to edit nats.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: nats-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: nats-manager
+    app.kubernetes.io/part-of: nats-manager
+    app.kubernetes.io/managed-by: kustomize
+  name: nats-editor-role
+rules:
+- apiGroups:
+  - eventing.kyma-project.io
+  resources:
+  - nats
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - eventing.kyma-project.io
+  resources:
+  - nats/status
+  verbs:
+  - get
