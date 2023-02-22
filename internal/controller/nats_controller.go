@@ -18,13 +18,12 @@ package controller
 
 import (
 	"context"
+	logger "sigs.k8s.io/controller-runtime/pkg/log"
 
+	eventingv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	eventingv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 // NatsReconciler reconciles a Nats object
@@ -47,9 +46,13 @@ type NatsReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
-
-	// TODO(user): your logic here
+	log := logger.FromContext(ctx)
+	log.Info("Reconciling...")
+	var nats eventingv1alpha1.Nats
+	if err := r.Get(ctx, req.NamespacedName, &nats); err != nil {
+		log.Error(err, "unable to fetch Nats resource")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
 
 	return ctrl.Result{}, nil
 }

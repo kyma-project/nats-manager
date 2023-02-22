@@ -9,4 +9,4 @@ metadata:
     app.kubernetes.io/created-by: nats-manager
   name: nats-sample
 spec:
-  # TODO(user): Add fields here
+  clusterSize: 3
