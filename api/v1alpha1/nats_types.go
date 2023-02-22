@@ -28,8 +28,8 @@ type NatsSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Nats. Edit nats_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Size of a NATS cluster, i.e. number of NATS nodes
+	ClusterSize int `json:"clusterSize"`
 }
 
 // NatsStatus defines the observed state of Nats
