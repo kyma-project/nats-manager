@@ -18,7 +18,12 @@ package controller
 
 import (
 	"context"
+	"fmt"
+	"github.com/go-logr/logr"
+	"github.com/kyma-project/nats-manager/pkg/provisioner"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logger "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	eventingv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -29,37 +34,97 @@ import (
 // NatsReconciler reconciles a Nats object
 type NatsReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme          *runtime.Scheme
+	NatsProvisioner provisioner.Provisioner
+	log             logr.Logger
 }
 
 //+kubebuilder:rbac:groups=eventing.kyma-project.io,resources=nats,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=eventing.kyma-project.io,resources=nats/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=eventing.kyma-project.io,resources=nats/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the Nats object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := logger.FromContext(ctx)
-	log.Info("Reconciling...")
+	r.log = logger.FromContext(ctx)
+	r.log.Info("Reconciling...")
 	var nats eventingv1alpha1.Nats
 	if err := r.Get(ctx, req.NamespacedName, &nats); err != nil {
-		log.Error(err, "unable to fetch Nats resource")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	// name of our custom finalizer
+	natsFinalizerName := "nats.kyma-project.io/finalizer"
+	if nats.ObjectMeta.DeletionTimestamp.IsZero() {
+		if !controllerutil.ContainsFinalizer(&nats, natsFinalizerName) {
+			controllerutil.AddFinalizer(&nats, natsFinalizerName)
+			if err := r.Update(ctx, &nats); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+	} else {
+		if controllerutil.ContainsFinalizer(&nats, natsFinalizerName) {
+			if err := r.deleteNatsCluster(ctx, &nats); err != nil {
+				return ctrl.Result{}, err
+			}
+			controllerutil.RemoveFinalizer(&nats, natsFinalizerName)
+			if err := r.Update(ctx, &nats); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+		return ctrl.Result{}, nil
+	}
+
+	if err := r.deployNatsCluster(ctx, &nats); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
+}
+
+func (r *NatsReconciler) deployNatsCluster(ctx context.Context, nats *eventingv1alpha1.Nats) error {
+	r.log.Info("Deploying NATS cluster...")
+	nats.UpdateStateProcessing(eventingv1alpha1.StateProcessing, eventingv1alpha1.ConditionReasonDeploying, "NATS cluster is being deployed")
+	var err error
+	if err = r.Status().Update(ctx, nats); err != nil {
+		return err
+	}
+
+	natsConfig := provisioner.NatsConfig{ClusterSize: nats.Spec.ClusterSize}
+	err = r.NatsProvisioner.Deploy(natsConfig)
+	if err != nil {
+		deployErr := fmt.Errorf("failed to deploy NATS cluster %v", err)
+		nats.UpdateStateFromErr(eventingv1alpha1.StateError, eventingv1alpha1.ConditionReasonDeployError, deployErr)
+		return deployErr
+	}
+
+	nats.UpdateStateReady(eventingv1alpha1.StateReady, eventingv1alpha1.ConditionReasonDeployed, "NATS cluster is deployed")
+	if err = r.Status().Update(ctx, nats); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *NatsReconciler) deleteNatsCluster(ctx context.Context, nats *eventingv1alpha1.Nats) error {
+	r.log.Info("Deleting the NATS cluster")
+	nats.UpdateStateDeletion(eventingv1alpha1.StateDeleting, eventingv1alpha1.ConditionReasonDeletion, "NATS cluster is being deleted")
+	var err error
+	if err = r.Status().Update(ctx, nats); err != nil {
+		return err
+	}
+
+	err = r.NatsProvisioner.Delete()
+	if err != nil {
+		deletionErr := fmt.Errorf("failed to delete NATS cluster: %v", err)
+		nats.UpdateStateFromErr(eventingv1alpha1.StateError, eventingv1alpha1.ConditionReasonDeletionError, deletionErr)
+		return deletionErr
+	}
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *NatsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&eventingv1alpha1.Nats{}).
+		WithEventFilter(predicate.Or(predicate.GenerationChangedPredicate{}, predicate.LabelChangedPredicate{},
+			predicate.AnnotationChangedPredicate{})).
 		Complete(r)
 }
