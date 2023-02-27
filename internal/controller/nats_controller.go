@@ -31,6 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+const natsFinalizerName = "nats.kyma-project.io/finalizer"
+
 // NatsReconciler reconciles a Nats object
 type NatsReconciler struct {
 	client.Client
@@ -51,8 +53,6 @@ func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// name of our custom finalizer
-	natsFinalizerName := "nats.kyma-project.io/finalizer"
 	if nats.ObjectMeta.DeletionTimestamp.IsZero() {
 		if !controllerutil.ContainsFinalizer(&nats, natsFinalizerName) {
 			controllerutil.AddFinalizer(&nats, natsFinalizerName)
@@ -62,7 +62,7 @@ func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		}
 	} else {
 		if controllerutil.ContainsFinalizer(&nats, natsFinalizerName) {
-			if err := r.deleteNatsCluster(ctx, &nats); err != nil {
+			if err := r.deleteNats(ctx, &nats); err != nil {
 				return ctrl.Result{}, err
 			}
 			controllerutil.RemoveFinalizer(&nats, natsFinalizerName)
@@ -73,16 +73,16 @@ func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		return ctrl.Result{}, nil
 	}
 
-	if err := r.deployNatsCluster(ctx, &nats); err != nil {
+	if err := r.deployNats(ctx, &nats); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-func (r *NatsReconciler) deployNatsCluster(ctx context.Context, nats *eventingv1alpha1.Nats) error {
-	r.log.Info("Deploying NATS cluster...")
-	nats.UpdateStateProcessing(eventingv1alpha1.StateProcessing, eventingv1alpha1.ConditionReasonDeploying, "NATS cluster is being deployed")
+func (r *NatsReconciler) deployNats(ctx context.Context, nats *eventingv1alpha1.Nats) error {
+	r.log.Info("Deploying NATS ...")
+	nats.UpdateStateProcessing(eventingv1alpha1.StateReady, eventingv1alpha1.ConditionReasonDeploying, "NATS is being deployed")
 	var err error
 	if err = r.Status().Update(ctx, nats); err != nil {
 		return err
@@ -91,21 +91,21 @@ func (r *NatsReconciler) deployNatsCluster(ctx context.Context, nats *eventingv1
 	natsConfig := provisioner.NatsConfig{ClusterSize: nats.Spec.ClusterSize}
 	err = r.NatsProvisioner.Deploy(natsConfig)
 	if err != nil {
-		deployErr := fmt.Errorf("failed to deploy NATS cluster %v", err)
-		nats.UpdateStateFromErr(eventingv1alpha1.StateError, eventingv1alpha1.ConditionReasonDeployError, deployErr)
+		deployErr := fmt.Errorf("failed to deploy NATS %v", err)
+		nats.UpdateStateFromErr(eventingv1alpha1.StateProcessing, eventingv1alpha1.ConditionReasonDeployError, deployErr)
 		return deployErr
 	}
 
-	nats.UpdateStateReady(eventingv1alpha1.StateReady, eventingv1alpha1.ConditionReasonDeployed, "NATS cluster is deployed")
+	nats.UpdateStateReady(eventingv1alpha1.StateReady, eventingv1alpha1.ConditionReasonDeployed, "NATS is deployed")
 	if err = r.Status().Update(ctx, nats); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *NatsReconciler) deleteNatsCluster(ctx context.Context, nats *eventingv1alpha1.Nats) error {
-	r.log.Info("Deleting the NATS cluster")
-	nats.UpdateStateDeletion(eventingv1alpha1.StateDeleting, eventingv1alpha1.ConditionReasonDeletion, "NATS cluster is being deleted")
+func (r *NatsReconciler) deleteNats(ctx context.Context, nats *eventingv1alpha1.Nats) error {
+	r.log.Info("Deleting the NATS")
+	nats.UpdateStateDeletion(eventingv1alpha1.StateDeleted, eventingv1alpha1.ConditionReasonDeletion, "NATS is being deleted")
 	var err error
 	if err = r.Status().Update(ctx, nats); err != nil {
 		return err
@@ -113,7 +113,7 @@ func (r *NatsReconciler) deleteNatsCluster(ctx context.Context, nats *eventingv1
 
 	err = r.NatsProvisioner.Delete()
 	if err != nil {
-		deletionErr := fmt.Errorf("failed to delete NATS cluster: %v", err)
+		deletionErr := fmt.Errorf("failed to delete NATS: %v", err)
 		nats.UpdateStateFromErr(eventingv1alpha1.StateError, eventingv1alpha1.ConditionReasonDeletionError, deletionErr)
 		return deletionErr
 	}
@@ -124,7 +124,10 @@ func (r *NatsReconciler) deleteNatsCluster(ctx context.Context, nats *eventingv1
 func (r *NatsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&eventingv1alpha1.Nats{}).
-		WithEventFilter(predicate.Or(predicate.GenerationChangedPredicate{}, predicate.LabelChangedPredicate{},
-			predicate.AnnotationChangedPredicate{})).
+		WithEventFilter(
+			predicate.Or(
+				predicate.GenerationChangedPredicate{},
+				predicate.LabelChangedPredicate{},
+				predicate.AnnotationChangedPredicate{})).
 		Complete(r)
 }

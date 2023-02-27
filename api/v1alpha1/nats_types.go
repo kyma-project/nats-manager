@@ -30,6 +30,7 @@ const (
 	StateError      = "Error"
 	StateProcessing = "Processing"
 	StateDeleting   = "Deleting"
+	StateDeleted    = "Deleted"
 
 	ConditionReasonDeploying     = ConditionReason("Deploying")
 	ConditionReasonDeployed      = ConditionReason("Deployed")
