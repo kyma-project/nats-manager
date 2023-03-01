@@ -88,7 +88,9 @@ func (r *NatsReconciler) deployNats(ctx context.Context, nats *eventingv1alpha1.
 		return err
 	}
 
-	natsConfig := provisioner.NatsConfig{ClusterSize: nats.Spec.ClusterSize}
+	natsConfig := provisioner.NatsConfig{
+		ClusterSize: nats.Spec.Cluster.Size,
+	}
 	err = r.NatsProvisioner.Deploy(natsConfig)
 	if err != nil {
 		deployErr := fmt.Errorf("failed to deploy NATS %v", err)

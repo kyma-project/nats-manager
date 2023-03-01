@@ -6,5 +6,5 @@ metadata:
 spec:
   template:
     spec:
-      containers:
-      - name: manager
+      imagePullSecrets:
+      - name: nats-manager-dockerconfigjson-ghcr

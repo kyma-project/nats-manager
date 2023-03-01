@@ -15,7 +15,16 @@ spec:
     singular: nats
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: State of NATS deployment
+      jsonPath: .status.state
+      name: State
+      type: string
+    - description: Age of the resource
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Nats is the Schema for the nats API
@@ -35,11 +44,16 @@ spec:
           spec:
             description: NatsSpec defines the desired state of Nats
             properties:
-              clusterSize:
-                description: Size of a NATS cluster, i.e. number of NATS nodes
-                type: integer
+              cluster:
+                properties:
+                  size:
+                    description: Size of a NATS cluster, i.e. number of NATS nodes
+                    type: integer
+                required:
+                - size
+                type: object
             required:
-            - clusterSize
+            - cluster
             type: object
           status:
             description: NatsStatus defines the observed state of Nats

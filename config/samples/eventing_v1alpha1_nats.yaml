@@ -9,4 +9,5 @@ metadata:
     app.kubernetes.io/created-by: nats-manager
   name: nats-sample
 spec:
-  clusterSize: 3
+  cluster:
+    size: 3

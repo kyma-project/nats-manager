@@ -30,7 +30,8 @@ const (
 	StateError      = "Error"
 	StateProcessing = "Processing"
 	StateDeleting   = "Deleting"
-	StateDeleted    = "Deleted"
+	// StateDeleted is used only in deleted condition. Not a modularization compliant state
+	StateDeleted = "Deleted"
 
 	ConditionReasonDeploying     = ConditionReason("Deploying")
 	ConditionReasonDeployed      = ConditionReason("Deployed")
@@ -42,13 +43,14 @@ const (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+type Cluster struct {
+	// Size of a NATS cluster, i.e. number of NATS nodes
+	Size int `json:"size"`
+}
+
 // NatsSpec defines the desired state of Nats
 type NatsSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Size of a NATS cluster, i.e. number of NATS nodes
-	ClusterSize int `json:"clusterSize"`
+	Cluster Cluster `json:"cluster"`
 }
 
 // NatsStatus defines the observed state of Nats
@@ -107,6 +109,8 @@ func (n *Nats) UpdateStateDeletion(c ConditionType, r ConditionReason, msg strin
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
 
 // Nats is the Schema for the nats API
 type Nats struct {
