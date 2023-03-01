@@ -1,4 +1,4 @@
-# nats-manager
+# NATS Manager
 Manages the lifecycle of a NATS JetStream deployment.
 
 ## Description

@@ -4,6 +4,7 @@
 #  name: dockerconfigjson-ghcr
 #  options:
 #    disableNameSuffixHash: true
+#  type: kubernetes.io/dockerconfigjson
 #
 #patchesStrategicMerge:
 #- manager_config_patch.yaml
