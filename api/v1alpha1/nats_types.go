@@ -30,7 +30,7 @@ const (
 	StateError      = "Error"
 	StateProcessing = "Processing"
 	StateDeleting   = "Deleting"
-	// StateDeleted is used only in deleted condition. Not a modularization compliant state
+	// StateDeleted is used only in deleted condition. Not a modularization compliant state.
 	StateDeleted = "Deleted"
 
 	ConditionReasonDeploying     = ConditionReason("Deploying")
@@ -48,12 +48,12 @@ type Cluster struct {
 	Size int `json:"size"`
 }
 
-// NatsSpec defines the desired state of Nats
+// NatsSpec defines the desired state of Nats.
 type NatsSpec struct {
 	Cluster Cluster `json:"cluster"`
 }
 
-// NatsStatus defines the observed state of Nats
+// NatsStatus defines the observed state of Nats.
 type NatsStatus struct {
 	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
@@ -107,12 +107,13 @@ func (n *Nats) UpdateStateDeletion(c ConditionType, r ConditionReason, msg strin
 	meta.SetStatusCondition(&n.Status.Conditions, condition)
 }
 
+//nolint:lll //this is annotation
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
 
-// Nats is the Schema for the nats API
+// Nats is the Schema for the nats API.
 type Nats struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -123,13 +124,13 @@ type Nats struct {
 
 //+kubebuilder:object:root=true
 
-// NatsList contains a list of Nats
+// NatsList contains a list of Nats.
 type NatsList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Nats `json:"items"`
 }
 
-func init() {
+func init() { //nolint:gochecknoinits //called in external function
 	SchemeBuilder.Register(&Nats{}, &NatsList{})
 }

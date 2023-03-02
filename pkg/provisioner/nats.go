@@ -17,11 +17,11 @@ type NatsProvisioner struct {
 }
 
 func (r NatsProvisioner) Deploy(config NatsConfig) error {
-	fmt.Println("NATS cluster is deployed")
+	fmt.Println("NATS cluster is deployed") //nolint:forbidigo //keep temporarily
 	return nil
 }
 
 func (r NatsProvisioner) Delete() error {
-	fmt.Println("NATS cluster is deleted")
+	fmt.Println("NATS cluster is deleted") //nolint:forbidigo //keep temprarily
 	return nil
 }

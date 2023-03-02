@@ -18,7 +18,6 @@ package main
 
 import (
 	"flag"
-	"github.com/kyma-project/nats-manager/pkg/provisioner"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -34,32 +33,32 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/internal/controller"
-	//+kubebuilder:scaffold:imports
+	"github.com/kyma-project/nats-manager/pkg/provisioner"
 )
 
-var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
-)
-
-func init() {
-	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
-	utilruntime.Must(natsv1alpha1.AddToScheme(scheme))
-	//+kubebuilder:scaffold:scheme
-}
+const defaultMetricsPort = 9443
 
 func main() {
+	scheme := runtime.NewScheme()
+	setupLog := ctrl.Log.WithName("setup")
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(natsv1alpha1.AddToScheme(scheme))
+
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
-	var leaderElectionId string
-	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
-	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
+	var leaderElectionID string
+	var metricsPort int
+	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080",
+		"The address the metric endpoint binds to.")
+	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081",
+		"The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&leaderElectionId, "leaderElectionId", "26479083.kyma-project.io", "ID for the controller leader election.")
+	flag.StringVar(&leaderElectionID, "leaderElectionID", "26479083.kyma-project.io",
+		"ID for the controller leader election.")
+	flag.IntVar(&metricsPort, "metricsPort", defaultMetricsPort, "Port number for metrics endpoint.")
 
 	opts := zap.Options{
 		Development: true,
@@ -72,10 +71,10 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
+		Port:                   metricsPort,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       leaderElectionId,
+		LeaderElectionID:       leaderElectionID,
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly

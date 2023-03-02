@@ -18,7 +18,9 @@ package controller
 
 import (
 	"context"
+
 	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/kyma-project/nats-manager/pkg/provisioner"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -33,7 +35,7 @@ import (
 
 const natsFinalizerName = "nats.kyma-project.io/finalizer"
 
-// NatsReconciler reconciles a Nats object
+// NatsReconciler reconciles a Nats object.
 type NatsReconciler struct {
 	client.Client
 	Scheme          *runtime.Scheme
@@ -48,32 +50,23 @@ type NatsReconciler struct {
 func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.log = logger.FromContext(ctx)
 	r.log.Info("Reconciling...")
-	var nats natsv1alpha1.Nats
-	if err := r.Get(ctx, req.NamespacedName, &nats); err != nil {
+	nats := &natsv1alpha1.Nats{}
+	if err := r.Get(ctx, req.NamespacedName, nats); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	if nats.ObjectMeta.DeletionTimestamp.IsZero() {
-		if !controllerutil.ContainsFinalizer(&nats, natsFinalizerName) {
-			controllerutil.AddFinalizer(&nats, natsFinalizerName)
-			if err := r.Update(ctx, &nats); err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-	} else {
-		if controllerutil.ContainsFinalizer(&nats, natsFinalizerName) {
-			if err := r.deleteNats(ctx, &nats); err != nil {
-				return ctrl.Result{}, err
-			}
-			controllerutil.RemoveFinalizer(&nats, natsFinalizerName)
-			if err := r.Update(ctx, &nats); err != nil {
-				return ctrl.Result{}, err
-			}
+	if err := r.addFinalizer(ctx, nats); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	if !nats.ObjectMeta.DeletionTimestamp.IsZero() {
+		if err := r.deleteNats(ctx, nats); err != nil {
+			return ctrl.Result{}, err
 		}
 		return ctrl.Result{}, nil
 	}
 
-	if err := r.deployNats(ctx, &nats); err != nil {
+	if err := r.deployNats(ctx, nats); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -93,8 +86,11 @@ func (r *NatsReconciler) deployNats(ctx context.Context, nats *natsv1alpha1.Nats
 	}
 	err = r.NatsProvisioner.Deploy(natsConfig)
 	if err != nil {
-		deployErr := fmt.Errorf("failed to deploy NATS %v", err)
-		nats.UpdateStateFromErr(natsv1alpha1.StateProcessing, natsv1alpha1.ConditionReasonDeployError, deployErr)
+		deployErr := fmt.Errorf("failed to deploy NATS: %w", err)
+		nats.UpdateStateFromErr(natsv1alpha1.StateReady, natsv1alpha1.ConditionReasonDeployError, deployErr)
+		if err = r.Status().Update(ctx, nats); err != nil {
+			return err
+		}
 		return deployErr
 	}
 
@@ -106,6 +102,10 @@ func (r *NatsReconciler) deployNats(ctx context.Context, nats *natsv1alpha1.Nats
 }
 
 func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.Nats) error {
+	// skip deletion if the finalizer is not in the resource
+	if !controllerutil.ContainsFinalizer(nats, natsFinalizerName) {
+		return nil
+	}
 	r.log.Info("Deleting the NATS")
 	nats.UpdateStateDeletion(natsv1alpha1.StateDeleted, natsv1alpha1.ConditionReasonDeletion, "NATS is being deleted")
 	var err error
@@ -113,11 +113,33 @@ func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.Nats
 		return err
 	}
 
-	err = r.NatsProvisioner.Delete()
-	if err != nil {
-		deletionErr := fmt.Errorf("failed to delete NATS: %v", err)
+	if err := r.NatsProvisioner.Delete(); err != nil {
+		deletionErr := fmt.Errorf("failed to delete NATS: %w", err)
 		nats.UpdateStateFromErr(natsv1alpha1.StateError, natsv1alpha1.ConditionReasonDeletionError, deletionErr)
+		if err = r.Status().Update(ctx, nats); err != nil {
+			return err
+		}
 		return deletionErr
+	}
+
+	controllerutil.RemoveFinalizer(nats, natsFinalizerName)
+	if err := r.Update(ctx, nats); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *NatsReconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) error {
+	// do add finalizer if already in deletion
+	if !nats.ObjectMeta.DeletionTimestamp.IsZero() {
+		return nil
+	}
+
+	if !controllerutil.ContainsFinalizer(nats, natsFinalizerName) {
+		controllerutil.AddFinalizer(nats, natsFinalizerName)
+		if err := r.Update(ctx, nats); err != nil {
+			return err
+		}
 	}
 	return nil
 }
