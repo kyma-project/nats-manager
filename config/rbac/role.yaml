@@ -6,7 +6,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - nats.kyma-project.io
+  - operator.kyma-project.io
   resources:
   - nats
   verbs:
@@ -18,13 +18,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - nats.kyma-project.io
+  - operator.kyma-project.io
   resources:
   - nats/finalizers
   verbs:
   - update
 - apiGroups:
-  - nats.kyma-project.io
+  - operator.kyma-project.io
   resources:
   - nats/status
   verbs:

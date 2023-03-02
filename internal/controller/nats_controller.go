@@ -33,7 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const natsFinalizerName = "nats.kyma-project.io/finalizer"
+const natsFinalizerName = "operator.kyma-project.io/finalizer"
 
 // NatsReconciler reconciles a Nats object.
 type NatsReconciler struct {
@@ -43,9 +43,9 @@ type NatsReconciler struct {
 	log             logr.Logger
 }
 
-//+kubebuilder:rbac:groups=nats.kyma-project.io,resources=nats,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=nats.kyma-project.io,resources=nats/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=nats.kyma-project.io,resources=nats/finalizers,verbs=update
+//+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/finalizers,verbs=update
 
 func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.log = logger.FromContext(ctx)
