@@ -1,7 +1,7 @@
 #secretGenerator:
 #- files:
 #  - .dockerconfigjson
-#  name: dockerconfigjson-ghcr
+#  name: manager-dockerconfigjson-ghcr
 #  options:
 #    disableNameSuffixHash: true
 #  type: kubernetes.io/dockerconfigjson
