@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- eventing_v1alpha1_nats.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

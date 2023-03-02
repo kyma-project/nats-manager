@@ -1,0 +1,13 @@
+#secretGenerator:
+#- files:
+#  - .dockerconfigjson
+#  name: manager-dockerconfigjson-ghcr
+#  options:
+#    disableNameSuffixHash: true
+#  type: kubernetes.io/dockerconfigjson
+#
+#patchesStrategicMerge:
+#- manager_config_patch.yaml
+
+resources:
+- manager.yaml
