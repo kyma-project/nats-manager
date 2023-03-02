@@ -33,7 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const natsFinalizerName = "operator.kyma-project.io/finalizer"
+const natsFinalizerName = "nats.operator.kyma-project.io/finalizer"
 
 // NatsReconciler reconciles a Nats object.
 type NatsReconciler struct {
