@@ -1,5 +1,37 @@
 ####################################
 #                                  #
+#       Global Configuration       #
+#                                  #
+####################################
+
+global:
+  containerRegistry:
+    path: eu.gcr.io/kyma-project
+  images:
+    nats:
+      name: nats
+      version: v20230314-2.9.15-alpine3.17
+      directory: external
+    nats_config_reloader:
+      name: natsio/nats-server-config-reloader
+      version: 0.10.1
+      directory: external
+    prometheus_nats_exporter:
+      name: natsio/prometheus-nats-exporter
+      version: 0.10.1
+      directory: external
+
+  jetstream:
+    # Storage type of the stream, memory or file.
+    storage: file
+    fileStorage:
+      size: 1Gi
+    # podManagementPolicy controls how pods are created during initial scale up,
+    # when replacing pods on nodes, or when scaling down.
+    podManagementPolicy: Parallel
+
+####################################
+#                                  #
 #  Security Context Configuration  #
 #                                  #
 ####################################
@@ -14,6 +46,14 @@ containerSecurityContext:
   capabilities:
     drop:
       - ALL
+
+###############################
+#                             #
+#     Istio Configuration     #
+#                             #
+###############################
+istio:
+  enabled: false
 
 ###############################
 #                             #
@@ -163,6 +203,8 @@ nats:
     # Jetstream Unique Tag prevent placing a stream in the same availability zone twice.
     uniqueTag:
 
+    max_outstanding_catchup:
+
     ##########################
     #                        #
     #  Jetstream Encryption  #
@@ -211,6 +253,7 @@ nats:
 # Authentication setup
 auth:
   enabled: true
+  adminPassword:
   resolver:
     ##############################
     #                            #
@@ -278,11 +321,3 @@ exporter:
   enabled: true
   pullPolicy: IfNotPresent
   resources: {}
-  # Prometheus operator ServiceMonitor support. Exporter has to be enabled
-  serviceMonitor:
-    enabled: true
-    labels: {}
-    annotations: {}
-    path: /metrics
-    # interval:
-    # scrapeTimeout:
