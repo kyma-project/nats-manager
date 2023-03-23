@@ -30,7 +30,7 @@ resources:
 # If you want your nats-manager to expose the /metrics
 # endpoint w/o any authn/z, please comment the following line.
 patchesStrategicMerge:
-- manager_auth_proxy_patch.yaml
+#- manager_auth_proxy_patch.yaml
 
 
 

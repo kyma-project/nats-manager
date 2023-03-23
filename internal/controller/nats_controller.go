@@ -18,29 +18,51 @@ package controller
 
 import (
 	"context"
-
 	"fmt"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"github.com/kyma-project/nats-manager/pkg/manager"
+	"k8s.io/client-go/tools/record"
 
 	"github.com/go-logr/logr"
-	"github.com/kyma-project/nats-manager/pkg/provisioner"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	logger "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-const natsFinalizerName = "nats.operator.kyma-project.io/finalizer"
+const (
+	natsFinalizerName = "nats.operator.kyma-project.io/finalizer"
+	namespace = "kyma-system"
+	controllerName = "nats-manager"
+)
 
 // NatsReconciler reconciles a Nats object.
 type NatsReconciler struct {
 	client.Client
+	kubeClient k8s.Client
+	chartRenderer  chart.Renderer
 	Scheme          *runtime.Scheme
-	NatsProvisioner provisioner.Provisioner
-	log             logr.Logger
+	recorder        record.EventRecorder
+	logger          logr.Logger
+	natsManager manager.Manager
+}
+
+func NewNatsReconciler(client client.Client, chartRenderer chart.Renderer, scheme *runtime.Scheme, logger logr.Logger,
+	recorder record.EventRecorder, natsManager manager.Manager) *NatsReconciler {
+
+	kubeClient := k8s.NewKubeClient(client, controllerName)
+
+	return &NatsReconciler{
+		Client:          client,
+		kubeClient: kubeClient,
+		chartRenderer:   chartRenderer,
+		Scheme:          scheme,
+		recorder:        recorder,
+		logger:          logger,
+		natsManager: natsManager,
+	}
 }
 
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats,verbs=get;list;watch;create;update;patch;delete
@@ -48,85 +70,104 @@ type NatsReconciler struct {
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/finalizers,verbs=update
 
 func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.log = logger.FromContext(ctx)
-	r.log.Info("Reconciling...")
-	nats := &natsv1alpha1.Nats{}
-	if err := r.Get(ctx, req.NamespacedName, nats); err != nil {
+	r.logger.Info("Reconciliation triggered")
+	// fetch latest subscription object
+	currentNats := &natsv1alpha1.Nats{}
+	if err := r.Get(ctx, req.NamespacedName, currentNats); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	// copy the object, so we don't modify the source object
+	nats := currentNats.DeepCopy()
+
+	// check if nats is in deletion state
+	if isInDeletion(nats) {
+		return r.handleNatsDeletion(ctx, nats)
+	}
+
+	// handle reconciliation
+	return r.handleNatsReconcile(ctx, nats)
+}
+
+func (r *NatsReconciler) generateNatsResources(nats *natsv1alpha1.Nats, instance *chart.ReleaseInstance) error {
+	// generate Nats resources from chart
+	natsResources, err := r.natsManager.GenerateNATSResources(
+		instance,
+		manager.WithOwnerReference(*nats), // add owner references to all resources
+	)
+	if err != nil {
+		return err
+	}
+
+	// update manifests in instance
+	instance.SetRenderedManifests(*natsResources)
+	return nil
+}
+
+func (r *NatsReconciler) handleNatsReconcile(ctx context.Context, nats *natsv1alpha1.Nats) (ctrl.Result, error) {
 	if err := r.addFinalizer(ctx, nats); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	if !nats.ObjectMeta.DeletionTimestamp.IsZero() {
-		if err := r.deleteNats(ctx, nats); err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{}, nil
+	// Check if istio is enabled in cluster
+
+	// Init a release instance
+	instance := &chart.ReleaseInstance{
+		Name:      nats.Name,
+		Namespace: namespace,
+		// @TODO: Provide the overrides in component.Configuration
 	}
 
-	if err := r.deployNats(ctx, nats); err != nil {
+	if err := r.generateNatsResources(nats, instance); err != nil {
 		return ctrl.Result{}, err
 	}
 
+	if err := r.natsManager.DeployInstance(ctx, instance); err != nil {
+		deployErr := fmt.Errorf("failed to deploy NATS: %w", err)
+		nats.UpdateStateFromErr(natsv1alpha1.StateError, natsv1alpha1.ConditionReasonDeployError, deployErr)
+		if err = r.Status().Update(ctx, nats); err != nil {
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, deployErr
+	}
+
+	// Sync CR status
+	nats.UpdateStateReady(natsv1alpha1.StateReady, natsv1alpha1.ConditionReasonDeployed, "NATS is deployed")
+	if err := r.Status().Update(ctx, nats); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	r.logger.Info("Reconciliation successful")
 	return ctrl.Result{}, nil
 }
 
-func (r *NatsReconciler) deployNats(ctx context.Context, nats *natsv1alpha1.Nats) error {
-	r.log.Info("Deploying NATS ...")
-	nats.UpdateStateProcessing(natsv1alpha1.StateReady, natsv1alpha1.ConditionReasonDeploying, "NATS is being deployed")
-	var err error
-	if err = r.Status().Update(ctx, nats); err != nil {
-		return err
-	}
-
-	natsConfig := provisioner.NatsConfig{
-		ClusterSize: nats.Spec.Cluster.Size,
-	}
-	err = r.NatsProvisioner.Deploy(natsConfig)
-	if err != nil {
-		deployErr := fmt.Errorf("failed to deploy NATS: %w", err)
-		nats.UpdateStateFromErr(natsv1alpha1.StateReady, natsv1alpha1.ConditionReasonDeployError, deployErr)
-		if err = r.Status().Update(ctx, nats); err != nil {
-			return err
-		}
-		return deployErr
-	}
-
-	nats.UpdateStateReady(natsv1alpha1.StateReady, natsv1alpha1.ConditionReasonDeployed, "NATS is deployed")
-	if err = r.Status().Update(ctx, nats); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.Nats) error {
+func (r *NatsReconciler) handleNatsDeletion(ctx context.Context, nats *natsv1alpha1.Nats) (ctrl.Result, error) {
 	// skip deletion if the finalizer is not in the resource
 	if !controllerutil.ContainsFinalizer(nats, natsFinalizerName) {
-		return nil
-	}
-	r.log.Info("Deleting the NATS")
-	nats.UpdateStateDeletion(natsv1alpha1.StateDeleted, natsv1alpha1.ConditionReasonDeletion, "NATS is being deleted")
-	var err error
-	if err = r.Status().Update(ctx, nats); err != nil {
-		return err
+		return ctrl.Result{}, nil
 	}
 
-	if err := r.NatsProvisioner.Delete(); err != nil {
+	r.logger.Info("Deleting the NATS")
+	nats.UpdateStateDeletion(natsv1alpha1.StateDeleting, natsv1alpha1.ConditionReasonDeletion, "NATS is being deleted")
+	var err error
+	if err = r.Status().Update(ctx, nats); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	if err := r.natsManager.DeleteInstance(ctx, nil); err != nil {
 		deletionErr := fmt.Errorf("failed to delete NATS: %w", err)
 		nats.UpdateStateFromErr(natsv1alpha1.StateError, natsv1alpha1.ConditionReasonDeletionError, deletionErr)
 		if err = r.Status().Update(ctx, nats); err != nil {
-			return err
+			return ctrl.Result{}, err
 		}
-		return deletionErr
+		return ctrl.Result{}, deletionErr
 	}
 
 	controllerutil.RemoveFinalizer(nats, natsFinalizerName)
 	if err := r.Update(ctx, nats); err != nil {
-		return err
+		return ctrl.Result{}, err
 	}
-	return nil
+	return ctrl.Result{}, nil
 }
 
 func (r *NatsReconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) error {
@@ -148,10 +189,17 @@ func (r *NatsReconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Na
 func (r *NatsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.Nats{}).
-		WithEventFilter(
-			predicate.Or(
-				predicate.GenerationChangedPredicate{},
-				predicate.LabelChangedPredicate{},
-				predicate.AnnotationChangedPredicate{})).
 		Complete(r)
 }
+
+//// SetupWithManager sets up the controller with the Manager.
+//func (r *NatsReconciler) SetupWithManager(mgr ctrl.Manager) error {
+//	return ctrl.NewControllerManagedBy(mgr).
+//		For(&natsv1alpha1.Nats{}).
+//		WithEventFilter(
+//			predicate.Or(
+//				predicate.GenerationChangedPredicate{},
+//				predicate.LabelChangedPredicate{},
+//				predicate.AnnotationChangedPredicate{})).
+//		Complete(r)
+//}

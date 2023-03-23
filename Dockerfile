@@ -16,6 +16,7 @@ COPY cmd/main.go cmd/main.go
 COPY api/ api/
 COPY internal/controller/ internal/controller/
 COPY pkg/ pkg/
+COPY resources/nats resources/nats
 
 # Build
 # the GOARCH has not a default value to allow the binary be built according to the host where the command
@@ -31,6 +32,7 @@ LABEL source = git@github.com:kyma-project/nats-manager.git
 
 WORKDIR /
 COPY --from=builder /workspace/manager .
+COPY --from=builder /workspace/resources charts
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]

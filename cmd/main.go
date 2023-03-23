@@ -18,8 +18,10 @@ package main
 
 import (
 	"flag"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"github.com/kyma-project/nats-manager/pkg/manager"
 	"os"
-
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -33,7 +35,6 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/internal/controller"
-	"github.com/kyma-project/nats-manager/pkg/provisioner"
 )
 
 const defaultMetricsPort = 9443
@@ -92,11 +93,26 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.NatsReconciler{
-		Client:          mgr.GetClient(),
-		Scheme:          mgr.GetScheme(),
-		NatsProvisioner: provisioner.NatsProvisioner{},
-	}).SetupWithManager(mgr); err != nil {
+	// create helmRenderer
+	const repoDir = "/charts/nats"
+	helmRenderer, err := chart.NewHelmRenderer(repoDir, mgr.GetLogger())
+	if err != nil {
+		setupLog.Error(err, "failed to create new helm client")
+		os.Exit(1)
+	}
+
+	natsManager := manager.NewNATSManger(k8s.NewKubeClient(mgr.GetClient(), "nats-manager"), helmRenderer)
+	// create NATS reconciler instance
+	natsReconciler := controller.NewNatsReconciler(
+		mgr.GetClient(),
+		helmRenderer,
+		mgr.GetScheme(),
+		mgr.GetLogger(),
+		mgr.GetEventRecorderFor("nats-manager"),
+		natsManager,
+	)
+
+	if err = (natsReconciler).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Nats")
 		os.Exit(1)
 	}
