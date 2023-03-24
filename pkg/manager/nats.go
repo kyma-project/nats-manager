@@ -2,8 +2,10 @@ package manager
 
 import (
 	"context"
+	"fmt"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"go.uber.org/zap"
 )
 
 type NatsConfig struct {
@@ -16,18 +18,21 @@ var _ Manager = &NatsManager{}
 type Manager interface {
 	GenerateNATSResources(*chart.ReleaseInstance, ...Option) (*chart.ManifestResources, error)
 	DeployInstance(context.Context, *chart.ReleaseInstance) error
-	DeleteInstance(context.Context, *chart.ManifestResources) error
+	DeleteInstance(context.Context, *chart.ReleaseInstance) error
+	IsNatsStatefulSetReady(context.Context, *chart.ReleaseInstance) (bool, error)
 }
 
 type NatsManager struct {
 	kubeClient k8s.Client
 	chartRenderer  chart.Renderer
+	logger *zap.SugaredLogger
 }
 
-func NewNATSManger(kubeClient k8s.Client, chartRenderer  chart.Renderer) Manager {
+func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *zap.SugaredLogger) Manager {
 	return NatsManager{
 		kubeClient:    kubeClient,
 		chartRenderer: chartRenderer,
+		logger: logger,
 	}
 }
 
@@ -53,7 +58,34 @@ func (m NatsManager) DeployInstance(ctx context.Context, instance *chart.Release
 	return nil
 }
 
-func (m NatsManager) DeleteInstance(_ context.Context, _ *chart.ManifestResources) error {
-	// TODO
+func (m NatsManager) DeleteInstance(ctx context.Context, instance *chart.ReleaseInstance) error {
+	for _, object := range instance.RenderedManifests.Items {
+		if err := m.kubeClient.Delete(ctx, object); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+func (m NatsManager) IsNatsStatefulSetReady(ctx context.Context, instance *chart.ReleaseInstance) (bool, error) {
+	// get statefulSets from rendered manifests
+	statefulSets := instance.GetStatefulSets()
+	if len(statefulSets) == 0 {
+		fmt.Errorf("NATS StatefulSet not found in manifests")
+	}
+
+	// fetch statefulSets from cluster and check if they are ready
+	result := true
+	for _, sts := range statefulSets {
+		currentSts, err := m.kubeClient.GetStatefulSet(ctx, sts.GetName(), sts.GetNamespace())
+		if err != nil {
+			return false, err
+		}
+		if *currentSts.Spec.Replicas != currentSts.Status.AvailableReplicas ||
+			*currentSts.Spec.Replicas != currentSts.Status.ReadyReplicas {
+			result = false
+		}
+	}
+
+	return result, nil
 }

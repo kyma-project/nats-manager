@@ -253,6 +253,7 @@ nats:
 # Authentication setup
 auth:
   enabled: true
+  rotatePassword: true
   adminPassword:
   resolver:
     ##############################

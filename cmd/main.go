@@ -21,6 +21,8 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/pkg/manager"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"os"
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -31,10 +33,10 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/internal/controller"
+	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
 )
 
 const defaultMetricsPort = 9443
@@ -61,13 +63,27 @@ func main() {
 		"ID for the controller leader election.")
 	flag.IntVar(&metricsPort, "metricsPort", defaultMetricsPort, "Port number for metrics endpoint.")
 
-	opts := zap.Options{
+	opts := k8szap.Options{
 		Development: true,
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+	// @TODO: Re-check logger setup and init
+	ctrl.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
+
+	loggerConfig := zap.NewDevelopmentConfig()
+	loggerConfig.EncoderConfig.TimeKey = "timestamp"
+	loggerConfig.Encoding = "json"
+	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("Jan 02 15:04:05.000000000")
+
+	logger, err := loggerConfig.Build()
+	if err != nil {
+		setupLog.Error(err, "unable to setup logger")
+		os.Exit(1)
+	}
+
+	sugaredLogger := logger.Sugar()
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -95,19 +111,24 @@ func main() {
 
 	// create helmRenderer
 	const repoDir = "/charts/nats"
-	helmRenderer, err := chart.NewHelmRenderer(repoDir, mgr.GetLogger())
+	helmRenderer, err := chart.NewHelmRenderer(repoDir, sugaredLogger)
 	if err != nil {
 		setupLog.Error(err, "failed to create new helm client")
 		os.Exit(1)
 	}
 
-	natsManager := manager.NewNATSManger(k8s.NewKubeClient(mgr.GetClient(), "nats-manager"), helmRenderer)
+	// init custom kube client wrapper
+	kubeClient := k8s.NewKubeClient(mgr.GetClient(), "nats-manager")
+
+	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+
 	// create NATS reconciler instance
-	natsReconciler := controller.NewNatsReconciler(
+	natsReconciler := natscontroller.NewReconciler(
 		mgr.GetClient(),
+		kubeClient,
 		helmRenderer,
 		mgr.GetScheme(),
-		mgr.GetLogger(),
+		sugaredLogger,
 		mgr.GetEventRecorderFor("nats-manager"),
 		natsManager,
 	)

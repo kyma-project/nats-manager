@@ -17,7 +17,7 @@ type Renderer interface {
 	RenderManifestAsObjects(*ReleaseInstance) ([]metav1.Object, error)
 }
 
-// ManifestResources holds a collection of objects, so that we can filter / sequence them.
+// ManifestResources holds a collection of objects.
 type ManifestResources struct {
 	Items []*unstructured.Unstructured
 	Blobs [][]byte

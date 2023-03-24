@@ -14,6 +14,10 @@ import (
 	"strings"
 )
 
+func IsStatefulSetObject(u unstructured.Unstructured) bool {
+	return u.GetKind() == "StatefulSet"
+}
+
 func ParseManifestStringToObjects(manifest string) (*ManifestResources, error) {
 	objects := &ManifestResources{}
 	reader := yamlUtil.NewYAMLReader(bufio.NewReader(strings.NewReader(manifest)))

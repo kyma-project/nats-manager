@@ -1,6 +1,7 @@
 package chart
 
 import (
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"strings"
 
 	"github.com/imdario/mergo"
@@ -29,6 +30,17 @@ func (c *ReleaseInstance) GetConfiguration() (map[string]interface{}, error) {
 		}
 	}
 	return result, nil
+}
+
+// GetStatefulSets returns a list of statefulsets from rendered manifests
+func (c *ReleaseInstance) GetStatefulSets() []*unstructured.Unstructured {
+	var result []*unstructured.Unstructured
+	for _, r := range c.RenderedManifests.Items {
+		if IsStatefulSetObject(*r) {
+			result = append(result, r)
+		}
+	}
+	return result
 }
 
 func (c *ReleaseInstance) SetRenderedManifests(renderedManifests ManifestResources) {

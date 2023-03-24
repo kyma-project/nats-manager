@@ -2,10 +2,10 @@ package chart
 
 import (
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/imdario/mergo"
 	"github.com/kyma-project/nats-manager/pkg/file"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -18,11 +18,11 @@ var _ Renderer = &HelmRenderer{}
 
 type HelmRenderer struct {
 	chartPath string
-	logger    logr.Logger
+	logger    *zap.SugaredLogger
 	helmChart *chart.Chart
 }
 
-func NewHelmRenderer(chartPath string, logger logr.Logger) (Renderer, error) {
+func NewHelmRenderer(chartPath string, logger *zap.SugaredLogger) (Renderer, error) {
 	if !file.DirExists(chartPath) {
 		return nil, fmt.Errorf("HELM chart directory '%s' not found", chartPath)
 	}
@@ -104,7 +104,7 @@ func (c *HelmRenderer) newActionConfig(namespace string) (*action.Configuration,
 	clientGetter := genericclioptions.NewConfigFlags(false)
 	clientGetter.Namespace = &namespace
 	cfg := new(action.Configuration)
-	if err := cfg.Init(clientGetter, namespace, "secrets", c.logger.Info); err != nil {
+	if err := cfg.Init(clientGetter, namespace, "secrets", c.logger.Debugf); err != nil {
 		return nil, err
 	}
 	return cfg, nil
