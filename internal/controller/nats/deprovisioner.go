@@ -18,7 +18,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	nats.Status.SetStateDeleting()
 
 	// get NATS resources to de-provision
-	instance, err := r.initNATSInstance(ctx, nats, log);
+	instance, err := r.initNATSInstance(ctx, nats, log)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

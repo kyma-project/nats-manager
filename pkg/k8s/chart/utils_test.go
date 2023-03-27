@@ -8,6 +8,43 @@ import (
 	"testing"
 )
 
+func Test_IsStatefulSetObject(t *testing.T) {
+	t.Parallel()
+
+	// define test cases
+	testCases := []struct {
+		name        string
+		givenObject unstructured.Unstructured
+		wantResult  bool
+	}{
+		{
+			name: "should return false when it is not StatefulSet",
+			givenObject: unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"kind": "Deployment",
+				},
+			},
+			wantResult: false,
+		},
+		{
+			name: "should return true when it is StatefulSet",
+			givenObject: unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"kind": "StatefulSet",
+				},
+			},
+			wantResult: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.wantResult, IsStatefulSetObject(tc.givenObject))
+		})
+	}
+}
+
 func Test_ParseManifestStringToObjects(t *testing.T) {
 	t.Run("Should parse the template as object", func(t *testing.T) {
 		// given

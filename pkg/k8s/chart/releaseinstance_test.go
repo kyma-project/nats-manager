@@ -114,17 +114,17 @@ func Test_GetStatefulSets(t *testing.T) {
 	}
 
 	// define test cases
-	testCases := []struct{
-		name string
-		manifests ManifestResources
+	testCases := []struct {
+		name             string
+		manifests        ManifestResources
 		wantResultLength int
-		wantResult []*unstructured.Unstructured
+		wantResult       []*unstructured.Unstructured
 	}{
 		{
-			name: "should not find StatefulSet when items is empty",
-			manifests: ManifestResources{},
+			name:             "should not find StatefulSet when items is empty",
+			manifests:        ManifestResources{},
 			wantResultLength: 0,
-			wantResult: []*unstructured.Unstructured(nil),
+			wantResult:       []*unstructured.Unstructured(nil),
 		},
 		{
 			name: "should not find StatefulSet when items does not contain statefulSet",
@@ -134,7 +134,7 @@ func Test_GetStatefulSets(t *testing.T) {
 				},
 			},
 			wantResultLength: 0,
-			wantResult: []*unstructured.Unstructured(nil),
+			wantResult:       []*unstructured.Unstructured(nil),
 		},
 		{
 			name: "should find StatefulSet when items does not contains statefulSet",

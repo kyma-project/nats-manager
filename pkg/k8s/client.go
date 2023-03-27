@@ -19,6 +19,7 @@ var _ Client = &KubeClient{}
 
 const DESTINATION_RULE_CRD_NAME string = "destinationrules.networking.istio.io"
 
+//go:generate mockery --name=Client --outpkg=mocks --case=underscore
 type Client interface {
 	PatchApply(context.Context, *unstructured.Unstructured) error
 	GetStatefulSet(context.Context, string, string) (*appsv1.StatefulSet, error)
@@ -29,16 +30,16 @@ type Client interface {
 }
 
 type KubeClient struct {
-	client client.Client
-	clientset *k8sclientset.Clientset
+	client       client.Client
+	clientset    *k8sclientset.Clientset
 	fieldManager string
 }
 
 func NewKubeClient(client client.Client, clientset *k8sclientset.Clientset, fieldManager string) Client {
 
 	return &KubeClient{
-		client:    client,
-		clientset: clientset,
+		client:       client,
+		clientset:    clientset,
 		fieldManager: fieldManager,
 	}
 }
@@ -56,7 +57,7 @@ func (c *KubeClient) Delete(ctx context.Context, object *unstructured.Unstructur
 
 func (c *KubeClient) GetStatefulSet(ctx context.Context, name, namespace string) (*appsv1.StatefulSet, error) {
 	nn := k8stypes.NamespacedName{
-		Name: name,
+		Name:      name,
 		Namespace: namespace,
 	}
 	result := &appsv1.StatefulSet{}
@@ -68,7 +69,7 @@ func (c *KubeClient) GetStatefulSet(ctx context.Context, name, namespace string)
 
 func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*apiv1.Secret, error) {
 	nn := k8stypes.NamespacedName{
-		Name: name,
+		Name:      name,
 		Namespace: namespace,
 	}
 	result := &apiv1.Secret{}

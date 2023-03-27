@@ -23,16 +23,16 @@ type Manager interface {
 }
 
 type NatsManager struct {
-	kubeClient k8s.Client
-	chartRenderer  chart.Renderer
-	logger *zap.SugaredLogger
+	kubeClient    k8s.Client
+	chartRenderer chart.Renderer
+	logger        *zap.SugaredLogger
 }
 
 func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *zap.SugaredLogger) Manager {
 	return NatsManager{
 		kubeClient:    kubeClient,
 		chartRenderer: chartRenderer,
-		logger: logger,
+		logger:        logger,
 	}
 }
 
@@ -71,7 +71,7 @@ func (m NatsManager) IsNatsStatefulSetReady(ctx context.Context, instance *chart
 	// get statefulSets from rendered manifests
 	statefulSets := instance.GetStatefulSets()
 	if len(statefulSets) == 0 {
-		fmt.Errorf("NATS StatefulSet not found in manifests")
+		return false, fmt.Errorf("NATS StatefulSet not found in manifests")
 	}
 
 	// fetch statefulSets from cluster and check if they are ready

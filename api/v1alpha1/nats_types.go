@@ -29,18 +29,18 @@ const (
 	StateProcessing = "Processing"
 	StateDeleting   = "Deleting"
 
-	ConditionAvailable ConditionType = "Available"
+	ConditionAvailable   ConditionType = "Available"
 	ConditionStatefulSet ConditionType = "StatefulSet"
 
-	ConditionReasonProcessing     = ConditionReason("Processing")
-	ConditionReasonDeploying     = ConditionReason("Deploying")
-	ConditionReasonDeployed      = ConditionReason("Deployed")
-	ConditionReasonDeployError = ConditionReason("FailedDeploy")
-	ConditionReasonStatefulSetAvailable      = ConditionReason("Available")
-	ConditionReasonStatefulSetPending      = ConditionReason("Pending")
-	ConditionReasonSyncFailError   = ConditionReason("FailedToSyncResources")
-	ConditionReasonManifestError   = ConditionReason("InvalidManifests")
-	ConditionReasonDeletionError = ConditionReason("DeletionError")
+	ConditionReasonProcessing           = ConditionReason("Processing")
+	ConditionReasonDeploying            = ConditionReason("Deploying")
+	ConditionReasonDeployed             = ConditionReason("Deployed")
+	ConditionReasonDeployError          = ConditionReason("FailedDeploy")
+	ConditionReasonStatefulSetAvailable = ConditionReason("Available")
+	ConditionReasonStatefulSetPending   = ConditionReason("Pending")
+	ConditionReasonSyncFailError        = ConditionReason("FailedToSyncResources")
+	ConditionReasonManifestError        = ConditionReason("InvalidManifests")
+	ConditionReasonDeletionError        = ConditionReason("DeletionError")
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!

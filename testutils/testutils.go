@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func NewTestLogger() (*zap.Logger, error)  {
+func NewTestLogger() (*zap.Logger, error) {
 	loggerConfig := zap.NewDevelopmentConfig()
 	loggerConfig.EncoderConfig.TimeKey = "timestamp"
 	loggerConfig.Encoding = "json"

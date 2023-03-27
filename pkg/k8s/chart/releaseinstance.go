@@ -16,10 +16,10 @@ func NewReleaseInstance(name, namespace string, configuration map[string]interfa
 }
 
 type ReleaseInstance struct {
-	Name          string
-	Namespace     string
-	Configuration map[string]interface{}
-	RenderedManifests  ManifestResources
+	Name              string
+	Namespace         string
+	Configuration     map[string]interface{}
+	RenderedManifests ManifestResources
 }
 
 func (c *ReleaseInstance) GetConfiguration() (map[string]interface{}, error) {

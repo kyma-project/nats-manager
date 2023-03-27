@@ -7,7 +7,7 @@ import (
 
 type Option func(*unstructured.Unstructured) error
 
-// WithOwnerReference sets the OwnerReferences of an k8s Object.
+// WithOwnerReference sets the OwnerReferences of a k8s Object.
 func WithOwnerReference(nats v1alpha1.Nats) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
@@ -20,31 +20,11 @@ func WithOwnerReference(nats v1alpha1.Nats) Option {
 				"apiVersion": nats.APIVersion,
 				"kind":       nats.Kind,
 				//"controller": true,
-				"name":       nats.Name,
-				"uid":        nats.UID,
+				"name":               nats.Name,
+				"uid":                nats.UID,
 				"blockOwnerDeletion": true,
 			},
 		}
 		return nil
 	}
 }
-
-//// WithOwnerReference sets the OwnerReferences of an k8s Object.
-//func WithOwnerReference(nats v1alpha1.Nats) Option {
-//	return func(o metav1.Object) error {
-//		ownerRefs := make([]metav1.OwnerReference, 0)
-//		blockOwnerDeletion := true
-//		ownerRef := metav1.OwnerReference{
-//			APIVersion:         nats.APIVersion,
-//			Kind:               nats.Kind,
-//			Name:               nats.Name,
-//			UID:                nats.UID,
-//			BlockOwnerDeletion: &blockOwnerDeletion,
-//		}
-//		ownerRefs = append(ownerRefs, ownerRef)
-//
-//		// set owner reference in the object
-//		o.SetOwnerReferences(ownerRefs)
-//		return nil
-//	}
-//}

@@ -27,4 +27,3 @@ func (r *Reconciler) removeFinalizer(ctx context.Context, nats *natsv1alpha1.Nat
 
 	return ctrl.Result{}, nil
 }
-

@@ -16,13 +16,13 @@ func Test_DirExists(t *testing.T) {
 			wantResult bool
 		}{
 			{
-				name: "should return true for existing directory",
-				path: "../file",
+				name:       "should return true for existing directory",
+				path:       "../file",
 				wantResult: true,
 			},
 			{
-				name: "should return false for non-existing directory",
-				path: "./not_exists123",
+				name:       "should return false for non-existing directory",
+				path:       "./not_exists123",
 				wantResult: false,
 			},
 		}

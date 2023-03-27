@@ -38,32 +38,32 @@ const (
 // Reconciler reconciles a Nats object.
 type Reconciler struct {
 	client.Client
-	kubeClient k8s.Client
-	chartRenderer  chart.Renderer
-	Scheme          *runtime.Scheme
-	recorder        record.EventRecorder
-	logger          *zap.SugaredLogger
-	NATSManager manager.Manager
+	kubeClient    k8s.Client
+	chartRenderer chart.Renderer
+	Scheme        *runtime.Scheme
+	recorder      record.EventRecorder
+	logger        *zap.SugaredLogger
+	NATSManager   manager.Manager
 }
 
 func NewReconciler(
-		client client.Client,
-		kubeClient k8s.Client,
-		chartRenderer chart.Renderer,
-		scheme *runtime.Scheme,
-		logger *zap.SugaredLogger,
-		recorder record.EventRecorder,
-		NATSManager manager.Manager,
-	) *Reconciler {
+	client client.Client,
+	kubeClient k8s.Client,
+	chartRenderer chart.Renderer,
+	scheme *runtime.Scheme,
+	logger *zap.SugaredLogger,
+	recorder record.EventRecorder,
+	NATSManager manager.Manager,
+) *Reconciler {
 
 	return &Reconciler{
-		Client:          client,
-		kubeClient: kubeClient,
-		chartRenderer:   chartRenderer,
-		Scheme:          scheme,
-		recorder:        recorder,
-		logger:          logger,
-		NATSManager: NATSManager,
+		Client:        client,
+		kubeClient:    kubeClient,
+		chartRenderer: chartRenderer,
+		Scheme:        scheme,
+		recorder:      recorder,
+		logger:        logger,
+		NATSManager:   NATSManager,
 	}
 }
 
@@ -138,7 +138,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.Na
 
 	// @TODO: Provide the overrides in component.Configuration
 	instance.Configuration = map[string]interface{}{
-		"istio.enabled": istioExists,
+		"istio.enabled":       istioExists,
 		"auth.rotatePassword": accountSecret == nil, // do not recreate secret if it exists
 	}
 
@@ -169,7 +169,7 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 //}
 
 // loggerWithNATS returns a logger with the given NATS CR details.
-func (r *Reconciler)  loggerWithNATS(nats *natsv1alpha1.Nats) *zap.SugaredLogger {
+func (r *Reconciler) loggerWithNATS(nats *natsv1alpha1.Nats) *zap.SugaredLogger {
 	return r.logger.With(
 		"kind", nats.GetObjectKind().GroupVersionKind().Kind,
 		"version", nats.GetGeneration(),
