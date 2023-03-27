@@ -1,11 +1,12 @@
 package manager
 
 import (
+	"testing"
+
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"testing"
 )
 
 func Test_WithOwnerReference(t *testing.T) {

@@ -6,10 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	yamlUtil "k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/yaml"
-	"strings"
 )
 
 func IsStatefulSetObject(u unstructured.Unstructured) bool {

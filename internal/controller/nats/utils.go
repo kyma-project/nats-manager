@@ -2,6 +2,7 @@ package nats
 
 import (
 	"context"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"

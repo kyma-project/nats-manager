@@ -2,6 +2,7 @@ package chart
 
 import (
 	"fmt"
+
 	"github.com/imdario/mergo"
 	"github.com/kyma-project/nats-manager/pkg/file"
 	"github.com/pkg/errors"

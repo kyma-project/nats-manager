@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"fmt"
+
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"go.uber.org/zap"

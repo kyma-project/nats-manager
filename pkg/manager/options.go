@@ -2,6 +2,7 @@ package manager
 
 import (
 	"errors"
+
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )

@@ -4,6 +4,16 @@ IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.26.0
 
+# VERIFY_IGNORE is a grep pattern to exclude files and directories from verification
+VERIFY_IGNORE := /vendor\|/automock
+
+# FILES_TO_CHECK is a command used to determine which files should be verified
+FILES_TO_CHECK = find . -type f -name "*.go" | grep -v "$(VERIFY_IGNORE)"
+# DIRS_TO_CHECK is a command used to determine which directories should be verified
+DIRS_TO_CHECK = go list ./... | grep -v "$(VERIFY_IGNORE)"
+# DIRS_TO_IGNORE is a command used to determine which directories should not be verified
+DIRS_TO_IGNORE = go list ./... | grep "$(VERIFY_IGNORE)"
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -161,3 +171,9 @@ lint-thoroughly:
 
 go-gen:
 	go generate ./...
+
+fmt-local: ## Reformat files using `go fmt`
+	go fmt $$($(DIRS_TO_CHECK))
+
+imports-local: ## Optimize imports
+	goimports -w -l $$($(FILES_TO_CHECK))

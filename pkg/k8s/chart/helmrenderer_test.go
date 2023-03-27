@@ -2,11 +2,12 @@ package chart
 
 import (
 	"encoding/json"
-	"github.com/kyma-project/nats-manager/testutils"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/kyma-project/nats-manager/testutils"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/chart"
