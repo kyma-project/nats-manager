@@ -37,6 +37,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 )
 
 const defaultMetricsPort = 9443
@@ -118,7 +119,13 @@ func main() {
 	}
 
 	// init custom kube client wrapper
-	kubeClient := k8s.NewKubeClient(mgr.GetClient(), "nats-manager")
+	apiClientSet, err := apiclientset.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "failed to create new k8s clientset")
+		os.Exit(1)
+	}
+
+	kubeClient := k8s.NewKubeClient(mgr.GetClient(), apiClientSet, "nats-manager")
 
 	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 

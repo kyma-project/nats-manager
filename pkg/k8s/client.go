@@ -4,6 +4,10 @@ import (
 	"context"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	k8sclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
@@ -13,22 +17,28 @@ import (
 // Perform a compile time check.
 var _ Client = &KubeClient{}
 
+const DESTINATION_RULE_CRD_NAME string = "destinationrules.networking.istio.io"
+
 type Client interface {
 	PatchApply(context.Context, *unstructured.Unstructured) error
 	GetStatefulSet(context.Context, string, string) (*appsv1.StatefulSet, error)
 	Delete(context.Context, *unstructured.Unstructured) error
 	GetSecret(context.Context, string, string) (*apiv1.Secret, error)
+	GetCRD(context.Context, string) (*apiextensionsv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
 }
 
 type KubeClient struct {
 	client client.Client
+	clientset *k8sclientset.Clientset
 	fieldManager string
 }
 
-func NewKubeClient(client client.Client, fieldManager string) Client {
+func NewKubeClient(client client.Client, clientset *k8sclientset.Clientset, fieldManager string) Client {
+
 	return &KubeClient{
 		client:    client,
+		clientset: clientset,
 		fieldManager: fieldManager,
 	}
 }
@@ -68,7 +78,14 @@ func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*ap
 	return nil, nil
 }
 
-func (c *KubeClient) DestinationRuleCRDExists(_ context.Context) (bool, error) {
-	// @TODO: implement me
-	return false, nil
+func (c *KubeClient) GetCRD(ctx context.Context, name string) (*apiextensionsv1.CustomResourceDefinition, error) {
+	return c.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(ctx, name, metav1.GetOptions{})
+}
+
+func (c *KubeClient) DestinationRuleCRDExists(ctx context.Context) (bool, error) {
+	_, err := c.GetCRD(ctx, DESTINATION_RULE_CRD_NAME)
+	if err != nil {
+		return false, client.IgnoreNotFound(err)
+	}
+	return true, nil
 }
