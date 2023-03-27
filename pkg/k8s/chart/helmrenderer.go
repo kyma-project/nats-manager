@@ -9,7 +9,6 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
@@ -38,16 +37,6 @@ func NewHelmRenderer(chartPath string, logger *zap.SugaredLogger) (Renderer, err
 		helmChart: helmChart,
 		logger:    logger,
 	}, nil
-}
-
-// RenderManifestAsObjects of the given chart as structured objects.
-func (c *HelmRenderer) RenderManifestAsObjects(ReleaseInstance *ReleaseInstance) ([]metav1.Object, error) {
-	manifests, err := c.RenderManifestAsUnStructured(ReleaseInstance)
-	if err != nil {
-		return nil, err
-	}
-
-	return ConvertUnStructToStructObjects(manifests)
 }
 
 // RenderManifestAsUnStructured of the given chart as unstructured objects.

@@ -1,7 +1,6 @@
 package chart
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -12,9 +11,6 @@ type Renderer interface {
 
 	// RenderManifestAsUnStructured of the given chart as unstructured objects.
 	RenderManifestAsUnStructured(*ReleaseInstance) (*ManifestResources, error)
-
-	// RenderManifestAsObjects of the given chart as structured objects.
-	RenderManifestAsObjects(*ReleaseInstance) ([]metav1.Object, error)
 }
 
 // ManifestResources holds a collection of objects.
