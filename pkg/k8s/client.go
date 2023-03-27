@@ -17,7 +17,7 @@ import (
 // Perform a compile time check.
 var _ Client = &KubeClient{}
 
-const DESTINATION_RULE_CRD_NAME string = "destinationrules.networking.istio.io"
+const DestinationRuleCrdName string = "destinationrules.networking.istio.io"
 
 //go:generate mockery --name=Client --outpkg=mocks --case=underscore
 type Client interface {
@@ -36,7 +36,6 @@ type KubeClient struct {
 }
 
 func NewKubeClient(client client.Client, clientset *k8sclientset.Clientset, fieldManager string) Client {
-
 	return &KubeClient{
 		client:       client,
 		clientset:    clientset,
@@ -76,7 +75,7 @@ func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*ap
 	if err := c.client.Get(ctx, nn, result); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	return result, nil
 }
 
 func (c *KubeClient) GetCRD(ctx context.Context, name string) (*apiextensionsv1.CustomResourceDefinition, error) {
@@ -84,7 +83,7 @@ func (c *KubeClient) GetCRD(ctx context.Context, name string) (*apiextensionsv1.
 }
 
 func (c *KubeClient) DestinationRuleCRDExists(ctx context.Context) (bool, error) {
-	_, err := c.GetCRD(ctx, DESTINATION_RULE_CRD_NAME)
+	_, err := c.GetCRD(ctx, DestinationRuleCrdName)
 	if err != nil {
 		return false, client.IgnoreNotFound(err)
 	}

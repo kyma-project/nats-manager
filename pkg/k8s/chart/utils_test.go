@@ -40,15 +40,18 @@ func Test_IsStatefulSetObject(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			require.Equal(t, tc.wantResult, IsStatefulSetObject(tc.givenObject))
 		})
 	}
 }
 
 func Test_ParseManifestStringToObjects(t *testing.T) {
+	t.Parallel()
 	t.Run("Should parse the template as object", func(t *testing.T) {
+		t.Parallel()
 		// given
-		manifestString, err := os.ReadFile(filepath.Join(chartDir, "configmap-expected.yaml"))
+		manifestString, err := os.ReadFile(filepath.Join(testChartDir, "configmap-expected.yaml"))
 		require.NoError(t, err)
 
 		unstructuredObj := unstructured.Unstructured{

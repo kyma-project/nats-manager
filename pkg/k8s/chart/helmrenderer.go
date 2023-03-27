@@ -40,8 +40,8 @@ func NewHelmRenderer(chartPath string, logger *zap.SugaredLogger) (Renderer, err
 }
 
 // RenderManifestAsUnStructured of the given chart as unstructured objects.
-func (c *HelmRenderer) RenderManifestAsUnStructured(ReleaseInstance *ReleaseInstance) (*ManifestResources, error) {
-	manifests, err := c.RenderManifest(ReleaseInstance)
+func (c *HelmRenderer) RenderManifestAsUnStructured(releaseInstance *ReleaseInstance) (*ManifestResources, error) {
+	manifests, err := c.RenderManifest(releaseInstance)
 	if err != nil {
 		return nil, err
 	}
@@ -50,41 +50,41 @@ func (c *HelmRenderer) RenderManifestAsUnStructured(ReleaseInstance *ReleaseInst
 }
 
 // RenderManifest of the given chart as string.
-func (c *HelmRenderer) RenderManifest(ReleaseInstance *ReleaseInstance) (string, error) {
-	config, err := c.overrideChartConfiguration(ReleaseInstance)
+func (c *HelmRenderer) RenderManifest(releaseInstance *ReleaseInstance) (string, error) {
+	config, err := c.overrideChartConfiguration(releaseInstance)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to merge chart configuration")
 	}
 
-	tplAction, err := c.newTemplatingAction(ReleaseInstance)
+	tplAction, err := c.newTemplatingAction(releaseInstance)
 	if err != nil {
 		return "", errors.Wrap(err, "templating action failed")
 	}
 
 	helmRelease, err := tplAction.Run(c.helmChart, config)
 	if err != nil || helmRelease == nil {
-		return "", errors.Wrap(err, fmt.Sprintf("Failed to render HELM template for ReleaseInstance '%s'", ReleaseInstance.Name))
+		return "", errors.Wrap(err, fmt.Sprintf("Failed to render HELM template for ReleaseInstance '%s'", releaseInstance.Name))
 	}
 
 	return helmRelease.Manifest, nil
 }
 
-func (c *HelmRenderer) newTemplatingAction(ReleaseInstance *ReleaseInstance) (*action.Install, error) {
-	cfg, err := c.newActionConfig(ReleaseInstance.Namespace)
+func (c *HelmRenderer) newTemplatingAction(releaseInstance *ReleaseInstance) (*action.Install, error) {
+	cfg, err := c.newActionConfig(releaseInstance.Namespace)
 	if err != nil {
 		return nil, err
 	}
 
 	tplAction := action.NewInstall(cfg)
-	tplAction.ReleaseName = ReleaseInstance.Name
-	tplAction.Namespace = ReleaseInstance.Namespace
+	tplAction.ReleaseName = releaseInstance.Name
+	tplAction.Namespace = releaseInstance.Namespace
 	tplAction.Atomic = true
 	tplAction.Wait = true
 	tplAction.CreateNamespace = true
 	tplAction.DryRun = true
 	tplAction.Replace = true     // Skip the name check
-	tplAction.IncludeCRDs = true //include CRDs in the templated output
-	tplAction.ClientOnly = true  //if false, it will validate the manifests against the Kubernetes cluster the kubeclient is currently pointing at
+	tplAction.IncludeCRDs = true // include CRDs in the templated output
+	tplAction.ClientOnly = true  // if false, it will validate the manifests against the Kubernetes cluster the kubeclient is currently pointing at
 
 	return tplAction, nil
 }
@@ -103,16 +103,16 @@ func (c *HelmRenderer) getChartConfiguration() map[string]interface{} {
 	return c.helmChart.Values
 }
 
-func (c *HelmRenderer) overrideChartConfiguration(ReleaseInstance *ReleaseInstance) (map[string]interface{}, error) {
+func (c *HelmRenderer) overrideChartConfiguration(releaseInstance *ReleaseInstance) (map[string]interface{}, error) {
 	result := c.getChartConfiguration()
-	ReleaseInstanceConfig, err := ReleaseInstance.GetConfiguration()
+	releaseInstanceConfig, err := releaseInstance.GetConfiguration()
 	if err != nil {
 		return nil, err
 	}
 
-	if err := mergo.Merge(&result, ReleaseInstanceConfig, mergo.WithOverride); err != nil {
+	if err := mergo.Merge(&result, releaseInstanceConfig, mergo.WithOverride); err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("failed to merge chart configurations with ReleaseInstance "+
-			"configuration for ReleaseInstance '%s'", ReleaseInstance.Name))
+			"configuration for ReleaseInstance '%s'", releaseInstance.Name))
 	}
 
 	return result, nil

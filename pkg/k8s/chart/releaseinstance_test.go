@@ -12,6 +12,7 @@ func Test_GetConfiguration(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Test chart configuration processing", func(t *testing.T) {
+		t.Parallel()
 		// given
 		releaseInstance := NewReleaseInstance("main", "unittest-kyma",
 			map[string]interface{}{
@@ -33,7 +34,7 @@ func Test_GetConfiguration(t *testing.T) {
 					"subkey2":"test value 4"
 				}
 			}
-		}`), &expected) //use marshaller for convenience instead building a nested map by code
+		}`), &expected) // use marshaller for convenience instead building a nested map by code
 		require.NoError(t, err)
 
 		// when
@@ -49,6 +50,7 @@ func Test_SetRenderedManifests(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Should set the rendered manifests", func(t *testing.T) {
+		t.Parallel()
 		// given
 		releaseInstance := NewReleaseInstance("main", "unittest-kyma", map[string]interface{}{})
 
@@ -77,12 +79,14 @@ func Test_convertToNestedMap(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Convert dot-notated configuration keys to a nested map", func(t *testing.T) {
+		t.Parallel()
 		// given
 		releaseInstance := NewReleaseInstance("main", "unittest-kyma", nil)
 
-		got := releaseInstance.convertToNestedMap("this.is.a.test", "the test value")
+		got, err := releaseInstance.convertToNestedMap("this.is.a.test", "the test value")
+		require.NoError(t, err)
 		expected := make(map[string]interface{})
-		err := json.Unmarshal([]byte(`{
+		err = json.Unmarshal([]byte(`{
 			"this":{
 				"is":{
 					"a":{
@@ -90,7 +94,7 @@ func Test_convertToNestedMap(t *testing.T) {
 					}
 				}
 			}
-		}`), &expected) //use marshaller for convenience instead building a nested map by code
+		}`), &expected) // use marshaller for convenience instead building a nested map by code
 		require.NoError(t, err)
 
 		// when, then
@@ -154,6 +158,7 @@ func Test_GetStatefulSets(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			// given
 			releaseInstance := NewReleaseInstance("main", "test", map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(tc.manifests)

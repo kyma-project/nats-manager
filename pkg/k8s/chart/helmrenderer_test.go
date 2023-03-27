@@ -19,7 +19,7 @@ const (
 	testChartName = "component-1"
 )
 
-var chartDir = filepath.Join("test", "resources", testChartName)
+var testChartDir = filepath.Join("test", "resources", testChartName) //no:lint gochecknoglobals
 
 func Test_getChartConfiguration(t *testing.T) {
 	t.Parallel()
@@ -33,7 +33,7 @@ func Test_getChartConfiguration(t *testing.T) {
 
 		// given
 		helmRenderer := HelmRenderer{
-			chartPath: chartDir,
+			chartPath: testChartDir,
 			logger:    sugaredLogger,
 			helmChart: loadHelmChart(t),
 		}
@@ -104,7 +104,7 @@ func Test_overrideChartConfiguration(t *testing.T) {
 
 			// given
 			helmRenderer := HelmRenderer{
-				chartPath: chartDir,
+				chartPath: testChartDir,
 				logger:    sugaredLogger,
 				helmChart: loadHelmChart(t),
 			}
@@ -133,7 +133,7 @@ func Test_RenderManifest(t *testing.T) {
 
 	t.Run("Should render the template as correct string", func(t *testing.T) {
 		// given
-		helm, err := NewHelmRenderer(chartDir, sugaredLogger)
+		helm, err := NewHelmRenderer(testChartDir, sugaredLogger)
 		require.NoError(t, err)
 
 		releaseInstance := &ReleaseInstance{
@@ -151,12 +151,12 @@ func Test_RenderManifest(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		gotAsMap := make(map[string]interface{})
-		require.NoError(t, yaml.Unmarshal([]byte(got), &gotAsMap)) //use for equality check (avoids whitespace diffs)
+		require.NoError(t, yaml.Unmarshal([]byte(got), &gotAsMap)) // use for equality check (avoids whitespace diffs)
 
-		expected, err := os.ReadFile(filepath.Join(chartDir, "configmap-expected.yaml"))
+		expected, err := os.ReadFile(filepath.Join(testChartDir, "configmap-expected.yaml"))
 		require.NoError(t, err)
 		expectedAsMap := make(map[string]interface{})
-		require.NoError(t, yaml.Unmarshal(expected, &expectedAsMap)) //use for equality check (avoids whitespace diffs)
+		require.NoError(t, yaml.Unmarshal(expected, &expectedAsMap)) // use for equality check (avoids whitespace diffs)
 
 		require.Equal(t, expectedAsMap, gotAsMap)
 	})
@@ -169,7 +169,7 @@ func Test_RenderManifestAsUnStructured(t *testing.T) {
 
 	t.Run("Should render the template as UnStructured", func(t *testing.T) {
 		// given
-		helm, err := NewHelmRenderer(chartDir, sugaredLogger)
+		helm, err := NewHelmRenderer(testChartDir, sugaredLogger)
 		require.NoError(t, err)
 
 		releaseInstance := &ReleaseInstance{
@@ -181,10 +181,10 @@ func Test_RenderManifestAsUnStructured(t *testing.T) {
 			},
 		}
 
-		expected, err := os.ReadFile(filepath.Join(chartDir, "configmap-expected.yaml"))
+		expected, err := os.ReadFile(filepath.Join(testChartDir, "configmap-expected.yaml"))
 		require.NoError(t, err)
 		expectedAsMap := make(map[string]interface{})
-		require.NoError(t, yaml.Unmarshal(expected, &expectedAsMap)) //use for equality check (avoids whitespace diffs)
+		require.NoError(t, yaml.Unmarshal(expected, &expectedAsMap)) // use for equality check (avoids whitespace diffs)
 		unstructuredObj := unstructured.Unstructured{
 			Object: expectedAsMap,
 		}
@@ -205,7 +205,7 @@ func Test_RenderManifestAsUnStructured(t *testing.T) {
 }
 
 func loadHelmChart(t *testing.T) *chart.Chart {
-	helmChart, err := loader.Load(chartDir)
+	helmChart, err := loader.Load(testChartDir)
 	require.NoError(t, err)
 	return helmChart
 }

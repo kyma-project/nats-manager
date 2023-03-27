@@ -7,7 +7,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.Nats, log *zap.SugaredLogger) (ctrl.Result, error) {
+func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.Nats,
+	log *zap.SugaredLogger) (ctrl.Result, error) {
 	// skip reconciliation for deletion if the finalizer is not set.
 	if !r.containsFinalizer(nats) {
 		log.Debugf("skipped reconciliation for deletion as finalize is not set.")

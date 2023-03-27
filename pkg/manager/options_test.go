@@ -44,11 +44,13 @@ func Test_WithOwnerReference(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		require.NotNil(t, unstructuredObj.Object["metadata"])
-		metadata := unstructuredObj.Object["metadata"].(map[string]interface{})
+		metadata, ok := unstructuredObj.Object["metadata"].(map[string]interface{})
+		require.True(t, ok)
 		require.NotNil(t, metadata["ownerReferences"])
 		require.Len(t, metadata["ownerReferences"], 1)
 		// match values of owner reference
-		ownerReferences := metadata["ownerReferences"].([]map[string]interface{})
+		ownerReferences, ok := metadata["ownerReferences"].([]map[string]interface{})
+		require.True(t, ok)
 		require.Equal(t, natsCR.Kind, ownerReferences[0]["kind"])
 		require.Equal(t, natsCR.APIVersion, ownerReferences[0]["apiVersion"])
 		require.Equal(t, natsCR.Name, ownerReferences[0]["name"])

@@ -18,7 +18,8 @@ func (ns *NatsStatus) IsEqual(status NatsStatus) bool {
 		ConditionsEquals(ns.Conditions, status.Conditions)
 }
 
-func (ns *NatsStatus) UpdateConditionStatefulSet(status metav1.ConditionStatus, reason ConditionReason, message string) {
+func (ns *NatsStatus) UpdateConditionStatefulSet(status metav1.ConditionStatus, reason ConditionReason,
+	message string) {
 	condition := metav1.Condition{
 		Type:               string(ConditionStatefulSet),
 		Status:             status,
@@ -29,7 +30,8 @@ func (ns *NatsStatus) UpdateConditionStatefulSet(status metav1.ConditionStatus, 
 	meta.SetStatusCondition(&ns.Conditions, condition)
 }
 
-func (ns *NatsStatus) UpdateConditionAvailable(status metav1.ConditionStatus, reason ConditionReason, message string) {
+func (ns *NatsStatus) UpdateConditionAvailable(status metav1.ConditionStatus, reason ConditionReason,
+	message string) {
 	condition := metav1.Condition{
 		Type:               string(ConditionAvailable),
 		Status:             status,
@@ -42,7 +44,8 @@ func (ns *NatsStatus) UpdateConditionAvailable(status metav1.ConditionStatus, re
 
 func (ns *NatsStatus) SetStateReady() {
 	ns.State = StateReady
-	ns.UpdateConditionStatefulSet(metav1.ConditionTrue, ConditionReasonStatefulSetAvailable, "StatefulSet is ready!")
+	ns.UpdateConditionStatefulSet(metav1.ConditionTrue,
+		ConditionReasonStatefulSetAvailable, "StatefulSet is ready!")
 	ns.UpdateConditionAvailable(metav1.ConditionTrue, ConditionReasonDeployed, "NATS is deployed!")
 }
 
@@ -52,7 +55,8 @@ func (ns *NatsStatus) SetStateProcessing() {
 
 func (ns *NatsStatus) SetStateStatefulSetWaiting() {
 	ns.SetStateProcessing()
-	ns.UpdateConditionStatefulSet(metav1.ConditionFalse, ConditionReasonStatefulSetPending, "Waiting")
+	ns.UpdateConditionStatefulSet(metav1.ConditionFalse,
+		ConditionReasonStatefulSetPending, "Waiting")
 	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonDeploying, "")
 }
 

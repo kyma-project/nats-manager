@@ -9,6 +9,7 @@ func Test_DirExists(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Test chart configuration processing", func(t *testing.T) {
+		t.Parallel()
 		// define test cases
 		testCases := []struct {
 			name       string

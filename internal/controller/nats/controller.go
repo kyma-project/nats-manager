@@ -53,9 +53,8 @@ func NewReconciler(
 	scheme *runtime.Scheme,
 	logger *zap.SugaredLogger,
 	recorder record.EventRecorder,
-	NATSManager manager.Manager,
+	natsManager manager.Manager,
 ) *Reconciler {
-
 	return &Reconciler{
 		Client:        client,
 		kubeClient:    kubeClient,
@@ -63,7 +62,7 @@ func NewReconciler(
 		Scheme:        scheme,
 		recorder:      recorder,
 		logger:        logger,
-		NATSManager:   NATSManager,
+		NATSManager:   natsManager,
 	}
 }
 
@@ -112,7 +111,8 @@ func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.Nats, instance *ch
 }
 
 // initNATSInstance initializes a new NATS release instance based on NATS CR.
-func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.Nats, log *zap.SugaredLogger) (*chart.ReleaseInstance, error) {
+func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.Nats,
+	log *zap.SugaredLogger) (*chart.ReleaseInstance, error) {
 	// Init a release instance
 	instance := &chart.ReleaseInstance{
 		Name:      nats.Name,

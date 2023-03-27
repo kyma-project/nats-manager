@@ -16,16 +16,12 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 	nats.Status.SetStateError()
 	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse, natsv1alpha1.ConditionReasonDeployError, err.Error())
 
-	if syncErr := r.syncNATSStatus(ctx, nats, log); syncErr != nil {
-		return syncErr
-	}
-	return err
+	return r.syncNATSStatus(ctx, nats, log)
 }
 
 // syncNATSStatus syncs NATS status and updates the k8s subscription.
 func (r *Reconciler) syncNATSStatus(ctx context.Context,
 	nats *natsv1alpha1.Nats, log *zap.SugaredLogger) error {
-
 	namespacedName := &k8stype.NamespacedName{
 		Name:      nats.Name,
 		Namespace: nats.Namespace,
@@ -42,17 +38,12 @@ func (r *Reconciler) syncNATSStatus(ctx context.Context,
 	desiredNATS.Status = nats.Status
 
 	// sync subscription status with k8s
-	if err := r.updateStatus(ctx, actualNATS, desiredNATS, log); err != nil {
-		return err
-	}
-
-	return nil
+	return r.updateStatus(ctx, actualNATS, desiredNATS, log)
 }
 
 // updateStatus updates the status to k8s if modified.
 func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *natsv1alpha1.Nats,
 	logger *zap.SugaredLogger) error {
-
 	// compare the status taking into consideration lastTransitionTime in conditions
 	if oldNATS.Status.IsEqual(newNATS.Status) {
 		return nil
