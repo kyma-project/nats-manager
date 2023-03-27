@@ -18,7 +18,7 @@ helm template nats nats -n nats | kubectl apply -f -
 ```
 2. Test the installation:
 ```bash
-$ kubectl -n nats port-forward nats-1 4222
+$ kubectl -n nats port-forward nats-0 4222
 ```
 
 ## Configuration
