@@ -20,7 +20,7 @@ const (
 	testChartName = "component-1"
 )
 
-var testChartDir = filepath.Join("test", "resources", testChartName) //no:lint gochecknoglobals
+var testChartDir = filepath.Join("test", "resources", testChartName) //nolint: gochecknoglobals // this is for tests
 
 func Test_getChartConfiguration(t *testing.T) {
 	t.Parallel()

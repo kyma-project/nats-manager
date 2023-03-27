@@ -64,7 +64,8 @@ func (c *HelmRenderer) RenderManifest(releaseInstance *ReleaseInstance) (string,
 
 	helmRelease, err := tplAction.Run(c.helmChart, config)
 	if err != nil || helmRelease == nil {
-		return "", errors.Wrap(err, fmt.Sprintf("Failed to render HELM template for ReleaseInstance '%s'", releaseInstance.Name))
+		return "", errors.Wrap(err,
+			fmt.Sprintf("Failed to render HELM template for ReleaseInstance '%s'", releaseInstance.Name))
 	}
 
 	return helmRelease.Manifest, nil
@@ -85,7 +86,7 @@ func (c *HelmRenderer) newTemplatingAction(releaseInstance *ReleaseInstance) (*a
 	tplAction.DryRun = true
 	tplAction.Replace = true     // Skip the name check
 	tplAction.IncludeCRDs = true // include CRDs in the templated output
-	tplAction.ClientOnly = true  // if false, it will validate the manifests against the Kubernetes cluster the kubeclient is currently pointing at
+	tplAction.ClientOnly = true  // if false, it will validate the manifests against the Kubernetes cluster
 
 	return tplAction, nil
 }
