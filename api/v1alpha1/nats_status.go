@@ -19,6 +19,15 @@ func (ns *NatsStatus) IsEqual(status NatsStatus) bool {
 		ConditionsEquals(ns.Conditions, status.Conditions)
 }
 
+func (ns *NatsStatus) FindCondition(conditionType ConditionType) *metav1.Condition {
+	for _, condition := range ns.Conditions {
+		if string(conditionType) == condition.Type {
+			return &condition
+		}
+	}
+	return nil
+}
+
 func (ns *NatsStatus) UpdateConditionStatefulSet(status metav1.ConditionStatus, reason ConditionReason,
 	message string) {
 	condition := metav1.Condition{
