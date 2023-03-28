@@ -25,3 +25,9 @@ Dockerfile.cross
 *.swo
 *~
 .DS_Store
+
+# Binaries
+bin/*
+
+# Vendor
+vendor/
