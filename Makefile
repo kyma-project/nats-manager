@@ -4,6 +4,16 @@ IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.26.0
 
+# VERIFY_IGNORE is a grep pattern to exclude files and directories from verification
+VERIFY_IGNORE := /vendor\|/automock
+
+# FILES_TO_CHECK is a command used to determine which files should be verified
+FILES_TO_CHECK = find . -type f -name "*.go" | grep -v "$(VERIFY_IGNORE)"
+# DIRS_TO_CHECK is a command used to determine which directories should be verified
+DIRS_TO_CHECK = go list ./... | grep -v "$(VERIFY_IGNORE)"
+# DIRS_TO_IGNORE is a command used to determine which directories should not be verified
+DIRS_TO_IGNORE = go list ./... | grep "$(VERIFY_IGNORE)"
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -43,7 +53,7 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
-generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
+generate: go-gen controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: fmt
@@ -55,7 +65,10 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: test
-test: manifests generate fmt vet envtest ## Run tests.
+test: manifests generate fmt vet envtest lint-thoroughly ## Run tests.
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out
+
+test-only: envtest ## Run only tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out
 
 ##@ Build
@@ -158,3 +171,12 @@ $(ENVTEST): $(LOCALBIN)
 
 lint-thoroughly:
 	golangci-lint run
+
+go-gen:
+	go generate ./...
+
+fmt-local: ## Reformat files using `go fmt`
+	go fmt $$($(DIRS_TO_CHECK))
+
+imports-local: ## Optimize imports
+	goimports -w -l $$($(FILES_TO_CHECK))

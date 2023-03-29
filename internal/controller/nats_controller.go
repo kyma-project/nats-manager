@@ -95,10 +95,7 @@ func (r *NatsReconciler) deployNats(ctx context.Context, nats *natsv1alpha1.Nats
 	}
 
 	nats.UpdateStateReady(natsv1alpha1.StateReady, natsv1alpha1.ConditionReasonDeployed, "NATS is deployed")
-	if err = r.Status().Update(ctx, nats); err != nil {
-		return err
-	}
-	return nil
+	return r.Status().Update(ctx, nats)
 }
 
 func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.Nats) error {
@@ -123,10 +120,7 @@ func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.Nats
 	}
 
 	controllerutil.RemoveFinalizer(nats, natsFinalizerName)
-	if err := r.Update(ctx, nats); err != nil {
-		return err
-	}
-	return nil
+	return r.Update(ctx, nats)
 }
 
 func (r *NatsReconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) error {
