@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	natsFinalizerName = "nats.operator.kyma-project.io/finalizer"
+	NATSFinalizerName = "nats.operator.kyma-project.io/finalizer"
 )
 
 // Reconciler reconciles a Nats object.

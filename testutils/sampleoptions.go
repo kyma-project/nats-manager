@@ -3,10 +3,14 @@ package testutils
 import (
 	"errors"
 
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type SampleOption func(*unstructured.Unstructured) error
+type SampleNATSOption func(*v1alpha1.Nats) error
 
 func WithName(name string) SampleOption {
 	return func(o *unstructured.Unstructured) error {
@@ -79,6 +83,13 @@ func WithStatefulSetStatusReadyReplicas(replicas int) SampleOption {
 			return errors.New("failed to convert status to map[string]interface")
 		}
 		status["readyReplicas"] = replicas
+		return nil
+	}
+}
+
+func WithNATSCRFinalizer(finalizer string) SampleNATSOption {
+	return func(nats *v1alpha1.Nats) error {
+		controllerutil.AddFinalizer(nats, finalizer)
 		return nil
 	}
 }

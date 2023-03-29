@@ -16,6 +16,7 @@ type NatsConfig struct {
 // Perform a compile time check.
 var _ Manager = &NatsManager{}
 
+//go:generate mockery --name=Manager --outpkg=mocks --case=underscore
 type Manager interface {
 	GenerateNATSResources(*chart.ReleaseInstance, ...Option) (*chart.ManifestResources, error)
 	DeployInstance(context.Context, *chart.ReleaseInstance) error

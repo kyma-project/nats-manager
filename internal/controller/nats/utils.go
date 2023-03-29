@@ -9,11 +9,11 @@ import (
 )
 
 func (r *Reconciler) containsFinalizer(nats *natsv1alpha1.Nats) bool {
-	return controllerutil.ContainsFinalizer(nats, natsFinalizerName)
+	return controllerutil.ContainsFinalizer(nats, NATSFinalizerName)
 }
 
 func (r *Reconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) (ctrl.Result, error) {
-	controllerutil.AddFinalizer(nats, natsFinalizerName)
+	controllerutil.AddFinalizer(nats, NATSFinalizerName)
 	if err := r.Update(ctx, nats); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -21,7 +21,7 @@ func (r *Reconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) 
 }
 
 func (r *Reconciler) removeFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) (ctrl.Result, error) {
-	controllerutil.RemoveFinalizer(nats, natsFinalizerName)
+	controllerutil.RemoveFinalizer(nats, NATSFinalizerName)
 	if err := r.Update(ctx, nats); err != nil {
 		return ctrl.Result{}, err
 	}
