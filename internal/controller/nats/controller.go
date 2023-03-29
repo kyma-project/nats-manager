@@ -158,7 +158,7 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 //// SetupWithManager sets up the controller with the Manager.
-//func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+// func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 //	return ctrl.NewControllerManagedBy(mgr).
 //		For(&natsv1alpha1.Nats{}).
 //		WithEventFilter(

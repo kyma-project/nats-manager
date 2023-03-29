@@ -44,7 +44,7 @@ import (
 
 const defaultMetricsPort = 9443
 
-func main() {
+func main() { //nolint:funlen // main function needs to initialize many object
 	scheme := runtime.NewScheme()
 	setupLog := ctrl.Log.WithName("setup")
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
@@ -113,7 +113,7 @@ func main() {
 	}
 
 	// create helmRenderer
-	const repoDir = "/charts/nats"
+	const repoDir = "/resources/nats"
 	helmRenderer, err := chart.NewHelmRenderer(repoDir, sugaredLogger)
 	if err != nil {
 		setupLog.Error(err, "failed to create new helm client")
