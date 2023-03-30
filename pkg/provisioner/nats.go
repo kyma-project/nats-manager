@@ -16,7 +16,7 @@ type Provisioner interface {
 type NatsProvisioner struct {
 }
 
-func (r NatsProvisioner) Deploy(config NatsConfig) error {
+func (r NatsProvisioner) Deploy(_ NatsConfig) error {
 	fmt.Println("NATS cluster is deployed") //nolint:forbidigo //keep temporarily
 	return nil
 }
