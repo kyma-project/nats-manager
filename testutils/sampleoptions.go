@@ -93,3 +93,31 @@ func WithNATSCRFinalizer(finalizer string) SampleNATSOption {
 		return nil
 	}
 }
+
+func WithNATSCRStatusInitialized() SampleNATSOption {
+	return func(nats *v1alpha1.Nats) error {
+		nats.Status.Initialize()
+		return nil
+	}
+}
+
+func WithNATSStateReady() SampleNATSOption {
+	return func(nats *v1alpha1.Nats) error {
+		nats.Status.State = v1alpha1.StateReady
+		return nil
+	}
+}
+
+func WithNATSStateProcessing() SampleNATSOption {
+	return func(nats *v1alpha1.Nats) error {
+		nats.Status.State = v1alpha1.StateProcessing
+		return nil
+	}
+}
+
+func WithNATSCRName(name string) SampleNATSOption {
+	return func(nats *v1alpha1.Nats) error {
+		nats.Name = name
+		return nil
+	}
+}
