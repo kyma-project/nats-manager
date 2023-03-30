@@ -40,8 +40,8 @@ func NewHelmRenderer(chartPath string, logger *zap.SugaredLogger) (Renderer, err
 	}, nil
 }
 
-// RenderManifestAsUnStructured of the given chart as unstructured objects.
-func (c *HelmRenderer) RenderManifestAsUnStructured(releaseInstance *ReleaseInstance) (*ManifestResources, error) {
+// RenderManifestAsUnstructured of the given chart as unstructured objects.
+func (c *HelmRenderer) RenderManifestAsUnstructured(releaseInstance *ReleaseInstance) (*ManifestResources, error) {
 	manifests, err := c.RenderManifest(releaseInstance)
 	if err != nil {
 		return nil, err

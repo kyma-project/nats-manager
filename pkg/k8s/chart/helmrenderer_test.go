@@ -163,7 +163,7 @@ func Test_RenderManifest(t *testing.T) {
 	})
 }
 
-func Test_RenderManifestAsUnStructured(t *testing.T) {
+func Test_RenderManifestAsUnstructured(t *testing.T) {
 	logger, err := testutils.NewTestLogger()
 	require.NoError(t, err)
 	sugaredLogger := logger.Sugar()
@@ -197,7 +197,7 @@ func Test_RenderManifestAsUnStructured(t *testing.T) {
 		}
 
 		// when
-		gotManifest, err := helm.RenderManifestAsUnStructured(releaseInstance)
+		gotManifest, err := helm.RenderManifestAsUnstructured(releaseInstance)
 
 		// then
 		require.NoError(t, err)
