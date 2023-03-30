@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"k8s.io/apimachinery/pkg/runtime"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
@@ -15,7 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -42,10 +43,11 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	require.NoError(t, err)
 
 	// setup fake client for k8s
-	err = natsv1alpha1.AddToScheme(scheme.Scheme)
+	newScheme := runtime.NewScheme()
+	err = natsv1alpha1.AddToScheme(newScheme)
 	require.NoError(t, err)
-	fakeClientObj := fake.NewClientBuilder().WithScheme(scheme.Scheme)
-	fakeClient := fakeClientObj.WithObjects(objs...).Build()
+	fakeClientBuilder := fake.NewClientBuilder().WithScheme(newScheme)
+	fakeClient := fakeClientBuilder.WithObjects(objs...).Build()
 	recorder := &record.FakeRecorder{}
 
 	// setup custom mocks
@@ -58,7 +60,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		fakeClient,
 		kubeClient,
 		chartRenderer,
-		scheme.Scheme,
+		newScheme,
 		sugaredLogger,
 		recorder,
 		natsManager,

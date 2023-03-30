@@ -72,13 +72,13 @@ func Test_addFinalizer(t *testing.T) {
 func Test_removeFinalizer(t *testing.T) {
 	t.Parallel()
 
-	t.Run("should add finalizer", func(t *testing.T) {
+	t.Run("should remove finalizer", func(t *testing.T) {
 		t.Parallel()
 
 		// given
 		givenNats := testutils.NewSampleNATSCR(testutils.WithNATSCRFinalizer(NATSFinalizerName))
 
-		testEnv := NewMockedUnitTestEnvironment(t)
+		testEnv := NewMockedUnitTestEnvironment(t, givenNats)
 		reconciler := testEnv.Reconciler
 
 		// when
