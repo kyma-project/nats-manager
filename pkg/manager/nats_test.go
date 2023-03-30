@@ -53,7 +53,7 @@ func Test_GenerateNATSResources(t *testing.T) {
 			}
 
 			mockHelmRenderer := chartmocks.NewRenderer(t)
-			mockHelmRenderer.On("RenderManifestAsUnStructured",
+			mockHelmRenderer.On("RenderManifestAsUnstructured",
 				releaseInstance).Return(manifestResources, nil).Once()
 
 			manager := NewNATSManger(k8smocks.NewClient(t), mockHelmRenderer, sugaredLogger)

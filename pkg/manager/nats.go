@@ -40,7 +40,7 @@ func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *
 
 func (m NatsManager) GenerateNATSResources(instance *chart.ReleaseInstance,
 	opts ...Option) (*chart.ManifestResources, error) {
-	manifests, err := m.chartRenderer.RenderManifestAsUnStructured(instance)
+	manifests, err := m.chartRenderer.RenderManifestAsUnstructured(instance)
 	if err == nil {
 		// apply options
 		for _, obj := range manifests.Items {

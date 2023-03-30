@@ -72,8 +72,8 @@ func (_c *Renderer_RenderManifest_Call) RunAndReturn(run func(*chart.ReleaseInst
 	return _c
 }
 
-// RenderManifestAsUnStructured provides a mock function with given fields: _a0
-func (_m *Renderer) RenderManifestAsUnStructured(_a0 *chart.ReleaseInstance) (*chart.ManifestResources, error) {
+// RenderManifestAsUnstructured provides a mock function with given fields: _a0
+func (_m *Renderer) RenderManifestAsUnstructured(_a0 *chart.ReleaseInstance) (*chart.ManifestResources, error) {
 	ret := _m.Called(_a0)
 
 	var r0 *chart.ManifestResources
@@ -98,30 +98,30 @@ func (_m *Renderer) RenderManifestAsUnStructured(_a0 *chart.ReleaseInstance) (*c
 	return r0, r1
 }
 
-// Renderer_RenderManifestAsUnStructured_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RenderManifestAsUnStructured'
-type Renderer_RenderManifestAsUnStructured_Call struct {
+// Renderer_RenderManifestAsUnstructured_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RenderManifestAsUnstructured'
+type Renderer_RenderManifestAsUnstructured_Call struct {
 	*mock.Call
 }
 
-// RenderManifestAsUnStructured is a helper method to define mock.On call
+// RenderManifestAsUnstructured is a helper method to define mock.On call
 //   - _a0 *chart.ReleaseInstance
-func (_e *Renderer_Expecter) RenderManifestAsUnStructured(_a0 interface{}) *Renderer_RenderManifestAsUnStructured_Call {
-	return &Renderer_RenderManifestAsUnStructured_Call{Call: _e.mock.On("RenderManifestAsUnStructured", _a0)}
+func (_e *Renderer_Expecter) RenderManifestAsUnstructured(_a0 interface{}) *Renderer_RenderManifestAsUnstructured_Call {
+	return &Renderer_RenderManifestAsUnstructured_Call{Call: _e.mock.On("RenderManifestAsUnstructured", _a0)}
 }
 
-func (_c *Renderer_RenderManifestAsUnStructured_Call) Run(run func(_a0 *chart.ReleaseInstance)) *Renderer_RenderManifestAsUnStructured_Call {
+func (_c *Renderer_RenderManifestAsUnstructured_Call) Run(run func(_a0 *chart.ReleaseInstance)) *Renderer_RenderManifestAsUnstructured_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(*chart.ReleaseInstance))
 	})
 	return _c
 }
 
-func (_c *Renderer_RenderManifestAsUnStructured_Call) Return(_a0 *chart.ManifestResources, _a1 error) *Renderer_RenderManifestAsUnStructured_Call {
+func (_c *Renderer_RenderManifestAsUnstructured_Call) Return(_a0 *chart.ManifestResources, _a1 error) *Renderer_RenderManifestAsUnstructured_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Renderer_RenderManifestAsUnStructured_Call) RunAndReturn(run func(*chart.ReleaseInstance) (*chart.ManifestResources, error)) *Renderer_RenderManifestAsUnStructured_Call {
+func (_c *Renderer_RenderManifestAsUnstructured_Call) RunAndReturn(run func(*chart.ReleaseInstance) (*chart.ManifestResources, error)) *Renderer_RenderManifestAsUnstructured_Call {
 	_c.Call.Return(run)
 	return _c
 }
