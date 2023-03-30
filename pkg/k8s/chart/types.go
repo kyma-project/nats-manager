@@ -9,8 +9,8 @@ type Renderer interface {
 	// RenderManifest of the given chart.
 	RenderManifest(*ReleaseInstance) (string, error)
 
-	// RenderManifestAsUnStructured of the given chart as unstructured objects.
-	RenderManifestAsUnStructured(*ReleaseInstance) (*ManifestResources, error)
+	// RenderManifestAsUnstructured of the given chart as unstructured objects.
+	RenderManifestAsUnstructured(*ReleaseInstance) (*ManifestResources, error)
 }
 
 // ManifestResources holds a collection of objects.

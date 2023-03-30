@@ -1,4 +1,4 @@
 inpackage: False
 with-expecter: True
-testonly: False
+testonly: True
 

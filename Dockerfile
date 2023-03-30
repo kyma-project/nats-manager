@@ -32,7 +32,7 @@ LABEL source = git@github.com:kyma-project/nats-manager.git
 
 WORKDIR /
 COPY --from=builder /workspace/manager .
-COPY --from=builder /workspace/resources charts
+COPY --from=builder /workspace/resources/nats resources/nats
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]

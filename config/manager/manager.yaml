@@ -66,8 +66,6 @@ spec:
       containers:
       - command:
         - /manager
-#        args:
-#        - --leader-elect
         image: controller:latest
         imagePullPolicy: Always
         name: manager
