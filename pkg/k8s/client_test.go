@@ -14,7 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
-const testFieldManager = "nats-manager" //nolint:gochecknoglobals //used in multiple functions
+const testFieldManager = "nats-manager"
 
 func Test_GetStatefulSet(t *testing.T) {
 	t.Parallel()

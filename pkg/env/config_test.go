@@ -7,8 +7,6 @@ import (
 )
 
 func Test_GetConfig(t *testing.T) {
-	//t.Parallel()
-
 	// given
 	givenEnvs := map[string]string{}
 
@@ -19,10 +17,7 @@ func Test_GetConfig(t *testing.T) {
 	require.Error(t, err)
 
 	// given, define required envs
-	givenEnvs = map[string]string{
-		// required
-		"NATS_CHARTS_DIR": "/test1/test2",
-	}
+	givenEnvs["NATS_CHARTS_DIR"] = "/test1/test2"
 
 	for k, v := range givenEnvs {
 		t.Setenv(k, v)
