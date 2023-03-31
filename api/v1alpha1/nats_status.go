@@ -73,7 +73,7 @@ func (ns *NatsStatus) SetStateStatefulSetWaiting() {
 func (ns *NatsStatus) SetStateError() {
 	ns.State = StateError
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse, ConditionReasonSyncFailError, "")
-	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonDeployError, "")
+	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonProcessingError, "")
 }
 
 func (ns *NatsStatus) SetStateDeleting() {

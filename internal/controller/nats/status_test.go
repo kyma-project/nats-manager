@@ -106,7 +106,7 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 						Type:               string(natsv1alpha1.ConditionAvailable),
 						Status:             metav1.ConditionFalse,
 						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonDeployError),
+						Reason:             string(natsv1alpha1.ConditionReasonProcessingError),
 						Message:            "test error",
 					},
 				},

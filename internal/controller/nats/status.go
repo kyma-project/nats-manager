@@ -15,7 +15,7 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 	nats *natsv1alpha1.Nats, err error, log *zap.SugaredLogger) error {
 	// set error state in status
 	nats.Status.SetStateError()
-	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse, natsv1alpha1.ConditionReasonDeployError, err.Error())
+	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse, natsv1alpha1.ConditionReasonProcessingError, err.Error())
 
 	return r.syncNATSStatus(ctx, nats, log)
 }

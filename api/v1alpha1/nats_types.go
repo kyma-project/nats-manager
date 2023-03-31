@@ -35,7 +35,7 @@ const (
 	ConditionReasonProcessing           = ConditionReason("Processing")
 	ConditionReasonDeploying            = ConditionReason("Deploying")
 	ConditionReasonDeployed             = ConditionReason("Deployed")
-	ConditionReasonDeployError          = ConditionReason("FailedDeploy")
+	ConditionReasonProcessingError      = ConditionReason("FailedProcessing")
 	ConditionReasonStatefulSetAvailable = ConditionReason("Available")
 	ConditionReasonStatefulSetPending   = ConditionReason("Pending")
 	ConditionReasonSyncFailError        = ConditionReason("FailedToSyncResources")

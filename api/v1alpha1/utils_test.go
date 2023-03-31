@@ -57,7 +57,7 @@ func Test_conditionEquals(t *testing.T) {
 			condition2: metav1.Condition{
 				Type:   string(ConditionAvailable),
 				Status: metav1.ConditionTrue,
-				Reason: string(ConditionReasonDeployError),
+				Reason: string(ConditionReasonProcessingError),
 			},
 			wantEqualStatus: false,
 		},

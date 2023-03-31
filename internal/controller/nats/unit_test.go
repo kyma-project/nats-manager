@@ -7,11 +7,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	chartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	k8smocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
-	"github.com/kyma-project/nats-manager/pkg/manager"
 	managermocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
@@ -26,9 +23,9 @@ import (
 type MockedUnitTestEnvironment struct {
 	Context       context.Context
 	Client        client.Client
-	kubeClient    k8s.Client
-	chartRenderer chart.Renderer
-	natsManager   manager.Manager
+	kubeClient    *k8smocks.Client
+	chartRenderer *chartmocks.Renderer
+	natsManager   *managermocks.Manager
 	Reconciler    *Reconciler
 	Logger        *zap.SugaredLogger
 	Recorder      *record.FakeRecorder
@@ -51,9 +48,9 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	recorder := &record.FakeRecorder{}
 
 	// setup custom mocks
-	chartRenderer := chartmocks.NewRenderer(t)
-	kubeClient := k8smocks.NewClient(t)
-	natsManager := managermocks.NewManager(t)
+	chartRenderer := new(chartmocks.Renderer)
+	kubeClient := new(k8smocks.Client)
+	natsManager := new(managermocks.Manager)
 
 	// setup reconciler
 	reconciler := NewReconciler(
