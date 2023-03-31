@@ -121,3 +121,10 @@ func WithNATSCRName(name string) SampleNATSOption {
 		return nil
 	}
 }
+
+func WithNATSCRNamespace(namespace string) SampleNATSOption {
+	return func(nats *v1alpha1.Nats) error {
+		nats.Namespace = namespace
+		return nil
+	}
+}
