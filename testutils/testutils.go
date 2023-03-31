@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	apiv1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -98,4 +99,23 @@ func NewSampleNATSCR(opts ...SampleNATSOption) *v1alpha1.Nats {
 	}
 
 	return nats
+}
+
+func NewSampleDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
+	result := &apiextensionsv1.CustomResourceDefinition{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "apiextensions.k8s.io/v1",
+			Kind:       "CustomResourceDefinition",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "destinationrules.networking.istio.io",
+		},
+		Spec: apiextensionsv1.CustomResourceDefinitionSpec{
+			Names:                 apiextensionsv1.CustomResourceDefinitionNames{},
+			Scope:                 "Namespaced",
+			PreserveUnknownFields: false,
+		},
+	}
+
+	return result
 }

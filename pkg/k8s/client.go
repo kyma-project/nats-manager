@@ -32,11 +32,11 @@ type Client interface {
 
 type KubeClient struct {
 	client       client.Client
-	clientset    *k8sclientset.Clientset
+	clientset    k8sclientset.Interface
 	fieldManager string
 }
 
-func NewKubeClient(client client.Client, clientset *k8sclientset.Clientset, fieldManager string) Client {
+func NewKubeClient(client client.Client, clientset k8sclientset.Interface, fieldManager string) Client {
 	return &KubeClient{
 		client:       client,
 		clientset:    clientset,
