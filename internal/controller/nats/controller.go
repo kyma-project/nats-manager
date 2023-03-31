@@ -65,7 +65,7 @@ func NewReconciler(
 		logger:        logger,
 		NATSManager:   natsManager,
 	}
-}
+} // destinationrules.networking.istio.io
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;update;patch;create;delete
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;update;patch;create;delete
