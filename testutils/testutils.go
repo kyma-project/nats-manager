@@ -4,8 +4,10 @@ import (
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func NewTestLogger() (*zap.Logger, error) {
@@ -43,6 +45,36 @@ func NewSampleNATSStatefulSetUnStruct(opts ...SampleOption) *unstructured.Unstru
 		}
 	}
 	return obj
+}
+
+func NewSampleSecretUnStruct(opts ...SampleOption) *unstructured.Unstructured {
+	obj := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       "Secret",
+			"apiVersion": "v1",
+			"metadata": map[string]interface{}{
+				"name":      "test1",
+				"namespace": "test1",
+			},
+		},
+	}
+
+	for _, opt := range opts {
+		if err := opt(obj); err != nil {
+			panic(err)
+		}
+	}
+	return obj
+}
+
+func NewSampleSecret(opts ...SampleOption) *apiv1.Secret {
+	sampleSecret := apiv1.Secret{}
+	err := runtime.DefaultUnstructuredConverter.FromUnstructured(
+		NewSampleSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
+	if err != nil {
+		panic(err)
+	}
+	return &sampleSecret
 }
 
 func NewSampleNATSCR(opts ...SampleNATSOption) *v1alpha1.Nats {
