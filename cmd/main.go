@@ -20,6 +20,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/pkg/manager"
@@ -72,6 +73,13 @@ func main() { //nolint:funlen // main function needs to initialize many object
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
+	// get configs from ENV
+	envConfigs, err := env.GetConfig()
+	if err != nil {
+		setupLog.Error(err, "unable to get configs from env")
+		os.Exit(1)
+	}
+
 	// @TODO: Re-check logger setup and init
 	ctrl.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
 
@@ -113,8 +121,7 @@ func main() { //nolint:funlen // main function needs to initialize many object
 	}
 
 	// create helmRenderer
-	const repoDir = "/resources/nats"
-	helmRenderer, err := chart.NewHelmRenderer(repoDir, sugaredLogger)
+	helmRenderer, err := chart.NewHelmRenderer(envConfigs.NATSChartDir, sugaredLogger)
 	if err != nil {
 		setupLog.Error(err, "failed to create new helm client")
 		os.Exit(1)

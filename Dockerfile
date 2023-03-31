@@ -30,6 +30,8 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 FROM gcr.io/distroless/static:nonroot
 LABEL source = git@github.com:kyma-project/nats-manager.git
 
+ARG NATS_CHARTS_DIR="/resources/nats"
+
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY --from=builder /workspace/resources/nats resources/nats
