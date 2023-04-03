@@ -16,7 +16,7 @@ func Test_WithOwnerReference(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsCR := v1alpha1.Nats{
+		natsCR := v1alpha1.NATS{
 			// Name, UUID, Kind, APIVersion
 			TypeMeta: metav1.TypeMeta{
 				APIVersion: "v1alpha1",

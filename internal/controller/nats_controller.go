@@ -50,7 +50,7 @@ type NatsReconciler struct {
 func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.log = logger.FromContext(ctx)
 	r.log.Info("Reconciling...")
-	nats := &natsv1alpha1.Nats{}
+	nats := &natsv1alpha1.NATS{}
 	if err := r.Get(ctx, req.NamespacedName, nats); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -73,7 +73,7 @@ func (r *NatsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	return ctrl.Result{}, nil
 }
 
-func (r *NatsReconciler) deployNats(ctx context.Context, nats *natsv1alpha1.Nats) error {
+func (r *NatsReconciler) deployNats(ctx context.Context, nats *natsv1alpha1.NATS) error {
 	r.log.Info("Deploying NATS ...")
 	nats.UpdateStateProcessing(natsv1alpha1.StateReady, natsv1alpha1.ConditionReasonDeploying, "NATS is being deployed")
 	var err error
@@ -98,7 +98,7 @@ func (r *NatsReconciler) deployNats(ctx context.Context, nats *natsv1alpha1.Nats
 	return r.Status().Update(ctx, nats)
 }
 
-func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.Nats) error {
+func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.NATS) error {
 	// skip deletion if the finalizer is not in the resource
 	if !controllerutil.ContainsFinalizer(nats, natsFinalizerName) {
 		return nil
@@ -123,7 +123,7 @@ func (r *NatsReconciler) deleteNats(ctx context.Context, nats *natsv1alpha1.Nats
 	return r.Update(ctx, nats)
 }
 
-func (r *NatsReconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) error {
+func (r *NatsReconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.NATS) error {
 	// do add finalizer if already in deletion
 	if !nats.ObjectMeta.DeletionTimestamp.IsZero() {
 		return nil
@@ -141,7 +141,7 @@ func (r *NatsReconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Na
 // SetupWithManager sets up the controller with the Manager.
 func (r *NatsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&natsv1alpha1.Nats{}).
+		For(&natsv1alpha1.NATS{}).
 		WithEventFilter(
 			predicate.Or(
 				predicate.GenerationChangedPredicate{},
