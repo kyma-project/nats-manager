@@ -46,12 +46,12 @@ type Cluster struct {
 	Size int `json:"size"`
 }
 
-// NATSSpec defines the desired state of Nats.
+// NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	Cluster Cluster `json:"cluster"`
 }
 
-// NATSStatus defines the observed state of Nats.
+// NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
 	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
@@ -122,7 +122,7 @@ type NATS struct {
 
 //+kubebuilder:object:root=true
 
-// NATSList contains a list of Nats.
+// NATSList contains a list of NATS.
 type NATSList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`

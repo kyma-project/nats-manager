@@ -20,7 +20,7 @@ func Test_WithOwnerReference(t *testing.T) {
 			// Name, UUID, Kind, APIVersion
 			TypeMeta: metav1.TypeMeta{
 				APIVersion: "v1alpha1",
-				Kind:       "Nats",
+				Kind:       "NATS",
 			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "test-object1",
