@@ -92,12 +92,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.NatsReconciler{
+	if err = (&controller.NATSReconciler{
 		Client:          mgr.GetClient(),
 		Scheme:          mgr.GetScheme(),
-		NatsProvisioner: provisioner.NatsProvisioner{},
+		NATSProvisioner: provisioner.NATSProvisioner{},
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Nats")
+		setupLog.Error(err, "unable to create controller", "controller", "NATS")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
