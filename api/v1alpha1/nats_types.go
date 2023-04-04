@@ -44,7 +44,7 @@ const (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 type Cluster struct {
-	// Size of a NATS cluster, i.e. number of NATS nodes
+	// Size of a NATS cluster, i.e. number of NATS nodes.
 	Size int `json:"size"`
 }
 
