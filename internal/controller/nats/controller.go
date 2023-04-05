@@ -74,7 +74,7 @@ func NewReconciler(
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.logger.Info("Reconciliation triggered")
 	// fetch latest subscription object
-	currentNats := &natsv1alpha1.Nats{}
+	currentNats := &natsv1alpha1.NATS{}
 	if err := r.Get(ctx, req.NamespacedName, currentNats); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -94,7 +94,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&natsv1alpha1.Nats{}).
+		For(&natsv1alpha1.NATS{}).
 		WithEventFilter(
 			predicate.Or(
 				predicate.GenerationChangedPredicate{},

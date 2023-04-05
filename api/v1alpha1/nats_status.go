@@ -7,7 +7,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (ns *NatsStatus) IsEqual(status NatsStatus) bool {
+func (ns *NATSStatus) IsEqual(status NATSStatus) bool {
 	thisWithoutCond := ns.DeepCopy()
 	statusWithoutCond := status.DeepCopy()
 
@@ -19,7 +19,7 @@ func (ns *NatsStatus) IsEqual(status NatsStatus) bool {
 		ConditionsEquals(ns.Conditions, status.Conditions)
 }
 
-func (ns *NatsStatus) FindCondition(conditionType ConditionType) *metav1.Condition {
+func (ns *NATSStatus) FindCondition(conditionType ConditionType) *metav1.Condition {
 	for _, condition := range ns.Conditions {
 		if string(conditionType) == condition.Type {
 			return &condition
@@ -28,7 +28,7 @@ func (ns *NatsStatus) FindCondition(conditionType ConditionType) *metav1.Conditi
 	return nil
 }
 
-func (ns *NatsStatus) UpdateConditionStatefulSet(status metav1.ConditionStatus, reason ConditionReason,
+func (ns *NATSStatus) UpdateConditionStatefulSet(status metav1.ConditionStatus, reason ConditionReason,
 	message string) {
 	condition := metav1.Condition{
 		Type:               string(ConditionStatefulSet),
@@ -40,7 +40,7 @@ func (ns *NatsStatus) UpdateConditionStatefulSet(status metav1.ConditionStatus, 
 	meta.SetStatusCondition(&ns.Conditions, condition)
 }
 
-func (ns *NatsStatus) UpdateConditionAvailable(status metav1.ConditionStatus, reason ConditionReason,
+func (ns *NATSStatus) UpdateConditionAvailable(status metav1.ConditionStatus, reason ConditionReason,
 	message string) {
 	condition := metav1.Condition{
 		Type:               string(ConditionAvailable),
@@ -52,35 +52,35 @@ func (ns *NatsStatus) UpdateConditionAvailable(status metav1.ConditionStatus, re
 	meta.SetStatusCondition(&ns.Conditions, condition)
 }
 
-func (ns *NatsStatus) SetStateReady() {
+func (ns *NATSStatus) SetStateReady() {
 	ns.State = StateReady
 	ns.UpdateConditionStatefulSet(metav1.ConditionTrue,
 		ConditionReasonStatefulSetAvailable, "StatefulSet is ready!")
 	ns.UpdateConditionAvailable(metav1.ConditionTrue, ConditionReasonDeployed, "NATS is deployed!")
 }
 
-func (ns *NatsStatus) SetStateProcessing() {
+func (ns *NATSStatus) SetStateProcessing() {
 	ns.State = StateProcessing
 }
 
-func (ns *NatsStatus) SetStateStatefulSetWaiting() {
+func (ns *NATSStatus) SetStateStatefulSetWaiting() {
 	ns.SetStateProcessing()
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse,
 		ConditionReasonStatefulSetPending, "Waiting")
 	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonDeploying, "")
 }
 
-func (ns *NatsStatus) SetStateError() {
+func (ns *NATSStatus) SetStateError() {
 	ns.State = StateError
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse, ConditionReasonSyncFailError, "")
 	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonDeployError, "")
 }
 
-func (ns *NatsStatus) SetStateDeleting() {
+func (ns *NATSStatus) SetStateDeleting() {
 	ns.State = StateDeleting
 }
 
-func (ns *NatsStatus) Initialize() {
+func (ns *NATSStatus) Initialize() {
 	ns.SetStateProcessing()
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse, ConditionReasonProcessing, "")
 	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonProcessing, "")

@@ -51,18 +51,18 @@ type Cluster struct {
 	Size int `json:"size"`
 }
 
-// NatsSpec defines the desired state of Nats.
-type NatsSpec struct {
+// NATSSpec defines the desired state of NATS.
+type NATSSpec struct {
 	Cluster Cluster `json:"cluster"`
 }
 
-// NatsStatus defines the observed state of Nats.
-type NatsStatus struct {
+// NATSStatus defines the observed state of NATS.
+type NATSStatus struct {
 	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
-func (n *Nats) IsInDeletion() bool {
+func (n *NATS) IsInDeletion() bool {
 	return !n.DeletionTimestamp.IsZero()
 }
 
@@ -72,24 +72,24 @@ func (n *Nats) IsInDeletion() bool {
 //+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
 
-// Nats is the Schema for the nats API.
-type Nats struct {
+// NATS is the Schema for the nats API.
+type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   NatsSpec   `json:"spec,omitempty"`
-	Status NatsStatus `json:"status,omitempty"`
+	Spec   NATSSpec   `json:"spec,omitempty"`
+	Status NATSStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// NatsList contains a list of Nats.
-type NatsList struct {
+// NATSList contains a list of NATS.
+type NATSList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Nats `json:"items"`
+	Items           []NATS `json:"items"`
 }
 
 func init() { //nolint:gochecknoinits //called in external function
-	SchemeBuilder.Register(&Nats{}, &NatsList{})
+	SchemeBuilder.Register(&NATS{}, &NATSList{})
 }

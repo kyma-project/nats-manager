@@ -143,7 +143,7 @@ func main() { //nolint:funlen // main function needs to initialize many object
 	)
 
 	if err = (natsReconciler).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Nats")
+		setupLog.Error(err, "unable to create controller", "controller", "NATS")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

@@ -45,8 +45,8 @@ func NewSampleNATSStatefulSetUnStruct(opts ...SampleOption) *unstructured.Unstru
 	return obj
 }
 
-func NewSampleNATSCR(opts ...SampleNATSOption) *v1alpha1.Nats {
-	nats := &v1alpha1.Nats{
+func NewSampleNATSCR(opts ...SampleNATSOption) *v1alpha1.NATS {
+	nats := &v1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1alpha1",

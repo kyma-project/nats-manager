@@ -10,7 +10,7 @@ import (
 )
 
 type SampleOption func(*unstructured.Unstructured) error
-type SampleNATSOption func(*v1alpha1.Nats) error
+type SampleNATSOption func(*v1alpha1.NATS) error
 
 func WithName(name string) SampleOption {
 	return func(o *unstructured.Unstructured) error {
@@ -88,7 +88,7 @@ func WithStatefulSetStatusReadyReplicas(replicas int) SampleOption {
 }
 
 func WithNATSCRFinalizer(finalizer string) SampleNATSOption {
-	return func(nats *v1alpha1.Nats) error {
+	return func(nats *v1alpha1.NATS) error {
 		controllerutil.AddFinalizer(nats, finalizer)
 		return nil
 	}
