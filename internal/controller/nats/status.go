@@ -4,9 +4,15 @@ import (
 	"context"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8stype "k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 // syncNATSStatus syncs NATS status and updates the k8s subscription.
@@ -59,4 +65,45 @@ func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *natsv1a
 		"oldStatus", oldNATS.Status, "newStatus", newNATS.Status)
 
 	return nil
+}
+
+// watchDestinationRule watches DestinationRules.
+// It triggers reconciliation for NATS CR.
+func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
+	// define DestinationRule type.
+	destinationRuleType := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       k8s.DestinationRuleKind,
+			"apiVersion": k8s.DestinationRuleAPIVersion,
+		},
+	}
+
+	// define label selector for "managed-by".
+	labelSelectorPredicate, err := predicate.LabelSelectorPredicate(
+		metav1.LabelSelector{
+			MatchLabels: map[string]string{
+				ManagedByLabelKey: ManagedByLabelValue,
+			},
+		})
+	if err != nil {
+		return err
+	}
+
+	// define ignore creation predicate
+	ignoreCreationPredicate := predicate.Funcs{
+		CreateFunc: func(e event.CreateEvent) bool {
+			logger.Debugw("Ignoring create event for DestinationRule", "name", e.Object.GetName(),
+				"namespace", e.Object.GetNamespace(), "kind", e.Object.GetObjectKind())
+			return false
+		},
+	}
+
+	// start watcher for DestinationRules.
+	return r.Controller.Watch(
+		&source.Kind{Type: destinationRuleType},
+		&handler.EnqueueRequestForOwner{OwnerType: &natsv1alpha1.Nats{}, IsController: true},
+		labelSelectorPredicate,
+		predicate.ResourceVersionChangedPredicate{},
+		ignoreCreationPredicate,
+	)
 }

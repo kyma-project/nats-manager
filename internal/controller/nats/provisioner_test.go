@@ -216,7 +216,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 				},
 			}
 			testEnv.natsManager.On("GenerateNATSResources",
-				mock.Anything, mock.Anything).Return(natsResources, nil)
+				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
 			testEnv.natsManager.On("DeployInstance",
 				mock.Anything, mock.Anything).Return(tc.givenDeployError)
 

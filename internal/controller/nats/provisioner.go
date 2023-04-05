@@ -38,7 +38,15 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
-	// @TODO: add watchers for deployed resources so if user modifies them, we should reconcile.
+	// watchers for dynamic resources managed by controller.
+	if instance.IstioEnabled && !r.destinationRuleWatchStarted {
+		if err = r.watchDestinationRule(log); err != nil {
+			return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
+		}
+		// update flag to keep track if watcher is started.
+		r.destinationRuleWatchStarted = true
+		log.Info("watcher for DestinationRules started")
+	}
 
 	log.Info("handling NATS state in CR...")
 	// check if NATS resources are ready and sync the NATS CR status.

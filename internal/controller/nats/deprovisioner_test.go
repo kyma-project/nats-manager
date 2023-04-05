@@ -95,7 +95,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				},
 			}
 			testEnv.natsManager.On("GenerateNATSResources",
-				mock.Anything, mock.Anything).Return(natsResources, nil)
+				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
 
 			if tc.givenDeletionError != nil {
 				testEnv.natsManager.On("DeleteInstance",

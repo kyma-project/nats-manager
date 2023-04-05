@@ -15,7 +15,7 @@ func Test_GetConfiguration(t *testing.T) {
 	t.Run("Test chart configuration processing", func(t *testing.T) {
 		t.Parallel()
 		// given
-		releaseInstance := NewReleaseInstance("main", "unittest-kyma",
+		releaseInstance := NewReleaseInstance("main", "unittest-kyma", false,
 			map[string]interface{}{
 				"test.key1.subkey1": "test value 1",
 				"test.key1.subkey2": "test value 2",
@@ -53,7 +53,8 @@ func Test_SetRenderedManifests(t *testing.T) {
 	t.Run("Should set the rendered manifests", func(t *testing.T) {
 		t.Parallel()
 		// given
-		releaseInstance := NewReleaseInstance("main", "unittest-kyma", map[string]interface{}{})
+		releaseInstance := NewReleaseInstance("main", "unittest-kyma",
+			false, map[string]interface{}{})
 
 		sampleManifests := ManifestResources{
 			Items: []*unstructured.Unstructured{
@@ -82,7 +83,7 @@ func Test_convertToNestedMap(t *testing.T) {
 	t.Run("Convert dot-notated configuration keys to a nested map", func(t *testing.T) {
 		t.Parallel()
 		// given
-		releaseInstance := NewReleaseInstance("main", "unittest-kyma", nil)
+		releaseInstance := NewReleaseInstance("main", "unittest-kyma", false, nil)
 
 		got, err := releaseInstance.convertToNestedMap("this.is.a.test", "the test value")
 		require.NoError(t, err)
@@ -161,7 +162,8 @@ func Test_GetStatefulSets(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			releaseInstance := NewReleaseInstance("main", "test", map[string]interface{}{})
+			releaseInstance := NewReleaseInstance("main", "test",
+				false, map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(tc.manifests)
 
 			// when

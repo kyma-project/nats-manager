@@ -57,5 +57,39 @@ func Test_WithOwnerReference(t *testing.T) {
 		require.Equal(t, natsCR.Name, ownerReferences[0]["name"])
 		require.Equal(t, natsCR.UID, ownerReferences[0]["uid"])
 		require.Equal(t, true, ownerReferences[0]["blockOwnerDeletion"])
+		require.Equal(t, true, ownerReferences[0]["controller"])
+	})
+}
+
+func Test_WithLabel(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Should set label of unstructured k8s object", func(t *testing.T) {
+		t.Parallel()
+
+		// given
+		unstructuredObj := &unstructured.Unstructured{
+			Object: map[string]interface{}{
+				"apiVersion": "v1",
+				"kind":       "ConfigMap",
+				"metadata": map[string]interface{}{
+					"name": "component-1",
+				},
+			},
+		}
+
+		// when
+		optionFunc := WithLabel("key1", "value1")
+		err := optionFunc(unstructuredObj)
+
+		// then
+		require.NoError(t, err)
+		require.NotNil(t, unstructuredObj.Object["metadata"])
+		metadata, ok := unstructuredObj.Object["metadata"].(map[string]interface{})
+		require.True(t, ok)
+		require.NotNil(t, metadata["labels"])
+		labels, ok := metadata["labels"].(map[string]interface{})
+		require.True(t, ok)
+		require.Equal(t, "value1", labels["key1"])
 	})
 }

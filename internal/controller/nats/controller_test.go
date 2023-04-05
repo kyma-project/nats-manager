@@ -32,7 +32,8 @@ func Test_generateNatsResources(t *testing.T) {
 		},
 	}
 	testEnv.natsManager.On("GenerateNATSResources",
-		instance, mock.AnythingOfType("manager.Option")).Return(natsResources, nil).Once()
+		instance, mock.AnythingOfType("manager.Option"), mock.AnythingOfType("manager.Option"),
+	).Return(natsResources, nil).Once()
 
 	// when
 	err := reconciler.generateNatsResources(givenNATS, instance)
@@ -96,7 +97,7 @@ func Test_initNATSInstance(t *testing.T) {
 				},
 			}
 			testEnv.natsManager.On("GenerateNATSResources",
-				mock.Anything, mock.Anything).Return(natsResources, nil)
+				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
 
 			// when
 			releaseInstance, err := reconciler.initNATSInstance(testEnv.Context, tc.givenNATS, testEnv.Logger)
