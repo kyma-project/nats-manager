@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func Test_NATSIsEqual(t *testing.T) {
+func Test_IsEqual(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
 		name            string
@@ -278,7 +278,7 @@ func Test_SetStateDeleting(t *testing.T) {
 	})
 }
 
-func Test_SetStateStatefulSetWaiting(t *testing.T) {
+func Test_SetWaitingStateForStatefulSet(t *testing.T) {
 	t.Parallel()
 
 	t.Run("should update the condition", func(t *testing.T) {
@@ -295,7 +295,7 @@ func Test_SetStateStatefulSetWaiting(t *testing.T) {
 			Type:               string(ConditionStatefulSet),
 			Status:             metav1.ConditionFalse,
 			Reason:             string(ConditionReasonStatefulSetPending),
-			Message:            "Waiting",
+			Message:            "",
 			LastTransitionTime: currentTime,
 		}
 
@@ -308,7 +308,7 @@ func Test_SetStateStatefulSetWaiting(t *testing.T) {
 		}
 
 		// when
-		natsStatus1.SetStateStatefulSetWaiting()
+		natsStatus1.SetWaitingStateForStatefulSet()
 
 		// then
 		require.Equal(t, StateProcessing, natsStatus1.State)

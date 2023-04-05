@@ -81,7 +81,6 @@ func (m NatsManager) IsNatsStatefulSetReady(ctx context.Context, instance *chart
 	}
 
 	// fetch statefulSets from cluster and check if they are ready
-	result := true
 	for _, sts := range statefulSets {
 		currentSts, err := m.kubeClient.GetStatefulSet(ctx, sts.GetName(), sts.GetNamespace())
 		if err != nil {
@@ -89,9 +88,9 @@ func (m NatsManager) IsNatsStatefulSetReady(ctx context.Context, instance *chart
 		}
 		if *currentSts.Spec.Replicas != currentSts.Status.AvailableReplicas ||
 			*currentSts.Spec.Replicas != currentSts.Status.ReadyReplicas {
-			result = false
+			return false, nil
 		}
 	}
 
-	return result, nil
+	return true, nil
 }

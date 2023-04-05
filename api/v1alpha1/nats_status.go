@@ -55,18 +55,18 @@ func (ns *NATSStatus) UpdateConditionAvailable(status metav1.ConditionStatus, re
 func (ns *NATSStatus) SetStateReady() {
 	ns.State = StateReady
 	ns.UpdateConditionStatefulSet(metav1.ConditionTrue,
-		ConditionReasonStatefulSetAvailable, "StatefulSet is ready!")
-	ns.UpdateConditionAvailable(metav1.ConditionTrue, ConditionReasonDeployed, "NATS is deployed!")
+		ConditionReasonStatefulSetAvailable, "StatefulSet is ready")
+	ns.UpdateConditionAvailable(metav1.ConditionTrue, ConditionReasonDeployed, "NATS is deployed")
 }
 
 func (ns *NATSStatus) SetStateProcessing() {
 	ns.State = StateProcessing
 }
 
-func (ns *NATSStatus) SetStateStatefulSetWaiting() {
+func (ns *NATSStatus) SetWaitingStateForStatefulSet() {
 	ns.SetStateProcessing()
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse,
-		ConditionReasonStatefulSetPending, "Waiting")
+		ConditionReasonStatefulSetPending, "")
 	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonDeploying, "")
 }
 

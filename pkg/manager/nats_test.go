@@ -19,17 +19,24 @@ import (
 func Test_GenerateNATSResources(t *testing.T) {
 	t.Parallel()
 
+	givenNATSCR := testutils.NewSampleNATSCR()
+
 	// define test cases
 	testCases := []struct {
 		name         string
+		givenOptions []Option
 		wantOwnerRef bool
 	}{
 		{
 			name:         "should work with empty options",
+			givenOptions: []Option{},
 			wantOwnerRef: false,
 		},
 		{
-			name:         "should apply the provided options",
+			name: "should apply the provided options",
+			givenOptions: []Option{
+				WithOwnerReference(*givenNATSCR),
+			},
 			wantOwnerRef: true,
 		},
 	}
@@ -44,7 +51,6 @@ func Test_GenerateNATSResources(t *testing.T) {
 			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
 			sugaredLogger, err := testutils.NewTestSugaredLogger()
 			require.NoError(t, err)
-			natsCR := testutils.NewSampleNATSCR()
 
 			manifestResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
@@ -58,15 +64,8 @@ func Test_GenerateNATSResources(t *testing.T) {
 
 			manager := NewNATSManger(k8smocks.NewClient(t), mockHelmRenderer, sugaredLogger)
 
-			var options []Option
-			if tc.wantOwnerRef {
-				options = []Option{
-					WithOwnerReference(*natsCR),
-				}
-			}
-
 			// when
-			gotManifests, err := manager.GenerateNATSResources(releaseInstance, options...)
+			gotManifests, err := manager.GenerateNATSResources(releaseInstance, tc.givenOptions...)
 
 			// then
 			require.NoError(t, err)
@@ -81,10 +80,10 @@ func Test_GenerateNATSResources(t *testing.T) {
 				// match values of owner reference
 				ownerReferences, ok := metadata["ownerReferences"].([]map[string]interface{})
 				require.True(t, ok)
-				require.Equal(t, natsCR.Kind, ownerReferences[0]["kind"])
-				require.Equal(t, natsCR.APIVersion, ownerReferences[0]["apiVersion"])
-				require.Equal(t, natsCR.Name, ownerReferences[0]["name"])
-				require.Equal(t, natsCR.UID, ownerReferences[0]["uid"])
+				require.Equal(t, givenNATSCR.Kind, ownerReferences[0]["kind"])
+				require.Equal(t, givenNATSCR.APIVersion, ownerReferences[0]["apiVersion"])
+				require.Equal(t, givenNATSCR.Name, ownerReferences[0]["name"])
+				require.Equal(t, givenNATSCR.UID, ownerReferences[0]["uid"])
 				require.Equal(t, true, ownerReferences[0]["blockOwnerDeletion"])
 			}
 			// check if all the required mock methods were called.
