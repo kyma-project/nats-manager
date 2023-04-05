@@ -42,20 +42,29 @@ const (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// Cluster defines configurations that are specific to NATS clusters.
-type Cluster struct {
-	// Size of a NATS cluster, i.e. number of NATS nodes.
-	Size int `json:"size"`
+//nolint:lll //this is annotation
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
+
+// NATS is the Schema for the nats API.
+type NATS struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   Spec   `json:"spec,omitempty"`
+	Status Status `json:"status,omitempty"`
 }
 
-// NATSStatus defines the observed state of NATS.
-type NATSStatus struct {
+// Status defines the observed state of NATS.
+type Status struct {
 	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
-// NATSSpec defines the desired state of NATS.
-type NATSSpec struct {
+// Spec defines the desired state of NATS.
+type Spec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
 	Cluster Cluster `json:"cluster"`
 
@@ -64,6 +73,12 @@ type NATSSpec struct {
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
 	Logging Logging `json:"logging,omitempty"`
+}
+
+// Cluster defines configurations that are specific to NATS clusters.
+type Cluster struct {
+	// Size of a NATS cluster, i.e. number of NATS nodes.
+	Size int `json:"size"`
 }
 
 // JetStream defines configurations that are specific to NATS JetStream.
@@ -100,21 +115,6 @@ type Logging struct {
 
 	// Trace allows trace logging.
 	Trace bool `json:"trace"`
-}
-
-//nolint:lll //this is annotation
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
-//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
-
-// NATS is the Schema for the nats API.
-type NATS struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   NATSSpec   `json:"spec,omitempty"`
-	Status NATSStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
