@@ -31,8 +31,7 @@ const (
 	StateProcessing = "Processing"
 	StateDeleting   = "Deleting"
 	// StateDeleted is used only in deleted condition. Not a modularization compliant state.
-	StateDeleted = "Deleted"
-
+	StateDeleted                 = "Deleted"
 	ConditionReasonDeploying     = ConditionReason("Deploying")
 	ConditionReasonDeployed      = ConditionReason("Deployed")
 	ConditionReasonDeletion      = ConditionReason("Deletion")
@@ -43,20 +42,88 @@ const (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// Cluster defines configurations that are specific to NATS clusters.
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
 	Size int `json:"size"`
-}
-
-// NATSSpec defines the desired state of NATS.
-type NATSSpec struct {
-	Cluster Cluster `json:"cluster"`
 }
 
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
 	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
+}
+
+// NATSSpec defines the desired state of NATS.
+type NATSSpec struct {
+	// Cluster defines configurations that are specific to NATS clusters.
+	Cluster Cluster `json:"cluster"`
+
+	// JetStream defines configurations that are specific to NATS JetStream.
+	JetStream JetStream `json:"jetStream,omitempty"`
+
+	// JetStream defines configurations that are specific to NATS logging in NATS.
+	Logging Logging `json:"logging,omitempty"`
+}
+
+// JetStream defines configurations that are specific to NATS JetStream.
+type JetStream struct {
+	// MemStorage todo.
+	MemStorage MemStorage `json:"memStorage,omitempty"`
+
+	// FileStorage todo.
+	FileStorage FileStorage `json:"fileStorage,omitempty"`
+}
+
+// MemStorage defines configurations to memory storage in NATS JetStream.
+type MemStorage struct {
+	// Enable allows the enablement of memory storage.
+	Enable bool `json:"enable"`
+
+	// Size defines the mem.
+	Size string `json:"size"`
+}
+
+// FileStorage defines configurations to file storage in NATS JetStream.
+type FileStorage struct {
+	// StorageClassName defines the file storage class name.
+	StorageClassName string `json:"storageClassName"` //todo type enum?
+
+	// Size defines the file storage size.
+	Size string `json:"size"` //todo type?
+}
+
+// Logging defines logging options.
+type Logging struct {
+	// Debug allows debug logging.
+	Debug bool `json:"debug"`
+
+	// Trace allows trace logging.
+	Trace bool `json:"trace"`
+}
+
+//nolint:lll //this is annotation
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
+
+// NATS is the Schema for the nats API.
+type NATS struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   NATSSpec   `json:"spec,omitempty"`
+	Status NATSStatus `json:"status,omitempty"`
+}
+
+//+kubebuilder:object:root=true
+
+// NATSList contains a list of NATS.
+type NATSList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []NATS `json:"items"`
 }
 
 func (n *NATS) UpdateStateFromErr(c ConditionType, r ConditionReason, err error) {
@@ -105,30 +172,6 @@ func (n *NATS) UpdateStateDeletion(c ConditionType, r ConditionReason, msg strin
 		Message:            msg,
 	}
 	meta.SetStatusCondition(&n.Status.Conditions, condition)
-}
-
-//nolint:lll //this is annotation
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
-//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
-
-// NATS is the Schema for the nats API.
-type NATS struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   NATSSpec   `json:"spec,omitempty"`
-	Status NATSStatus `json:"status,omitempty"`
-}
-
-//+kubebuilder:object:root=true
-
-// NATSList contains a list of NATS.
-type NATSList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []NATS `json:"items"`
 }
 
 func init() { //nolint:gochecknoinits //called in external function
