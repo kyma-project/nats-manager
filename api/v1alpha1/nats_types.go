@@ -26,17 +26,22 @@ type ConditionReason string
 type ConditionType string
 
 const (
-	StateReady      = "Ready"
-	StateError      = "Error"
-	StateProcessing = "Processing"
-	StateDeleting   = "Deleting"
-	// StateDeleted is used only in deleted condition. Not a modularization compliant state.
-	StateDeleted                 = "Deleted"
 	ConditionReasonDeploying     = ConditionReason("Deploying")
 	ConditionReasonDeployed      = ConditionReason("Deployed")
 	ConditionReasonDeletion      = ConditionReason("Deletion")
 	ConditionReasonDeployError   = ConditionReason("DeployError")
 	ConditionReasonDeletionError = ConditionReason("DeletionError")
+)
+
+type State string
+
+const (
+	StateReady      = "Ready"
+	StateError      = "Error"
+	StateProcessing = "Processing"
+	StateDeleting   = "Deleting"
+	// StateDeleted is used only in deleted condition. Not a modularization compliant state.
+	StateDeleted = "Deleted"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -59,7 +64,7 @@ type NATS struct {
 
 // Status defines the observed state of NATS.
 type Status struct {
-	State      string             `json:"state"`
+	State      State              `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
@@ -69,9 +74,11 @@ type Spec struct {
 	Cluster Cluster `json:"cluster"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
+	// +optional
 	JetStream JetStream `json:"jetStream,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
+	// +optional
 	Logging Logging `json:"logging,omitempty"`
 }
 
@@ -83,10 +90,12 @@ type Cluster struct {
 
 // JetStream defines configurations that are specific to NATS JetStream.
 type JetStream struct {
-	// MemStorage todo.
+	// MemStorage defines configurations to memory storage in NATS JetStream.
+	// +optional
 	MemStorage MemStorage `json:"memStorage,omitempty"`
 
-	// FileStorage todo.
+	// FileStorage defines configurations to file storage in NATS JetStream.
+	// +optional
 	FileStorage FileStorage `json:"fileStorage,omitempty"`
 }
 
@@ -102,10 +111,10 @@ type MemStorage struct {
 // FileStorage defines configurations to file storage in NATS JetStream.
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
-	StorageClassName string `json:"storageClassName"` //todo type enum?
+	StorageClassName string `json:"storageClassName"`
 
 	// Size defines the file storage size.
-	Size string `json:"size"` //todo type?
+	Size string `json:"size"`
 }
 
 // Logging defines logging options.
