@@ -19,17 +19,24 @@ import (
 func Test_GenerateNATSResources(t *testing.T) {
 	t.Parallel()
 
+	givenNATSCR := testutils.NewNATSCR()
+
 	// define test cases
 	testCases := []struct {
 		name         string
+		givenOptions []Option
 		wantOwnerRef bool
 	}{
 		{
 			name:         "should work with empty options",
+			givenOptions: []Option{},
 			wantOwnerRef: false,
 		},
 		{
-			name:         "should apply the provided options",
+			name: "should apply the provided options",
+			givenOptions: []Option{
+				WithOwnerReference(*givenNATSCR),
+			},
 			wantOwnerRef: true,
 		},
 	}
@@ -42,13 +49,12 @@ func Test_GenerateNATSResources(t *testing.T) {
 
 			// given
 			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
-			natsCR := testutils.NewSampleNATSCR()
 
 			manifestResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			}
 
@@ -58,15 +64,8 @@ func Test_GenerateNATSResources(t *testing.T) {
 
 			manager := NewNATSManger(k8smocks.NewClient(t), mockHelmRenderer, sugaredLogger)
 
-			var options []Option
-			if tc.wantOwnerRef {
-				options = []Option{
-					WithOwnerReference(*natsCR),
-				}
-			}
-
 			// when
-			gotManifests, err := manager.GenerateNATSResources(releaseInstance, options...)
+			gotManifests, err := manager.GenerateNATSResources(releaseInstance, tc.givenOptions...)
 
 			// then
 			require.NoError(t, err)
@@ -81,10 +80,10 @@ func Test_GenerateNATSResources(t *testing.T) {
 				// match values of owner reference
 				ownerReferences, ok := metadata["ownerReferences"].([]map[string]interface{})
 				require.True(t, ok)
-				require.Equal(t, natsCR.Kind, ownerReferences[0]["kind"])
-				require.Equal(t, natsCR.APIVersion, ownerReferences[0]["apiVersion"])
-				require.Equal(t, natsCR.Name, ownerReferences[0]["name"])
-				require.Equal(t, natsCR.UID, ownerReferences[0]["uid"])
+				require.Equal(t, givenNATSCR.Kind, ownerReferences[0]["kind"])
+				require.Equal(t, givenNATSCR.APIVersion, ownerReferences[0]["apiVersion"])
+				require.Equal(t, givenNATSCR.Name, ownerReferences[0]["name"])
+				require.Equal(t, givenNATSCR.UID, ownerReferences[0]["uid"])
 				require.Equal(t, true, ownerReferences[0]["blockOwnerDeletion"])
 			}
 			// check if all the required mock methods were called.
@@ -117,15 +116,15 @@ func Test_DeployInstance(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
 			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			})
 
@@ -181,15 +180,15 @@ func Test_DeleteInstance(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
 			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			})
 
@@ -221,7 +220,7 @@ func Test_DeleteInstance(t *testing.T) {
 	}
 }
 
-func Test_IsNatsStatefulSetReady(t *testing.T) {
+func Test_IsNATSStatefulSetReady(t *testing.T) {
 	t.Parallel()
 
 	// define test cases
@@ -238,7 +237,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 		},
 		{
 			name: "should return not ready when AvailableReplicas is not as needed",
-			givenStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithName("test1"),
 				testutils.WithNamespace("test1"),
 				testutils.WithSpecReplicas(3),
@@ -249,7 +248,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 		},
 		{
 			name: "should return not ready when ReadyReplicas is not as needed",
-			givenStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithName("test1"),
 				testutils.WithNamespace("test1"),
 				testutils.WithSpecReplicas(3),
@@ -260,7 +259,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 		},
 		{
 			name: "should return ready when all replicas are available",
-			givenStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithName("test1"),
 				testutils.WithNamespace("test1"),
 				testutils.WithSpecReplicas(3),
@@ -278,7 +277,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 			t.Parallel()
 
 			// given
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 			// mock for k8s kube client
 			mockKubeClient := k8smocks.NewClient(t)
@@ -308,7 +307,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 			manager := NewNATSManger(mockKubeClient, chartmocks.NewRenderer(t), sugaredLogger)
 
 			// when
-			isReady, err := manager.IsNatsStatefulSetReady(context.Background(), releaseInstance)
+			isReady, err := manager.IsNATSStatefulSetReady(context.Background(), releaseInstance)
 
 			// then
 			if tc.wantError != nil {

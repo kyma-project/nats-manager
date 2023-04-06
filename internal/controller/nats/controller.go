@@ -78,7 +78,7 @@ func NewReconciler(
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.logger.Info("Reconciliation triggered")
 	// fetch latest subscription object
-	currentNats := &natsv1alpha1.Nats{}
+	currentNats := &natsv1alpha1.NATS{}
 	if err := r.Get(ctx, req.NamespacedName, currentNats); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -100,7 +100,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 // generateNatsResources renders the NATS chart with provided overrides.
 // It puts results into ReleaseInstance.
-func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.Nats, instance *chart.ReleaseInstance) error {
+func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance) error {
 	// generate Nats resources from chart
 	natsResources, err := r.NATSManager.GenerateNATSResources(
 		instance,
@@ -116,7 +116,7 @@ func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.Nats, instance *ch
 }
 
 // initNATSInstance initializes a new NATS release instance based on NATS CR.
-func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.Nats,
+func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NATS,
 	log *zap.SugaredLogger) (*chart.ReleaseInstance, error) {
 	// Init a release instance
 	instance := &chart.ReleaseInstance{
@@ -157,24 +157,12 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.Na
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&natsv1alpha1.Nats{}).
+		For(&natsv1alpha1.NATS{}).
 		Complete(r)
 }
 
-//// SetupWithManager sets up the controller with the Manager.
-// func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-//	return ctrl.NewControllerManagedBy(mgr).
-//		For(&natsv1alpha1.Nats{}).
-//		WithEventFilter(
-//			predicate.Or(
-//				predicate.GenerationChangedPredicate{},
-//				predicate.LabelChangedPredicate{},
-//				predicate.AnnotationChangedPredicate{})).
-//		Complete(r)
-//}
-
 // loggerWithNATS returns a logger with the given NATS CR details.
-func (r *Reconciler) loggerWithNATS(nats *natsv1alpha1.Nats) *zap.SugaredLogger {
+func (r *Reconciler) loggerWithNATS(nats *natsv1alpha1.NATS) *zap.SugaredLogger {
 	return r.logger.With(
 		"kind", nats.GetObjectKind().GroupVersionKind().Kind,
 		"version", nats.GetGeneration(),

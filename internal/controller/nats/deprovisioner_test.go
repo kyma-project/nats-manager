@@ -21,7 +21,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name                   string
-		givenNATS              *natsv1alpha1.Nats
+		givenNATS              *natsv1alpha1.NATS
 		givenWithNATSCreated   bool
 		givenDeletionError     error
 		wantAvailableCondition *metav1.Condition
@@ -31,7 +31,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should not do anything if finalizer is not set",
 			givenWithNATSCreated: false,
-			givenNATS: testutils.NewSampleNATSCR(
+			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSStateReady(),
 			),
 			wantNATSStatusState: natsv1alpha1.StateReady,
@@ -39,7 +39,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should delete nats resources",
 			givenWithNATSCreated: true,
-			givenNATS: testutils.NewSampleNATSCR(
+			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateReady(),
 				testutils.WithNATSCRFinalizer(NATSFinalizerName),
@@ -49,7 +49,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should update status with error when deletion fails",
 			givenWithNATSCreated: true,
-			givenNATS: testutils.NewSampleNATSCR(
+			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateReady(),
 				testutils.WithNATSCRFinalizer(NATSFinalizerName),
@@ -91,7 +91,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 
 			natsResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			}
 			testEnv.natsManager.On("GenerateNATSResources",

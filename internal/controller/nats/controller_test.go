@@ -14,7 +14,7 @@ import (
 func Test_generateNatsResources(t *testing.T) {
 	t.Parallel()
 
-	givenNATS := testutils.NewSampleNATSCR()
+	givenNATS := testutils.NewNATSCR()
 
 	testEnv := NewMockedUnitTestEnvironment(t, givenNATS)
 	reconciler := testEnv.Reconciler
@@ -28,7 +28,7 @@ func Test_generateNatsResources(t *testing.T) {
 	// define mock behaviour
 	natsResources := &chart.ManifestResources{
 		Items: []*unstructured.Unstructured{
-			testutils.NewSampleNATSStatefulSetUnStruct(),
+			testutils.NewNATSStatefulSetUnStruct(),
 		},
 	}
 	testEnv.natsManager.On("GenerateNATSResources",
@@ -50,19 +50,19 @@ func Test_initNATSInstance(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name             string
-		givenNATS        *natsv1alpha1.Nats
+		givenNATS        *natsv1alpha1.NATS
 		wantIstioEnabled bool
 		wantSecretExists bool
 	}{
 		{
 			name:             "should return instance with right configurations and manifests (istio: disabled)",
-			givenNATS:        testutils.NewSampleNATSCR(),
+			givenNATS:        testutils.NewNATSCR(),
 			wantIstioEnabled: false,
 			wantSecretExists: false,
 		},
 		{
 			name:             "should return instance with right configurations and manifests (istio: enabled)",
-			givenNATS:        testutils.NewSampleNATSCR(),
+			givenNATS:        testutils.NewNATSCR(),
 			wantIstioEnabled: true,
 			wantSecretExists: true,
 		},
@@ -92,7 +92,7 @@ func Test_initNATSInstance(t *testing.T) {
 
 			natsResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			}
 			testEnv.natsManager.On("GenerateNATSResources",

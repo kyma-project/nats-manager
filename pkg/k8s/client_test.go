@@ -27,12 +27,12 @@ func Test_GetStatefulSet(t *testing.T) {
 	}{
 		{
 			name:              "should return not found error when StatefulSet is missing in k8s",
-			givenStatefulSet:  testutils.NewSampleNATSStatefulSetUnStruct(),
+			givenStatefulSet:  testutils.NewNATSStatefulSetUnStruct(),
 			wantNotFoundError: true,
 		},
 		{
 			name:              "should return correct StatefulSet from k8s",
-			givenStatefulSet:  testutils.NewSampleNATSStatefulSetUnStruct(),
+			givenStatefulSet:  testutils.NewNATSStatefulSetUnStruct(),
 			wantNotFoundError: false,
 		},
 	}
@@ -135,12 +135,12 @@ func Test_Delete(t *testing.T) {
 	}{
 		{
 			name:                    "should delete existing resource from k8s",
-			givenStatefulSet:        testutils.NewSampleNATSStatefulSetUnStruct(),
+			givenStatefulSet:        testutils.NewNATSStatefulSetUnStruct(),
 			givenStatefulSetCreated: true,
 		},
 		{
 			name:                    "should delete non-existing resource from k8s",
-			givenStatefulSet:        testutils.NewSampleNATSStatefulSetUnStruct(),
+			givenStatefulSet:        testutils.NewNATSStatefulSetUnStruct(),
 			givenStatefulSetCreated: false,
 		},
 	}
@@ -195,10 +195,10 @@ func Test_PatchApply(t *testing.T) {
 	}{
 		{
 			name: "should update resource when exists in k8s",
-			givenStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithSpecReplicas(1),
 			),
-			givenUpdateStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenUpdateStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithSpecReplicas(3),
 			),
 			wantReplicas: 3,

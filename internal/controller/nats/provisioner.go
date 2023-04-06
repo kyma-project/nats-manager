@@ -14,7 +14,7 @@ import (
 const RequeueTimeForStatusCheck = 10
 
 func (r *Reconciler) handleNATSReconcile(ctx context.Context,
-	nats *natsv1alpha1.Nats, log *zap.SugaredLogger) (ctrl.Result, error) {
+	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
 	log.Info("handling NATS reconciliation...")
 
 	// set status to processing
@@ -47,10 +47,10 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 
 // handleNATSState checks if NATS resources are ready.
 // It also syncs the NATS CR status.
-func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.Nats, instance *chart.ReleaseInstance,
+func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance,
 	log *zap.SugaredLogger) (ctrl.Result, error) {
 	// checking if statefulSet is ready.
-	isSTSReady, err := r.NATSManager.IsNatsStatefulSetReady(ctx, instance)
+	isSTSReady, err := r.NATSManager.IsNATSStatefulSetReady(ctx, instance)
 	if err != nil {
 		nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonSyncFailError, err.Error())
@@ -60,7 +60,7 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.Nat
 	if isSTSReady {
 		nats.Status.SetStateReady()
 	} else {
-		nats.Status.SetStateStatefulSetWaiting()
+		nats.Status.SetWaitingStateForStatefulSet()
 		r.logger.Info("Reconciliation successful: waiting fo STS to get ready...")
 		return ctrl.Result{RequeueAfter: RequeueTimeForStatusCheck * time.Second}, r.syncNATSStatus(ctx, nats, log)
 	}
