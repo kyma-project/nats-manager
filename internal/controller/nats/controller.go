@@ -65,7 +65,7 @@ func NewReconciler(
 		logger:        logger,
 		NATSManager:   natsManager,
 	}
-} // destinationrules.networking.istio.io
+}
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;update;patch;create;delete
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;update;patch;create;delete
@@ -139,7 +139,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 		log.Error(err)
 		return nil, err
 	}
-	log.Infof("NATS account secret (name: %s) exists: %t", accountSecretName, accountSecret == nil)
+	log.Infof("NATS account secret (name: %s) exists: %t", accountSecretName, accountSecret != nil)
 
 	// @TODO: Provide the overrides in component.Configuration
 	instance.Configuration = map[string]interface{}{

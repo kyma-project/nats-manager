@@ -82,12 +82,12 @@ func Test_GetSecret(t *testing.T) {
 	}{
 		{
 			name:              "should return not found error when Secret is missing in k8s",
-			givenSecret:       testutils.NewSampleSecretUnStruct(),
+			givenSecret:       testutils.NewSecretUnStruct(),
 			wantNotFoundError: true,
 		},
 		{
 			name:              "should return correct Secret from k8s",
-			givenSecret:       testutils.NewSampleSecretUnStruct(),
+			givenSecret:       testutils.NewSecretUnStruct(),
 			wantNotFoundError: false,
 		},
 	}
@@ -264,7 +264,7 @@ func Test_GetCRD(t *testing.T) {
 			t.Parallel()
 
 			// given
-			sampleCRD := testutils.NewSampleDestinationRuleCRD()
+			sampleCRD := testutils.NewDestinationRuleCRD()
 			var objs []runtime.Object
 			if !tc.wantNotFoundError {
 				objs = append(objs, sampleCRD)
@@ -313,7 +313,7 @@ func Test_DestinationRuleCRDExists(t *testing.T) {
 			t.Parallel()
 
 			// given
-			sampleCRD := testutils.NewSampleDestinationRuleCRD()
+			sampleCRD := testutils.NewDestinationRuleCRD()
 			var objs []runtime.Object
 			if tc.wantResult {
 				objs = append(objs, sampleCRD)

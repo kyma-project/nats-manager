@@ -48,7 +48,7 @@ func NewNATSStatefulSetUnStruct(opts ...Option) *unstructured.Unstructured {
 	return obj
 }
 
-func NewSampleSecretUnStruct(opts ...Option) *unstructured.Unstructured {
+func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"kind":       "Secret",
@@ -68,10 +68,10 @@ func NewSampleSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 	return obj
 }
 
-func NewSampleSecret(opts ...Option) *apiv1.Secret {
+func NewSecret(opts ...Option) *apiv1.Secret {
 	sampleSecret := apiv1.Secret{}
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(
-		NewSampleSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
+		NewSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
 	if err != nil {
 		panic(err)
 	}
@@ -101,7 +101,7 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 	return nats
 }
 
-func NewSampleDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
+func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 	result := &apiextensionsv1.CustomResourceDefinition{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "apiextensions.k8s.io/v1",

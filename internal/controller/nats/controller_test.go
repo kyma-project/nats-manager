@@ -82,7 +82,7 @@ func Test_initNATSInstance(t *testing.T) {
 			testEnv.kubeClient.On("DestinationRuleCRDExists",
 				mock.Anything).Return(tc.wantIstioEnabled, nil)
 			if tc.wantSecretExists {
-				sampleSecret := testutils.NewSampleSecret()
+				sampleSecret := testutils.NewSecret()
 				testEnv.kubeClient.On("GetSecret",
 					mock.Anything, mock.Anything, mock.Anything).Return(sampleSecret, nil)
 			} else {
