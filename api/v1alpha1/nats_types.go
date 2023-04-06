@@ -17,12 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type ConditionReason string
-
 type ConditionType string
 
 const (
@@ -42,6 +40,19 @@ const (
 	StateDeleting   = "Deleting"
 	// StateDeleted is used only in deleted condition. Not a modularization compliant state.
 	StateDeleted = "Deleted"
+
+	ConditionAvailable   ConditionType = "Available"
+	ConditionStatefulSet ConditionType = "StatefulSet"
+
+	ConditionReasonProcessing           = ConditionReason("Processing")
+	ConditionReasonDeploying            = ConditionReason("Deploying")
+	ConditionReasonDeployed             = ConditionReason("Deployed")
+	ConditionReasonDeployError          = ConditionReason("FailedDeploy")
+	ConditionReasonStatefulSetAvailable = ConditionReason("Available")
+	ConditionReasonStatefulSetPending   = ConditionReason("Pending")
+	ConditionReasonSyncFailError        = ConditionReason("FailedToSyncResources")
+	ConditionReasonManifestError        = ConditionReason("InvalidManifests")
+	ConditionReasonDeletionError        = ConditionReason("DeletionError")
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -135,52 +146,8 @@ type NATSList struct {
 	Items           []NATS `json:"items"`
 }
 
-func (n *NATS) UpdateStateFromErr(c ConditionType, r ConditionReason, err error) {
-	n.Status.State = StateError
-	condition := metav1.Condition{
-		Type:               string(c),
-		Status:             "False",
-		LastTransitionTime: metav1.Now(),
-		Reason:             string(r),
-		Message:            err.Error(),
-	}
-	meta.SetStatusCondition(&n.Status.Conditions, condition)
-}
-
-func (n *NATS) UpdateStateReady(c ConditionType, r ConditionReason, msg string) {
-	n.Status.State = StateReady
-	condition := metav1.Condition{
-		Type:               string(c),
-		Status:             "True",
-		LastTransitionTime: metav1.Now(),
-		Reason:             string(r),
-		Message:            msg,
-	}
-	meta.SetStatusCondition(&n.Status.Conditions, condition)
-}
-
-func (n *NATS) UpdateStateProcessing(c ConditionType, r ConditionReason, msg string) {
-	n.Status.State = StateProcessing
-	condition := metav1.Condition{
-		Type:               string(c),
-		Status:             "Unknown",
-		LastTransitionTime: metav1.Now(),
-		Reason:             string(r),
-		Message:            msg,
-	}
-	meta.SetStatusCondition(&n.Status.Conditions, condition)
-}
-
-func (n *NATS) UpdateStateDeletion(c ConditionType, r ConditionReason, msg string) {
-	n.Status.State = StateDeleting
-	condition := metav1.Condition{
-		Type:               string(c),
-		Status:             "Unknown",
-		LastTransitionTime: metav1.Now(),
-		Reason:             string(r),
-		Message:            msg,
-	}
-	meta.SetStatusCondition(&n.Status.Conditions, condition)
+func (n *NATS) IsInDeletion() bool {
+	return !n.DeletionTimestamp.IsZero()
 }
 
 func init() { //nolint:gochecknoinits //called in external function

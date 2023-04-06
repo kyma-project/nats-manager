@@ -20,6 +20,12 @@ import (
 	"flag"
 	"os"
 
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"github.com/kyma-project/nats-manager/pkg/manager"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -29,16 +35,16 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/internal/controller"
-	"github.com/kyma-project/nats-manager/pkg/provisioner"
+	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 )
 
 const defaultMetricsPort = 9443
 
-func main() {
+func main() { //nolint:funlen // main function needs to initialize many object
 	scheme := runtime.NewScheme()
 	setupLog := ctrl.Log.WithName("setup")
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
@@ -60,13 +66,27 @@ func main() {
 		"ID for the controller leader election.")
 	flag.IntVar(&metricsPort, "metricsPort", defaultMetricsPort, "Port number for metrics endpoint.")
 
-	opts := zap.Options{
+	opts := k8szap.Options{
 		Development: true,
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+	// @TODO: Re-check logger setup and init
+	ctrl.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
+
+	loggerConfig := zap.NewDevelopmentConfig()
+	loggerConfig.EncoderConfig.TimeKey = "timestamp"
+	loggerConfig.Encoding = "json"
+	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("Jan 02 15:04:05.000000000")
+
+	logger, err := loggerConfig.Build()
+	if err != nil {
+		setupLog.Error(err, "unable to setup logger")
+		os.Exit(1)
+	}
+
+	sugaredLogger := logger.Sugar()
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -92,11 +112,37 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.NATSReconciler{
-		Client:          mgr.GetClient(),
-		Scheme:          mgr.GetScheme(),
-		NATSProvisioner: provisioner.NATSProvisioner{},
-	}).SetupWithManager(mgr); err != nil {
+	// create helmRenderer
+	const repoDir = "/resources/nats"
+	helmRenderer, err := chart.NewHelmRenderer(repoDir, sugaredLogger)
+	if err != nil {
+		setupLog.Error(err, "failed to create new helm client")
+		os.Exit(1)
+	}
+
+	// init custom kube client wrapper
+	apiClientSet, err := apiclientset.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "failed to create new k8s clientset")
+		os.Exit(1)
+	}
+
+	kubeClient := k8s.NewKubeClient(mgr.GetClient(), apiClientSet, "nats-manager")
+
+	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+
+	// create NATS reconciler instance
+	natsReconciler := natscontroller.NewReconciler(
+		mgr.GetClient(),
+		kubeClient,
+		helmRenderer,
+		mgr.GetScheme(),
+		sugaredLogger,
+		mgr.GetEventRecorderFor("nats-manager"),
+		natsManager,
+	)
+
+	if err = (natsReconciler).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "NATS")
 		os.Exit(1)
 	}
