@@ -1,0 +1,52 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: nats-manager-role-all
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nats-manager-rolebinding-all
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nats-manager-role-all
+subjects:
+  - kind: ServiceAccount
+    name: nats-manager
+    namespace: nats-manager
+#---
+## permissions to do leader election.
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: Role
+#metadata:
+#  name: nats-manager-role-all-role
+#rules:
+#  - apiGroups:
+#      - '*'
+#    resources:
+#      - '*'
+#    verbs:
+#      - '*'
+#---
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: RoleBinding
+#metadata:
+#  name: nats-manager-role-all-rolebinding
+#roleRef:
+#  apiGroup: rbac.authorization.k8s.io
+#  kind: Role
+#  name: nats-manager-role-all-role
+#subjects:
+#  - kind: ServiceAccount
+#    name: nats-manager
+#    namespace: nats-manager
