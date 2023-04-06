@@ -23,15 +23,6 @@ import (
 type ConditionReason string
 type ConditionType string
 
-const (
-	ConditionReasonDeploying     = ConditionReason("Deploying")
-	ConditionReasonDeployed      = ConditionReason("Deployed")
-	ConditionReasonDeletion      = ConditionReason("Deletion")
-	ConditionReasonDeployError   = ConditionReason("DeployError")
-	ConditionReasonDeletionError = ConditionReason("DeletionError")
-)
-
-type State string
 
 const (
 	StateReady      = "Ready"
@@ -75,7 +66,7 @@ type NATS struct {
 
 // Status defines the observed state of NATS.
 type Status struct {
-	State      State              `json:"state"`
+	State      string              `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
