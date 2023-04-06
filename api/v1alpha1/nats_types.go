@@ -59,18 +59,18 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   Spec   `json:"spec,omitempty"`
-	Status Status `json:"status,omitempty"`
+	Spec   NATSSpec   `json:"spec,omitempty"`
+	Status NATSStatus `json:"status,omitempty"`
 }
 
-// Status defines the observed state of NATS.
-type Status struct {
-	State      string             `json:"state"`
+// NATSStatus defines the observed state of NATS.
+type NATSStatus struct {
+	State      State             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
-// Spec defines the desired state of NATS.
-type Spec struct {
+// NATSSpec defines the desired state of NATS.
+type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
 	Cluster Cluster `json:"cluster"`
 
