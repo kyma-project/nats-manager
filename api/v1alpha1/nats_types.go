@@ -21,32 +21,31 @@ import (
 )
 
 type ConditionReason string
+
 type ConditionType string
 
+type State string
 
 const (
-	StateReady      = "Ready"
-	StateError      = "Error"
-	StateProcessing = "Processing"
-	StateDeleting   = "Deleting"
-	// StateDeleted is used only in deleted condition. Not a modularization compliant state.
-	StateDeleted = "Deleted"
+	StateReady      State = "Ready"
+	StateError      State = "Error"
+	StateProcessing State = "Processing"
+	StateDeleting   State = "Deleting"
 
 	ConditionAvailable   ConditionType = "Available"
 	ConditionStatefulSet ConditionType = "StatefulSet"
 
-	ConditionReasonProcessing           = ConditionReason("Processing")
-	ConditionReasonDeploying            = ConditionReason("Deploying")
-	ConditionReasonDeployed             = ConditionReason("Deployed")
-	ConditionReasonDeployError          = ConditionReason("FailedDeploy")
-	ConditionReasonStatefulSetAvailable = ConditionReason("Available")
-	ConditionReasonStatefulSetPending   = ConditionReason("Pending")
-	ConditionReasonSyncFailError        = ConditionReason("FailedToSyncResources")
-	ConditionReasonManifestError        = ConditionReason("InvalidManifests")
-	ConditionReasonDeletionError        = ConditionReason("DeletionError")
+	ConditionReasonProcessing           ConditionReason = "Processing"
+	ConditionReasonDeploying            ConditionReason = "Deploying"
+	ConditionReasonDeployed             ConditionReason = "Deployed"
+	ConditionReasonDeployError          ConditionReason = "FailedDeploy"
+	ConditionReasonStatefulSetAvailable ConditionReason = "Available"
+	ConditionReasonStatefulSetPending   ConditionReason = "Pending"
+	ConditionReasonSyncFailError        ConditionReason = "FailedToSyncResources"
+	ConditionReasonManifestError        ConditionReason = "InvalidManifests"
+	ConditionReasonDeletionError        ConditionReason = "DeletionError"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 //nolint:lll //this is annotation
@@ -66,7 +65,7 @@ type NATS struct {
 
 // Status defines the observed state of NATS.
 type Status struct {
-	State      string              `json:"state"`
+	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
