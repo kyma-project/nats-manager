@@ -19,7 +19,7 @@ import (
 func Test_GenerateNATSResources(t *testing.T) {
 	t.Parallel()
 
-	givenNATSCR := testutils.NewSampleNATSCR()
+	givenNATSCR := testutils.NewNATSCR()
 
 	// define test cases
 	testCases := []struct {
@@ -49,12 +49,12 @@ func Test_GenerateNATSResources(t *testing.T) {
 
 			// given
 			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
 			manifestResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			}
 
@@ -116,15 +116,15 @@ func Test_DeployInstance(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
 			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			})
 
@@ -180,15 +180,15 @@ func Test_DeleteInstance(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
 			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
-					testutils.NewSampleNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
+					testutils.NewNATSStatefulSetUnStruct(),
 				},
 			})
 
@@ -220,7 +220,7 @@ func Test_DeleteInstance(t *testing.T) {
 	}
 }
 
-func Test_IsNatsStatefulSetReady(t *testing.T) {
+func Test_IsNATSStatefulSetReady(t *testing.T) {
 	t.Parallel()
 
 	// define test cases
@@ -237,7 +237,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 		},
 		{
 			name: "should return not ready when AvailableReplicas is not as needed",
-			givenStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithName("test1"),
 				testutils.WithNamespace("test1"),
 				testutils.WithSpecReplicas(3),
@@ -248,7 +248,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 		},
 		{
 			name: "should return not ready when ReadyReplicas is not as needed",
-			givenStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithName("test1"),
 				testutils.WithNamespace("test1"),
 				testutils.WithSpecReplicas(3),
@@ -259,7 +259,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 		},
 		{
 			name: "should return ready when all replicas are available",
-			givenStatefulSet: testutils.NewSampleNATSStatefulSetUnStruct(
+			givenStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithName("test1"),
 				testutils.WithNamespace("test1"),
 				testutils.WithSpecReplicas(3),
@@ -277,7 +277,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 			t.Parallel()
 
 			// given
-			sugaredLogger, err := testutils.NewTestSugaredLogger()
+			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 			// mock for k8s kube client
 			mockKubeClient := k8smocks.NewClient(t)
@@ -307,7 +307,7 @@ func Test_IsNatsStatefulSetReady(t *testing.T) {
 			manager := NewNATSManger(mockKubeClient, chartmocks.NewRenderer(t), sugaredLogger)
 
 			// when
-			isReady, err := manager.IsNatsStatefulSetReady(context.Background(), releaseInstance)
+			isReady, err := manager.IsNATSStatefulSetReady(context.Background(), releaseInstance)
 
 			// then
 			if tc.wantError != nil {
