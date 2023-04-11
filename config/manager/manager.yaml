@@ -70,7 +70,7 @@ spec:
         imagePullPolicy: Always
         name: manager
         env:
-        - name: NATS_CHARTS_DIR
+        - name: NATS_CHART_DIR
           value: "/resources/nats"
         securityContext:
           allowPrivilegeEscalation: false

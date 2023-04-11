@@ -17,7 +17,7 @@ func Test_GetConfig(t *testing.T) {
 	require.Error(t, err)
 
 	// given, define required envs
-	givenEnvs["NATS_CHARTS_DIR"] = "/test1/test2"
+	givenEnvs["NATS_CHART_DIR"] = "/test1/test2"
 
 	for k, v := range givenEnvs {
 		t.Setenv(k, v)
@@ -28,5 +28,5 @@ func Test_GetConfig(t *testing.T) {
 
 	// then, should pass when required envs are defined.
 	require.NoError(t, err)
-	require.Equal(t, givenEnvs["NATS_CHARTS_DIR"], config.NATSChartDir)
+	require.Equal(t, givenEnvs["NATS_CHART_DIR"], config.NATSChartDir)
 }

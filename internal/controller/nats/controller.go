@@ -165,7 +165,8 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *Reconciler) loggerWithNATS(nats *natsv1alpha1.NATS) *zap.SugaredLogger {
 	return r.logger.With(
 		"kind", nats.GetObjectKind().GroupVersionKind().Kind,
-		"version", nats.GetGeneration(),
+		"resourceVersion", nats.GetResourceVersion(),
+		"generation", nats.GetGeneration(),
 		"namespace", nats.GetNamespace(),
 		"name", nats.GetName(),
 	)
