@@ -72,15 +72,27 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
-	Cluster Cluster `json:"cluster"`
+	Cluster `json:"cluster"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
 	// +optional
-	JetStream JetStream `json:"jetStream,omitempty"`
+	JetStream `json:"jetStream,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
 	// +optional
-	Logging Logging `json:"logging,omitempty"`
+	Logging `json:"logging,omitempty"`
+
+	// todo
+	// +optional
+	Resources `json:"resources,omitempty"`
+
+	//todo
+	// +optional
+	Annotaions []string `json:"annotations,omitempty"`
+
+	//todo
+	// +optional
+	Labels []string `json:"label,omitempty"`
 }
 
 // Cluster defines configurations that are specific to NATS clusters.
@@ -93,11 +105,11 @@ type Cluster struct {
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
 	// +optional
-	MemStorage MemStorage `json:"memStorage,omitempty"`
+	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
 	// +optional
-	FileStorage FileStorage `json:"fileStorage,omitempty"`
+	FileStorage `json:"fileStorage,omitempty"`
 }
 
 // MemStorage defines configurations to memory storage in NATS JetStream.
@@ -125,6 +137,22 @@ type Logging struct {
 
 	// Trace allows trace logging.
 	Trace bool `json:"trace"`
+}
+
+type Resources struct {
+	// todo
+	Limits Resource `json:"limits"`
+
+	// todo
+	Requests Resource `json:"requests"`
+}
+
+type Resource struct {
+	// CPU defines the amount of CPUs.
+	CPU string `json:"cpu"`
+
+	// Memory defines the amount of memory.
+	Memory string `json:"memory"`
 }
 
 //+kubebuilder:object:root=true
