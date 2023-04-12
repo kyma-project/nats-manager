@@ -82,15 +82,15 @@ type NATSSpec struct {
 	// +optional
 	Logging `json:"logging,omitempty"`
 
-	// todo
+	// Resources defines resources for NATS.
 	// +optional
 	Resources `json:"resources,omitempty"`
 
-	//todo
+	// Annotaions allows to add annotations to NATS.
 	// +optional
 	Annotaions []string `json:"annotations,omitempty"`
 
-	//todo
+	// Labels allows to add Labels to NATS.
 	// +optional
 	Labels []string `json:"label,omitempty"`
 }
@@ -140,10 +140,10 @@ type Logging struct {
 }
 
 type Resources struct {
-	// todo
+	// Limits defines the resource limits for NATS.
 	Limits Resource `json:"limits"`
 
-	// todo
+	// Requests defines the requested resources for NATS.
 	Requests Resource `json:"requests"`
 }
 
