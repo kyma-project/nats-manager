@@ -44,13 +44,120 @@ spec:
           spec:
             description: NATSSpec defines the desired state of NATS.
             properties:
+              annotations:
+                additionalProperties:
+                  type: string
+                description: Annotations allows to add annotations to NATS.
+                type: object
               cluster:
+                description: Cluster defines configurations that are specific to NATS
+                  clusters.
                 properties:
                   size:
-                    description: Size of a NATS cluster, i.e. number of NATS nodes
+                    description: Size of a NATS cluster, i.e. number of NATS nodes.
                     type: integer
                 required:
                 - size
+                type: object
+              jetStream:
+                description: JetStream defines configurations that are specific to
+                  NATS JetStream.
+                properties:
+                  fileStorage:
+                    description: FileStorage defines configurations to file storage
+                      in NATS JetStream.
+                    properties:
+                      size:
+                        description: Size defines the file storage size.
+                        type: string
+                      storageClassName:
+                        description: StorageClassName defines the file storage class
+                          name.
+                        type: string
+                    required:
+                    - size
+                    - storageClassName
+                    type: object
+                  memStorage:
+                    description: MemStorage defines configurations to memory storage
+                      in NATS JetStream.
+                    properties:
+                      enable:
+                        description: Enable allows the enablement of memory storage.
+                        type: boolean
+                      size:
+                        description: Size defines the mem.
+                        type: string
+                    required:
+                    - enable
+                    - size
+                    type: object
+                type: object
+              labels:
+                additionalProperties:
+                  type: string
+                description: Labels allows to add Labels to NATS.
+                type: object
+              logging:
+                description: JetStream defines configurations that are specific to
+                  NATS logging in NATS.
+                properties:
+                  debug:
+                    description: Debug allows debug logging.
+                    type: boolean
+                  trace:
+                    description: Trace allows trace logging.
+                    type: boolean
+                required:
+                - debug
+                - trace
+                type: object
+              resources:
+                description: Resources defines resources for NATS.
+                properties:
+                  claims:
+                    description: "Claims lists the names of resources, defined in
+                      spec.resourceClaims, that are used by this container. \n This
+                      is an alpha field and requires enabling the DynamicResourceAllocation
+                      feature gate. \n This field is immutable. It can only be set
+                      for containers."
+                    items:
+                      description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                      properties:
+                        name:
+                          description: Name must match the name of one entry in pod.spec.resourceClaims
+                            of the Pod where this field is used. It makes that resource
+                            available inside a container.
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
+                  limits:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    description: 'Limits describes the maximum amount of compute resources
+                      allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
+                    type: object
+                  requests:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    description: 'Requests describes the minimum amount of compute
+                      resources required. If Requests is omitted for a container,
+                      it defaults to Limits if that is explicitly specified, otherwise
+                      to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
+                    type: object
                 type: object
             required:
             - cluster

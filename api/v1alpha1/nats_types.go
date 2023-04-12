@@ -17,54 +17,37 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type ConditionReason string
+
 type ConditionType string
 
+type State string
+
 const (
-	StateReady      = "Ready"
-	StateError      = "Error"
-	StateProcessing = "Processing"
-	StateDeleting   = "Deleting"
+	StateReady      State = "Ready"
+	StateError      State = "Error"
+	StateProcessing State = "Processing"
+	StateDeleting   State = "Deleting"
 
 	ConditionAvailable   ConditionType = "Available"
 	ConditionStatefulSet ConditionType = "StatefulSet"
 
-	ConditionReasonProcessing           = ConditionReason("Processing")
-	ConditionReasonDeploying            = ConditionReason("Deploying")
-	ConditionReasonDeployed             = ConditionReason("Deployed")
-	ConditionReasonDeployError          = ConditionReason("FailedDeploy")
-	ConditionReasonStatefulSetAvailable = ConditionReason("Available")
-	ConditionReasonStatefulSetPending   = ConditionReason("Pending")
-	ConditionReasonSyncFailError        = ConditionReason("FailedToSyncResources")
-	ConditionReasonManifestError        = ConditionReason("InvalidManifests")
-	ConditionReasonDeletionError        = ConditionReason("DeletionError")
+	ConditionReasonProcessing           ConditionReason = "Processing"
+	ConditionReasonDeploying            ConditionReason = "Deploying"
+	ConditionReasonDeployed             ConditionReason = "Deployed"
+	ConditionReasonDeployError          ConditionReason = "FailedDeploy"
+	ConditionReasonStatefulSetAvailable ConditionReason = "Available"
+	ConditionReasonStatefulSetPending   ConditionReason = "Pending"
+	ConditionReasonSyncFailError        ConditionReason = "FailedToSyncResources"
+	ConditionReasonManifestError        ConditionReason = "InvalidManifests"
+	ConditionReasonDeletionError        ConditionReason = "DeletionError"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
-type Cluster struct {
-	// Size of a NATS cluster, i.e. number of NATS nodes
-	Size int `json:"size"`
-}
-
-// NATSSpec defines the desired state of NATS.
-type NATSSpec struct {
-	Cluster Cluster `json:"cluster"`
-}
-
-// NATSStatus defines the observed state of NATS.
-type NATSStatus struct {
-	State      string             `json:"state"`
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
-}
-
-func (n *NATS) IsInDeletion() bool {
-	return !n.DeletionTimestamp.IsZero()
-}
 
 //nolint:lll //this is annotation
 //+kubebuilder:object:root=true
@@ -81,6 +64,82 @@ type NATS struct {
 	Status NATSStatus `json:"status,omitempty"`
 }
 
+// NATSStatus defines the observed state of NATS.
+type NATSStatus struct {
+	State      `json:"state"`
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
+}
+
+// NATSSpec defines the desired state of NATS.
+type NATSSpec struct {
+	// Cluster defines configurations that are specific to NATS clusters.
+	Cluster `json:"cluster"`
+
+	// JetStream defines configurations that are specific to NATS JetStream.
+	// +optional
+	JetStream `json:"jetStream,omitempty"`
+
+	// JetStream defines configurations that are specific to NATS logging in NATS.
+	// +optional
+	Logging `json:"logging,omitempty"`
+
+	// Resources defines resources for NATS.
+	// +optional
+	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+
+	// Annotations allows to add annotations to NATS.
+	// +optional
+	Annotations map[string]string `json:"annotations,omitempty"`
+
+	// Labels allows to add Labels to NATS.
+	// +optional
+	Labels map[string]string `json:"labels,omitempty"`
+}
+
+// Cluster defines configurations that are specific to NATS clusters.
+type Cluster struct {
+	// Size of a NATS cluster, i.e. number of NATS nodes.
+	Size int `json:"size"`
+}
+
+// JetStream defines configurations that are specific to NATS JetStream.
+type JetStream struct {
+	// MemStorage defines configurations to memory storage in NATS JetStream.
+	// +optional
+	MemStorage `json:"memStorage,omitempty"`
+
+	// FileStorage defines configurations to file storage in NATS JetStream.
+	// +optional
+	FileStorage `json:"fileStorage,omitempty"`
+}
+
+// MemStorage defines configurations to memory storage in NATS JetStream.
+type MemStorage struct {
+	// Enable allows the enablement of memory storage.
+	Enable bool `json:"enable"`
+
+	// Size defines the mem.
+	Size string `json:"size"`
+}
+
+// FileStorage defines configurations to file storage in NATS JetStream.
+type FileStorage struct {
+	// StorageClassName defines the file storage class name.
+	StorageClassName string `json:"storageClassName"`
+
+	// Size defines the file storage size.
+	Size string `json:"size"`
+}
+
+// Logging defines logging options.
+type Logging struct {
+	// Debug allows debug logging.
+	Debug bool `json:"debug"`
+
+	// Trace allows trace logging.
+	Trace bool `json:"trace"`
+}
+
 //+kubebuilder:object:root=true
 
 // NATSList contains a list of NATS.
@@ -88,6 +147,10 @@ type NATSList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []NATS `json:"items"`
+}
+
+func (n *NATS) IsInDeletion() bool {
+	return !n.DeletionTimestamp.IsZero()
 }
 
 func init() { //nolint:gochecknoinits //called in external function
