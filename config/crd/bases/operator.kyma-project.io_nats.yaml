@@ -94,10 +94,10 @@ spec:
                     type: object
                 type: object
               labels:
-                description: Labels allows to add Labels to NATS.
-                items:
+                additionalProperties:
                   type: string
-                type: array
+                description: Labels allows to add Labels to NATS.
+                type: object
               logging:
                 description: JetStream defines configurations that are specific to
                   NATS logging in NATS.

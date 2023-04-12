@@ -93,7 +93,7 @@ type NATSSpec struct {
 
 	// Labels allows to add Labels to NATS.
 	// +optional
-	Labels []string `json:"labels,omitempty"`
+	Labels map[string]string `json:"labels,omitempty"`
 }
 
 // Cluster defines configurations that are specific to NATS clusters.
