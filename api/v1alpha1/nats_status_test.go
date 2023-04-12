@@ -9,23 +9,23 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func Test_NATSIsEqual(t *testing.T) {
+func Test_IsEqual(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
 		name            string
-		natsStatus1     NatsStatus
-		natsStatus2     NatsStatus
+		natsStatus1     NATSStatus
+		natsStatus2     NATSStatus
 		wantEqualStatus bool
 	}{
 		{
 			name: "should not be equal if the conditions are not equal",
-			natsStatus1: NatsStatus{
+			natsStatus1: NATSStatus{
 				Conditions: []metav1.Condition{
 					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
 				},
 				State: StateReady,
 			},
-			natsStatus2: NatsStatus{
+			natsStatus2: NATSStatus{
 				Conditions: []metav1.Condition{
 					{Type: string(ConditionAvailable), Status: metav1.ConditionFalse},
 				},
@@ -35,13 +35,13 @@ func Test_NATSIsEqual(t *testing.T) {
 		},
 		{
 			name: "should not be equal if the ready status is not equal",
-			natsStatus1: NatsStatus{
+			natsStatus1: NATSStatus{
 				Conditions: []metav1.Condition{
 					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
 				},
 				State: StateReady,
 			},
-			natsStatus2: NatsStatus{
+			natsStatus2: NATSStatus{
 				Conditions: []metav1.Condition{
 					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
 				},
@@ -51,13 +51,13 @@ func Test_NATSIsEqual(t *testing.T) {
 		},
 		{
 			name: "should be equal if all the fields are equal",
-			natsStatus1: NatsStatus{
+			natsStatus1: NATSStatus{
 				Conditions: []metav1.Condition{
 					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
 				},
 				State: StateReady,
 			},
-			natsStatus2: NatsStatus{
+			natsStatus2: NATSStatus{
 				Conditions: []metav1.Condition{
 					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
 				},
@@ -119,7 +119,7 @@ func Test_FindCondition(t *testing.T) {
 		},
 	}
 
-	status := NatsStatus{}
+	status := NATSStatus{}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			status.Conditions = tc.givenConditions
@@ -139,7 +139,7 @@ func Test_UpdateConditionStatefulSet(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			Conditions: []metav1.Condition{
 				{
 					Type:    string(ConditionStatefulSet),
@@ -174,7 +174,7 @@ func Test_UpdateConditionAvailable(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			Conditions: []metav1.Condition{
 				{
 					Type:    string(ConditionAvailable),
@@ -209,7 +209,7 @@ func Test_SetStateReady(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			State: StateError,
 		}
 
@@ -228,7 +228,7 @@ func Test_SetStateProcessing(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			State: StateError,
 		}
 
@@ -247,7 +247,7 @@ func Test_SetStateError(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			State: StateProcessing,
 		}
 
@@ -266,7 +266,7 @@ func Test_SetStateDeleting(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			State: StateError,
 		}
 
@@ -278,7 +278,7 @@ func Test_SetStateDeleting(t *testing.T) {
 	})
 }
 
-func Test_SetStateStatefulSetWaiting(t *testing.T) {
+func Test_SetWaitingStateForStatefulSet(t *testing.T) {
 	t.Parallel()
 
 	t.Run("should update the condition", func(t *testing.T) {
@@ -287,7 +287,7 @@ func Test_SetStateStatefulSetWaiting(t *testing.T) {
 		currentTime := metav1.NewTime(time.Now())
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			State: StateError,
 		}
 
@@ -295,7 +295,7 @@ func Test_SetStateStatefulSetWaiting(t *testing.T) {
 			Type:               string(ConditionStatefulSet),
 			Status:             metav1.ConditionFalse,
 			Reason:             string(ConditionReasonStatefulSetPending),
-			Message:            "Waiting",
+			Message:            "",
 			LastTransitionTime: currentTime,
 		}
 
@@ -308,7 +308,7 @@ func Test_SetStateStatefulSetWaiting(t *testing.T) {
 		}
 
 		// when
-		natsStatus1.SetStateStatefulSetWaiting()
+		natsStatus1.SetWaitingStateForStatefulSet()
 
 		// then
 		require.Equal(t, StateProcessing, natsStatus1.State)
@@ -335,7 +335,7 @@ func Test_Initialize(t *testing.T) {
 		currentTime := metav1.NewTime(time.Now())
 
 		// given
-		natsStatus1 := &NatsStatus{
+		natsStatus1 := &NATSStatus{
 			State: StateError,
 		}
 

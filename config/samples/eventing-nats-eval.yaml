@@ -1,5 +1,5 @@
 apiVersion: operator.kyma-project.io/v1alpha1
-kind: Nats
+kind: NATS
 metadata:
   name: eventing-nats
   namespace: kyma-system

@@ -16,17 +16,17 @@ func Test_syncNATSStatus(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name           string
-		givenNATS      *natsv1alpha1.Nats
-		wantNATSStatus natsv1alpha1.NatsStatus
+		givenNATS      *natsv1alpha1.NATS
+		wantNATSStatus natsv1alpha1.NATSStatus
 		wantResult     bool
 	}{
 		{
 			name: "should update the status",
-			givenNATS: testutils.NewSampleNATSCR(
+			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateProcessing(),
 			),
-			wantNATSStatus: natsv1alpha1.NatsStatus{
+			wantNATSStatus: natsv1alpha1.NATSStatus{
 				State: natsv1alpha1.StateReady,
 				Conditions: []metav1.Condition{
 					{
@@ -80,19 +80,19 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name           string
-		givenNATS      *natsv1alpha1.Nats
+		givenNATS      *natsv1alpha1.NATS
 		givenError     error
-		wantNATSStatus natsv1alpha1.NatsStatus
+		wantNATSStatus natsv1alpha1.NATSStatus
 		wantResult     bool
 	}{
 		{
 			name: "should update the status with error message",
-			givenNATS: testutils.NewSampleNATSCR(
+			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateProcessing(),
 			),
 			givenError: errors.New("test error"),
-			wantNATSStatus: natsv1alpha1.NatsStatus{
+			wantNATSStatus: natsv1alpha1.NATSStatus{
 				State: natsv1alpha1.StateError,
 				Conditions: []metav1.Condition{
 					{
@@ -146,17 +146,17 @@ func Test_updateStatus(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name           string
-		givenNATS      *natsv1alpha1.Nats
-		wantNATSStatus natsv1alpha1.NatsStatus
+		givenNATS      *natsv1alpha1.NATS
+		wantNATSStatus natsv1alpha1.NATSStatus
 		wantResult     bool
 	}{
 		{
 			name: "should update the status",
-			givenNATS: testutils.NewSampleNATSCR(
+			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateProcessing(),
 			),
-			wantNATSStatus: natsv1alpha1.NatsStatus{
+			wantNATSStatus: natsv1alpha1.NATSStatus{
 				State: natsv1alpha1.StateReady,
 				Conditions: []metav1.Condition{
 					{

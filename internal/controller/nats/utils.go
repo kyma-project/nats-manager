@@ -8,11 +8,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-func (r *Reconciler) containsFinalizer(nats *natsv1alpha1.Nats) bool {
+func (r *Reconciler) containsFinalizer(nats *natsv1alpha1.NATS) bool {
 	return controllerutil.ContainsFinalizer(nats, NATSFinalizerName)
 }
 
-func (r *Reconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) (ctrl.Result, error) {
+func (r *Reconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.NATS) (ctrl.Result, error) {
 	controllerutil.AddFinalizer(nats, NATSFinalizerName)
 	if err := r.Update(ctx, nats); err != nil {
 		return ctrl.Result{}, err
@@ -20,7 +20,7 @@ func (r *Reconciler) addFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) 
 	return ctrl.Result{}, nil
 }
 
-func (r *Reconciler) removeFinalizer(ctx context.Context, nats *natsv1alpha1.Nats) (ctrl.Result, error) {
+func (r *Reconciler) removeFinalizer(ctx context.Context, nats *natsv1alpha1.NATS) (ctrl.Result, error) {
 	controllerutil.RemoveFinalizer(nats, NATSFinalizerName)
 	if err := r.Update(ctx, nats); err != nil {
 		return ctrl.Result{}, err

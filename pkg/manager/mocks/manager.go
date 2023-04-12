@@ -180,8 +180,8 @@ func (_c *Manager_GenerateNATSResources_Call) RunAndReturn(run func(*chart.Relea
 	return _c
 }
 
-// IsNatsStatefulSetReady provides a mock function with given fields: _a0, _a1
-func (_m *Manager) IsNatsStatefulSetReady(_a0 context.Context, _a1 *chart.ReleaseInstance) (bool, error) {
+// IsNATSStatefulSetReady provides a mock function with given fields: _a0, _a1
+func (_m *Manager) IsNATSStatefulSetReady(_a0 context.Context, _a1 *chart.ReleaseInstance) (bool, error) {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 bool
@@ -204,31 +204,31 @@ func (_m *Manager) IsNatsStatefulSetReady(_a0 context.Context, _a1 *chart.Releas
 	return r0, r1
 }
 
-// Manager_IsNatsStatefulSetReady_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsNatsStatefulSetReady'
-type Manager_IsNatsStatefulSetReady_Call struct {
+// Manager_IsNATSStatefulSetReady_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsNATSStatefulSetReady'
+type Manager_IsNATSStatefulSetReady_Call struct {
 	*mock.Call
 }
 
-// IsNatsStatefulSetReady is a helper method to define mock.On call
+// IsNATSStatefulSetReady is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 *chart.ReleaseInstance
-func (_e *Manager_Expecter) IsNatsStatefulSetReady(_a0 interface{}, _a1 interface{}) *Manager_IsNatsStatefulSetReady_Call {
-	return &Manager_IsNatsStatefulSetReady_Call{Call: _e.mock.On("IsNatsStatefulSetReady", _a0, _a1)}
+func (_e *Manager_Expecter) IsNATSStatefulSetReady(_a0 interface{}, _a1 interface{}) *Manager_IsNATSStatefulSetReady_Call {
+	return &Manager_IsNATSStatefulSetReady_Call{Call: _e.mock.On("IsNATSStatefulSetReady", _a0, _a1)}
 }
 
-func (_c *Manager_IsNatsStatefulSetReady_Call) Run(run func(_a0 context.Context, _a1 *chart.ReleaseInstance)) *Manager_IsNatsStatefulSetReady_Call {
+func (_c *Manager_IsNATSStatefulSetReady_Call) Run(run func(_a0 context.Context, _a1 *chart.ReleaseInstance)) *Manager_IsNATSStatefulSetReady_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(*chart.ReleaseInstance))
 	})
 	return _c
 }
 
-func (_c *Manager_IsNatsStatefulSetReady_Call) Return(_a0 bool, _a1 error) *Manager_IsNatsStatefulSetReady_Call {
+func (_c *Manager_IsNATSStatefulSetReady_Call) Return(_a0 bool, _a1 error) *Manager_IsNATSStatefulSetReady_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Manager_IsNatsStatefulSetReady_Call) RunAndReturn(run func(context.Context, *chart.ReleaseInstance) (bool, error)) *Manager_IsNatsStatefulSetReady_Call {
+func (_c *Manager_IsNATSStatefulSetReady_Call) RunAndReturn(run func(context.Context, *chart.ReleaseInstance) (bool, error)) *Manager_IsNATSStatefulSetReady_Call {
 	_c.Call.Return(run)
 	return _c
 }

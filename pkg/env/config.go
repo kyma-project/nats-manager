@@ -6,7 +6,7 @@ import (
 
 // Config represents the environment config for the NATS Manager.
 type Config struct {
-	NATSChartDir string `envconfig:"NATS_CHARTS_DIR" required:"true"`
+	NATSChartDir string `envconfig:"NATS_CHART_DIR" required:"true"`
 }
 
 func GetConfig() (Config, error) {

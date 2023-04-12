@@ -18,7 +18,7 @@ import (
 // syncNATSStatus syncs NATS status and updates the k8s subscription.
 // Returns the relevant error.
 func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
-	nats *natsv1alpha1.Nats, err error, log *zap.SugaredLogger) error {
+	nats *natsv1alpha1.NATS, err error, log *zap.SugaredLogger) error {
 	// set error state in status
 	nats.Status.SetStateError()
 	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse, natsv1alpha1.ConditionReasonProcessingError, err.Error())
@@ -28,14 +28,14 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 
 // syncNATSStatus syncs NATS status and updates the k8s subscription.
 func (r *Reconciler) syncNATSStatus(ctx context.Context,
-	nats *natsv1alpha1.Nats, log *zap.SugaredLogger) error {
+	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) error {
 	namespacedName := &k8stype.NamespacedName{
 		Name:      nats.Name,
 		Namespace: nats.Namespace,
 	}
 
 	// fetch the latest NATS object, to avoid k8s conflict errors.
-	actualNATS := &natsv1alpha1.Nats{}
+	actualNATS := &natsv1alpha1.NATS{}
 	if err := r.Client.Get(ctx, *namespacedName, actualNATS); err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (r *Reconciler) syncNATSStatus(ctx context.Context,
 }
 
 // updateStatus updates the status to k8s if modified.
-func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *natsv1alpha1.Nats,
+func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *natsv1alpha1.NATS,
 	logger *zap.SugaredLogger) error {
 	// compare the status taking into consideration lastTransitionTime in conditions
 	if oldNATS.Status.IsEqual(newNATS.Status) {

@@ -15,17 +15,17 @@ func Test_containsFinalizer(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name       string
-		givenNats  *natsv1alpha1.Nats
+		givenNats  *natsv1alpha1.NATS
 		wantResult bool
 	}{
 		{
 			name:       "should return false when finalizer is missing",
-			givenNats:  testutils.NewSampleNATSCR(),
+			givenNats:  testutils.NewNATSCR(),
 			wantResult: false,
 		},
 		{
 			name:       "should return true when finalizer is present",
-			givenNats:  testutils.NewSampleNATSCR(testutils.WithNATSCRFinalizer(NATSFinalizerName)),
+			givenNats:  testutils.NewNATSCR(testutils.WithNATSCRFinalizer(NATSFinalizerName)),
 			wantResult: true,
 		},
 	}
@@ -53,7 +53,7 @@ func Test_addFinalizer(t *testing.T) {
 		t.Parallel()
 
 		// given
-		givenNats := testutils.NewSampleNATSCR()
+		givenNats := testutils.NewNATSCR()
 
 		testEnv := NewMockedUnitTestEnvironment(t, givenNats)
 		reconciler := testEnv.Reconciler
@@ -76,7 +76,7 @@ func Test_removeFinalizer(t *testing.T) {
 		t.Parallel()
 
 		// given
-		givenNats := testutils.NewSampleNATSCR(testutils.WithNATSCRFinalizer(NATSFinalizerName))
+		givenNats := testutils.NewNATSCR(testutils.WithNATSCRFinalizer(NATSFinalizerName))
 
 		testEnv := NewMockedUnitTestEnvironment(t, givenNats)
 		reconciler := testEnv.Reconciler

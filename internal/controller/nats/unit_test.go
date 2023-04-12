@@ -36,7 +36,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	ctx := context.Background()
 
 	// setup logger
-	sugaredLogger, err := testutils.NewTestSugaredLogger()
+	sugaredLogger, err := testutils.NewSugaredLogger()
 	require.NoError(t, err)
 
 	// setup fake client for k8s
@@ -75,8 +75,8 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	}
 }
 
-func (testEnv *MockedUnitTestEnvironment) GetNATS(name, namespace string) (natsv1alpha1.Nats, error) {
-	var nats natsv1alpha1.Nats
+func (testEnv *MockedUnitTestEnvironment) GetNATS(name, namespace string) (natsv1alpha1.NATS, error) {
+	var nats natsv1alpha1.NATS
 	err := testEnv.Client.Get(testEnv.Context, types.NamespacedName{
 		Name:      name,
 		Namespace: namespace,

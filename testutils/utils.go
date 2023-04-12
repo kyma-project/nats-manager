@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func NewTestLogger() (*zap.Logger, error) {
+func NewLogger() (*zap.Logger, error) {
 	loggerConfig := zap.NewDevelopmentConfig()
 	loggerConfig.EncoderConfig.TimeKey = "timestamp"
 	loggerConfig.Encoding = "json"
@@ -20,15 +20,15 @@ func NewTestLogger() (*zap.Logger, error) {
 	return loggerConfig.Build()
 }
 
-func NewTestSugaredLogger() (*zap.SugaredLogger, error) {
-	logger, err := NewTestLogger()
+func NewSugaredLogger() (*zap.SugaredLogger, error) {
+	logger, err := NewLogger()
 	if err != nil {
 		return nil, err
 	}
 	return logger.Sugar(), nil
 }
 
-func NewSampleNATSStatefulSetUnStruct(opts ...SampleOption) *unstructured.Unstructured {
+func NewNATSStatefulSetUnStruct(opts ...Option) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"kind":       "StatefulSet",
@@ -48,7 +48,7 @@ func NewSampleNATSStatefulSetUnStruct(opts ...SampleOption) *unstructured.Unstru
 	return obj
 }
 
-func NewSampleSecretUnStruct(opts ...SampleOption) *unstructured.Unstructured {
+func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"kind":       "Secret",
@@ -68,18 +68,18 @@ func NewSampleSecretUnStruct(opts ...SampleOption) *unstructured.Unstructured {
 	return obj
 }
 
-func NewSampleSecret(opts ...SampleOption) *apiv1.Secret {
+func NewSecret(opts ...Option) *apiv1.Secret {
 	sampleSecret := apiv1.Secret{}
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(
-		NewSampleSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
+		NewSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
 	if err != nil {
 		panic(err)
 	}
 	return &sampleSecret
 }
 
-func NewSampleNATSCR(opts ...SampleNATSOption) *v1alpha1.Nats {
-	nats := &v1alpha1.Nats{
+func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
+	nats := &v1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1alpha1",
@@ -101,7 +101,7 @@ func NewSampleNATSCR(opts ...SampleNATSOption) *v1alpha1.Nats {
 	return nats
 }
 
-func NewSampleDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
+func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 	result := &apiextensionsv1.CustomResourceDefinition{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "apiextensions.k8s.io/v1",

@@ -25,7 +25,7 @@ var testChartDir = filepath.Join("test", "resources", testChartName) //nolint: g
 func Test_getChartConfiguration(t *testing.T) {
 	t.Parallel()
 
-	logger, err := testutils.NewTestLogger()
+	logger, err := testutils.NewLogger()
 	require.NoError(t, err)
 	sugaredLogger := logger.Sugar()
 
@@ -60,7 +60,7 @@ func Test_getChartConfiguration(t *testing.T) {
 func Test_overrideChartConfiguration(t *testing.T) {
 	t.Parallel()
 
-	logger, err := testutils.NewTestLogger()
+	logger, err := testutils.NewLogger()
 	require.NoError(t, err)
 	sugaredLogger := logger.Sugar()
 
@@ -128,7 +128,7 @@ func Test_overrideChartConfiguration(t *testing.T) {
 }
 
 func Test_RenderManifest(t *testing.T) {
-	logger, err := testutils.NewTestLogger()
+	logger, err := testutils.NewLogger()
 	require.NoError(t, err)
 	sugaredLogger := logger.Sugar()
 
@@ -164,7 +164,7 @@ func Test_RenderManifest(t *testing.T) {
 }
 
 func Test_RenderManifestAsUnstructured(t *testing.T) {
-	logger, err := testutils.NewTestLogger()
+	logger, err := testutils.NewLogger()
 	require.NoError(t, err)
 	sugaredLogger := logger.Sugar()
 

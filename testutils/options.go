@@ -9,10 +9,10 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-type SampleOption func(*unstructured.Unstructured) error
-type SampleNATSOption func(*v1alpha1.Nats) error
+type Option func(*unstructured.Unstructured) error
+type NATSOption func(*v1alpha1.NATS) error
 
-func WithName(name string) SampleOption {
+func WithName(name string) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
 			o.Object["metadata"] = make(map[string]interface{})
@@ -27,7 +27,7 @@ func WithName(name string) SampleOption {
 	}
 }
 
-func WithNamespace(namespace string) SampleOption {
+func WithNamespace(namespace string) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
 			o.Object["metadata"] = make(map[string]interface{})
@@ -42,7 +42,7 @@ func WithNamespace(namespace string) SampleOption {
 	}
 }
 
-func WithSpecReplicas(replicas int) SampleOption {
+func WithSpecReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["spec"]; !exists {
 			o.Object["spec"] = make(map[string]interface{})
@@ -57,7 +57,7 @@ func WithSpecReplicas(replicas int) SampleOption {
 	}
 }
 
-func WithStatefulSetStatusAvailableReplicas(replicas int) SampleOption {
+func WithStatefulSetStatusAvailableReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["status"]; !exists {
 			o.Object["status"] = make(map[string]interface{})
@@ -72,7 +72,7 @@ func WithStatefulSetStatusAvailableReplicas(replicas int) SampleOption {
 	}
 }
 
-func WithStatefulSetStatusReadyReplicas(replicas int) SampleOption {
+func WithStatefulSetStatusReadyReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["status"]; !exists {
 			o.Object["status"] = make(map[string]interface{})
@@ -87,43 +87,43 @@ func WithStatefulSetStatusReadyReplicas(replicas int) SampleOption {
 	}
 }
 
-func WithNATSCRFinalizer(finalizer string) SampleNATSOption {
-	return func(nats *v1alpha1.Nats) error {
+func WithNATSCRFinalizer(finalizer string) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
 		controllerutil.AddFinalizer(nats, finalizer)
 		return nil
 	}
 }
 
-func WithNATSCRStatusInitialized() SampleNATSOption {
-	return func(nats *v1alpha1.Nats) error {
+func WithNATSCRStatusInitialized() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
 		nats.Status.Initialize()
 		return nil
 	}
 }
 
-func WithNATSStateReady() SampleNATSOption {
-	return func(nats *v1alpha1.Nats) error {
+func WithNATSStateReady() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
 		nats.Status.State = v1alpha1.StateReady
 		return nil
 	}
 }
 
-func WithNATSStateProcessing() SampleNATSOption {
-	return func(nats *v1alpha1.Nats) error {
+func WithNATSStateProcessing() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
 		nats.Status.State = v1alpha1.StateProcessing
 		return nil
 	}
 }
 
-func WithNATSCRName(name string) SampleNATSOption {
-	return func(nats *v1alpha1.Nats) error {
+func WithNATSCRName(name string) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
 		nats.Name = name
 		return nil
 	}
 }
 
-func WithNATSCRNamespace(namespace string) SampleNATSOption {
-	return func(nats *v1alpha1.Nats) error {
+func WithNATSCRNamespace(namespace string) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
 		nats.Namespace = namespace
 		return nil
 	}
