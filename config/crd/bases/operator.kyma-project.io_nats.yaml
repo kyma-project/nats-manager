@@ -45,10 +45,10 @@ spec:
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
-                description: Annotations allows to add annotations to NATS.
-                items:
+                additionalProperties:
                   type: string
-                type: array
+                description: Annotations allows to add annotations to NATS.
+                type: object
               cluster:
                 description: Cluster defines configurations that are specific to NATS
                   clusters.

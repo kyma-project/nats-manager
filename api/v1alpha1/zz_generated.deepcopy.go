@@ -171,8 +171,10 @@ func (in *NATSSpec) DeepCopyInto(out *NATSSpec) {
 	in.Resources.DeepCopyInto(&out.Resources)
 	if in.Annotations != nil {
 		in, out := &in.Annotations, &out.Annotations
-		*out = make([]string, len(*in))
-		copy(*out, *in)
+		*out = make(map[string]string, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
 	}
 	if in.Labels != nil {
 		in, out := &in.Labels, &out.Labels

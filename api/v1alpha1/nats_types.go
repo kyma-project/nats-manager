@@ -89,7 +89,7 @@ type NATSSpec struct {
 
 	// Annotations allows to add annotations to NATS.
 	// +optional
-	Annotations []string `json:"annotations,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// Labels allows to add Labels to NATS.
 	// +optional
