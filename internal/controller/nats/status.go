@@ -101,7 +101,7 @@ func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 	// start watcher for DestinationRules.
 	return r.Controller.Watch(
 		&source.Kind{Type: destinationRuleType},
-		&handler.EnqueueRequestForOwner{OwnerType: &natsv1alpha1.Nats{}, IsController: true},
+		&handler.EnqueueRequestForOwner{OwnerType: &natsv1alpha1.NATS{}, IsController: true},
 		labelSelectorPredicate,
 		predicate.ResourceVersionChangedPredicate{},
 		ignoreCreationPredicate,

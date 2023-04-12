@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	ctrlmocks "github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
+
 	"k8s.io/apimachinery/pkg/runtime"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -27,6 +29,7 @@ type MockedUnitTestEnvironment struct {
 	chartRenderer *chartmocks.Renderer
 	natsManager   *managermocks.Manager
 	Reconciler    *Reconciler
+	controller    *ctrlmocks.Controller
 	Logger        *zap.SugaredLogger
 	Recorder      *record.FakeRecorder
 }
@@ -51,6 +54,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	chartRenderer := new(chartmocks.Renderer)
 	kubeClient := new(k8smocks.Client)
 	natsManager := new(managermocks.Manager)
+	mockController := new(ctrlmocks.Controller)
 
 	// setup reconciler
 	reconciler := NewReconciler(
@@ -62,6 +66,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		recorder,
 		natsManager,
 	)
+	reconciler.Controller = mockController
 
 	return &MockedUnitTestEnvironment{
 		Context:       ctx,
@@ -69,6 +74,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		kubeClient:    kubeClient,
 		chartRenderer: chartRenderer,
 		Reconciler:    reconciler,
+		controller:    mockController,
 		Logger:        sugaredLogger,
 		Recorder:      recorder,
 		natsManager:   natsManager,

@@ -115,13 +115,14 @@ func Test_handleNATSReconcile(t *testing.T) {
 
 	// define test cases
 	testCases := []struct {
-		name                   string
-		givenStatefulSetReady  bool
-		givenNATS              *natsv1alpha1.NATS
-		givenDeployError       error
-		wantFinalizerCheckOnly bool
-		wantState              string
-		wantConditions         []metav1.Condition
+		name                            string
+		givenStatefulSetReady           bool
+		givenNATS                       *natsv1alpha1.NATS
+		givenDeployError                error
+		wantFinalizerCheckOnly          bool
+		wantState                       string
+		wantConditions                  []metav1.Condition
+		wantDestinationRuleWatchStarted bool
 	}{
 		{
 			name:                  "should set finalizer first when missing",
@@ -187,6 +188,34 @@ func Test_handleNATSReconcile(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:                  "should watch destinationRule when enabled",
+			givenStatefulSetReady: true,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRName("eventing-nats"),
+				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSCRFinalizer(NATSFinalizerName),
+			),
+			givenDeployError: nil,
+			wantState:        natsv1alpha1.StateReady,
+			wantConditions: []metav1.Condition{
+				{
+					Type:               string(natsv1alpha1.ConditionStatefulSet),
+					Status:             metav1.ConditionTrue,
+					LastTransitionTime: metav1.Now(),
+					Reason:             string(natsv1alpha1.ConditionReasonStatefulSetAvailable),
+					Message:            "StatefulSet is ready",
+				},
+				{
+					Type:               string(natsv1alpha1.ConditionAvailable),
+					Status:             metav1.ConditionTrue,
+					LastTransitionTime: metav1.Now(),
+					Reason:             string(natsv1alpha1.ConditionReasonDeployed),
+					Message:            "NATS is deployed",
+				},
+			},
+			wantDestinationRuleWatchStarted: true,
+		},
 	}
 
 	// run test cases
@@ -204,7 +233,11 @@ func Test_handleNATSReconcile(t *testing.T) {
 			testEnv.natsManager.On("IsNATSStatefulSetReady",
 				mock.Anything, mock.Anything).Return(tc.givenStatefulSetReady, nil)
 			testEnv.kubeClient.On("DestinationRuleCRDExists",
-				mock.Anything).Return(false, nil)
+				mock.Anything).Return(tc.wantDestinationRuleWatchStarted, nil)
+			testEnv.controller.On("Watch",
+				mock.Anything, mock.Anything,
+				mock.Anything, mock.Anything,
+				mock.Anything).Return(nil)
 			testEnv.kubeClient.On("GetSecret",
 				mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 			natsResources := &chart.ManifestResources{
@@ -225,6 +258,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 
 			// then
 			require.NoError(t, err)
+			require.Equal(t, tc.wantDestinationRuleWatchStarted, reconciler.destinationRuleWatchStarted)
 			gotNATS, err := testEnv.GetNATS(tc.givenNATS.Name, tc.givenNATS.Namespace)
 			require.NoError(t, err)
 			require.Equal(t, tc.wantState, gotNATS.Status.State)
