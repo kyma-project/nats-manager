@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -65,7 +66,7 @@ type NATS struct {
 
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
-	State      State              `json:"state"`
+	State      `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
@@ -84,7 +85,7 @@ type NATSSpec struct {
 
 	// Resources defines resources for NATS.
 	// +optional
-	Resources `json:"resources,omitempty"`
+	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Annotations allows to add annotations to NATS.
 	// +optional
@@ -137,24 +138,6 @@ type Logging struct {
 
 	// Trace allows trace logging.
 	Trace bool `json:"trace"`
-}
-
-type Resources struct {
-	// Limits defines the resource limits for NATS.
-	// +optional
-	Limits Resource `json:"limits,omitempty"`
-
-	// Requests defines the requested resources for NATS.
-	// +optional
-	Requests Resource `json:"requests,omitempty"`
-}
-
-type Resource struct {
-	// CPU defines the amount of CPUs.
-	CPU string `json:"cpu"`
-
-	// Memory defines the amount of memory.
-	Memory string `json:"memory"`
 }
 
 //+kubebuilder:object:root=true
