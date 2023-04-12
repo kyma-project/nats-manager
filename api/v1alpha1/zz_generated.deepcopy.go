@@ -169,8 +169,8 @@ func (in *NATSSpec) DeepCopyInto(out *NATSSpec) {
 	out.JetStream = in.JetStream
 	out.Logging = in.Logging
 	out.Resources = in.Resources
-	if in.Annotaions != nil {
-		in, out := &in.Annotaions, &out.Annotaions
+	if in.Annotations != nil {
+		in, out := &in.Annotations, &out.Annotations
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}

@@ -45,7 +45,7 @@ spec:
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
-                description: todo
+                description: Annotations allows to add annotations to NATS.
                 items:
                   type: string
                 type: array
@@ -93,8 +93,8 @@ spec:
                     - size
                     type: object
                 type: object
-              label:
-                description: todo
+              labels:
+                description: Labels allows to add Labels to NATS.
                 items:
                   type: string
                 type: array
@@ -113,10 +113,10 @@ spec:
                 - trace
                 type: object
               resources:
-                description: todo
+                description: Resources defines resources for NATS.
                 properties:
                   limits:
-                    description: todo
+                    description: Limits defines the resource limits for NATS.
                     properties:
                       cpu:
                         description: CPU defines the amount of CPUs.
@@ -129,7 +129,7 @@ spec:
                     - memory
                     type: object
                   requests:
-                    description: todo
+                    description: Requests defines the requested resources for NATS.
                     properties:
                       cpu:
                         description: CPU defines the amount of CPUs.
@@ -141,9 +141,6 @@ spec:
                     - cpu
                     - memory
                     type: object
-                required:
-                - limits
-                - requests
                 type: object
             required:
             - cluster
