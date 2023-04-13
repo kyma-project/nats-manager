@@ -25,7 +25,6 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/pkg/manager"
 	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/api/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -44,6 +43,8 @@ const (
 )
 
 // Reconciler reconciles a Nats object.
+//
+//go:generate mockery --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
 type Reconciler struct {
 	client.Client
 	controller.Controller
