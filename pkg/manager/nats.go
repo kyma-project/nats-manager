@@ -14,7 +14,7 @@ type NatsConfig struct {
 }
 
 // Perform a compile time check.
-var _ Manager = &NatsManager{}
+var _ Manager = &NATSManager{}
 
 //go:generate mockery --name=Manager --outpkg=mocks --case=underscore
 type Manager interface {
@@ -24,21 +24,21 @@ type Manager interface {
 	IsNATSStatefulSetReady(context.Context, *chart.ReleaseInstance) (bool, error)
 }
 
-type NatsManager struct {
+type NATSManager struct {
 	kubeClient    k8s.Client
 	chartRenderer chart.Renderer
 	logger        *zap.SugaredLogger
 }
 
 func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *zap.SugaredLogger) Manager {
-	return NatsManager{
+	return NATSManager{
 		kubeClient:    kubeClient,
 		chartRenderer: chartRenderer,
 		logger:        logger,
 	}
 }
 
-func (m NatsManager) GenerateNATSResources(instance *chart.ReleaseInstance,
+func (m NATSManager) GenerateNATSResources(instance *chart.ReleaseInstance,
 	opts ...Option) (*chart.ManifestResources, error) {
 	manifests, err := m.chartRenderer.RenderManifestAsUnstructured(instance)
 	if err == nil {
@@ -55,7 +55,7 @@ func (m NatsManager) GenerateNATSResources(instance *chart.ReleaseInstance,
 	return manifests, err
 }
 
-func (m NatsManager) DeployInstance(ctx context.Context, instance *chart.ReleaseInstance) error {
+func (m NATSManager) DeployInstance(ctx context.Context, instance *chart.ReleaseInstance) error {
 	for _, object := range instance.RenderedManifests.Items {
 		if err := m.kubeClient.PatchApply(ctx, object); err != nil {
 			return err
@@ -64,7 +64,7 @@ func (m NatsManager) DeployInstance(ctx context.Context, instance *chart.Release
 	return nil
 }
 
-func (m NatsManager) DeleteInstance(ctx context.Context, instance *chart.ReleaseInstance) error {
+func (m NATSManager) DeleteInstance(ctx context.Context, instance *chart.ReleaseInstance) error {
 	for _, object := range instance.RenderedManifests.Items {
 		if err := m.kubeClient.Delete(ctx, object); err != nil {
 			return err
@@ -73,7 +73,7 @@ func (m NatsManager) DeleteInstance(ctx context.Context, instance *chart.Release
 	return nil
 }
 
-func (m NatsManager) IsNATSStatefulSetReady(ctx context.Context, instance *chart.ReleaseInstance) (bool, error) {
+func (m NATSManager) IsNATSStatefulSetReady(ctx context.Context, instance *chart.ReleaseInstance) (bool, error) {
 	// get statefulSets from rendered manifests
 	statefulSets := instance.GetStatefulSets()
 	if len(statefulSets) == 0 {
