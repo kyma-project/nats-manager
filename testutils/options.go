@@ -93,3 +93,38 @@ func WithNATSCRFinalizer(finalizer string) NATSOption {
 		return nil
 	}
 }
+
+func WithNATSCRStatusInitialized() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Status.Initialize()
+		return nil
+	}
+}
+
+func WithNATSStateReady() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Status.State = v1alpha1.StateReady
+		return nil
+	}
+}
+
+func WithNATSStateProcessing() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Status.State = v1alpha1.StateProcessing
+		return nil
+	}
+}
+
+func WithNATSCRName(name string) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Name = name
+		return nil
+	}
+}
+
+func WithNATSCRNamespace(namespace string) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Namespace = namespace
+		return nil
+	}
+}

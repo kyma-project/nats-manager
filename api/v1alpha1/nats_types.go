@@ -25,13 +25,11 @@ type ConditionReason string
 
 type ConditionType string
 
-type State string
-
 const (
-	StateReady      State = "Ready"
-	StateError      State = "Error"
-	StateProcessing State = "Processing"
-	StateDeleting   State = "Deleting"
+	StateReady      string = "Ready"
+	StateError      string = "Error"
+	StateProcessing string = "Processing"
+	StateDeleting   string = "Deleting"
 
 	ConditionAvailable   ConditionType = "Available"
 	ConditionStatefulSet ConditionType = "StatefulSet"
@@ -39,7 +37,7 @@ const (
 	ConditionReasonProcessing           ConditionReason = "Processing"
 	ConditionReasonDeploying            ConditionReason = "Deploying"
 	ConditionReasonDeployed             ConditionReason = "Deployed"
-	ConditionReasonDeployError          ConditionReason = "FailedDeploy"
+	ConditionReasonProcessingError                      = ConditionReason("FailedProcessing")
 	ConditionReasonStatefulSetAvailable ConditionReason = "Available"
 	ConditionReasonStatefulSetPending   ConditionReason = "Pending"
 	ConditionReasonSyncFailError        ConditionReason = "FailedToSyncResources"
@@ -66,7 +64,7 @@ type NATS struct {
 
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
-	State      `json:"state"`
+	State      string             `json:"state"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 

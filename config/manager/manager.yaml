@@ -69,6 +69,9 @@ spec:
         image: controller:latest
         imagePullPolicy: Always
         name: manager
+        env:
+        - name: NATS_CHART_DIR
+          value: "/resources/nats"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
