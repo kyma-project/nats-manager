@@ -27,6 +27,11 @@ func Test_DirExists(t *testing.T) {
 				path:       "./not_exists123",
 				wantResult: false,
 			},
+			{
+				name:       "should return false if path is empty",
+				path:       "",
+				wantResult: false,
+			},
 		}
 
 		// run test cases

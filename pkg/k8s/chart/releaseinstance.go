@@ -9,10 +9,12 @@ import (
 	"github.com/imdario/mergo"
 )
 
-func NewReleaseInstance(name, namespace string, configuration map[string]interface{}) *ReleaseInstance {
+func NewReleaseInstance(name, namespace string, istioEnabled bool,
+	configuration map[string]interface{}) *ReleaseInstance {
 	return &ReleaseInstance{
 		Name:          name,
 		Namespace:     namespace,
+		IstioEnabled:  istioEnabled,
 		Configuration: configuration,
 	}
 }
@@ -20,6 +22,7 @@ func NewReleaseInstance(name, namespace string, configuration map[string]interfa
 type ReleaseInstance struct {
 	Name              string
 	Namespace         string
+	IstioEnabled      bool
 	Configuration     map[string]interface{}
 	RenderedManifests ManifestResources
 }

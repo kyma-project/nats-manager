@@ -18,8 +18,6 @@ import (
 // Perform a compile time check.
 var _ Client = &KubeClient{}
 
-const DestinationRuleCrdName string = "destinationrules.networking.istio.io"
-
 //go:generate mockery --name=Client --outpkg=mocks --case=underscore
 type Client interface {
 	PatchApply(context.Context, *unstructured.Unstructured) error

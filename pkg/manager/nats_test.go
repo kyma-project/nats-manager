@@ -48,7 +48,7 @@ func Test_GenerateNATSResources(t *testing.T) {
 			t.Parallel()
 
 			// given
-			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
+			releaseInstance := chart.NewReleaseInstance("test", "test", false, map[string]interface{}{})
 			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
@@ -119,7 +119,8 @@ func Test_DeployInstance(t *testing.T) {
 			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
-			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
+			releaseInstance := chart.NewReleaseInstance("test", "test",
+				false, map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
 					testutils.NewNATSStatefulSetUnStruct(),
@@ -183,7 +184,8 @@ func Test_DeleteInstance(t *testing.T) {
 			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
-			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
+			releaseInstance := chart.NewReleaseInstance("test", "test",
+				false, map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
 					testutils.NewNATSStatefulSetUnStruct(),
@@ -299,7 +301,8 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 				).Return(&stsStructObject, nil).Once()
 			}
 
-			releaseInstance := chart.NewReleaseInstance("test", "test", map[string]interface{}{})
+			releaseInstance := chart.NewReleaseInstance("test", "test",
+				false, map[string]interface{}{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: items,
 			})

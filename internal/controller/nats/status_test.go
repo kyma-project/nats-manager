@@ -4,6 +4,12 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/stretchr/testify/mock"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/source"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
@@ -204,4 +210,35 @@ func Test_updateStatus(t *testing.T) {
 			require.True(t, gotNats.Status.IsEqual(tc.wantNATSStatus))
 		})
 	}
+}
+
+func Test_watchDestinationRule(t *testing.T) {
+	t.Parallel()
+
+	// given
+	testEnv := NewMockedUnitTestEnvironment(t)
+	reconciler := testEnv.Reconciler
+
+	destinationRuleType := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       k8s.DestinationRuleKind,
+			"apiVersion": k8s.DestinationRuleAPIVersion,
+		},
+	}
+
+	// define mock behaviour
+	testEnv.controller.On("Watch",
+		&source.Kind{Type: destinationRuleType},
+		mock.Anything,
+		mock.Anything,
+		predicate.ResourceVersionChangedPredicate{},
+		mock.Anything,
+	).Return(nil).Once()
+
+	// when
+	err := reconciler.watchDestinationRule(testEnv.Logger)
+
+	// then
+	require.NoError(t, err)
+	testEnv.controller.AssertExpectations(t)
 }
