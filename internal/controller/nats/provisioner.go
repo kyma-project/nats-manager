@@ -34,7 +34,7 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 
 	log.Info("deploying NATS resources...")
 	// deploy NATS resources
-	if err = r.NATSManager.DeployInstance(ctx, instance); err != nil {
+	if err = r.natsManager.DeployInstance(ctx, instance); err != nil {
 		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
@@ -58,7 +58,7 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance,
 	log *zap.SugaredLogger) (ctrl.Result, error) {
 	// checking if statefulSet is ready.
-	isSTSReady, err := r.NATSManager.IsNATSStatefulSetReady(ctx, instance)
+	isSTSReady, err := r.natsManager.IsNATSStatefulSetReady(ctx, instance)
 	if err != nil {
 		nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonSyncFailError, err.Error())

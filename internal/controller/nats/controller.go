@@ -47,13 +47,13 @@ const (
 //go:generate mockery --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
 type Reconciler struct {
 	client.Client
-	controller.Controller
+	controller                  controller.Controller
 	kubeClient                  k8s.Client
 	chartRenderer               chart.Renderer
-	Scheme                      *runtime.Scheme
+	scheme                      *runtime.Scheme
 	recorder                    record.EventRecorder
 	logger                      *zap.SugaredLogger
-	NATSManager                 manager.Manager
+	natsManager                 manager.Manager
 	destinationRuleWatchStarted bool
 }
 
@@ -70,12 +70,12 @@ func NewReconciler(
 		Client:                      client,
 		kubeClient:                  kubeClient,
 		chartRenderer:               chartRenderer,
-		Scheme:                      scheme,
+		scheme:                      scheme,
 		recorder:                    recorder,
 		logger:                      logger,
-		NATSManager:                 natsManager,
+		natsManager:                 natsManager,
 		destinationRuleWatchStarted: false,
-		Controller:                  nil,
+		controller:                  nil,
 	}
 }
 
@@ -114,7 +114,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 // It puts results into ReleaseInstance.
 func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance) error {
 	// generate Nats resources from chart
-	natsResources, err := r.NATSManager.GenerateNATSResources(
+	natsResources, err := r.natsManager.GenerateNATSResources(
 		instance,
 		manager.WithOwnerReference(*nats), // add owner references to all resources
 		manager.WithLabel(ManagedByLabelKey, ManagedByLabelValue),
@@ -138,15 +138,8 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 	}
 	log.Infof("Istio enabled on cluster: %t", istioExists)
 
-	// Init a release instance
-	instance := &chart.ReleaseInstance{
-		Name:         nats.Name,
-		Namespace:    nats.Namespace,
-		IstioEnabled: istioExists,
-	}
-
+	// Check if NATS account secret exists.
 	accountSecretName := fmt.Sprintf("%s-secret", nats.Name)
-	// Check if secret exists then make sure the password is same
 	accountSecret, err := r.kubeClient.GetSecret(ctx, accountSecretName, nats.Namespace)
 	if err != nil && !errors.IsNotFound(err) {
 		log.Errorf("Failed to fetch secret: %s", accountSecretName)
@@ -156,10 +149,13 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 	log.Infof("NATS account secret (name: %s) exists: %t", accountSecretName, accountSecret != nil)
 
 	// @TODO: Provide the overrides in component.Configuration
-	instance.Configuration = map[string]interface{}{
+	overrides := map[string]interface{}{
 		"istio.enabled":       istioExists,
 		"auth.rotatePassword": accountSecret == nil, // do not recreate secret if it exists
 	}
+
+	// Init a release instance
+	instance := chart.NewReleaseInstance(nats.Name, nats.Namespace, istioExists, overrides)
 
 	if err = r.generateNatsResources(nats, instance); err != nil {
 		return nil, err
@@ -171,7 +167,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	var err error
-	r.Controller, err = ctrl.NewControllerManagedBy(mgr).
+	r.controller, err = ctrl.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.NATS{}).
 		Owns(&appsv1.StatefulSet{}). // watch for StatefulSets.
 		Owns(&apiv1.Service{}).      // watch for services.

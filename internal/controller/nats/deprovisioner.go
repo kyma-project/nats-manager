@@ -26,7 +26,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	}
 
 	// delete all NATS resources
-	if err = r.NATSManager.DeleteInstance(ctx, instance); err != nil {
+	if err = r.natsManager.DeleteInstance(ctx, instance); err != nil {
 		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 

@@ -66,7 +66,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		recorder,
 		natsManager,
 	)
-	reconciler.Controller = mockController
+	reconciler.controller = mockController
 
 	return &MockedUnitTestEnvironment{
 		Context:       ctx,
