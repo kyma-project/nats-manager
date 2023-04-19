@@ -68,8 +68,12 @@ spec:
                       in NATS JetStream.
                     properties:
                       size:
+                        anyOf:
+                        - type: integer
+                        - type: string
                         description: Size defines the file storage size.
-                        type: string
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
                       storageClassName:
                         description: StorageClassName defines the file storage class
                           name.
@@ -86,8 +90,12 @@ spec:
                         description: Enable allows the enablement of memory storage.
                         type: boolean
                       size:
+                        anyOf:
+                        - type: integer
+                        - type: string
                         description: Size defines the mem.
-                        type: string
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
                     required:
                     - enable
                     - size
