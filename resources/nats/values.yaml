@@ -244,7 +244,7 @@ nats:
       # Use below block to create new persistent volume
       # only used if existingClaim is not specified
       size: 1Gi
-      # storageClassName: ""
+      storageClassName: ""
       accessModes:
         - ReadWriteOnce
       annotations:
@@ -304,7 +304,7 @@ serviceAnnotations:
 cluster:
   enabled: false
   name: eventing-nats
-  replicas: 3
+  replicas: 1
   noAdvertise: false
 
 appProtocol:
@@ -316,6 +316,9 @@ k8sClusterDomain: cluster.local
 
 # Add labels to all the deployed resources
 commonLabels: {}
+
+# Add annotations to all the deployed resources
+commonAnnotations: {}
 
 # Prometheus NATS Exporter configuration.
 exporter:

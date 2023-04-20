@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -96,6 +98,13 @@ func Test_handleNATSDeletion(t *testing.T) {
 			}
 			testEnv.natsManager.On("GenerateNATSResources",
 				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
+			testEnv.natsManager.On("GenerateOverrides",
+				mock.Anything, mock.Anything, mock.Anything).Return(
+				map[string]interface{}{
+					natsmanager.IstioEnabledKey:   false,
+					natsmanager.RotatePasswordKey: true, // do not recreate secret if it exists
+				},
+			)
 
 			if tc.givenDeletionError != nil {
 				testEnv.natsManager.On("DeleteInstance",

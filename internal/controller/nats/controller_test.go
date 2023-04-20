@@ -5,6 +5,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -50,22 +51,22 @@ func Test_initNATSInstance(t *testing.T) {
 
 	// define test cases
 	testCases := []struct {
-		name             string
-		givenNATS        *natsv1alpha1.NATS
-		wantIstioEnabled bool
-		wantSecretExists bool
+		name               string
+		givenNATS          *natsv1alpha1.NATS
+		wantIstioEnabled   bool
+		wantRotatePassword bool
 	}{
 		{
-			name:             "should return instance with right configurations and manifests (istio: disabled)",
-			givenNATS:        testutils.NewNATSCR(),
-			wantIstioEnabled: false,
-			wantSecretExists: false,
+			name:               "should return instance with right configurations and manifests (istio: disabled)",
+			givenNATS:          testutils.NewNATSCR(),
+			wantIstioEnabled:   false,
+			wantRotatePassword: false,
 		},
 		{
-			name:             "should return instance with right configurations and manifests (istio: enabled)",
-			givenNATS:        testutils.NewNATSCR(),
-			wantIstioEnabled: true,
-			wantSecretExists: true,
+			name:               "should return instance with right configurations and manifests (istio: enabled)",
+			givenNATS:          testutils.NewNATSCR(),
+			wantIstioEnabled:   true,
+			wantRotatePassword: true,
 		},
 	}
 
@@ -82,13 +83,15 @@ func Test_initNATSInstance(t *testing.T) {
 			// define mocks behaviour
 			testEnv.kubeClient.On("DestinationRuleCRDExists",
 				mock.Anything).Return(tc.wantIstioEnabled, nil)
-			if tc.wantSecretExists {
+			if tc.wantRotatePassword {
+				// if secret do not exist, then password will be rotated.
+				testEnv.kubeClient.On("GetSecret",
+					mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+			} else {
+				// if secret exist, then password will not be rotated.
 				sampleSecret := testutils.NewSecret()
 				testEnv.kubeClient.On("GetSecret",
 					mock.Anything, mock.Anything, mock.Anything).Return(sampleSecret, nil)
-			} else {
-				testEnv.kubeClient.On("GetSecret",
-					mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 			}
 
 			natsResources := &chart.ManifestResources{
@@ -99,6 +102,14 @@ func Test_initNATSInstance(t *testing.T) {
 			testEnv.natsManager.On("GenerateNATSResources",
 				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
 
+			testEnv.natsManager.On("GenerateOverrides",
+				mock.Anything, mock.Anything, mock.Anything).Return(
+				map[string]interface{}{
+					natsmanager.IstioEnabledKey:   tc.wantIstioEnabled,
+					natsmanager.RotatePasswordKey: tc.wantRotatePassword, // do not recreate secret if it exists
+				},
+			)
+
 			// when
 			releaseInstance, err := reconciler.initNATSInstance(testEnv.Context, tc.givenNATS, testEnv.Logger)
 
@@ -107,7 +118,7 @@ func Test_initNATSInstance(t *testing.T) {
 			require.Len(t, releaseInstance.RenderedManifests.Items, len(natsResources.Items))
 			require.Equal(t, tc.wantIstioEnabled, releaseInstance.Configuration["istio.enabled"])
 			// if secret does not exist, then it should rotate password to create new secret
-			require.Equal(t, !tc.wantSecretExists, releaseInstance.Configuration["auth.rotatePassword"])
+			require.Equal(t, tc.wantRotatePassword, releaseInstance.Configuration["auth.rotatePassword"])
 		})
 	}
 }

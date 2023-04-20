@@ -1,6 +1,9 @@
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	k8sresource "k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 // ConditionsEquals checks if two list of conditions are equal.
 func ConditionsEquals(existing, expected []metav1.Condition) bool {
@@ -36,4 +39,8 @@ func ConditionEquals(existing, expected metav1.Condition) bool {
 	}
 
 	return true
+}
+
+func IsValidResourceQuantity(quantity *k8sresource.Quantity) bool {
+	return quantity != nil && quantity.String() != "0"
 }
