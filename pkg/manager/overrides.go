@@ -37,7 +37,7 @@ func (m NATSManager) GenerateOverrides(spec *natsv1alpha1.NATSSpec, istioEnabled
 	}
 
 	// file storage
-	if spec.FileStorage.Size != "" {
+	if string(spec.FileStorage.Size) != "" {
 		overrides[FileStorageSizeKey] = spec.FileStorage.Size
 	}
 	if spec.FileStorage.StorageClassName != "" {
@@ -46,7 +46,7 @@ func (m NATSManager) GenerateOverrides(spec *natsv1alpha1.NATSSpec, istioEnabled
 
 	// memory storage
 	overrides[MemStorageEnabledKey] = spec.MemStorage.Enable
-	if spec.MemStorage.Enable && spec.MemStorage.Size != "" {
+	if spec.MemStorage.Enable && string(spec.MemStorage.Size) != "" {
 		overrides[MemStorageSizeKey] = spec.MemStorage.Size
 	}
 
