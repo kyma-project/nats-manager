@@ -53,7 +53,7 @@ containerSecurityContext:
 #                             #
 ###############################
 istio:
-  enabled: false
+  enabled: true
 
 ###############################
 #                             #

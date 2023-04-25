@@ -6,9 +6,14 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "nats.labels" . | nindent 4 }}
-  {{- if .Values.statefulSetAnnotations }}
+  {{- if or .Values.statefulSetAnnotations .Values.commonAnnotations}}
   annotations:
+  {{- if .Values.statefulSetAnnotations }}
     {{- toYaml .Values.statefulSetAnnotations | nindent 4 }}
+  {{- end }}
+  {{- if .Values.commonAnnotations }}
+    {{- toYaml .Values.commonAnnotations | nindent 4 }}
+  {{- end }}
   {{- end }}
 spec:
   selector:
@@ -36,11 +41,17 @@ spec:
       {{- if .Values.podAnnotations }}
         {{- toYaml .Values.podAnnotations | nindent 8 }}
       {{- end }}
+      {{- if .Values.commonAnnotations }}
+        {{- toYaml .Values.commonAnnotations | nindent 8 }}
+      {{- end }}
       {{- end }}
       labels:
         {{- include "nats.selectorLabels" . | nindent 8 }}
         {{- if .Values.statefulSetPodLabels }}
         {{ toYaml .Values.statefulSetPodLabels | nindent 8 }}
+        {{- end }}
+        {{- if .Values.commonLabels }}
+        {{ toYaml .Values.commonLabels | nindent 8 }}
         {{- end }}
     spec:
 {{- if or .Values.priorityClassName .Values.global.priorityClassName }}

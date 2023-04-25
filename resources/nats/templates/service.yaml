@@ -6,9 +6,14 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "nats.labels" . | nindent 4 }}
-  {{- if .Values.serviceAnnotations}}
+  {{- if or .Values.serviceAnnotations .Values.commonAnnotations}}
   annotations:
+  {{- if .Values.serviceAnnotations }}
     {{- toYaml .Values.serviceAnnotations | nindent 4 }}
+  {{- end }}
+  {{- if .Values.commonAnnotations }}
+    {{- toYaml .Values.commonAnnotations | nindent 4 }}
+  {{- end }}
   {{- end }}
 spec:
   selector:
