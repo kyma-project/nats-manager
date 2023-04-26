@@ -3,6 +3,9 @@ package v1alpha1
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+	k8sresource "k8s.io/apimachinery/pkg/api/resource"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -154,6 +157,37 @@ func Test_conditionsEquals(t *testing.T) {
 			if actual != want {
 				t.Errorf("The list of conditions are not equal, want: %v but got: %v", want, actual)
 			}
+		})
+	}
+}
+
+func Test_IsValidResourceQuantity(t *testing.T) {
+	validQuatity := k8sresource.MustParse("256Mi")
+
+	testCases := []struct {
+		name          string
+		givenQuantity *k8sresource.Quantity
+		wantResult    bool
+	}{
+		{
+			name:          "should return false when quantity is nil",
+			givenQuantity: nil,
+			wantResult:    false,
+		},
+		{
+			name:          "should return false when quantity is empty",
+			givenQuantity: &k8sresource.Quantity{},
+			wantResult:    false,
+		},
+		{
+			name:          "should return true when quantity is valid",
+			givenQuantity: &validQuatity,
+			wantResult:    true,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.wantResult, IsValidResourceQuantity(tc.givenQuantity))
 		})
 	}
 }

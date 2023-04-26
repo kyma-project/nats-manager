@@ -150,8 +150,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 
 	// generate overrides for helm chart
 	overrides := r.natsManager.GenerateOverrides(&nats.Spec, istioExists, accountSecret == nil)
-	// @TODO: change this to debug log
-	log.Infow("using overrides", "overrides", overrides)
+	log.Debugw("using overrides", "overrides", overrides)
 
 	// Init a release instance
 	instance := chart.NewReleaseInstance(nats.Name, nats.Namespace, istioExists, overrides)
