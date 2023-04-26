@@ -18,6 +18,7 @@ package v1alpha1
 
 import (
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -48,10 +49,10 @@ const (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 //nolint:lll //this is annotation
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
-//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
 
 // NATS is the Schema for the nats API.
 type NATS struct {
@@ -117,7 +118,7 @@ type MemStorage struct {
 	Enable bool `json:"enable"`
 
 	// Size defines the mem.
-	Size string `json:"size"`
+	Size resource.Quantity `json:"size"`
 }
 
 // FileStorage defines configurations to file storage in NATS JetStream.
@@ -126,7 +127,7 @@ type FileStorage struct {
 	StorageClassName string `json:"storageClassName"`
 
 	// Size defines the file storage size.
-	Size string `json:"size"`
+	Size resource.Quantity `json:"size"`
 }
 
 // Logging defines logging options.
@@ -138,7 +139,7 @@ type Logging struct {
 	Trace bool `json:"trace"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NATSList contains a list of NATS.
 type NATSList struct {
