@@ -1,6 +1,8 @@
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 // ConditionsEquals checks if two list of conditions are equal.
 func ConditionsEquals(existing, expected []metav1.Condition) bool {

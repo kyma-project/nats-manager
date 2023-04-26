@@ -3,6 +3,8 @@ package testutils
 import (
 	"errors"
 
+	corev1 "k8s.io/api/core/v1"
+
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -125,6 +127,63 @@ func WithNATSCRName(name string) NATSOption {
 func WithNATSCRNamespace(namespace string) NATSOption {
 	return func(nats *v1alpha1.NATS) error {
 		nats.Namespace = namespace
+		return nil
+	}
+}
+
+func WithNATSEmptySpec() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec = v1alpha1.NATSSpec{}
+		return nil
+	}
+}
+
+func WithNATSClusterSize(size int) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.Cluster.Size = size
+		return nil
+	}
+}
+
+func WithNATSLogging(debug, trace bool) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.Logging.Debug = debug
+		nats.Spec.Logging.Trace = trace
+		return nil
+	}
+}
+
+func WithNATSMemStorage(memStorage v1alpha1.MemStorage) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.JetStream.MemStorage = memStorage
+		return nil
+	}
+}
+
+func WithNATSFileStorage(fileStorage v1alpha1.FileStorage) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.JetStream.FileStorage = fileStorage
+		return nil
+	}
+}
+
+func WithNATSLabels(labels map[string]string) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.Labels = labels
+		return nil
+	}
+}
+
+func WithNATSAnnotations(annotations map[string]string) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.Annotations = annotations
+		return nil
+	}
+}
+
+func WithNATSResources(resources corev1.ResourceRequirements) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.Resources = resources
 		return nil
 	}
 }

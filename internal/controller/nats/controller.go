@@ -148,11 +148,9 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 	}
 	log.Infof("NATS account secret (name: %s) exists: %t", accountSecretName, accountSecret != nil)
 
-	// @TODO: Provide the overrides in component.Configuration
-	overrides := map[string]interface{}{
-		"istio.enabled":       istioExists,
-		"auth.rotatePassword": accountSecret == nil, // do not recreate secret if it exists
-	}
+	// generate overrides for helm chart
+	overrides := r.natsManager.GenerateOverrides(&nats.Spec, istioExists, accountSecret == nil)
+	log.Debugw("using overrides", "overrides", overrides)
 
 	// Init a release instance
 	instance := chart.NewReleaseInstance(nats.Name, nats.Namespace, istioExists, overrides)

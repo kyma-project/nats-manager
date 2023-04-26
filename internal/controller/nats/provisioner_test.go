@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -252,6 +254,13 @@ func Test_handleNATSReconcile(t *testing.T) {
 				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
 			testEnv.natsManager.On("DeployInstance",
 				mock.Anything, mock.Anything).Return(tc.givenDeployError)
+			testEnv.natsManager.On("GenerateOverrides",
+				mock.Anything, mock.Anything, mock.Anything).Return(
+				map[string]interface{}{
+					natsmanager.IstioEnabledKey:   tc.wantDestinationRuleWatchStarted,
+					natsmanager.RotatePasswordKey: true, // do not recreate secret if it exists
+				},
+			)
 
 			// when
 			_, err := reconciler.handleNATSReconcile(testEnv.Context, nats, testEnv.Logger)
