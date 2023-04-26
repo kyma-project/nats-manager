@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	k8sresource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -39,8 +38,4 @@ func ConditionEquals(existing, expected metav1.Condition) bool {
 	}
 
 	return true
-}
-
-func IsValidResourceQuantity(quantity *k8sresource.Quantity) bool {
-	return quantity != nil && quantity.String() != "<nil>" && quantity.String() != ""
 }

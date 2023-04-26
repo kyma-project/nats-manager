@@ -25,24 +25,29 @@ func Test_GenerateOverrides(t *testing.T) {
 		wantOverrides       map[string]interface{}
 	}{
 		{
-			name: "should not override when spec values are not provided",
+			name: "should override when spec values are not provided in spec",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSEmptySpec(),
 			),
 			givenIstioEnabled:   true,
 			givenRotatePassword: true,
 			wantOverrides: map[string]interface{}{
-				IstioEnabledKey:      true,
-				RotatePasswordKey:    true,
-				ClusterSizeKey:       0,
-				ClusterEnabledKey:    false,
-				MemStorageEnabledKey: false,
-				DebugEnabledKey:      false,
-				TraceEnabledKey:      false,
+				IstioEnabledKey:        true,
+				RotatePasswordKey:      true,
+				ClusterSizeKey:         0,
+				ClusterEnabledKey:      false,
+				FileStorageSizeKey:     "0",
+				MemStorageEnabledKey:   false,
+				DebugEnabledKey:        false,
+				TraceEnabledKey:        false,
+				ResourceRequestsCPUKey: "0",
+				ResourceRequestsMemKey: "0",
+				ResourceLimitsCPUKey:   "0",
+				ResourceLimitsMemKey:   "0",
 			},
 		},
 		{
-			name: "should override when spec values are provided",
+			name: "should override when spec values are provided in spec",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSClusterSize(5),
 				testutils.WithNATSLogging(true, true),

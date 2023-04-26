@@ -37,16 +37,14 @@ func (m NATSManager) GenerateOverrides(spec *natsv1alpha1.NATSSpec, istioEnabled
 	}
 
 	// file storage
-	if natsv1alpha1.IsValidResourceQuantity(&spec.FileStorage.Size) {
-		overrides[FileStorageSizeKey] = spec.FileStorage.Size.String()
-	}
+	overrides[FileStorageSizeKey] = spec.FileStorage.Size.String()
 	if spec.FileStorage.StorageClassName != "" {
 		overrides[FileStorageClassKey] = spec.FileStorage.StorageClassName
 	}
 
 	// memory storage
 	overrides[MemStorageEnabledKey] = spec.MemStorage.Enable
-	if spec.MemStorage.Enable && natsv1alpha1.IsValidResourceQuantity(&spec.MemStorage.Size) {
+	if spec.MemStorage.Enable {
 		overrides[MemStorageSizeKey] = spec.MemStorage.Size.String()
 	}
 
@@ -55,16 +53,16 @@ func (m NATSManager) GenerateOverrides(spec *natsv1alpha1.NATSSpec, istioEnabled
 	overrides[TraceEnabledKey] = spec.Trace
 
 	// resources
-	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Requests.Cpu()) {
+	if spec.Resources.Requests.Cpu() != nil {
 		overrides[ResourceRequestsCPUKey] = spec.Resources.Requests.Cpu().String()
 	}
-	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Requests.Memory()) {
+	if spec.Resources.Requests.Memory() != nil {
 		overrides[ResourceRequestsMemKey] = spec.Resources.Requests.Memory().String()
 	}
-	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Limits.Cpu()) {
+	if spec.Resources.Limits.Cpu() != nil {
 		overrides[ResourceLimitsCPUKey] = spec.Resources.Limits.Cpu().String()
 	}
-	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Limits.Memory()) {
+	if spec.Resources.Limits.Memory() != nil {
 		overrides[ResourceLimitsMemKey] = spec.Resources.Limits.Memory().String()
 	}
 
