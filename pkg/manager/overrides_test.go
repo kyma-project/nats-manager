@@ -126,7 +126,7 @@ func Test_Overrides_Keys(t *testing.T) {
 
 	// these are the default values as defined in NATS helm chart.
 	keysToTest := map[string]interface{}{
-		IstioEnabledKey:        false,
+		IstioEnabledKey:        true,
 		RotatePasswordKey:      true,
 		ClusterSizeKey:         float64(1),
 		ClusterEnabledKey:      false,
