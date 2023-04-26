@@ -54,6 +54,20 @@ func (m NATSManager) GenerateOverrides(spec *natsv1alpha1.NATSSpec, istioEnabled
 	overrides[DebugEnabledKey] = spec.Debug
 	overrides[TraceEnabledKey] = spec.Trace
 
+	// resources
+	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Requests.Cpu()) {
+		overrides[ResourceRequestsCPUKey] = spec.Resources.Requests.Cpu().String()
+	}
+	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Requests.Memory()) {
+		overrides[ResourceRequestsMemKey] = spec.Resources.Requests.Memory().String()
+	}
+	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Limits.Cpu()) {
+		overrides[ResourceLimitsCPUKey] = spec.Resources.Limits.Cpu().String()
+	}
+	if natsv1alpha1.IsValidResourceQuantity(spec.Resources.Limits.Memory()) {
+		overrides[ResourceLimitsMemKey] = spec.Resources.Limits.Memory().String()
+	}
+
 	// common labels to all the deployed resources.
 	if len(spec.Labels) > 0 {
 		overrides[CommonLabelsKey] = spec.Labels
