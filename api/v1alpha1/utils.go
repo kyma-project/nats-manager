@@ -42,5 +42,5 @@ func ConditionEquals(existing, expected metav1.Condition) bool {
 }
 
 func IsValidResourceQuantity(quantity *k8sresource.Quantity) bool {
-	return quantity != nil && quantity.String() != "0" && quantity.String() != ""
+	return quantity != nil && quantity.String() != "<nil>" && quantity.String() != ""
 }

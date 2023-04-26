@@ -175,11 +175,6 @@ func Test_IsValidResourceQuantity(t *testing.T) {
 			wantResult:    false,
 		},
 		{
-			name:          "should return false when quantity is empty",
-			givenQuantity: &k8sresource.Quantity{},
-			wantResult:    false,
-		},
-		{
 			name:          "should return true when quantity is valid",
 			givenQuantity: &validQuatity,
 			wantResult:    true,
