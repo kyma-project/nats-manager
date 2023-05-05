@@ -151,6 +151,7 @@ spec:
         ports:
           - containerPort: 7777
             name: metrics
+            protocol: TCP
       {{- end }}
       - name: nats
         image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.nats) }}"
@@ -163,19 +164,26 @@ spec:
         ports:
         - containerPort: {{ .Values.nats.ports.client }}
           name: client
+          protocol: TCP
         - containerPort: {{ .Values.nats.ports.leafnodes }}
           name: leafnodes
+          protocol: TCP
         - containerPort: {{ .Values.nats.ports.gateways }}
           name: gateways
+          protocol: TCP
         - containerPort: {{ .Values.nats.ports.cluster }}
           name: cluster
+          protocol: TCP
         - containerPort: {{ .Values.nats.ports.monitoring }}
           name: monitor
+          protocol: TCP
         - containerPort: {{ .Values.nats.ports.metrics }}
           name: metrics
+          protocol: TCP
         {{- if .Values.nats.profiling.enabled }}
         - containerPort: {{ .Values.nats.profiling.port }}
           name: profiling
+          protocol: TCP
         {{- end }}
 
         command:

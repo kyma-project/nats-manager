@@ -3,6 +3,7 @@ module github.com/kyma-project/nats-manager
 go 1.20
 
 require (
+	github.com/avast/retry-go/v3 v3.1.1
 	github.com/go-logr/logr v1.2.3
 	github.com/imdario/mergo v0.3.13
 	github.com/kelseyhightower/envconfig v1.4.0

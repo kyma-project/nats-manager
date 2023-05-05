@@ -24,37 +24,44 @@ spec:
   {{- if .Values.nats.profiling.enabled }}
   - name: profiling
     port: {{ .Values.nats.profiling.port }}
+    protocol: TCP
     {{- if .Values.appProtocol.enabled }}
     appProtocol: http
     {{- end }}
   {{- end }}
   - name: client
     port: {{ .Values.nats.ports.client }}
+    protocol: TCP
     {{- if .Values.appProtocol.enabled }}
     appProtocol: tcp
     {{- end }}
   - name: cluster
     port: {{ .Values.nats.ports.cluster }}
+    protocol: TCP
     {{- if .Values.appProtocol.enabled }}
     appProtocol: tcp
     {{- end }}
   - name: monitor
     port: {{ .Values.nats.ports.monitoring }}
+    protocol: TCP
     {{- if .Values.appProtocol.enabled }}
     appProtocol: http
     {{- end }}
   - name: metrics
     port: {{ .Values.nats.ports.metrics }}
+    protocol: TCP
     {{- if .Values.appProtocol.enabled }}
     appProtocol: http
     {{- end }}
   - name: leafnodes
     port: {{ .Values.nats.ports.leafnodes }}
+    protocol: TCP
     {{- if .Values.appProtocol.enabled }}
     appProtocol: tcp
     {{- end }}
   - name: gateways
     port: {{ .Values.nats.ports.gateways }}
+    protocol: TCP
     {{- if .Values.appProtocol.enabled }}
     appProtocol: tcp
     {{- end }}

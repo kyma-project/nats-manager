@@ -2,10 +2,9 @@ package testutils
 
 import (
 	"errors"
-
-	corev1 "k8s.io/api/core/v1"
-
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -13,6 +12,26 @@ import (
 
 type Option func(*unstructured.Unstructured) error
 type NATSOption func(*v1alpha1.NATS) error
+
+func WithNATSCRDefaults() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec = v1alpha1.NATSSpec{
+			Cluster: v1alpha1.Cluster{
+				Size: 1,
+			},
+			JetStream: v1alpha1.JetStream{
+				MemStorage: v1alpha1.MemStorage{
+					Enable: false,
+				},
+				FileStorage: v1alpha1.FileStorage{
+					StorageClassName: "default",
+					Size:             resource.MustParse("1Gi"),
+				},
+			},
+		}
+		return nil
+	}
+}
 
 func WithName(name string) Option {
 	return func(o *unstructured.Unstructured) error {
