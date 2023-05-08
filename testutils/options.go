@@ -79,7 +79,7 @@ func WithSpecReplicas(replicas int) Option {
 	}
 }
 
-func WithStatefulSetStatusAvailableReplicas(replicas int) Option {
+func WithStatefulSetStatusCurrentReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["status"]; !exists {
 			o.Object["status"] = make(map[string]interface{})
@@ -89,7 +89,22 @@ func WithStatefulSetStatusAvailableReplicas(replicas int) Option {
 		if !ok {
 			return errors.New("failed to convert status to map[string]interface")
 		}
-		status["availableReplicas"] = replicas
+		status["currentReplicas"] = replicas
+		return nil
+	}
+}
+
+func WithStatefulSetStatusUpdatedReplicas(replicas int) Option {
+	return func(o *unstructured.Unstructured) error {
+		if _, exists := o.Object["status"]; !exists {
+			o.Object["status"] = make(map[string]interface{})
+		}
+
+		status, ok := o.Object["status"].(map[string]interface{})
+		if !ok {
+			return errors.New("failed to convert status to map[string]interface")
+		}
+		status["updatedReplicas"] = replicas
 		return nil
 	}
 }

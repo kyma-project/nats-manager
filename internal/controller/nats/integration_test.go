@@ -161,7 +161,18 @@ func (ite IntegrationTestEnvironment) TearDown() error {
 	if ite.TestCancelFn != nil {
 		ite.TestCancelFn()
 	}
-	return ite.EnvTestInstance.Stop()
+
+	// retry to stop the api-server
+	sleepTime := 1 * time.Second
+	var err error
+	const retries = 20
+	for i := 0; i < retries; i++ {
+		if err = ite.EnvTestInstance.Stop(); err == nil {
+			break
+		}
+		time.Sleep(sleepTime)
+	}
+	return err
 }
 
 func (ite IntegrationTestEnvironment) CreateNamespace(ctx context.Context, namespace string) error {
