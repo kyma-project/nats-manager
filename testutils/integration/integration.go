@@ -44,7 +44,7 @@ const (
 	SmallPollingInterval     = 1 * time.Second
 )
 
-// MockedUnitTestEnvironment provides mocked resources for unit tests.
+// TestEnvironment provides mocked resources for integration tests.
 type TestEnvironment struct {
 	Context         context.Context
 	EnvTestInstance *envtest.Environment
