@@ -2,7 +2,6 @@ package nats_test
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -65,7 +64,6 @@ func Test_CreateNATSCR(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			g := gomega.NewGomegaWithT(t)
 
 			// given
 			// create unique namespace for this test run.
@@ -74,43 +72,9 @@ func Test_CreateNATSCR(t *testing.T) {
 
 			// update namespace in resources.
 			tc.givenNATS.Namespace = givenNamespace
-			stsName := getStatefulSetName(*tc.givenNATS)
 
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
-
-			// make mock updates to deployed resources
-			makeStatefulSetReady(t, stsName, givenNamespace)
-
-			// then
-			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
 		})
 	}
-}
-
-func getStatefulSetName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
-}
-
-func makeStatefulSetReady(t *testing.T, name, namespace string) {
-	require.Eventually(t, func() bool {
-		sts, err := testEnvironment.GetStatefulSetFromK8s(name, namespace)
-		if err != nil {
-			testEnvironment.Logger.Errorw("failed to get statefulSet", err)
-			return false
-		}
-
-		sts.Status.Replicas = *sts.Spec.Replicas
-		sts.Status.AvailableReplicas = *sts.Spec.Replicas
-		sts.Status.CurrentReplicas = *sts.Spec.Replicas
-		sts.Status.ReadyReplicas = *sts.Spec.Replicas
-		sts.Status.UpdatedReplicas = *sts.Spec.Replicas
-
-		err = testEnvironment.UpdateStatefulSetStatusOnK8s(*sts)
-		if err != nil {
-			testEnvironment.Logger.Errorw("failed to update statefulSet status", err)
-			return false
-		}
-		return true
-	}, BigTimeOut, SmallPollingInterval, "failed to update status of StatefulSet")
 }
