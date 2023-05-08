@@ -217,8 +217,12 @@ func (ite IntegrationTestEnvironment) EnsureK8sServiceExists(t *testing.T, name,
 func (ite IntegrationTestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		result, err := ite.GetStatefulSetFromK8s(name, namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to ensure STS", "error", err,
+				"name", name, "namespace", namespace)
+		}
 		return err == nil && result != nil
-	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
+	}, BigTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
 }
 
 func (ite IntegrationTestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {

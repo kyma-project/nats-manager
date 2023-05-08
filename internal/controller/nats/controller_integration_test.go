@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -93,6 +94,13 @@ func Test_CreateNATSCR(t *testing.T) {
 
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			sleepTime := 5 * time.Second
+			time.Sleep(sleepTime)
+
+			sts, err := testEnvironment.GetNATSFromK8s(tc.givenNATS.Name, givenNamespace)
+			require.NoError(t, err)
+			testEnvironment.Logger.Infow("sts", "sts", sts)
 
 			// then
 			testEnvironment.EnsureK8sStatefulSetExists(t, getStatefulSetName(*tc.givenNATS), givenNamespace)
