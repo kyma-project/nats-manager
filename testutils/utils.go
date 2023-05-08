@@ -1,6 +1,9 @@
 package testutils
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -10,6 +13,33 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
+
+// for Random string generation.
+const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
+
+// GetRandString returns a random string of the given length.
+func GetRandString(length int) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+func NewNamespace(name string) *apiv1.Namespace {
+	namespace := apiv1.Namespace{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+		},
+	}
+	return &namespace
+}
 
 func NewLogger() (*zap.Logger, error) {
 	loggerConfig := zap.NewDevelopmentConfig()

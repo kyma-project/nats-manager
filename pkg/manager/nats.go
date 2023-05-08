@@ -88,7 +88,8 @@ func (m NATSManager) IsNATSStatefulSetReady(ctx context.Context, instance *chart
 		if err != nil {
 			return false, err
 		}
-		if *currentSts.Spec.Replicas != currentSts.Status.AvailableReplicas ||
+		if *currentSts.Spec.Replicas != currentSts.Status.CurrentReplicas ||
+			*currentSts.Spec.Replicas != currentSts.Status.UpdatedReplicas ||
 			*currentSts.Spec.Replicas != currentSts.Status.ReadyReplicas {
 			return false, nil
 		}
