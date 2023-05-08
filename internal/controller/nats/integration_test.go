@@ -3,6 +3,11 @@ package nats_test
 import (
 	"context"
 	"fmt"
+	"log"
+	"path/filepath"
+	"testing"
+	"time"
+
 	"github.com/avast/retry-go/v3"
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
@@ -10,23 +15,19 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
+	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
-	"log"
-	"path/filepath"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
-	"testing"
-	"time"
 )
 
 const (
@@ -75,6 +76,9 @@ func NewIntegrationTestEnvironment() (*IntegrationTestEnvironment, error) {
 
 	// add to Scheme
 	err = natsv1alpha1.AddToScheme(scheme.Scheme)
+	if err != nil {
+		return nil, err
+	}
 
 	//+kubebuilder:scaffold:scheme
 
@@ -157,8 +161,7 @@ func (ite IntegrationTestEnvironment) TearDown() error {
 	if ite.TestCancelFn != nil {
 		ite.TestCancelFn()
 	}
-	ite.EnvTestInstance.Stop()
-	return nil
+	return ite.EnvTestInstance.Stop()
 }
 
 func (ite IntegrationTestEnvironment) CreateNamespace(ctx context.Context, namespace string) error {
@@ -180,7 +183,7 @@ func (ite IntegrationTestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj
 
 func (ite IntegrationTestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
-	err := ite.k8sClient.Get(ite.Context, types.NamespacedName{
+	err := ite.k8sClient.Get(ite.Context, k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}, &nats)
@@ -201,6 +204,19 @@ func (ite IntegrationTestEnvironment) GetStatefulSetFromK8s(name, namespace stri
 
 func (ite IntegrationTestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
 	return ite.k8sClient.Status().Update(ite.Context, &sts)
+}
+
+// GetNATSAssert fetches a NATS from k8s and allows making assertions on it.
+func (ite IntegrationTestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
+	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
+	return g.Eventually(func() *natsv1alpha1.NATS {
+		gotNATS, err := ite.GetNATSFromK8s(nats.Name, nats.Namespace)
+		if err != nil {
+			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
+			return &natsv1alpha1.NATS{}
+		}
+		return &gotNATS
+	}, BigTimeOut, SmallPollingInterval)
 }
 
 func StartEnvTest() (*envtest.Environment, *rest.Config, error) {

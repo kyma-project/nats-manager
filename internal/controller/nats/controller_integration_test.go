@@ -3,14 +3,18 @@ package nats_test
 import (
 	"context"
 	"fmt"
-	"github.com/kyma-project/nats-manager/testutils"
-	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
+	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
+	"github.com/onsi/gomega"
+	gomegatypes "github.com/onsi/gomega/types"
+	"github.com/stretchr/testify/require"
 )
 
-var testEnvironment *IntegrationTestEnvironment
+var testEnvironment *IntegrationTestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
 func TestMain(m *testing.M) {
@@ -39,25 +43,53 @@ func Test_CreateNATSCR(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
-	// create unique namespace for this test run
-	testNamespace := NewTestNamespace()
-	testEnvironment.CreateNamespace(ctx, testNamespace)
+	testCases := []struct {
+		name        string
+		givenNATS   *v1alpha1.NATS
+		wantMatches gomegatypes.GomegaMatcher
+	}{
+		{
+			name: "should reconcile success",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveStatusReady(),
+				natsmatchers.HaveReadyConditionStatefulSet(),
+				natsmatchers.HaveReadyConditionAvailable(),
+			),
+		},
+	}
 
-	natsCR := testutils.NewNATSCR(
-		testutils.WithNATSCRDefaults(),
-		testutils.WithNATSCRNamespace(testNamespace),
-	)
-	stsName := fmt.Sprintf("%s-nats", natsCR.Name) // name -> test-object1-nats, name -> test-object1-nats, namespace -> ns-icveu
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := gomega.NewGomegaWithT(t)
 
-	testEnvironment.EnsureK8sResourceCreated(t, natsCR)
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := NewTestNamespace()
+			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
 
-	makeStatefulSetReady(t, stsName, natsCR.Namespace)
+			// update namespace in resources.
+			tc.givenNATS.Namespace = givenNamespace
+			stsName := getStatefulSetName(*tc.givenNATS)
 
-	require.Eventually(t, func() bool {
-		nats, err := testEnvironment.GetNATSFromK8s(natsCR.Name, natsCR.Namespace)
-		require.NoError(t, err)
-		return natsmatchers.HaveStatusReady(nats)
-	}, BigTimeOut, SmallPollingInterval)
+			// when
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			// make mock updates to deployed resources
+			makeStatefulSetReady(t, stsName, givenNamespace)
+
+			// then
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
+		})
+	}
+}
+
+func getStatefulSetName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
 }
 
 func makeStatefulSetReady(t *testing.T, name, namespace string) {
@@ -80,6 +112,5 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 			return false
 		}
 		return true
-	}, SmallTimeOut, SmallPollingInterval)
-
+	}, SmallTimeOut, SmallPollingInterval, "failed to update status of StatefulSet")
 }

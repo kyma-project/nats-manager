@@ -1,6 +1,9 @@
 package testutils
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -9,14 +12,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"math/rand"
-	"time"
 )
 
 // for Random string generation.
 const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 
-var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
+
 // GetRandString returns a random string of the given length.
 func GetRandString(length int) string {
 	b := make([]byte, length)
