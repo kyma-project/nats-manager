@@ -181,7 +181,7 @@ func (ite IntegrationTestEnvironment) CreateNamespace(ctx context.Context, names
 	}
 	// create namespace
 	ns := testutils.NewNamespace(namespace)
-	err := testEnvironment.k8sClient.Create(ctx, ns)
+	err := ite.k8sClient.Create(ctx, ns)
 	if !k8serrors.IsAlreadyExists(err) {
 		return err
 	}
