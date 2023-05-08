@@ -1,4 +1,4 @@
-package nats_test
+package integration
 
 import (
 	"context"
@@ -44,8 +44,8 @@ const (
 	SmallPollingInterval     = 1 * time.Second
 )
 
-// MockedUnitTestEnvironment provides mocked resources for unit tests.
-type IntegrationTestEnvironment struct {
+// TestEnvironment provides mocked resources for integration tests.
+type TestEnvironment struct {
 	Context         context.Context
 	EnvTestInstance *envtest.Environment
 	k8sClient       client.Client
@@ -58,7 +58,7 @@ type IntegrationTestEnvironment struct {
 	TestCancelFn    context.CancelFunc
 }
 
-func NewIntegrationTestEnvironment() (*IntegrationTestEnvironment, error) {
+func NewTestEnvironment() (*TestEnvironment, error) {
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -143,7 +143,7 @@ func NewIntegrationTestEnvironment() (*IntegrationTestEnvironment, error) {
 		}
 	}()
 
-	return &IntegrationTestEnvironment{
+	return &TestEnvironment{
 		Context:         ctx,
 		k8sClient:       k8sClient,
 		KubeClient:      &kubeClient,
@@ -157,7 +157,7 @@ func NewIntegrationTestEnvironment() (*IntegrationTestEnvironment, error) {
 	}, nil
 }
 
-func (ite IntegrationTestEnvironment) TearDown() error {
+func (ite TestEnvironment) TearDown() error {
 	if ite.TestCancelFn != nil {
 		ite.TestCancelFn()
 	}
@@ -175,24 +175,24 @@ func (ite IntegrationTestEnvironment) TearDown() error {
 	return err
 }
 
-func (ite IntegrationTestEnvironment) CreateNamespace(ctx context.Context, namespace string) error {
+func (ite TestEnvironment) CreateNamespace(ctx context.Context, namespace string) error {
 	if namespace == "default" {
 		return nil
 	}
 	// create namespace
 	ns := testutils.NewNamespace(namespace)
-	err := testEnvironment.k8sClient.Create(ctx, ns)
+	err := ite.k8sClient.Create(ctx, ns)
 	if !k8serrors.IsAlreadyExists(err) {
 		return err
 	}
 	return nil
 }
 
-func (ite IntegrationTestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
+func (ite TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
 	require.NoError(t, ite.k8sClient.Create(ite.Context, obj))
 }
 
-func (ite IntegrationTestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
+func (ite TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
 	err := ite.k8sClient.Get(ite.Context, k8stypes.NamespacedName{
 		Name:      name,
@@ -201,7 +201,7 @@ func (ite IntegrationTestEnvironment) GetNATSFromK8s(name, namespace string) (na
 	return nats, err
 }
 
-func (ite IntegrationTestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv1.StatefulSet, error) {
+func (ite TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv1.StatefulSet, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
@@ -213,12 +213,12 @@ func (ite IntegrationTestEnvironment) GetStatefulSetFromK8s(name, namespace stri
 	return result, nil
 }
 
-func (ite IntegrationTestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
+func (ite TestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
 	return ite.k8sClient.Status().Update(ite.Context, &sts)
 }
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.
-func (ite IntegrationTestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
+func (ite TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
 	return g.Eventually(func() *natsv1alpha1.NATS {
 		gotNATS, err := ite.GetNATSFromK8s(nats.Name, nats.Namespace)
