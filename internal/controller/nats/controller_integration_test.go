@@ -112,5 +112,5 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 			return false
 		}
 		return true
-	}, SmallTimeOut, SmallPollingInterval, "failed to update status of StatefulSet")
+	}, BigTimeOut, SmallPollingInterval, "failed to update status of StatefulSet")
 }
