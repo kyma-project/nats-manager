@@ -3,6 +3,7 @@ package nats_test
 import (
 	"context"
 	"fmt"
+	corev1 "k8s.io/api/core/v1"
 	"log"
 	"path/filepath"
 	"testing"
@@ -181,6 +182,34 @@ func (ite IntegrationTestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj
 	require.NoError(t, ite.k8sClient.Create(ite.Context, obj))
 }
 
+func (ite IntegrationTestEnvironment) EnsureK8sConfigMapExists(t *testing.T, name, namespace string) {
+	require.Eventually(t, func() bool {
+		result, err := ite.GetConfigMapFromK8s(name, namespace)
+		return err == nil && result != nil
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of ConfigMap")
+}
+
+func (ite IntegrationTestEnvironment) EnsureK8sSecretExists(t *testing.T, name, namespace string) {
+	require.Eventually(t, func() bool {
+		result, err := ite.GetSecretFromK8s(name, namespace)
+		return err == nil && result != nil
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of Secret")
+}
+
+func (ite IntegrationTestEnvironment) EnsureK8sServiceExists(t *testing.T, name, namespace string) {
+	require.Eventually(t, func() bool {
+		result, err := ite.GetServiceFromK8s(name, namespace)
+		return err == nil && result != nil
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of Service")
+}
+
+func (ite IntegrationTestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namespace string) {
+	require.Eventually(t, func() bool {
+		result, err := ite.GetStatefulSetFromK8s(name, namespace)
+		return err == nil && result != nil
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
+}
+
 func (ite IntegrationTestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
 	err := ite.k8sClient.Get(ite.Context, k8stypes.NamespacedName{
@@ -204,6 +233,42 @@ func (ite IntegrationTestEnvironment) GetStatefulSetFromK8s(name, namespace stri
 
 func (ite IntegrationTestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
 	return ite.k8sClient.Status().Update(ite.Context, &sts)
+}
+
+func (ite IntegrationTestEnvironment) GetConfigMapFromK8s(name, namespace string) (*corev1.ConfigMap, error) {
+	nn := k8stypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}
+	result := &corev1.ConfigMap{}
+	if err := ite.k8sClient.Get(ite.Context, nn, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (ite IntegrationTestEnvironment) GetSecretFromK8s(name, namespace string) (*corev1.Secret, error) {
+	nn := k8stypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}
+	result := &corev1.Secret{}
+	if err := ite.k8sClient.Get(ite.Context, nn, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (ite IntegrationTestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Service, error) {
+	nn := k8stypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}
+	result := &corev1.Service{}
+	if err := ite.k8sClient.Get(ite.Context, nn, result); err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.

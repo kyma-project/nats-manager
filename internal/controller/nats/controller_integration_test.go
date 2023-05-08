@@ -44,19 +44,35 @@ func Test_CreateNATSCR(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
-		name        string
-		givenNATS   *v1alpha1.NATS
-		wantMatches gomegatypes.GomegaMatcher
+		name                  string
+		givenNATS             *v1alpha1.NATS
+		givenStatefulSetReady bool
+		wantMatches           gomegatypes.GomegaMatcher
 	}{
 		{
-			name: "should reconcile success",
+			name: "NATS CR should have ready status when StatefulSet is ready",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
 			),
+			givenStatefulSetReady: true,
 			wantMatches: gomega.And(
 				natsmatchers.HaveStatusReady(),
 				natsmatchers.HaveReadyConditionStatefulSet(),
 				natsmatchers.HaveReadyConditionAvailable(),
+			),
+		},
+		{
+			name: "NATS CR should have processing status when StatefulSet is ready",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			givenStatefulSetReady: false,
+			wantMatches: gomega.And(
+				natsmatchers.HaveStatusProcessing(),
+				natsmatchers.HavePendingConditionStatefulSet(),
+				natsmatchers.HaveDeployingConditionAvailable(),
 			),
 		},
 	}
@@ -74,21 +90,44 @@ func Test_CreateNATSCR(t *testing.T) {
 
 			// update namespace in resources.
 			tc.givenNATS.Namespace = givenNamespace
-			stsName := getStatefulSetName(*tc.givenNATS)
 
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
 
-			// make mock updates to deployed resources
-			makeStatefulSetReady(t, stsName, givenNamespace)
-
 			// then
+			testEnvironment.EnsureK8sStatefulSetExists(t, getStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, getConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretExists(t, getSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceExists(t, getServiceName(*tc.givenNATS), givenNamespace)
+
+			if tc.givenStatefulSetReady {
+				// make mock updates to deployed resources
+				makeStatefulSetReady(t, getStatefulSetName(*tc.givenNATS), givenNamespace)
+			}
+
+			// check NATS CR status
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
 		})
 	}
 }
 
 func getStatefulSetName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func getConfigMapName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats-config", nats.Name)
+}
+
+func getSecretName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats-secret", nats.Name)
+}
+
+func getServiceName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func getDestinationRuleName(nats v1alpha1.NATS) string {
 	return fmt.Sprintf("%s-nats", nats.Name)
 }
 

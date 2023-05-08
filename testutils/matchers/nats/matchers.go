@@ -15,6 +15,13 @@ func HaveStatusReady() gomegatypes.GomegaMatcher {
 		}, gomega.Equal(v1alpha1.StateReady))
 }
 
+func HaveStatusProcessing() gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) string {
+			return n.Status.State
+		}, gomega.Equal(v1alpha1.StateProcessing))
+}
+
 func HaveCondition(condition metav1.Condition) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) []metav1.Condition {
@@ -37,11 +44,29 @@ func HaveReadyConditionStatefulSet() gomegatypes.GomegaMatcher {
 	})
 }
 
+func HavePendingConditionStatefulSet() gomegatypes.GomegaMatcher {
+	return HaveCondition(metav1.Condition{
+		Type:    string(v1alpha1.ConditionStatefulSet),
+		Status:  metav1.ConditionFalse,
+		Reason:  string(v1alpha1.ConditionReasonStatefulSetPending),
+		Message: "",
+	})
+}
+
 func HaveReadyConditionAvailable() gomegatypes.GomegaMatcher {
 	return HaveCondition(metav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
 		Status:  metav1.ConditionTrue,
 		Reason:  string(v1alpha1.ConditionReasonDeployed),
 		Message: "NATS is deployed",
+	})
+}
+
+func HaveDeployingConditionAvailable() gomegatypes.GomegaMatcher {
+	return HaveCondition(metav1.Condition{
+		Type:    string(v1alpha1.ConditionAvailable),
+		Status:  metav1.ConditionFalse,
+		Reason:  string(v1alpha1.ConditionReasonDeploying),
+		Message: "",
 	})
 }
