@@ -9,6 +9,11 @@ import (
 	"testing"
 	"time"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/avast/retry-go/v3"
@@ -51,19 +56,20 @@ const (
 
 // TestEnvironment provides mocked resources for integration tests.
 type TestEnvironment struct {
-	Context         context.Context
-	EnvTestInstance *envtest.Environment
-	k8sClient       client.Client
-	KubeClient      *k8s.Client
-	ChartRenderer   *chart.Renderer
-	NATSManager     *manager.Manager
-	Reconciler      *natscontroller.Reconciler
-	Logger          *zap.SugaredLogger
-	Recorder        *record.EventRecorder
-	TestCancelFn    context.CancelFunc
+	Context          context.Context
+	EnvTestInstance  *envtest.Environment
+	k8sClient        client.Client
+	K8sDynamicClient *dynamic.DynamicClient
+	KubeClient       *k8s.Client
+	ChartRenderer    *chart.Renderer
+	NATSManager      *manager.Manager
+	Reconciler       *natscontroller.Reconciler
+	Logger           *zap.SugaredLogger
+	Recorder         *record.EventRecorder
+	TestCancelFn     context.CancelFunc
 }
 
-func NewTestEnvironment() (*TestEnvironment, error) {
+func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in testing.
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -88,6 +94,11 @@ func NewTestEnvironment() (*TestEnvironment, error) {
 	//+kubebuilder:scaffold:scheme
 
 	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: scheme.Scheme})
+	if err != nil {
+		return nil, err
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(envTestKubeCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -149,16 +160,17 @@ func NewTestEnvironment() (*TestEnvironment, error) {
 	}()
 
 	return &TestEnvironment{
-		Context:         ctx,
-		k8sClient:       k8sClient,
-		KubeClient:      &kubeClient,
-		ChartRenderer:   &helmRenderer,
-		Reconciler:      natsReconciler,
-		Logger:          sugaredLogger,
-		Recorder:        &recorder,
-		NATSManager:     &natsManager,
-		EnvTestInstance: testEnv,
-		TestCancelFn:    cancelCtx,
+		Context:          ctx,
+		k8sClient:        k8sClient,
+		K8sDynamicClient: dynamicClient,
+		KubeClient:       &kubeClient,
+		ChartRenderer:    &helmRenderer,
+		Reconciler:       natsReconciler,
+		Logger:           sugaredLogger,
+		Recorder:         &recorder,
+		NATSManager:      &natsManager,
+		EnvTestInstance:  testEnv,
+		TestCancelFn:     cancelCtx,
 	}, nil
 }
 
@@ -220,6 +232,13 @@ func (ite TestEnvironment) EnsureK8sServiceExists(t *testing.T, name, namespace 
 		result, err := ite.GetServiceFromK8s(name, namespace)
 		return err == nil && result != nil
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of Service")
+}
+
+func (ite TestEnvironment) EnsureK8sDestinationRuleExists(t *testing.T, name, namespace string) {
+	require.Eventually(t, func() bool {
+		result, err := ite.GetDestinationRuleFromK8s(name, namespace)
+		return err == nil && result != nil
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of DestinationRule")
 }
 
 func (ite TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namespace string) {
@@ -368,6 +387,18 @@ func (ite TestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Se
 	return result, nil
 }
 
+func (ite TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*unstructured.Unstructured, error) {
+	destinationRuleRes := schema.GroupVersionResource{
+		Group:    "networking.istio.io",
+		Version:  "v1alpha3",
+		Resource: "destinationrules",
+	}
+
+	// get from k8s
+	return ite.K8sDynamicClient.Resource(destinationRuleRes).Namespace(
+		namespace).Get(ite.Context, name, metav1.GetOptions{})
+}
+
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.
 func (ite TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
@@ -385,7 +416,10 @@ func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
 	// Reference: https://book.kubebuilder.io/reference/envtest.html
 	useExistingCluster := useExistingCluster
 	testEnv := &envtest.Environment{
-		CRDDirectoryPaths:        []string{filepath.Join("..", "..", "..", "config", "crd", "bases")},
+		CRDDirectoryPaths: []string{
+			filepath.Join("..", "..", "..", "config", "crd", "bases"),
+			filepath.Join("..", "..", "..", "config", "crd", "external"),
+		},
 		ErrorIfCRDPathMissing:    true,
 		AttachControlPlaneOutput: attachControlPlaneOutput,
 		UseExistingCluster:       &useExistingCluster,

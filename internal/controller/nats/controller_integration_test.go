@@ -101,6 +101,8 @@ func Test_CreateNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sConfigMapExists(t, integration.GetConfigMapName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sSecretExists(t, integration.GetSecretName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sServiceExists(t, integration.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sDestinationRuleExists(t,
+				integration.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 
 			if tc.givenStatefulSetReady {
 				// make mock updates to deployed resources.
