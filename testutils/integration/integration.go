@@ -372,6 +372,68 @@ func (ite TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats 
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.trace and Spec.debug")
 }
 
+// EnsureNATSSpecFileStorageReflected ensures that NATS CR Spec.jetStream.fileStorage is reflected
+// in relevant k8s objects.
+func (ite TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+	require.Eventually(t, func() bool {
+		// get NATS configMap.
+		result, err := ite.GetConfigMapFromK8s(GetConfigMapName(nats), nats.Namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to get ConfigMap", "error", err,
+				"name", GetConfigMapName(nats), "namespace", nats.Namespace)
+			return false
+		}
+
+		// get nats config file data from ConfigMap.
+		natsConfigStr, ok := result.Data[NATSConfigFileName]
+		if !ok {
+			return false
+		}
+
+		// parse the nats config file data.
+		natsConfig, err := ParseNATSConf(natsConfigStr)
+		if err != nil {
+			ite.Logger.Errorw("failed to parse NATS config", "error", err,
+				"name", GetConfigMapName(nats), "namespace", nats.Namespace)
+			return false
+		}
+
+		// get the trace value.
+		gotJetStream, ok := natsConfig["jetstream"].(map[string]interface{})
+		if !ok {
+			return false
+		}
+
+		gotFileStorage, ok := gotJetStream["max_file"]
+		if !ok {
+			return false
+		}
+		// should be equal.
+		if nats.Spec.FileStorage.Size.String() != gotFileStorage {
+			return false
+		}
+
+		// now check the PVC info in StatefulSet.
+		sts, err := ite.GetStatefulSetFromK8s(GetStatefulSetName(nats), nats.Namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to get STS", "error", err,
+				"name", GetStatefulSetName(nats), "namespace", nats.Namespace)
+			return false
+		}
+
+		if *sts.Spec.VolumeClaimTemplates[0].Spec.StorageClassName != nats.Spec.FileStorage.StorageClassName {
+			return false
+		}
+
+		if sts.Spec.VolumeClaimTemplates[0].Spec.Resources.Requests.
+			Storage().String() != nats.Spec.FileStorage.Size.String() {
+			return false
+		}
+
+		return true
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.jetStream.fileStorage")
+}
+
 // EnsureNATSSpecMemStorageReflected ensures that NATS CR Spec.jetStream.memStorage is reflected
 // in relevant k8s objects.
 func (ite TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {

@@ -50,7 +50,21 @@ func Test_CreateNATSCR(t *testing.T) {
 		givenNATS             *v1alpha1.NATS
 		givenStatefulSetReady bool
 		wantMatches           gomegatypes.GomegaMatcher
+		wantEnsureK8sObjects  bool
 	}{
+		{
+			name: "NATS CR should have processing status when StatefulSet is not ready",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			givenStatefulSetReady: false,
+			wantMatches: gomega.And(
+				natsmatchers.HaveStatusProcessing(),
+				natsmatchers.HavePendingConditionStatefulSet(),
+				natsmatchers.HaveDeployingConditionAvailable(),
+			),
+		},
 		{
 			name: "NATS CR should have ready status when StatefulSet is ready",
 			givenNATS: testutils.NewNATSCR(
@@ -65,17 +79,43 @@ func Test_CreateNATSCR(t *testing.T) {
 			),
 		},
 		{
-			name: "NATS CR should have processing status when StatefulSet is not ready",
+			name: "should have created k8s objects as specified in NATS CR",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSCRName("test1"),
+				testutils.WithNATSLogging(true, true),
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"cpu":    resource.MustParse("199m"),
+						"memory": resource.MustParse("199Mi"),
+					},
+					Requests: corev1.ResourceList{
+						"cpu":    resource.MustParse("99m"),
+						"memory": resource.MustParse("99Mi"),
+					},
+				}),
+				testutils.WithNATSLabels(map[string]string{
+					"test-key1": "value1",
+				}),
+				testutils.WithNATSAnnotations(map[string]string{
+					"test-key2": "value2",
+				}),
+				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "test-sc1",
+					Size:             resource.MustParse("66Gi"),
+				}),
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enable: true,
+					Size:   resource.MustParse("66Gi"),
+				}),
 			),
-			givenStatefulSetReady: false,
+			givenStatefulSetReady: true,
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusProcessing(),
-				natsmatchers.HavePendingConditionStatefulSet(),
-				natsmatchers.HaveDeployingConditionAvailable(),
+				natsmatchers.HaveStatusReady(),
+				natsmatchers.HaveReadyConditionStatefulSet(),
+				natsmatchers.HaveReadyConditionAvailable(),
 			),
+			wantEnsureK8sObjects: true,
 		},
 	}
 
@@ -111,6 +151,18 @@ func Test_CreateNATSCR(t *testing.T) {
 
 			// check NATS CR status.
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
+
+			if tc.wantEnsureK8sObjects {
+				testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenNATS)
+				testEnvironment.EnsureNATSSpecResourcesReflected(t, *tc.givenNATS)
+				testEnvironment.EnsureNATSSpecDebugTraceReflected(t, *tc.givenNATS)
+				testEnvironment.EnsureK8sStatefulSetHasLabels(t, integration.GetStatefulSetName(*tc.givenNATS),
+					givenNamespace, tc.givenNATS.Spec.Labels)
+				testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, integration.GetStatefulSetName(*tc.givenNATS),
+					givenNamespace, tc.givenNATS.Spec.Annotations)
+				testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenNATS)
+				testEnvironment.EnsureNATSSpecFileStorageReflected(t, *tc.givenNATS)
+			}
 		})
 	}
 }
@@ -197,8 +249,6 @@ func Test_UpdateNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, integration.GetStatefulSetName(*tc.givenNATS),
 				givenNamespace, tc.givenUpdateNATS.Spec.Annotations)
 			testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenUpdateNATS)
-
-			// TODO: check for FileStorage
 		})
 	}
 }
