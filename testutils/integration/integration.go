@@ -3,11 +3,13 @@ package integration
 import (
 	"context"
 	"fmt"
-	corev1 "k8s.io/api/core/v1"
 	"log"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
+
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/avast/retry-go/v3"
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -43,6 +45,8 @@ const (
 	BigTimeOut               = 40 * time.Second
 	SmallTimeOut             = 5 * time.Second
 	SmallPollingInterval     = 1 * time.Second
+
+	NATSContainerName = "nats"
 )
 
 // TestEnvironment provides mocked resources for integration tests.
@@ -193,6 +197,10 @@ func (ite TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Obj
 	require.NoError(t, ite.k8sClient.Create(ite.Context, obj))
 }
 
+func (ite TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
+	require.NoError(t, ite.k8sClient.Update(ite.Context, obj))
+}
+
 func (ite TestEnvironment) EnsureK8sConfigMapExists(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		result, err := ite.GetConfigMapFromK8s(name, namespace)
@@ -223,6 +231,80 @@ func (ite TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namesp
 		}
 		return err == nil && result != nil
 	}, BigTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
+}
+
+func (ite TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, namespace string,
+	labels map[string]string) {
+	require.Eventually(t, func() bool {
+		result, err := ite.GetStatefulSetFromK8s(name, namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to get STS", "error", err,
+				"name", name, "namespace", namespace)
+			return false
+		}
+
+		for k, v := range labels {
+			value, ok := result.Labels[k]
+			if !ok || v != value {
+				return false
+			}
+		}
+		return true
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure labels")
+}
+
+func (ite TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name, namespace string,
+	annotations map[string]string) {
+	require.Eventually(t, func() bool {
+		result, err := ite.GetStatefulSetFromK8s(name, namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to get STS", "error", err,
+				"name", name, "namespace", namespace)
+			return false
+		}
+
+		for k, v := range annotations {
+			value, ok := result.Annotations[k]
+			if !ok || v != value {
+				return false
+			}
+		}
+		return true
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure annotations")
+}
+
+// EnsureNATSSpecClusterSizeReflected ensures that NATS CR Spec.cluster.size is reflected
+// in relevant k8s objects.
+func (ite TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats natsv1alpha1.NATS) {
+	require.Eventually(t, func() bool {
+		stsName := GetStatefulSetName(nats)
+		result, err := ite.GetStatefulSetFromK8s(stsName, nats.Namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to get STS", "error", err,
+				"name", stsName, "namespace", nats.Namespace)
+			return false
+		}
+		return nats.Spec.Cluster.Size == int(*result.Spec.Replicas)
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure spec.cluster.size")
+}
+
+// EnsureNATSSpecResourcesReflected ensures that NATS CR Spec.resources is reflected
+// in relevant k8s objects.
+func (ite TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats natsv1alpha1.NATS) {
+	require.Eventually(t, func() bool {
+		stsName := GetStatefulSetName(nats)
+		result, err := ite.GetStatefulSetFromK8s(stsName, nats.Namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to ensure STS", "error", err,
+				"name", stsName, "namespace", nats.Namespace)
+			return false
+		}
+
+		natsContainer := FindContainer(result.Spec.Template.Spec.Containers, NATSContainerName)
+		require.NotNil(t, natsContainer)
+
+		return reflect.DeepEqual(nats.Spec.Resources, natsContainer.Resources)
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet resources")
 }
 
 func (ite TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
@@ -336,4 +418,33 @@ func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
 
 func NewTestNamespace() string {
 	return fmt.Sprintf("ns-%s", testutils.GetRandString(namespacePrefixLength))
+}
+
+func GetStatefulSetName(nats natsv1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func GetConfigMapName(nats natsv1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats-config", nats.Name)
+}
+
+func GetSecretName(nats natsv1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats-secret", nats.Name)
+}
+
+func GetServiceName(nats natsv1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func GetDestinationRuleName(nats natsv1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func FindContainer(containers []corev1.Container, name string) *corev1.Container {
+	for _, container := range containers {
+		if container.Name == name {
+			return &container
+		}
+	}
+	return nil
 }

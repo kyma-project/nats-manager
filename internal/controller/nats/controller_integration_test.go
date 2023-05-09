@@ -2,10 +2,8 @@ package nats_test
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -14,6 +12,8 @@ import (
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
@@ -65,7 +65,7 @@ func Test_CreateNATSCR(t *testing.T) {
 			),
 		},
 		{
-			name: "NATS CR should have processing status when StatefulSet is ready",
+			name: "NATS CR should have processing status when StatefulSet is not ready",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSCRName("test1"),
@@ -96,48 +96,102 @@ func Test_CreateNATSCR(t *testing.T) {
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
 
-			sleepTime := 5 * time.Second
-			time.Sleep(sleepTime)
-
-			sts, err := testEnvironment.GetNATSFromK8s(tc.givenNATS.Name, givenNamespace)
-			require.NoError(t, err)
-			testEnvironment.Logger.Infow("sts", "sts", sts)
-
 			// then
-			testEnvironment.EnsureK8sStatefulSetExists(t, getStatefulSetName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sConfigMapExists(t, getConfigMapName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sSecretExists(t, getSecretName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sServiceExists(t, getServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sStatefulSetExists(t, integration.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, integration.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretExists(t, integration.GetSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceExists(t, integration.GetServiceName(*tc.givenNATS), givenNamespace)
 
 			if tc.givenStatefulSetReady {
-				// make mock updates to deployed resources
-				makeStatefulSetReady(t, getStatefulSetName(*tc.givenNATS), givenNamespace)
+				// make mock updates to deployed resources.
+				makeStatefulSetReady(t, integration.GetStatefulSetName(*tc.givenNATS), givenNamespace)
 			}
 
-			// check NATS CR status
+			// check NATS CR status.
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
 		})
 	}
 }
 
-func getStatefulSetName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
-}
+// Test_UpdateNATSCR tests if updating the NATS CR will trigger reconciliation
+// and k8s objects are updated accordingly.
+func Test_UpdateNATSCR(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
 
-func getConfigMapName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats-config", nats.Name)
-}
+	testCases := []struct {
+		name            string
+		givenNATS       *v1alpha1.NATS
+		givenUpdateNATS *v1alpha1.NATS
+	}{
+		{
+			name: "NATS CR should have ready status when StatefulSet is ready",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			givenUpdateNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"cpu":    resource.MustParse("199m"),
+						"memory": resource.MustParse("199Mi"),
+					},
+					Requests: corev1.ResourceList{
+						"cpu":    resource.MustParse("99m"),
+						"memory": resource.MustParse("99Mi"),
+					},
+				}),
+				testutils.WithNATSLabels(map[string]string{
+					"test-key1": "value1",
+				}),
+				testutils.WithNATSAnnotations(map[string]string{
+					"test-key2": "value2",
+				}),
+			),
+		},
+	}
 
-func getSecretName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats-secret", nats.Name)
-}
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			// g := gomega.NewGomegaWithT(t)
 
-func getServiceName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
-}
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := integration.NewTestNamespace()
+			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
 
-func getDestinationRuleName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
+			// update namespace in resources.
+			tc.givenNATS.Namespace = givenNamespace
+			tc.givenUpdateNATS.Namespace = givenNamespace
+
+			// create NATS CR.
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+			testEnvironment.EnsureK8sStatefulSetExists(t, integration.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, integration.GetConfigMapName(*tc.givenNATS), givenNamespace)
+
+			// get NATS CR.
+			nats, err := testEnvironment.GetNATSFromK8s(tc.givenNATS.Name, givenNamespace)
+			require.NoError(t, err)
+
+			// when
+			// update NATS CR.
+			newNATS := nats.DeepCopy()
+			newNATS.Spec = tc.givenUpdateNATS.Spec
+			testEnvironment.EnsureK8sResourceUpdated(t, newNATS)
+
+			// then
+			testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenUpdateNATS)
+			testEnvironment.EnsureNATSSpecResourcesReflected(t, *tc.givenUpdateNATS)
+			testEnvironment.EnsureK8sStatefulSetHasLabels(t, integration.GetStatefulSetName(*tc.givenNATS),
+				givenNamespace, tc.givenUpdateNATS.Spec.Labels)
+			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, integration.GetStatefulSetName(*tc.givenNATS),
+				givenNamespace, tc.givenUpdateNATS.Spec.Annotations)
+		})
+	}
 }
 
 func makeStatefulSetReady(t *testing.T, name, namespace string) {
@@ -160,5 +214,5 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 			return false
 		}
 		return true
-	}, SmallTimeOut, SmallPollingInterval, "failed to update status of StatefulSet")
+	}, integration.SmallTimeOut, integration.SmallPollingInterval, "failed to update status of StatefulSet")
 }

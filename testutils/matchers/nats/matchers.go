@@ -5,8 +5,23 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) int {
+			return n.Spec.Cluster.Size
+		}, gomega.Equal(size))
+}
+
+func HaveSpecResources(resources corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) corev1.ResourceRequirements {
+			return n.Spec.Resources
+		}, gomega.Equal(resources))
+}
 
 func HaveStatusReady() gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
