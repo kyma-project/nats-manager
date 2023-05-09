@@ -9,13 +9,14 @@ import (
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
+	"github.com/kyma-project/nats-manager/testutils/integration"
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 )
 
-var testEnvironment *IntegrationTestEnvironment //nolint:gochecknoglobals // used in tests
+var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
 func TestMain(m *testing.M) {
@@ -24,7 +25,7 @@ func TestMain(m *testing.M) {
 
 	// setup env test
 	var err error
-	testEnvironment, err = NewIntegrationTestEnvironment()
+	testEnvironment, err = integration.NewTestEnvironment()
 	if err != nil {
 		panic(err)
 	}
@@ -86,7 +87,7 @@ func Test_CreateNATSCR(t *testing.T) {
 
 			// given
 			// create unique namespace for this test run.
-			givenNamespace := NewTestNamespace()
+			givenNamespace := integration.NewTestNamespace()
 			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
 
 			// update namespace in resources.
