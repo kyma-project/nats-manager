@@ -6,6 +6,7 @@ import (
 	"log"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -13,6 +14,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+
+	natsconf "github.com/nats-io/nats-server/conf"
 
 	corev1 "k8s.io/api/core/v1"
 
@@ -51,7 +54,8 @@ const (
 	SmallTimeOut             = 5 * time.Second
 	SmallPollingInterval     = 1 * time.Second
 
-	NATSContainerName = "nats"
+	NATSContainerName  = "nats"
+	NATSConfigFileName = "nats.conf"
 )
 
 // TestEnvironment provides mocked resources for integration tests.
@@ -326,6 +330,88 @@ func (ite TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats n
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet resources")
 }
 
+// EnsureNATSSpecDebugTraceReflected ensures that NATS CR Spec.trace and Spec.debug is reflected
+// in relevant k8s objects.
+func (ite TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats natsv1alpha1.NATS) {
+	require.Eventually(t, func() bool {
+		// get NATS configMap.
+		result, err := ite.GetConfigMapFromK8s(GetConfigMapName(nats), nats.Namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to get ConfigMap", "error", err,
+				"name", GetConfigMapName(nats), "namespace", nats.Namespace)
+			return false
+		}
+
+		// get nats config file data from ConfigMap.
+		natsConfigStr, ok := result.Data[NATSConfigFileName]
+		if !ok {
+			return false
+		}
+
+		// parse the nats config file data.
+		natsConfig, err := ParseNATSConf(natsConfigStr)
+		if err != nil {
+			ite.Logger.Errorw("failed to parse NATS config", "error", err,
+				"name", GetConfigMapName(nats), "namespace", nats.Namespace)
+			return false
+		}
+
+		// get the trace value.
+		gotTrace, ok := natsConfig["trace"]
+		if !ok {
+			return false
+		}
+
+		// get the debug value.
+		gotDebug, ok := natsConfig["debug"]
+		if !ok {
+			return false
+		}
+
+		return nats.Spec.Trace == gotTrace && nats.Spec.Debug == gotDebug
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.trace and Spec.debug")
+}
+
+// EnsureNATSSpecMemStorageReflected ensures that NATS CR Spec.jetStream.memStorage is reflected
+// in relevant k8s objects.
+func (ite TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+	require.Eventually(t, func() bool {
+		// get NATS configMap.
+		result, err := ite.GetConfigMapFromK8s(GetConfigMapName(nats), nats.Namespace)
+		if err != nil {
+			ite.Logger.Errorw("failed to get ConfigMap", "error", err,
+				"name", GetConfigMapName(nats), "namespace", nats.Namespace)
+			return false
+		}
+
+		// get nats config file data from ConfigMap.
+		natsConfigStr, ok := result.Data[NATSConfigFileName]
+		if !ok {
+			return false
+		}
+
+		// parse the nats config file data.
+		natsConfig, err := ParseNATSConf(natsConfigStr)
+		if err != nil {
+			ite.Logger.Errorw("failed to parse NATS config", "error", err,
+				"name", GetConfigMapName(nats), "namespace", nats.Namespace)
+			return false
+		}
+
+		// get the trace value.
+		gotJetStream, ok := natsConfig["jetstream"].(map[string]interface{})
+		if !ok {
+			return false
+		}
+
+		gotMemStorage, ok := gotJetStream["max_mem"]
+		if !ok {
+			return false
+		}
+		return nats.Spec.MemStorage.Size.String() == gotMemStorage
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.jetStream.memStorage")
+}
+
 func (ite TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
 	err := ite.k8sClient.Get(ite.Context, k8stypes.NamespacedName{
@@ -481,4 +567,12 @@ func FindContainer(containers []corev1.Container, name string) *corev1.Container
 		}
 	}
 	return nil
+}
+
+func ParseNATSConf(data string) (map[string]interface{}, error) {
+	// replace variables with dummy values
+	natsConfigStr := strings.Replace(data, "$POD_NAME", "pod1", 1)
+	// remove `include "accounts/resolver.conf"`
+	natsConfigStr = strings.Replace(natsConfigStr, "include \"accounts/resolver.conf\"", "", 1)
+	return natsconf.Parse(natsConfigStr)
 }

@@ -135,6 +135,7 @@ func Test_UpdateNATSCR(t *testing.T) {
 			givenUpdateNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSCRName("test1"),
+				testutils.WithNATSLogging(true, true),
 				testutils.WithNATSResources(corev1.ResourceRequirements{
 					Limits: corev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
@@ -151,6 +152,10 @@ func Test_UpdateNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enable: true,
+					Size:   resource.MustParse("66Gi"),
+				}),
 			),
 		},
 	}
@@ -159,8 +164,6 @@ func Test_UpdateNATSCR(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			// g := gomega.NewGomegaWithT(t)
-
 			// given
 			// create unique namespace for this test run.
 			givenNamespace := integration.NewTestNamespace()
@@ -188,10 +191,14 @@ func Test_UpdateNATSCR(t *testing.T) {
 			// then
 			testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenUpdateNATS)
 			testEnvironment.EnsureNATSSpecResourcesReflected(t, *tc.givenUpdateNATS)
+			testEnvironment.EnsureNATSSpecDebugTraceReflected(t, *tc.givenUpdateNATS)
 			testEnvironment.EnsureK8sStatefulSetHasLabels(t, integration.GetStatefulSetName(*tc.givenNATS),
 				givenNamespace, tc.givenUpdateNATS.Spec.Labels)
 			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, integration.GetStatefulSetName(*tc.givenNATS),
 				givenNamespace, tc.givenUpdateNATS.Spec.Annotations)
+			testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenUpdateNATS)
+
+			// TODO: check for FileStorage
 		})
 	}
 }
