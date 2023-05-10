@@ -41,7 +41,7 @@ data:
       {{- end}}
 
       {{- if .Values.nats.jetstream.memStorage.enabled }}
-      max_mem: {{ .Values.nats.jetstream.memStorage.size }}
+      max_mem: {{ .Values.nats.jetstream.memStorage.size | quote }}
       {{- end }}
 
       {{- if .Values.nats.jetstream.domain }}
@@ -49,13 +49,12 @@ data:
       {{- end }}
 
       {{- if eq .Values.global.jetstream.storage "file" }}
-      store_dir: {{ .Values.nats.jetstream.fileStorage.storageDirectory }}
+      store_dir: {{ .Values.nats.jetstream.fileStorage.storageDirectory | quote }}
 
-      max_file:
       {{- if .Values.nats.jetstream.fileStorage.existingClaim }}
-      {{- .Values.nats.jetstream.fileStorage.claimStorageSize  }}
+      max_file: {{ .Values.nats.jetstream.fileStorage.claimStorageSize | quote }}
       {{- else }}
-      {{ .Values.global.jetstream.fileStorage.size }}
+      max_file: {{ .Values.global.jetstream.fileStorage.size | quote }}
       {{- end }}
       {{- end }}
 
@@ -101,7 +100,7 @@ data:
     {{- end }}
 
     {{- with .Values.nats.logging.trace }}
-    trace:  {{ . }}
+    trace: {{ . }}
     {{- end }}
 
     {{- with .Values.nats.logging.logtime }}
@@ -149,11 +148,11 @@ data:
     {{- end }}
 
     {{- with .Values.nats.limits.lameDuckGracePeriod }}
-    lame_duck_grace_period: {{ . }}
+    lame_duck_grace_period: {{ . | quote }}
     {{- end }}
 
     {{- with .Values.nats.limits.lameDuckDuration }}
-    lame_duck_duration: {{ . }}
+    lame_duck_duration: {{ . | quote }}
     {{- end }}
 
     {{- if .Values.auth.enabled }}

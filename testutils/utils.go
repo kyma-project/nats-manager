@@ -1,8 +1,11 @@
 package testutils
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
@@ -148,4 +151,41 @@ func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 	}
 
 	return result
+}
+
+func GetStatefulSetName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func GetConfigMapName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats-config", nats.Name)
+}
+
+func GetSecretName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats-secret", nats.Name)
+}
+
+func GetServiceName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func GetDestinationRuleName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf("%s-nats", nats.Name)
+}
+
+func FindContainer(containers []apiv1.Container, name string) *apiv1.Container {
+	for _, container := range containers {
+		if container.Name == name {
+			return &container
+		}
+	}
+	return nil
+}
+
+func GetDestinationRuleGVR() schema.GroupVersionResource {
+	return schema.GroupVersionResource{
+		Group:    "networking.istio.io",
+		Version:  "v1alpha3",
+		Resource: "destinationrules",
+	}
 }
