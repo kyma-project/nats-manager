@@ -88,24 +88,25 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
     ```sh
     make install
     ```
+2. Build and push your image to the location specified by `IMG`:
 
-2. Deploy the `nats-manager` controller to the cluster:
-    ```sh
-    make deploy
-    ```
+   ```sh
+   make docker-build docker-push IMG=<some-registry>/nats-manager:tag
+   ```
 
-    **NOTE:**  If you want to specify the controller image, use:
+3. Deploy the `nats-manager` controller to the cluster:
     ```sh
     make deploy IMG=<some-registry>/nats-manager:tag
     ```
 
-3. [Optional] Install NATS Custom Resources:
+4. [Optional] Install NATS Custom Resources:
 
     ```sh
     kubectl apply -f config/samples/eventing-nats-eval.yaml
     ```
 
 **Undeploy controller**
+
 Undeploy the controller from the cluster:
 
 ```sh
@@ -113,6 +114,7 @@ make undeploy
 ```
 
 **Uninstall CRDs**
+
 To delete the CRDs from the cluster:
 
 ```sh
