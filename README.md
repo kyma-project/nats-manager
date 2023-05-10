@@ -99,7 +99,7 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
     make deploy IMG=<some-registry>/nats-manager:tag
     ```
 
-4. [Optional] Install NATS Custom Resources:
+4. [Optional] Install NATS Custom Resource:
 
     ```sh
     kubectl apply -f config/samples/eventing-nats-eval.yaml
