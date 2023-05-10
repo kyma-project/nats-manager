@@ -137,16 +137,16 @@ func Test_CreateNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
 
 			// then
-			testEnvironment.EnsureK8sStatefulSetExists(t, integration.GetStatefulSetName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sConfigMapExists(t, integration.GetConfigMapName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sSecretExists(t, integration.GetSecretName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sServiceExists(t, integration.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sStatefulSetExists(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
-				integration.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 
 			if tc.givenStatefulSetReady {
 				// make mock updates to deployed resources.
-				makeStatefulSetReady(t, integration.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+				makeStatefulSetReady(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
 			}
 
 			// check NATS CR status.
@@ -156,9 +156,9 @@ func Test_CreateNATSCR(t *testing.T) {
 				testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenNATS)
 				testEnvironment.EnsureNATSSpecResourcesReflected(t, *tc.givenNATS)
 				testEnvironment.EnsureNATSSpecDebugTraceReflected(t, *tc.givenNATS)
-				testEnvironment.EnsureK8sStatefulSetHasLabels(t, integration.GetStatefulSetName(*tc.givenNATS),
+				testEnvironment.EnsureK8sStatefulSetHasLabels(t, testutils.GetStatefulSetName(*tc.givenNATS),
 					givenNamespace, tc.givenNATS.Spec.Labels)
-				testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, integration.GetStatefulSetName(*tc.givenNATS),
+				testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, testutils.GetStatefulSetName(*tc.givenNATS),
 					givenNamespace, tc.givenNATS.Spec.Annotations)
 				testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenNATS)
 				testEnvironment.EnsureNATSSpecFileStorageReflected(t, *tc.givenNATS)
@@ -227,8 +227,8 @@ func Test_UpdateNATSCR(t *testing.T) {
 
 			// create NATS CR.
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
-			testEnvironment.EnsureK8sStatefulSetExists(t, integration.GetStatefulSetName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sConfigMapExists(t, integration.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sStatefulSetExists(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
 
 			// get NATS CR.
 			nats, err := testEnvironment.GetNATSFromK8s(tc.givenNATS.Name, givenNamespace)
@@ -244,11 +244,223 @@ func Test_UpdateNATSCR(t *testing.T) {
 			testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenUpdateNATS)
 			testEnvironment.EnsureNATSSpecResourcesReflected(t, *tc.givenUpdateNATS)
 			testEnvironment.EnsureNATSSpecDebugTraceReflected(t, *tc.givenUpdateNATS)
-			testEnvironment.EnsureK8sStatefulSetHasLabels(t, integration.GetStatefulSetName(*tc.givenNATS),
+			testEnvironment.EnsureK8sStatefulSetHasLabels(t, testutils.GetStatefulSetName(*tc.givenNATS),
 				givenNamespace, tc.givenUpdateNATS.Spec.Labels)
-			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, integration.GetStatefulSetName(*tc.givenNATS),
+			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, testutils.GetStatefulSetName(*tc.givenNATS),
 				givenNamespace, tc.givenUpdateNATS.Spec.Annotations)
 			testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenUpdateNATS)
+		})
+	}
+}
+
+func Test_DeleteNATSCR(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	testCases := []struct {
+		name      string
+		givenNATS *v1alpha1.NATS
+	}{
+		{
+			name: "should delete all k8s objects",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+		},
+		{
+			name: "should delete all k8s objects with full NATS CR",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+				testutils.WithNATSLogging(true, true),
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"cpu":    resource.MustParse("199m"),
+						"memory": resource.MustParse("199Mi"),
+					},
+					Requests: corev1.ResourceList{
+						"cpu":    resource.MustParse("99m"),
+						"memory": resource.MustParse("99Mi"),
+					},
+				}),
+				testutils.WithNATSLabels(map[string]string{
+					"test-key1": "value1",
+				}),
+				testutils.WithNATSAnnotations(map[string]string{
+					"test-key2": "value2",
+				}),
+				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "test-sc1",
+					Size:             resource.MustParse("66Gi"),
+				}),
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enable: true,
+					Size:   resource.MustParse("66Gi"),
+				}),
+			),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := integration.NewTestNamespace()
+			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
+
+			// update namespace in resources.
+			tc.givenNATS.Namespace = givenNamespace
+
+			// create NATS CR
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			// ensure all k8s objects exists
+			testEnvironment.EnsureK8sStatefulSetExists(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sDestinationRuleExists(t,
+				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+
+			// when
+			testEnvironment.EnsureK8sResourceDeleted(t, tc.givenNATS)
+
+			// then
+			// ensure all k8s objects are deleted
+			testEnvironment.EnsureK8sStatefulSetNotFound(t,
+				testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapNotFound(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretNotFound(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceNotFound(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sDestinationRuleNotFound(t,
+				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+
+			// ensure NATS CR is deleted.
+			testEnvironment.EnsureK8sNATSNotFound(t, tc.givenNATS.Name, givenNamespace)
+		})
+	}
+}
+
+// Test_WatcherNATSCRK8sObjects tests that deleting the k8s objects deployed by NATS CR
+// should trigger reconciliation.
+func Test_WatcherNATSCRK8sObjects(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	testCases := []struct {
+		name                        string
+		givenNATS                   *v1alpha1.NATS
+		wantStatefulSetDeletion     bool
+		wantConfigMapDeletion       bool
+		wantSecretDeletion          bool
+		wantServiceDeletion         bool
+		wantDestinationRuleDeletion bool
+	}{
+		{
+			name: "should recreate StatefulSet",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			wantStatefulSetDeletion: true,
+		},
+		{
+			name: "should recreate ConfigMap",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			wantConfigMapDeletion: true,
+		},
+		{
+			name: "should recreate Secret",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			wantSecretDeletion: true,
+		},
+		{
+			name: "should recreate Service",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			wantServiceDeletion: true,
+		},
+		{
+			name: "should recreate DestinationRule",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			wantDestinationRuleDeletion: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := integration.NewTestNamespace()
+			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
+
+			// update namespace in resources.
+			tc.givenNATS.Namespace = givenNamespace
+
+			// create NATS CR
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			// ensure all k8s objects exists
+			testEnvironment.EnsureK8sStatefulSetExists(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sDestinationRuleExists(t,
+				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+
+			// when
+			if tc.wantStatefulSetDeletion {
+				err := testEnvironment.DeleteStatefulSetFromK8s(testutils.GetStatefulSetName(*tc.givenNATS),
+					givenNamespace)
+				require.NoError(t, err)
+			}
+			if tc.wantConfigMapDeletion {
+				err := testEnvironment.DeleteConfigMapFromK8s(testutils.GetConfigMapName(*tc.givenNATS),
+					givenNamespace)
+				require.NoError(t, err)
+			}
+			if tc.wantSecretDeletion {
+				err := testEnvironment.DeleteSecretFromK8s(testutils.GetSecretName(*tc.givenNATS),
+					givenNamespace)
+				require.NoError(t, err)
+			}
+			if tc.wantServiceDeletion {
+				err := testEnvironment.DeleteServiceFromK8s(testutils.GetServiceName(*tc.givenNATS),
+					givenNamespace)
+				require.NoError(t, err)
+			}
+			if tc.wantDestinationRuleDeletion {
+				err := testEnvironment.DeleteDestinationRuleFromK8s(testutils.GetDestinationRuleName(*tc.givenNATS),
+					givenNamespace)
+				require.NoError(t, err)
+			}
+
+			// then
+			// ensure all k8s objects exists again
+			testEnvironment.EnsureK8sStatefulSetExists(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sDestinationRuleExists(t,
+				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 		})
 	}
 }
