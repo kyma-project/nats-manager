@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -461,6 +462,127 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+		})
+	}
+}
+
+// Test_DoubleReconcileNATSCR tests that controller should be able to reconcile NATS again.
+func Test_DoubleReconcileNATSCR(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	testCases := []struct {
+		name         string
+		givenNATS    *v1alpha1.NATS
+		wantMatchers gomegatypes.GomegaMatcher
+	}{
+		{
+			name: "should have reconciled again without problems",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+				testutils.WithNATSLogging(true, true),
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"cpu":    resource.MustParse("199m"),
+						"memory": resource.MustParse("199Mi"),
+					},
+					Requests: corev1.ResourceList{
+						"cpu":    resource.MustParse("99m"),
+						"memory": resource.MustParse("99Mi"),
+					},
+				}),
+				testutils.WithNATSLabels(map[string]string{
+					"test-key1": "value1",
+				}),
+				testutils.WithNATSAnnotations(map[string]string{
+					"test-key2": "value2",
+				}),
+				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "test-sc1",
+					Size:             resource.MustParse("66Gi"),
+				}),
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enable: true,
+					Size:   resource.MustParse("66Gi"),
+				}),
+			),
+			wantMatchers: gomega.And(
+				natsmatchers.HaveStatusReady(),
+				natsmatchers.HaveReadyConditionStatefulSet(),
+				natsmatchers.HaveReadyConditionAvailable(),
+			),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := gomega.NewGomegaWithT(t)
+
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := integration.NewTestNamespace()
+			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
+
+			// update namespace in resources.
+			tc.givenNATS.Namespace = givenNamespace
+
+			// first reconcile
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			// check all k8s objects exists.
+			testEnvironment.EnsureK8sStatefulSetExists(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sDestinationRuleExists(t,
+				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+
+			// check all k8s objects are correctly specified according to NATS CR Spec.
+			testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureNATSSpecResourcesReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureNATSSpecDebugTraceReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureK8sStatefulSetHasLabels(t, testutils.GetStatefulSetName(*tc.givenNATS),
+				givenNamespace, tc.givenNATS.Spec.Labels)
+			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, testutils.GetStatefulSetName(*tc.givenNATS),
+				givenNamespace, tc.givenNATS.Spec.Annotations)
+			testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureNATSSpecFileStorageReflected(t, *tc.givenNATS)
+
+			// make mock updates to deployed resources.
+			makeStatefulSetReady(t, testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
+
+			// check NATS CR status.
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatchers)
+
+			// when
+			// add label to trigger second reconciliation.
+			sts, err := testEnvironment.GetStatefulSetFromK8s(testutils.GetStatefulSetName(*tc.givenNATS),
+				givenNamespace)
+			require.NoError(t, err)
+			sts.Labels = make(map[string]string)
+			sts.Labels["test"] = "true"
+			testEnvironment.EnsureK8sResourceUpdated(t, sts)
+
+			// wait for any possible changes to take effect.
+			time.Sleep(integration.BigPollingInterval)
+
+			// then
+			// check again all k8s objects are correctly specified according to NATS CR Spec.
+			testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureNATSSpecResourcesReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureNATSSpecDebugTraceReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureK8sStatefulSetHasLabels(t, testutils.GetStatefulSetName(*tc.givenNATS),
+				givenNamespace, tc.givenNATS.Spec.Labels)
+			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, testutils.GetStatefulSetName(*tc.givenNATS),
+				givenNamespace, tc.givenNATS.Spec.Annotations)
+			testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenNATS)
+			testEnvironment.EnsureNATSSpecFileStorageReflected(t, *tc.givenNATS)
+
+			// check NATS CR status again.
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatchers)
 		})
 	}
 }
