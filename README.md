@@ -20,7 +20,6 @@ which provide a reconcile function responsible for synchronizing resources until
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [kubebuilder](https://book.kubebuilder.io/)
 - [kustomize](https://kustomize.io/)
-- [KO](https://ko.build/)
 - Access to Kubernetes cluster ([k3d](https://k3d.io/) / k8s)
 
 ### Running locally
