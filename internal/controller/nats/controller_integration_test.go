@@ -401,6 +401,18 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			),
 			wantDestinationRuleDeletion: true,
 		},
+		{
+			name: "should recreate all objects",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName("test1"),
+			),
+			wantServiceDeletion:         true,
+			wantConfigMapDeletion:       true,
+			wantStatefulSetDeletion:     true,
+			wantSecretDeletion:          true,
+			wantDestinationRuleDeletion: true,
+		},
 	}
 
 	for _, tc := range testCases {
