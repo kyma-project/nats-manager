@@ -72,7 +72,6 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
-	// +kubebuilder:validation:Minimum:=0
 	// +kubebuilder:validation:Required
 	Cluster `json:"cluster"`
 
@@ -100,6 +99,7 @@ type NATSSpec struct {
 // Cluster defines configurations that are specific to NATS clusters.
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
+	// +kubebuilder:validation:Required
 	Size int `json:"size"`
 }
 
@@ -126,6 +126,7 @@ type MemStorage struct {
 // FileStorage defines configurations to file storage in NATS JetStream.
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf", message="Value is immutable"
 	StorageClassName string `json:"storageClassName"`
 
 	// Size defines the file storage size.

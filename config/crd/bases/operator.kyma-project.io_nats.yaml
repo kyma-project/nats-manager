@@ -78,6 +78,9 @@ spec:
                         description: StorageClassName defines the file storage class
                           name.
                         type: string
+                        x-kubernetes-validations:
+                        - message: Value storageClassName is immutable.
+                          rule: self == oldSelf
                     required:
                     - size
                     - storageClassName
