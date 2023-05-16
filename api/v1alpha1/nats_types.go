@@ -72,6 +72,8 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
+	// +kubebuilder:validation:Minimum:=0
+	// +kubebuilder:validation:Required
 	Cluster `json:"cluster"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
