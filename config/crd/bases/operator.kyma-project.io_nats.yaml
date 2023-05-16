@@ -55,6 +55,7 @@ spec:
                 properties:
                   size:
                     description: Size of a NATS cluster, i.e. number of NATS nodes.
+                    minimum: 0
                     type: integer
                 required:
                 - size
@@ -79,7 +80,7 @@ spec:
                           name.
                         type: string
                         x-kubernetes-validations:
-                        - message: Value storageClassName is immutable.
+                        - message: Value is immutable
                           rule: self == oldSelf
                     required:
                     - size
