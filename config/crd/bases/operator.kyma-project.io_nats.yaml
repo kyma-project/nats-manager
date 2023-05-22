@@ -55,10 +55,8 @@ spec:
                 properties:
                   size:
                     description: Size of a NATS cluster, i.e. number of NATS nodes.
+                    minimum: 0
                     type: integer
-                    x-kubernetes-validations:
-                    - message: Value must be greater than -1
-                      rule: self > -1
                 required:
                 - size
                 type: object
