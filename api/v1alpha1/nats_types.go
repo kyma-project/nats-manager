@@ -38,7 +38,7 @@ const (
 	ConditionReasonProcessing           ConditionReason = "Processing"
 	ConditionReasonDeploying            ConditionReason = "Deploying"
 	ConditionReasonDeployed             ConditionReason = "Deployed"
-	ConditionReasonProcessingError                      = ConditionReason("FailedProcessing")
+	ConditionReasonProcessingError      ConditionReason = "FailedProcessing"
 	ConditionReasonStatefulSetAvailable ConditionReason = "Available"
 	ConditionReasonStatefulSetPending   ConditionReason = "Pending"
 	ConditionReasonSyncFailError        ConditionReason = "FailedToSyncResources"
@@ -100,7 +100,7 @@ type NATSSpec struct {
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
 	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Minimum:=0
+	// +kubebuilder:validation:XValidation:rule="self > -1", message="Value must be greater than -1"
 	Size int `json:"size"`
 }
 

@@ -161,6 +161,58 @@ func Test_CreateNATSCR(t *testing.T) {
 	}
 }
 
+// Test_ValidateNATSCR_Creation tests the validation of NATS CR creation, as it is defined in
+// `api/v1alpha1/nats_type.go`.
+func Test_ValidateNATSCR_Creation(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	testCases := []struct {
+		name        string
+		givenNATS   *v1alpha1.NATS
+		errMatchers gomegatypes.GomegaMatcher
+	}{
+		{
+			name: "the validation of the default NATS CR should not cause any errors",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+			),
+			errMatchers: gomega.And(
+				gomega.BeNil(),
+			),
+		}, {
+			name: "the validation of and empty NATS CR should cause an error",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSEmptySpec(),
+			),
+			errMatchers: gomega.And(
+				gomega.Not(gomega.BeNil()),
+			),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := gomega.NewGomegaWithT(t)
+
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := integration.NewTestNamespace()
+			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
+			// update namespace in resources.
+			tc.givenNATS.Namespace = givenNamespace
+
+			// when
+			err := testEnvironment.K8sResourceCreatedWithErr(tc.givenNATS)
+
+			// then
+			g.Expect(err, tc.errMatchers)
+		})
+	}
+}
+
 // Test_UpdateNATSCR tests if updating the NATS CR will trigger reconciliation
 // and k8s objects are updated accordingly.
 func Test_UpdateNATSCR(t *testing.T) {

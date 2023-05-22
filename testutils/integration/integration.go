@@ -45,12 +45,12 @@ const (
 	attachControlPlaneOutput = false
 	testEnvStartDelay        = time.Minute
 	testEnvStartAttempts     = 10
-
-	TwoMinTimeOut        = 120 * time.Second
-	BigPollingInterval   = 3 * time.Second
-	BigTimeOut           = 40 * time.Second
-	SmallTimeOut         = 5 * time.Second
-	SmallPollingInterval = 1 * time.Second
+	namespacePrefixLength    = 5
+	TwoMinTimeOut            = 120 * time.Second
+	BigPollingInterval       = 3 * time.Second
+	BigTimeOut               = 40 * time.Second
+	SmallTimeOut             = 5 * time.Second
+	SmallPollingInterval     = 1 * time.Second
 
 	NATSContainerName  = "nats"
 	NATSConfigFileName = "nats.conf"
@@ -93,7 +93,7 @@ func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in
 		return nil, err
 	}
 
-	// +kubebuilder:scaffold:scheme
+	//+kubebuilder:scaffold:scheme
 
 	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: scheme.Scheme})
 	if err != nil {
