@@ -23,7 +23,7 @@ graph TD
 ### NATS Manager is started
 ```mermaid
 graph LR
-  A(Start nats-manager) -->|Controller| D(Creates, watches & reconciles resources: CM, Sec, Sv, SfS, DR)
+  A(Start NATS manager) -->|Controller| D(Creates, watches & reconciles resources: CM, Sec, Sv, SfS, DR)
 ```
 
 ### NATS Manager reacts to NATS CR changes
