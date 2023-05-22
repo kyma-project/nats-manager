@@ -3,48 +3,126 @@ Manages the lifecycle of a NATS JetStream deployment.
 
 ## Description
 It is a standard Kubernetes operator which observes the state of NATS JetStream deployment and reconciles its state according to desired state.
-## Getting Started
+
+### How it works
+
+This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
+
+It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/),
+which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
+
+This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and all the Kubebuilder `makefile` helpers mentioned [here](https://book.kubebuilder.io/reference/makefile-helpers.html) can be used.
+
+## Development
+
+### Pre-requisites
+
+- [Go](https://go.dev/)
+- [Docker](https://www.docker.com/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [kubebuilder](https://book.kubebuilder.io/)
+- [kustomize](https://kustomize.io/)
+- Access to Kubernetes cluster ([k3d](https://k3d.io/) / k8s)
+
+### Running locally
+1. Install the CRDs into the cluster:
+    ```sh
+    make install
+    ```
+
+2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
+    ```sh
+    make run
+    ```
+
+    **NOTE:** You can also run this in one step by running: `make install run`
+
+### Running tests
+Run the unit and integration tests:
+```sh
+make test-only
+```
+
+### Linting
+1. Fix common lint issues:
+    ```sh
+    make imports-local
+    make fmt-local
+    ```
+
+2. Run lint check:
+    ```sh
+    make lint-thoroughly
+    ```
+
+### Modifying the API definitions
+If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
+
+```sh
+make manifests
+```
+
+**NOTE:** Run `make --help` for more information on all potential `make` targets
+
+More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+
+### Build container images
+
+Build and push your image to the location specified by `IMG`:
+
+```sh
+make docker-build docker-push IMG=<container-registry>/nats-manager:<tag> # If using docker, <container-registry> is your username.
+```
+
+**NOTE**: Run the following for MacBook M1 devices:
+```sh
+make docker-buildx IMG=<container-registry>/nats-manager:<tag>
+```
+
+## Deployment
 You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d.io/) to get a local cluster for testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
-### Running on the cluster
-1. Install Instances of Custom Resources:
+### Deploying on the cluster
 
-```sh
-kubectl apply -f config/samples/
-```
-
+1. Install the CRDs to the cluster:
+    ```sh
+    make install
+    ```
 2. Build and push your image to the location specified by `IMG`:
 
+   ```sh
+   make docker-build docker-push IMG=<container-registry>/nats-manager:<tag>
+   ```
+
+3. Deploy the `nats-manager` controller to the cluster:
+    ```sh
+    make deploy IMG=<container-registry>/nats-manager:<tag>
+    ```
+
+4. [Optional] Install NATS Custom Resource:
+
+    ```sh
+    kubectl apply -f config/samples/eventing-nats-eval.yaml
+    ```
+
+**Undeploy controller**
+
+Undeploy the controller from the cluster:
+
 ```sh
-make docker-build docker-push IMG=<some-registry>/nats-manager:tag
-```
-**NOTE**: run the following for MacBook M1 devices:
-```sh
-make docker-buildx IMG=<some-registry>/nats-manager:tag
+make undeploy
 ```
 
-3. Deploy the controller to the cluster with the image specified by `IMG`:
+**Uninstall CRDs**
 
-```sh
-make deploy IMG=<some-registry>/nats-manager:tag
-```
-
-### Uninstall CRDs
 To delete the CRDs from the cluster:
 
 ```sh
 make uninstall
 ```
 
-### Undeploy controller
-UnDeploy the controller from the cluster:
-
-```sh
-make undeploy
-```
-
-## Installing with Kyma [Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
+### Deploying using [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
 1. Deploy the Lifecycle Manager & Module Manager to the Control Plane cluster with:
 
 ```shell
@@ -120,7 +198,7 @@ If they don't have ready state, one can troubleshoot it by checking the pods und
 kubectl get pods -n nats-manager-system
 ```
 
-### Uninstalling controller with Kyma [Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
+**Uninstalling controller with [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)**
 
 1. Delete nats from `kyma` resource `spec.modules` `kubectl edit -n kyma-system kyma default-kyma`:
 
@@ -129,38 +207,6 @@ kubectl get pods -n nats-manager-system
 ```shell
 kubectl get -n kyma-system nats
 ```
-
-### How it works
-This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
-
-It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/),
-which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
-
-### Test It Out
-1. Install the CRDs into the cluster:
-
-```sh
-make install
-```
-
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
-
-```sh
-make run
-```
-
-**NOTE:** You can also run this in one step by running: `make install run`
-
-### Modifying the API definitions
-If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
-
-```sh
-make manifests
-```
-
-**NOTE:** Run `make --help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
 ## License
 
