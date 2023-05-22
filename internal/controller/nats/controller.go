@@ -79,10 +79,20 @@ func NewReconciler(
 	}
 }
 
-//+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;update;patch;create;delete
-//+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;update;patch;create;delete
-//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="apps/v1",resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+// RBAC permissions
+//+kubebuilder:rbac:groups="",resourceNames=nats-sample-secret,resources=secrets,verbs=get;list;watch;update;patch;create;delete
+//+kubebuilder:rbac:groups="",resourceNames=nats-sample,resources=services,verbs=get;list;watch;update;patch;create;delete
+//+kubebuilder:rbac:groups="",resourceNames=nats-sample-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="apps",resourceNames=nats-sample,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="networking.istio.io",resourceNames=nats-sample,resources=destinationrules,verbs=get;list;watch;create;update;patch;delete
+
+//+kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch
+//+kubebuilder:rbac:groups="",resources=services,verbs=list;watch
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch
+//+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
+//+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
+
+//+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/finalizers,verbs=update
