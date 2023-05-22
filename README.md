@@ -11,6 +11,8 @@ This project aims to follow the Kubernetes [Operator pattern](https://kubernetes
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/),
 which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
 
+This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and all the Kubebuilder `makefile` helpers mentioned [here](https://book.kubebuilder.io/reference/makefile-helpers.html) can be used.
+
 ## Development
 
 ### Pre-requisites
@@ -69,12 +71,12 @@ More information can be found via the [Kubebuilder Documentation](https://book.k
 Build and push your image to the location specified by `IMG`:
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/nats-manager:tag
+make docker-build docker-push IMG=<container-registry>/nats-manager:<tag> # If using docker, <container-registry> is your username.
 ```
 
-**NOTE**: run the following for MacBook M1 devices:
+**NOTE**: Run the following for MacBook M1 devices:
 ```sh
-make docker-buildx IMG=<some-registry>/nats-manager:tag
+make docker-buildx IMG=<container-registry>/nats-manager:<tag>
 ```
 
 ## Deployment
@@ -90,12 +92,12 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
 2. Build and push your image to the location specified by `IMG`:
 
    ```sh
-   make docker-build docker-push IMG=<some-registry>/nats-manager:tag
+   make docker-build docker-push IMG=<container-registry>/nats-manager:<tag>
    ```
 
 3. Deploy the `nats-manager` controller to the cluster:
     ```sh
-    make deploy IMG=<some-registry>/nats-manager:tag
+    make deploy IMG=<container-registry>/nats-manager:<tag>
     ```
 
 4. [Optional] Install NATS Custom Resource:
