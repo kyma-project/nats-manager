@@ -80,6 +80,7 @@ func NewReconciler(
 }
 
 // RBAC permissions
+//nolint:lll
 //+kubebuilder:rbac:groups="",resourceNames=nats-sample-secret,resources=secrets,verbs=get;list;watch;update;patch;create;delete
 //+kubebuilder:rbac:groups="",resourceNames=nats-sample,resources=services,verbs=get;list;watch;update;patch;create;delete
 //+kubebuilder:rbac:groups="",resourceNames=nats-sample-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
@@ -92,6 +93,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
 //+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
 
+//nolint:lll
 //+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/status,verbs=get;update;patch
