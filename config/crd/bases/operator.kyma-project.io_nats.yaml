@@ -97,7 +97,7 @@ spec:
                     description: MemStorage defines configurations to memory storage
                       in NATS JetStream.
                     properties:
-                      enable:
+                      enabled:
                         description: Enable allows the enablement of memory storage.
                         type: boolean
                       size:
@@ -110,7 +110,7 @@ spec:
                     type: object
                     x-kubernetes-validations:
                     - message: If 'memStorage' is enabled, 'size' must be defined
-                      rule: '!has(self.enable) ? true : self.enable == false || has(self.size) '
+                      rule: '!has(self.enabled) || self.enabled == false || has(self.size)'
                 type: object
               labels:
                 additionalProperties:

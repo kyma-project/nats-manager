@@ -6,3 +6,6 @@ metadata:
 spec:
   cluster:
     size: 3
+  jetStream:
+    memStorage: 
+      size: 512Mi

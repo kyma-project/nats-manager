@@ -115,7 +115,7 @@ type Cluster struct {
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="!has(self.enable) ? true : self.enable == false || has(self.size) ", message="If 'memStorage' is enabled, 'size' must be defined"
+	// +kubebuilder:validation:XValidation:rule="!has(self.enabled) || self.enabled == false || has(self.size)", message="If 'memStorage' is enabled, 'size' must be defined"
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
@@ -127,7 +127,7 @@ type JetStream struct {
 type MemStorage struct {
 	// Enable allows the enablement of memory storage.
 	// +optional
-	Enable bool `json:"enable,omitempty"`
+	Enabled bool `json:"enabled,omitempty"`
 
 	// Size defines the mem.
 	// +optional
