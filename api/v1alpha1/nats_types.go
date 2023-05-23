@@ -115,11 +115,12 @@ type Cluster struct {
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
 	// +optional
-	// +kubebuilder:validation:XValidation:rule="!has(self.enabled) || self.enabled == false || has(self.size)", message="If 'memStorage' is enabled, 'size' must be defined"
+    // +kubebuilder:validation:XValidation:rule="!has(self.enabled) || self.enabled == false || has(self.size)", message="If 'memStorage' is enabled, 'size' must be defined"
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
 	// +optional
+    // +kubebuilder:validation:XValidation:rule="(!has(self.storageClassName) && !has(self.size)) || (has(self.storageClassName) && has(self.size))", message="If 'storageClassName' is defined, 'size' must also be defined"
 	FileStorage `json:"fileStorage,omitempty"`
 }
 
@@ -137,10 +138,11 @@ type MemStorage struct {
 // FileStorage defines configurations to file storage in NATS JetStream.
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
-	// +kubebuilder:validation:XValidation:rule="self == oldSelf", message="Value is immutable"
+	// +optional
 	StorageClassName string `json:"storageClassName"`
 
 	// Size defines the file storage size.
+	// +optional
 	Size resource.Quantity `json:"size"`
 }
 
