@@ -7,9 +7,6 @@ spec:
   cluster:
     size: 3
   jetStream:
-    memStorage: 
-      enabled: true 
-      size: 512Mi
     fileStorage:
       storageClassName: default 
       size: 512Mi

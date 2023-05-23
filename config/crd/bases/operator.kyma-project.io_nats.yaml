@@ -82,10 +82,16 @@ spec:
                         description: Size defines the file storage size.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
+                        x-kubernetes-validations:
+                        - message: size is immutable
+                          rule: self == oldSelf
                       storageClassName:
                         description: StorageClassName defines the file storage class
                           name.
                         type: string
+                        x-kubernetes-validations:
+                        - message: storageClassName is immutable
+                          rule: self == oldSelf
                     type: object
                     x-kubernetes-validations:
                     - message: If 'storageClassName' is defined, 'size' must also
@@ -179,6 +185,10 @@ spec:
                     type: object
                 type: object
             type: object
+            x-kubernetes-validations:
+            - message: fileStorage is required once set
+              rule: '!has(oldSelf.jetStream) || !has(oldSelf.jetStream.fileStorage)
+                || has(self.jetStream.fileStorage)'
           status:
             description: NATSStatus defines the observed state of NATS.
             properties:

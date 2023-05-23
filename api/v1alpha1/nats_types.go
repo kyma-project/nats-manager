@@ -63,6 +63,7 @@ type NATS struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// +kubebuilder:default:={cluster:{size:3}}
+    // +kubebuilder:validation:XValidation:rule="!has(oldSelf.jetStream) || !has(oldSelf.jetStream.fileStorage) || has(self.jetStream.fileStorage)", message="fileStorage is required once set"
 	Spec   NATSSpec   `json:"spec"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -139,10 +140,12 @@ type MemStorage struct {
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
 	// +optional
+    // +kubebuilder:validation:XValidation:rule="self == oldSelf",message="storageClassName is immutable"
 	StorageClassName string `json:"storageClassName,omitempty"`
 
 	// Size defines the file storage size.
 	// +optional
+    // +kubebuilder:validation:XValidation:rule="self == oldSelf",message="size is immutable"
 	Size resource.Quantity `json:"size,omitempty"`
 }
 
