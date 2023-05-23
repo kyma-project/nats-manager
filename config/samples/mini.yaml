@@ -1,0 +1,7 @@
+apiVersion: operator.kyma-project.io/v1alpha1
+kind: NATS
+metadata:
+  name: eventing-nats
+  namespace: kyma-system
+spec:
+  cluster:

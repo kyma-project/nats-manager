@@ -42,6 +42,9 @@ spec:
           metadata:
             type: object
           spec:
+            default:
+              cluster:
+                size: 3
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -50,15 +53,16 @@ spec:
                 description: Annotations allows to add annotations to NATS.
                 type: object
               cluster:
+                default:
+                  size: 3
                 description: Cluster defines configurations that are specific to NATS
                   clusters.
                 properties:
                   size:
+                    default: 3
                     description: Size of a NATS cluster, i.e. number of NATS nodes.
                     minimum: 0
                     type: integer
-                required:
-                - size
                 type: object
               jetStream:
                 description: JetStream defines configurations that are specific to
@@ -101,6 +105,9 @@ spec:
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                     type: object
+                    x-kubernetes-validations:
+                    - message: If 'memStorage' is enabled, 'size' must be defined
+                      rule: '!has(self.enable) ? true : self.enable == false || has(self.size) '
                 type: object
               labels:
                 additionalProperties:
@@ -169,13 +176,7 @@ spec:
                       More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
                     type: object
                 type: object
-            required:
-            - cluster
             type: object
-            x-kubernetes-validations:
-            - message: If 'memStorage' is enabled, 'size' must be defined
-              rule: '!has(self.jetStream.memStorage.enabled) ? true : self.jetStream.memStorage.enabled
-                == false || has(self.jetStream.memStorage.size) '
           status:
             description: NATSStatus defines the observed state of NATS.
             properties:
@@ -252,6 +253,8 @@ spec:
             required:
             - state
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true

@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// +kubebuilder:validation:Required
+//
 //nolint:lll //this is annotation
 package v1alpha1
 
@@ -60,7 +62,8 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   NATSSpec   `json:"spec,omitempty"`
+	// +kubebuilder:default:={cluster:{size:3}}
+	Spec   NATSSpec   `json:"spec"`
 	Status NATSStatus `json:"status,omitempty"`
 }
 
@@ -71,10 +74,10 @@ type NATSStatus struct {
 }
 
 // NATSSpec defines the desired state of NATS.
-// +kubebuilder:validation:XValidation:rule="!has(self.jetStream.memStorage.enabled) ? true : self.jetStream.memStorage.enabled == false || has(self.jetStream.memStorage.size) ", message="If 'memStorage' is enabled, 'size' must be defined"
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
-	// +kubebuilder:validation:Required
+	// +optional
+	// +kubebuilder:default:={size:3}
 	Cluster `json:"cluster"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
@@ -101,9 +104,10 @@ type NATSSpec struct {
 // Cluster defines configurations that are specific to NATS clusters.
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
-	// +kubebuilder:validation:Required
+	// +optional
 	// +kubebuilder:validation:Minimum:=0
-	// +kubebuilder:validation:Default:=3
+	// +kubebuilder:default:=3
+	// +kubebuilder:validation:XValidation:rule="has(self) ? self  : self.enable == false ", message="If 'memStorage' is enabled, 'size' must be defined"
 	Size int `json:"size"`
 }
 
@@ -111,6 +115,7 @@ type Cluster struct {
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
 	// +optional
+	// +kubebuilder:validation:XValidation:rule="!has(self.enable) ? true : self.enable == false || has(self.size) ", message="If 'memStorage' is enabled, 'size' must be defined"
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
