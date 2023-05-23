@@ -100,9 +100,6 @@ spec:
                         description: Size defines the mem.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
-                    required:
-                    - enable
-                    - size
                     type: object
                 type: object
               labels:
@@ -111,8 +108,8 @@ spec:
                 description: Labels allows to add Labels to NATS.
                 type: object
               logging:
-                description: JetStream defines configurations that are specific to
-                  NATS logging in NATS.
+                description: Logging defines configurations that are specific to NATS
+                  logging in NATS.
                 properties:
                   debug:
                     description: Debug allows debug logging.
@@ -175,6 +172,10 @@ spec:
             required:
             - cluster
             type: object
+            x-kubernetes-validations:
+            - message: If 'memStorage' is enabled, 'size' must be defined
+              rule: '!has(self.jetStream.memStorage.enabled) ? true : self.jetStream.memStorage.enabled
+                == false || has(self.jetStream.memStorage.size) '
           status:
             description: NATSStatus defines the observed state of NATS.
             properties:
