@@ -139,11 +139,11 @@ type MemStorage struct {
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
 	// +optional
-	StorageClassName string `json:"storageClassName"`
+	StorageClassName string `json:"storageClassName,omitempty"`
 
 	// Size defines the file storage size.
 	// +optional
-	Size resource.Quantity `json:"size"`
+	Size resource.Quantity `json:"size,omitempty"`
 }
 
 // Logging defines logging options.
