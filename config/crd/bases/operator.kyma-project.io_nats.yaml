@@ -65,7 +65,7 @@ spec:
                     type: integer
                     x-kubernetes-validations:
                     - message: size only accepts odd numbers
-                      rule: ' ( self % 2 ) != 0 '
+                      rule: self%2!=0
                 type: object
               jetStream:
                 description: JetStream defines configurations that are specific to
