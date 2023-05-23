@@ -81,11 +81,11 @@ func NewReconciler(
 
 // RBAC permissions
 //nolint:lll
-//+kubebuilder:rbac:groups="",resourceNames=nats-sample-secret,resources=secrets,verbs=get;list;watch;update;patch;create;delete
-//+kubebuilder:rbac:groups="",resourceNames=nats-sample,resources=services,verbs=get;list;watch;update;patch;create;delete
-//+kubebuilder:rbac:groups="",resourceNames=nats-sample-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="apps",resourceNames=nats-sample,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="networking.istio.io",resourceNames=nats-sample,resources=destinationrules,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resourceNames=eventing-nats-secret,resources=secrets,verbs=get;list;watch;update;patch;create;delete
+//+kubebuilder:rbac:groups="",resourceNames=eventing-nats,resources=services,verbs=get;list;watch;update;patch;create;delete
+//+kubebuilder:rbac:groups="",resourceNames=eventing-nats-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="apps",resourceNames=eventing-nats,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="networking.istio.io",resourceNames=eventing-nats,resources=destinationrules,verbs=get;list;watch;create;update;patch;delete
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch
 //+kubebuilder:rbac:groups="",resources=services,verbs=list;watch
@@ -180,7 +180,7 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	r.controller, err = ctrl.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.NATS{}).
 		Owns(&appsv1.StatefulSet{}). // watch for StatefulSets.
-		Owns(&apiv1.Service{}).      // watch for services.
+		Owns(&apiv1.Service{}).      // watch for Services.
 		Owns(&apiv1.ConfigMap{}).    // watch for ConfigMaps.
 		Owns(&apiv1.Secret{}).       // watch for Secrets.
 		Build(r)
