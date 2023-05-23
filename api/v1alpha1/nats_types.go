@@ -77,9 +77,11 @@ type NATSSpec struct {
 
 	// JetStream defines configurations that are specific to NATS JetStream.
 	// +optional
+	// +kubebuilder:validation:Minimum
+	// +kubebuilder:validation:XValidation:rule="self. == oldSelf", message="Value is immutable"
 	JetStream `json:"jetStream,omitempty"`
 
-	// JetStream defines configurations that are specific to NATS logging in NATS.
+	// Logging defines configurations that are specific to NATS logging in NATS.
 	// +optional
 	Logging `json:"logging,omitempty"`
 
