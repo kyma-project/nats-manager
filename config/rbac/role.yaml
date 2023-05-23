@@ -15,7 +15,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - nats-sample-config
+  - eventing-nats-config
   resources:
   - configmaps
   verbs:
@@ -36,7 +36,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - nats-sample-secret
+  - eventing-nats-secret
   resources:
   - secrets
   verbs:
@@ -57,7 +57,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - nats-sample
+  - eventing-nats
   resources:
   - services
   verbs:
@@ -90,7 +90,7 @@ rules:
 - apiGroups:
   - apps
   resourceNames:
-  - nats-sample
+  - eventing-nats
   resources:
   - statefulsets
   verbs:
@@ -111,7 +111,7 @@ rules:
 - apiGroups:
   - networking.istio.io
   resourceNames:
-  - nats-sample
+  - eventing-nats
   resources:
   - destinationrules
   verbs:
