@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// +kubebuilder:validation:Required
-//
-//nolint:lll //this is annotation
+// +kubebuilder:validation:Required // this sets 'required' as the default behaviour.
+//nolint:lll
 package v1alpha1
 
 import (
@@ -49,15 +48,12 @@ const (
 	ConditionReasonDeletionError        ConditionReason = "DeletionError"
 )
 
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-//nolint:lll //this is annotation
+// NATS is the Schema for the nats API.
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
-
-// NATS is the Schema for the nats API.
 type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -127,7 +123,7 @@ type JetStream struct {
 
 // MemStorage defines configurations to memory storage in NATS JetStream.
 type MemStorage struct {
-	// Enable allows the enablement of memory storage.
+	// Enabled allows the enablement of memory storage.
 	// +optional
 	Enabled bool `json:"enabled,omitempty"`
 

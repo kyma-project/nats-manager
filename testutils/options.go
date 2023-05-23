@@ -23,7 +23,7 @@ func WithNATSCRDefaults() NATSOption {
 			},
 			JetStream: v1alpha1.JetStream{
 				MemStorage: v1alpha1.MemStorage{
-					Enable: false,
+					Enabled: false,
 				},
 				FileStorage: v1alpha1.FileStorage{
 					StorageClassName: "default",

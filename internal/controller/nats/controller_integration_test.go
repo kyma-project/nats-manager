@@ -52,6 +52,8 @@ func Test_CreateNATSCR(t *testing.T) {
 		wantMatches           gomegatypes.GomegaMatcher
 		wantEnsureK8sObjects  bool
 	}{
+        // TODO "NATS CR should set default values"
+        // Check that a cr without spec will have spec.cluster.size=3
 		{
 			name: "NATS CR should have processing status when StatefulSet is not ready",
 			givenNATS: testutils.NewNATSCR(
@@ -102,7 +104,7 @@ func Test_CreateNATSCR(t *testing.T) {
 					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
+					Enabled: true,
 					Size:   resource.MustParse("66Gi"),
 				}),
 			),
@@ -251,7 +253,7 @@ func Test_UpdateNATSCR(t *testing.T) {
 					"test-key2": "value2",
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
+					Enabled: true,
 					Size:   resource.MustParse("66Gi"),
 				}),
 			),
@@ -334,7 +336,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
+					Enabled: true,
 					Size:   resource.MustParse("66Gi"),
 				}),
 			),
@@ -539,7 +541,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
+					Enabled: true,
 					Size:   resource.MustParse("66Gi"),
 				}),
 			),

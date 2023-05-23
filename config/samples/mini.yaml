@@ -3,10 +3,3 @@ kind: NATS
 metadata:
   name: eventing-nats
   namespace: kyma-system
-spec:
-  cluster:
-    size: 3
-  jetStream:
-    fileStorage:
-      storageClassName: default 
-      size: 512Mi
