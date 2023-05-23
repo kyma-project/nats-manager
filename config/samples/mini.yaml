@@ -5,4 +5,4 @@ metadata:
   namespace: kyma-system
 spec:
   cluster:
-    size: 4
+    size: 3
