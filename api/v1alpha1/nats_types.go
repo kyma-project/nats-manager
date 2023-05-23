@@ -105,9 +105,9 @@ type NATSSpec struct {
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
 	// +optional
-	// +kubebuilder:validation:Minimum:=0
 	// +kubebuilder:default:=3
-	// +kubebuilder:validation:XValidation:rule="has(self) ? self  : self.enable == false ", message="If 'memStorage' is enabled, 'size' must be defined"
+	// +kubebuilder:validation:Minimum:=0
+	// +kubebuilder:validation:XValidation:rule=" ( self % 2 ) != 0 ", message="size only accepts odd numbers"
 	Size int `json:"size"`
 }
 
