@@ -103,7 +103,7 @@ spec:
                       in NATS JetStream.
                     properties:
                       enabled:
-                        description: Enable allows the enablement of memory storage.
+                        description: Enabled allows the enablement of memory storage.
                         type: boolean
                       size:
                         anyOf:

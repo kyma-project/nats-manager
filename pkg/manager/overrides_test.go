@@ -57,7 +57,7 @@ func Test_GenerateOverrides(t *testing.T) {
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,
-					Size:   resource.MustParse("16Gi"),
+					Size:    resource.MustParse("16Gi"),
 				}),
 				testutils.WithNATSResources(corev1.ResourceRequirements{
 					Limits: corev1.ResourceList{

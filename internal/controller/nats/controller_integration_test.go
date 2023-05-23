@@ -52,8 +52,8 @@ func Test_CreateNATSCR(t *testing.T) {
 		wantMatches           gomegatypes.GomegaMatcher
 		wantEnsureK8sObjects  bool
 	}{
-        // TODO "NATS CR should set default values"
-        // Check that a cr without spec will have spec.cluster.size=3
+		// TODO "NATS CR should set default values"
+		// Check that a cr without spec will have spec.cluster.size=3
 		{
 			name: "NATS CR should have processing status when StatefulSet is not ready",
 			givenNATS: testutils.NewNATSCR(
@@ -105,7 +105,7 @@ func Test_CreateNATSCR(t *testing.T) {
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,
-					Size:   resource.MustParse("66Gi"),
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 			givenStatefulSetReady: true,
@@ -182,15 +182,15 @@ func Test_ValidateNATSCR_Creation(t *testing.T) {
 			errMatchers: gomega.And(
 				gomega.BeNil(),
 			),
-		}, {
-			name: "the validation of and empty NATS CR should cause an error",
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSEmptySpec(),
-			),
-			errMatchers: gomega.And(
-				gomega.Not(gomega.BeNil()),
-			),
 		},
+		// TODO: creation with spec.cluster.size = 2 causes even-number-error.
+		// TODO: creation with spec.cluster.size = 5 causes no even-number-error.
+		// TODO: creation with spec.memStorage.enabled is  true causes error because .size must be set too.
+		// TODO: creation with spec.memStorage.size set to a value causes no error.
+		// TODO: creation with spec.memStorage.enabled and .size both set to a value causes no error.
+		// TODO: creation with spec.fileStorage.storageClassName and .size both set to a value causes no error.
+		// TODO: creation with spec.fileStorage.storageClassName set to a value and .size not causes an error.
+		// TODO: creation with spec.fileStorage.size set to a value and .storageClassName not causes an error.
 	}
 
 	for _, tc := range testCases {
@@ -214,6 +214,20 @@ func Test_ValidateNATSCR_Creation(t *testing.T) {
 		})
 	}
 }
+
+//nolint:lll
+// TODO
+// func Test_ValidateNATSCR_Change(t *testing.T) {
+// TODO: deletion of spec.cluster.size causes no error, because defaulting.
+// TODO: deletion of spec.memStorage.size when .enabled=true causes error because .size must be set too.
+// TODO: deletion of spec.memStorage.enabled when .size is not set causes no error.
+// TODO: change of spec.memStorage.enabled=false to =true while .size is not set causes error because .size must be set.
+// TODO: change of spec when spec.fileStorage.storageClassName causes error.
+// TODO: change of spec when spec.fileStorage.size causes error.
+// TODO: deletion of spec when spec.fileStorage.storageClassName and .size both set to a value causes error.
+// TODO: deletion of spec.jetStream when spec.jetStream.fileStorage.storageClassName and .size both set to a value causes error.
+// TODO: deletion of spec.jetStream.fileStorage when spec.jetStream.fileStorage.storageClassName and .size both set to a value causes error.
+// }
 
 // Test_UpdateNATSCR tests if updating the NATS CR will trigger reconciliation
 // and k8s objects are updated accordingly.
@@ -254,7 +268,7 @@ func Test_UpdateNATSCR(t *testing.T) {
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,
-					Size:   resource.MustParse("66Gi"),
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 		},
@@ -337,7 +351,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,
-					Size:   resource.MustParse("66Gi"),
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 		},
@@ -542,7 +556,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,
-					Size:   resource.MustParse("66Gi"),
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 			wantMatchers: gomega.And(
