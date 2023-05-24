@@ -320,7 +320,7 @@ spec:
         resources:
           requests:
             storage: {{ .Values.global.jetstream.fileStorage.size }}
-        {{- if .Values.nats.jetstream.fileStorage.storageClassName }}
+        {{- if and (.Values.nats.jetstream.fileStorage.storageClassName) (ne .Values.nats.jetstream.fileStorage.storageClassName "default") }}
         storageClassName: {{ .Values.nats.jetstream.fileStorage.storageClassName | quote }}
         {{- end }}
   {{- end }}
