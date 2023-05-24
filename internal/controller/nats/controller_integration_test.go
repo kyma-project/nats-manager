@@ -17,6 +17,8 @@ import (
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
+const emptyString = ""
+
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
@@ -170,17 +172,14 @@ func Test_ValidateNATSCR_Creation(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
-		name        string
-		givenNATS   *v1alpha1.NATS
-		errMatchers gomegatypes.GomegaMatcher
+		name       string
+		givenNATS  *v1alpha1.NATS
+		wantErrMsg string
 	}{
 		{
 			name: "the validation of the default NATS CR should not cause any errors",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-			),
-			errMatchers: gomega.And(
-				gomega.BeNil(),
 			),
 		},
 		// TODO: creation with spec.cluster.size = 2 causes even-number-error.
@@ -197,7 +196,6 @@ func Test_ValidateNATSCR_Creation(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			g := gomega.NewGomegaWithT(t)
 
 			// given
 			// create unique namespace for this test run.
@@ -210,7 +208,11 @@ func Test_ValidateNATSCR_Creation(t *testing.T) {
 			err := testEnvironment.K8sResourceCreatedWithErr(tc.givenNATS)
 
 			// then
-			g.Expect(err, tc.errMatchers)
+			if tc.wantErrMsg == emptyString {
+				require.NoError(t, err)
+			} else {
+				require.Equal(t, tc.wantErrMsg, err.Error())
+			}
 		})
 	}
 }
