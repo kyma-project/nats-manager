@@ -79,10 +79,23 @@ func NewReconciler(
 	}
 }
 
-//+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;update;patch;create;delete
-//+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;update;patch;create;delete
-//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="apps/v1",resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+// RBAC permissions by resource name
+//nolint:lll
+//+kubebuilder:rbac:groups="",resourceNames=eventing-nats-secret,resources=secrets,verbs=get;list;watch;update;patch;create;delete
+//+kubebuilder:rbac:groups="",resourceNames=eventing-nats,resources=services,verbs=get;list;watch;update;patch;create;delete
+//+kubebuilder:rbac:groups="",resourceNames=eventing-nats-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="apps",resourceNames=eventing-nats,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="networking.istio.io",resourceNames=eventing-nats,resources=destinationrules,verbs=get;list;watch;create;update;patch;delete
+
+// RBAC permissions by resource
+//+kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch
+//+kubebuilder:rbac:groups="",resources=services,verbs=list;watch
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch
+//+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
+//+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
+
+//nolint:lll
+//+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/finalizers,verbs=update
@@ -168,7 +181,7 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	r.controller, err = ctrl.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.NATS{}).
 		Owns(&appsv1.StatefulSet{}). // watch for StatefulSets.
-		Owns(&apiv1.Service{}).      // watch for services.
+		Owns(&apiv1.Service{}).      // watch for Services.
 		Owns(&apiv1.ConfigMap{}).    // watch for ConfigMaps.
 		Owns(&apiv1.Secret{}).       // watch for Secrets.
 		Build(r)

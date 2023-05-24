@@ -10,6 +10,15 @@ rules:
   resources:
   - configmaps
   verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resourceNames:
+  - eventing-nats-config
+  resources:
+  - configmaps
+  verbs:
   - create
   - delete
   - get
@@ -19,6 +28,15 @@ rules:
   - watch
 - apiGroups:
   - ""
+  resources:
+  - secrets
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resourceNames:
+  - eventing-nats-secret
   resources:
   - secrets
   verbs:
@@ -34,6 +52,15 @@ rules:
   resources:
   - services
   verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resourceNames:
+  - eventing-nats
+  resources:
+  - services
+  verbs:
   - create
   - delete
   - get
@@ -42,9 +69,51 @@ rules:
   - update
   - watch
 - apiGroups:
-  - apps/v1
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
   resources:
   - statefulsets
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resourceNames:
+  - eventing-nats
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.istio.io
+  resources:
+  - destinationrules
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - networking.istio.io
+  resourceNames:
+  - eventing-nats
+  resources:
+  - destinationrules
   verbs:
   - create
   - delete
