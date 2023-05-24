@@ -63,6 +63,9 @@ spec:
                     description: Size of a NATS cluster, i.e. number of NATS nodes.
                     minimum: 1
                     type: integer
+                    x-kubernetes-validations:
+                    - message: size only accepts odd numbers
+                      rule: self%2!=0
                 type: object
               jetStream:
                 description: JetStream defines configurations that are specific to

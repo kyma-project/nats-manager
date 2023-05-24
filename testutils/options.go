@@ -19,7 +19,7 @@ func WithNATSCRDefaults() NATSOption {
 	return func(nats *v1alpha1.NATS) error {
 		nats.Spec = v1alpha1.NATSSpec{
 			Cluster: v1alpha1.Cluster{
-				Size: 1,
+				Size: 3,
 			},
 			JetStream: v1alpha1.JetStream{
 				MemStorage: v1alpha1.MemStorage{
