@@ -104,8 +104,8 @@ type Cluster struct {
 	// +optional
 	// +kubebuilder:default:=3
 	// +kubebuilder:validation:Minimum:=1
-	// TODO: Validate, that the value of size is an odd number.
 	Size int `json:"size"`
+	// TODO: Validate, that the value of size is an odd number.
 }
 
 // JetStream defines configurations that are specific to NATS JetStream.
