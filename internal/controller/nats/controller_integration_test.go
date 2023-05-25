@@ -49,16 +49,15 @@ func Test_Valdidate_CreateNatsCR(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
-		name                  string
-		givenNATS             *v1alpha1.NATS
-        wantErrMsg  string
+		name       string
+		givenNATS  *v1alpha1.NATS
+		wantErrMsg string
 	}{
 		{
 			name: "NATS CR should have processing status when StatefulSet is not ready",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-
 		},
 	}
 
@@ -75,17 +74,17 @@ func Test_Valdidate_CreateNatsCR(t *testing.T) {
 			tc.givenNATS.Namespace = givenNamespace
 
 			// when
-            err := testEnvironment.CreateK8sResourceWithErr(tc.givenNATS)
+			err := testEnvironment.CreateK8sResourceWithErr(tc.givenNATS)
 
 			// then
-            if tc.wantErrMsg == emptyString {
-                require.NoError(err)
-            } else {
+			if tc.wantErrMsg == emptyString {
+				require.NoError(t, err)
+			} else {
 
-                require.EqualError(t, err, tc.wantErrMsg)
-            } 
-	    }
-}
+				require.EqualError(t, err, tc.wantErrMsg)
+			}
+		})
+	}
 }
 
 func Test_CreateNATSCR(t *testing.T) {
