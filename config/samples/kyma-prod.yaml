@@ -1,0 +1,25 @@
+apiVersion: operator.kyma-project.io/v1alpha1
+kind: NATS
+metadata:
+  name: eventing-nats
+  namespace: kyma-system
+spec:
+  cluster:
+    size: 3
+  jetStream:
+    fileStorage:
+      size: "1Gi"
+      storageClassName: "default"
+    memStorage:
+      enable: false
+      size: "20Mi"
+  logging:
+    debug: false
+    trace: false
+  resources:
+    limits:
+      cpu: 20m
+      memory: 64Mi
+    requests:
+      cpu: 5m
+      memory: 16Mi
