@@ -17,8 +17,6 @@ import (
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
-const emptyString = ""
-
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
