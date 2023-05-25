@@ -14,8 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
 
-	natsconf "github.com/nats-io/nats-server/conf"
-
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/avast/retry-go/v3"
@@ -397,27 +395,9 @@ func (ite TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats 
 			return false
 		}
 
-		// parse the nats config file data.
-		natsConfig, err := ParseNATSConf(natsConfigStr)
-		if err != nil {
-			ite.Logger.Errorw("failed to parse NATS config", "error", err,
-				"name", testutils.GetConfigMapName(nats), "namespace", nats.Namespace)
-			return false
-		}
-
-		// get the trace value.
-		gotTrace, ok := natsConfig["trace"]
-		if !ok {
-			return false
-		}
-
-		// get the debug value.
-		gotDebug, ok := natsConfig["debug"]
-		if !ok {
-			return false
-		}
-
-		return nats.Spec.Trace == gotTrace && nats.Spec.Debug == gotDebug
+		debugCheck := strings.Contains(natsConfigStr, fmt.Sprintf("debug: %t", nats.Spec.Debug))
+		traceCheck := strings.Contains(natsConfigStr, fmt.Sprintf("trace: %t", nats.Spec.Trace))
+		return debugCheck && traceCheck
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.trace and Spec.debug")
 }
 
@@ -439,26 +419,8 @@ func (ite TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats
 			return false
 		}
 
-		// parse the nats config file data.
-		natsConfig, err := ParseNATSConf(natsConfigStr)
-		if err != nil {
-			ite.Logger.Errorw("failed to parse NATS config", "error", err,
-				"name", testutils.GetConfigMapName(nats), "namespace", nats.Namespace)
-			return false
-		}
-
-		// get the trace value.
-		gotJetStream, ok := natsConfig["jetstream"].(map[string]interface{})
-		if !ok {
-			return false
-		}
-
-		gotFileStorage, ok := gotJetStream["max_file"]
-		if !ok {
-			return false
-		}
-		// should be equal.
-		if nats.Spec.FileStorage.Size.String() != gotFileStorage {
+		// check if file storage size is correctly defined in NATS config.
+		if !strings.Contains(natsConfigStr, fmt.Sprintf("max_file: %s", nats.Spec.FileStorage.Size.String())) {
 			return false
 		}
 
@@ -501,25 +463,8 @@ func (ite TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats 
 			return false
 		}
 
-		// parse the nats config file data.
-		natsConfig, err := ParseNATSConf(natsConfigStr)
-		if err != nil {
-			ite.Logger.Errorw("failed to parse NATS config", "error", err,
-				"name", testutils.GetConfigMapName(nats), "namespace", nats.Namespace)
-			return false
-		}
-
-		// get the trace value.
-		gotJetStream, ok := natsConfig["jetstream"].(map[string]interface{})
-		if !ok {
-			return false
-		}
-
-		gotMemStorage, ok := gotJetStream["max_mem"]
-		if !ok {
-			return false
-		}
-		return nats.Spec.MemStorage.Size.String() == gotMemStorage
+		// check if mem storage size is correctly defined in NATS config.
+		return strings.Contains(natsConfigStr, fmt.Sprintf("max_mem: %s", nats.Spec.MemStorage.Size.String()))
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.jetStream.memStorage")
 }
 
@@ -683,12 +628,4 @@ func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
 
 func NewTestNamespace() string {
 	return fmt.Sprintf("ns-%s", testutils.GetRandString(namespacePrefixLength))
-}
-
-func ParseNATSConf(data string) (map[string]interface{}, error) {
-	// replace variables with dummy values
-	natsConfigStr := strings.Replace(data, "$POD_NAME", "pod1", 1)
-	// remove `include "accounts/resolver.conf"`
-	natsConfigStr = strings.Replace(natsConfigStr, "include \"accounts/resolver.conf\"", "", 1)
-	return natsconf.Parse(natsConfigStr)
 }
