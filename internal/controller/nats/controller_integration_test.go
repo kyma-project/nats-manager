@@ -17,6 +17,8 @@ import (
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
+const emptyString = ""
+
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
@@ -40,6 +42,50 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(code)
+}
+
+func Test_Valdidate_CreateNatsCR(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	testCases := []struct {
+		name                  string
+		givenNATS             *v1alpha1.NATS
+        wantErrMsg  string
+	}{
+		{
+			name: "NATS CR should have processing status when StatefulSet is not ready",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+			),
+
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := gomega.NewGomegaWithT(t)
+
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := integration.NewTestNamespace()
+			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
+			tc.givenNATS.Namespace = givenNamespace
+
+			// when
+            err := testEnvironment.CreateK8sResourceWithErr(tc.givenNATS)
+
+			// then
+            if tc.wantErrMsg == emptyString {
+                require.NoError(err)
+            } else {
+
+                require.EqualError(t, err, tc.wantErrMsg)
+            } 
+	    }
+}
 }
 
 func Test_CreateNATSCR(t *testing.T) {
