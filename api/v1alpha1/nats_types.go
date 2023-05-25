@@ -104,6 +104,7 @@ type Cluster struct {
 	// +optional
 	// +kubebuilder:default:=3
 	// +kubebuilder:validation:Minimum:=1
+	// +kubebuilder:validation:XValidation:rule="int(self) == 1 || int(self) % 2 != 0 ", message="size only accepts odd numbers"
 	Size int `json:"size"`
 }
 
