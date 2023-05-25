@@ -78,7 +78,6 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 			if tc.wantErrMsg == emptyString {
 				require.NoError(t, err)
 			} else {
-
 				require.EqualError(t, err, tc.wantErrMsg)
 			}
 		})
