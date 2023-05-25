@@ -5,7 +5,7 @@ metadata:
   namespace: kyma-system
 spec:
   cluster:
-    size: 1
+    size: 3
   jetStream:
     fileStorage:
       size: "1Gi"
