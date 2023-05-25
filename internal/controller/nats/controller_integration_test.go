@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func Test_Valdidate_CreateNatsCR(t *testing.T) {
+func Test_Validate_CreateNatsCR(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
@@ -65,8 +65,6 @@ func Test_Valdidate_CreateNatsCR(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			g := gomega.NewGomegaWithT(t)
-
 			// given
 			// create unique namespace for this test run.
 			givenNamespace := integration.NewTestNamespace()
