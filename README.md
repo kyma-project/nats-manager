@@ -1,3 +1,4 @@
+some bogus change
 # NATS Manager
 Manages the lifecycle of a NATS JetStream deployment.
 
