@@ -23,6 +23,8 @@ const (
 	charset       = "abcdefghijklmnopqrstuvwxyz0123456789"
 	randomNameLen = 5
 
+	CRName = "NATS.operator.kyma-project.io"
+
 	NameFormat                = "name-%s"
 	NamespaceFormat           = "namespace-%s"
 	StatefulSetNameFormat     = "%s-nats"
@@ -33,6 +35,11 @@ const (
 )
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
+
+func ValidationErrString(name, property, want, actual, compare string) string {
+	s := `%s "%s" is invalid: %s: Invalid value: %s: %s in body should be %s to %s`
+	return fmt.Sprintf(s, CRName, name, property, actual, property, compare, want)
+}
 
 // GetRandString returns a random string of the given length.
 func GetRandString(length int) string {

@@ -18,6 +18,9 @@ import (
 )
 
 const emptyString = ""
+const clusterSize = "spec.cluster.size"
+const greaterOrEq = "greater than or equal"
+const DefaultName = "default-name"
 
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
@@ -54,10 +57,20 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 		wantErrMsg string
 	}{
 		{
-			name: "NATS CR should have processing status when StatefulSet is not ready",
+			name: "a default NATS CR should validate without errors",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
+			wantErrMsg: emptyString,
+		},
+		{
+			name: `a NATS CR with a negative spec.cluster.size value should
+			cause an error`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSCRName(DefaultName),
+				testutils.WithNATSClusterSize(-1)),
+			wantErrMsg: testutils.ValidationErrString(DefaultName, clusterSize, "1", "-1", greaterOrEq),
 		},
 	}
 
