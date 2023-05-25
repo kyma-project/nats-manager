@@ -27,3 +27,15 @@ graph TD
   Con -->|watches| sfs[StatefulSet]
   Con -->|watches| dr[DestinationRule]
 ```
+
+## Overview: Reconciliation Flow
+
+```mermaid
+graph TB
+  A([Start])
+  -->B(Map configurations from NATS CR to overrides)
+  -->C(Render manifests from NATS Helm chart using Helm SDK)
+  -->D(Patch-apply rendered manifests to cluster using k8s client)
+  -->E(Checks status of StatefulSet for readiness)
+  -->F(Update NATS CR Status)
+```
