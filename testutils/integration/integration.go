@@ -207,10 +207,6 @@ func (env TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Obj
 	require.NoError(t, env.k8sClient.Create(env.Context, obj))
 }
 
-func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
-	require.NoError(t, env.k8sClient.Update(env.Context, obj))
-}
-
 func (env TestEnvironment) EnsureK8sResourceDeleted(t *testing.T, obj client.Object) {
 	require.NoError(t, env.k8sClient.Delete(env.Context, obj))
 }
