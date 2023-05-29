@@ -1,7 +1,6 @@
 package nats_test
 
 import (
-	"context"
 	"os"
 	"testing"
 	"time"
@@ -455,7 +454,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 // Test_DoubleReconcileNATSCR tests that controller should be able to reconcile NATS again.
 func Test_DoubleReconcileNATSCR(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
 
 	testCases := []struct {
 		name         string
@@ -510,10 +508,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 			// given
 			// create unique namespace for this test run.
 			givenNamespace := tc.givenNATS.GetNamespace()
-			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
-
-			// update namespace in resources.
-			tc.givenNATS.Namespace = givenNamespace
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
 
 			// first reconcile
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)

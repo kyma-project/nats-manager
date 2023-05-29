@@ -194,19 +194,6 @@ func (ite TestEnvironment) TearDown() error {
 	return err
 }
 
-func (ite TestEnvironment) CreateNamespace(ctx context.Context, namespace string) error {
-	if namespace == "default" {
-		return nil
-	}
-	// create namespace
-	ns := testutils.NewNamespace(namespace)
-	err := ite.k8sClient.Create(ctx, ns)
-	if !k8serrors.IsAlreadyExists(err) {
-		return err
-	}
-	return nil
-}
-
 func (ite TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace string) {
 	if namespace == "default" {
 		return
