@@ -45,12 +45,12 @@ const (
 	attachControlPlaneOutput = false
 	testEnvStartDelay        = time.Minute
 	testEnvStartAttempts     = 10
-	namespacePrefixLength    = 5
-	TwoMinTimeOut            = 120 * time.Second
-	BigPollingInterval       = 3 * time.Second
-	BigTimeOut               = 40 * time.Second
-	SmallTimeOut             = 5 * time.Second
-	SmallPollingInterval     = 1 * time.Second
+
+	TwoMinTimeOut        = 120 * time.Second
+	BigPollingInterval   = 3 * time.Second
+	BigTimeOut           = 40 * time.Second
+	SmallTimeOut         = 5 * time.Second
+	SmallPollingInterval = 1 * time.Second
 
 	NATSContainerName  = "nats"
 	NATSConfigFileName = "nats.conf"
@@ -621,8 +621,4 @@ func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
 		}),
 	)
 	return testEnv, cfg, err
-}
-
-func NewTestNamespace() string {
-	return fmt.Sprintf("ns-%s", testutils.GetRandString(namespacePrefixLength))
 }
