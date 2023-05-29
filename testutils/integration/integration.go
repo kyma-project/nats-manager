@@ -548,7 +548,8 @@ func (env TestEnvironment) EnsureK8sDeletion(t *testing.T, name, namespace strin
 
 func DeleteStatefulSet() DeleteFunc {
 	return func(env TestEnvironment, name, namespace string) error {
-		return env.DeleteStatefulSetFromK8s(name, namespace)
+		n := fmt.Sprintf(testutils.StatefulSetNameFormat, name)
+		return env.DeleteStatefulSetFromK8s(n, namespace)
 	}
 }
 
