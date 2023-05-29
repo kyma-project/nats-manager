@@ -6,15 +6,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/testutils"
-	"github.com/kyma-project/nats-manager/testutils/integration"
-	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
+	"github.com/kyma-project/nats-manager/testutils/integration"
+	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
@@ -44,7 +45,6 @@ func TestMain(m *testing.M) {
 
 func Test_CreateNATSCR(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
 
 	testCases := []struct {
 		name                  string
@@ -57,7 +57,6 @@ func Test_CreateNATSCR(t *testing.T) {
 			name: "NATS CR should have processing status when StatefulSet is not ready",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			givenStatefulSetReady: false,
 			wantMatches: gomega.And(
@@ -70,7 +69,6 @@ func Test_CreateNATSCR(t *testing.T) {
 			name: "NATS CR should have ready status when StatefulSet is ready",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			givenStatefulSetReady: true,
 			wantMatches: gomega.And(
@@ -83,7 +81,6 @@ func Test_CreateNATSCR(t *testing.T) {
 			name: "should have created k8s objects as specified in NATS CR",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 				testutils.WithNATSLogging(true, true),
 				testutils.WithNATSResources(corev1.ResourceRequirements{
 					Limits: corev1.ResourceList{
@@ -128,11 +125,8 @@ func Test_CreateNATSCR(t *testing.T) {
 
 			// given
 			// create unique namespace for this test run.
-			givenNamespace := integration.NewTestNamespace()
-			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
-
-			// update namespace in resources.
-			tc.givenNATS.Namespace = givenNamespace
+			givenNamespace := tc.givenNATS.GetNamespace()
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
 
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
@@ -172,8 +166,6 @@ func Test_CreateNATSCR(t *testing.T) {
 // and k8s objects are updated accordingly.
 func Test_UpdateNATSCR(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
-
 	testCases := []struct {
 		name            string
 		givenNATS       *v1alpha1.NATS
@@ -183,11 +175,13 @@ func Test_UpdateNATSCR(t *testing.T) {
 			name: "NATS CR should have ready status when StatefulSet is ready",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
+				testutils.WithNATSCRName("name-stays-the-same-1"),
+				testutils.WithNATSCRNamespace("namespace-stays-the-same-1"),
 			),
 			givenUpdateNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
+				testutils.WithNATSCRName("name-stays-the-same-1"),
+				testutils.WithNATSCRNamespace("namespace-stays-the-same-1"),
 				testutils.WithNATSLogging(true, true),
 				testutils.WithNATSResources(corev1.ResourceRequirements{
 					Limits: corev1.ResourceList{
@@ -218,13 +212,9 @@ func Test_UpdateNATSCR(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			// create unique namespace for this test run.
-			givenNamespace := integration.NewTestNamespace()
-			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
-
-			// update namespace in resources.
-			tc.givenNATS.Namespace = givenNamespace
-			tc.givenUpdateNATS.Namespace = givenNamespace
+			// Create Namespace in k8s.
+			givenNamespace := tc.givenNATS.GetNamespace()
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
 
 			// create NATS CR.
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
@@ -256,7 +246,6 @@ func Test_UpdateNATSCR(t *testing.T) {
 
 func Test_DeleteNATSCR(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
 
 	testCases := []struct {
 		name      string
@@ -266,14 +255,12 @@ func Test_DeleteNATSCR(t *testing.T) {
 			name: "should delete all k8s objects",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 		},
 		{
 			name: "should delete all k8s objects with full NATS CR",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 				testutils.WithNATSLogging(true, true),
 				testutils.WithNATSResources(corev1.ResourceRequirements{
 					Limits: corev1.ResourceList{
@@ -310,11 +297,8 @@ func Test_DeleteNATSCR(t *testing.T) {
 
 			// given
 			// create unique namespace for this test run.
-			givenNamespace := integration.NewTestNamespace()
-			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
-
-			// update namespace in resources.
-			tc.givenNATS.Namespace = givenNamespace
+			givenNamespace := tc.givenNATS.GetNamespace()
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
 
 			// create NATS CR
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
@@ -350,7 +334,6 @@ func Test_DeleteNATSCR(t *testing.T) {
 // should trigger reconciliation.
 func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
 
 	testCases := []struct {
 		name                        string
@@ -365,7 +348,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			name: "should recreate StatefulSet",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			wantStatefulSetDeletion: true,
 		},
@@ -373,7 +355,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			name: "should recreate ConfigMap",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			wantConfigMapDeletion: true,
 		},
@@ -381,7 +362,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			name: "should recreate Secret",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			wantSecretDeletion: true,
 		},
@@ -389,7 +369,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			name: "should recreate Service",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			wantServiceDeletion: true,
 		},
@@ -397,7 +376,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			name: "should recreate DestinationRule",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			wantDestinationRuleDeletion: true,
 		},
@@ -405,7 +383,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			name: "should recreate all objects",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("test1"),
 			),
 			wantServiceDeletion:         true,
 			wantConfigMapDeletion:       true,
@@ -422,11 +399,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 
 			// given
 			// create unique namespace for this test run.
-			givenNamespace := integration.NewTestNamespace()
-			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
-
-			// update namespace in resources.
-			tc.givenNATS.Namespace = givenNamespace
+			givenNamespace := tc.givenNATS.GetNamespace()
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
 
 			// create NATS CR
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
@@ -535,7 +509,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 
 			// given
 			// create unique namespace for this test run.
-			givenNamespace := integration.NewTestNamespace()
+			givenNamespace := tc.givenNATS.GetNamespace()
 			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
 
 			// update namespace in resources.

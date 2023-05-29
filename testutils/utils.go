@@ -7,7 +7,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	apiv1 "k8s.io/api/core/v1"
@@ -15,10 +14,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 // for Random string generation.
 const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+const randomNameLen = 5
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
 
@@ -112,6 +114,9 @@ func NewSecret(opts ...Option) *apiv1.Secret {
 }
 
 func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
+	name := fmt.Sprintf("name-%s", GetRandString(randomNameLen))
+	namespace := fmt.Sprintf("namespace-%s", GetRandString(randomNameLen))
+
 	nats := &v1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
 		TypeMeta: metav1.TypeMeta{
@@ -119,8 +124,8 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 			Kind:       "Nats",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "test-object1",
-			Namespace: "test-ns1",
+			Name:      name,
+			Namespace: namespace,
 			UID:       "1234-5678-1234-5678",
 		},
 	}

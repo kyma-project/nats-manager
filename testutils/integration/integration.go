@@ -17,12 +17,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/avast/retry-go/v3"
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
-	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -36,6 +30,13 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
+
+	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/testutils"
 )
 
 const (
@@ -92,7 +93,7 @@ func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in
 		return nil, err
 	}
 
-	//+kubebuilder:scaffold:scheme
+	// +kubebuilder:scaffold:scheme
 
 	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: scheme.Scheme})
 	if err != nil {
@@ -204,6 +205,15 @@ func (ite TestEnvironment) CreateNamespace(ctx context.Context, namespace string
 		return err
 	}
 	return nil
+}
+
+func (ite TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace string) {
+	if namespace == "default" {
+		return
+	}
+	// create namespace
+	ns := testutils.NewNamespace(namespace)
+	require.NoError(t, ite.k8sClient.Create(ite.Context, ns))
 }
 
 func (ite TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
