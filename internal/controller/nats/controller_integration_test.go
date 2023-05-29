@@ -337,6 +337,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 	testCases := []struct {
 		name                        string
 		givenNATS                   *v1alpha1.NATS
+		delFunc                     []integration.DeleteFunc
 		wantStatefulSetDeletion     bool
 		wantConfigMapDeletion       bool
 		wantSecretDeletion          bool
@@ -349,6 +350,9 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 				testutils.WithNATSCRDefaults(),
 			),
 			wantStatefulSetDeletion: true,
+			delFunc: []integration.DeleteFunc{
+				integration.DeleteStatefulSet(),
+			},
 		},
 		{
 			name: "should recreate ConfigMap",
@@ -411,6 +415,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+			
+			testEnvironment.EnsureK8sDeletion(t, tc.givenNATS.GetName(), givenNamespace, tc.delFunc...)
 
 			// when
 			if tc.wantStatefulSetDeletion {

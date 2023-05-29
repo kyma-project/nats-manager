@@ -531,6 +531,20 @@ func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*u
 		namespace).Get(env.Context, name, metav1.GetOptions{})
 }
 
+type DeleteFunc func(env TestEnvironment, name, namespace string) error
+
+func (env TestEnvironment) EnsureK8sDeletion(t *testing.T, name, namespace string, fs ...DeleteFunc) {
+	for _, f := range fs {
+		require.NoError(t, f(env, name, namespace))
+	}
+}
+
+func DeleteStatefulSet() DeleteFunc {
+	return func(env TestEnvironment, name, namespace string) error {
+		return env.DeleteStatefulSetFromK8s(name, namespace)
+	}
+}
+
 func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
