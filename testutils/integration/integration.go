@@ -45,12 +45,12 @@ const (
 	attachControlPlaneOutput = false
 	testEnvStartDelay        = time.Minute
 	testEnvStartAttempts     = 10
-
-	TwoMinTimeOut        = 120 * time.Second
-	BigPollingInterval   = 3 * time.Second
-	BigTimeOut           = 60 * time.Second
-	SmallTimeOut         = 10 * time.Second
-	SmallPollingInterval = 1 * time.Second
+	namespacePrefixLength    = 5
+	TwoMinTimeOut            = 120 * time.Second
+	BigPollingInterval       = 3 * time.Second
+	BigTimeOut               = 40 * time.Second
+	SmallTimeOut             = 5 * time.Second
+	SmallPollingInterval     = 1 * time.Second
 
 	NATSContainerName  = "nats"
 	NATSConfigFileName = "nats.conf"
@@ -592,24 +592,17 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	}, BigTimeOut, SmallPollingInterval)
 }
 
-func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.Environment, *rest.Config, error) {
+func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
 	// Reference: https://book.kubebuilder.io/reference/envtest.html
 	useExistingCluster := useExistingCluster
 	testEnv := &envtest.Environment{
 		CRDDirectoryPaths: []string{
-			filepath.Join(projectRootDir, "config", "crd", "bases"),
-			filepath.Join(projectRootDir, "config", "crd", "external"),
+			filepath.Join("..", "..", "..", "config", "crd", "bases"),
+			filepath.Join("..", "..", "..", "config", "crd", "external"),
 		},
 		ErrorIfCRDPathMissing:    true,
 		AttachControlPlaneOutput: attachControlPlaneOutput,
 		UseExistingCluster:       &useExistingCluster,
-	}
-
-	args := testEnv.ControlPlane.GetAPIServer().Configure()
-	if celValidationEnabled {
-		args.Set("feature-gates", "CustomResourceValidationExpressions=true")
-	} else {
-		args.Set("feature-gates", "CustomResourceValidationExpressions=false")
 	}
 
 	var cfg *rest.Config
