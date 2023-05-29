@@ -176,9 +176,9 @@ func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in
 	}, nil
 }
 
-func (ite TestEnvironment) TearDown() error {
-	if ite.TestCancelFn != nil {
-		ite.TestCancelFn()
+func (env TestEnvironment) TearDown() error {
+	if env.TestCancelFn != nil {
+		env.TestCancelFn()
 	}
 
 	// retry to stop the api-server
@@ -186,7 +186,7 @@ func (ite TestEnvironment) TearDown() error {
 	var err error
 	const retries = 20
 	for i := 0; i < retries; i++ {
-		if err = ite.EnvTestInstance.Stop(); err == nil {
+		if err = env.EnvTestInstance.Stop(); err == nil {
 			break
 		}
 		time.Sleep(sleepTime)
@@ -194,118 +194,118 @@ func (ite TestEnvironment) TearDown() error {
 	return err
 }
 
-func (ite TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace string) {
+func (env TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace string) {
 	if namespace == "default" {
 		return
 	}
 	// create namespace
 	ns := testutils.NewNamespace(namespace)
-	require.NoError(t, ite.k8sClient.Create(ite.Context, ns))
+	require.NoError(t, env.k8sClient.Create(env.Context, ns))
 }
 
-func (ite TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
-	require.NoError(t, ite.k8sClient.Create(ite.Context, obj))
+func (env TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
+	require.NoError(t, env.k8sClient.Create(env.Context, obj))
 }
 
-func (ite TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
-	require.NoError(t, ite.k8sClient.Update(ite.Context, obj))
+func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
+	require.NoError(t, env.k8sClient.Update(env.Context, obj))
 }
 
-func (ite TestEnvironment) EnsureK8sResourceDeleted(t *testing.T, obj client.Object) {
-	require.NoError(t, ite.k8sClient.Delete(ite.Context, obj))
+func (env TestEnvironment) EnsureK8sResourceDeleted(t *testing.T, obj client.Object) {
+	require.NoError(t, env.k8sClient.Delete(env.Context, obj))
 }
 
-func (ite TestEnvironment) EnsureK8sConfigMapExists(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sConfigMapExists(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		result, err := ite.GetConfigMapFromK8s(name, namespace)
+		result, err := env.GetConfigMapFromK8s(name, namespace)
 		return err == nil && result != nil
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of ConfigMap")
 }
 
-func (ite TestEnvironment) EnsureK8sSecretExists(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sSecretExists(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		result, err := ite.GetSecretFromK8s(name, namespace)
+		result, err := env.GetSecretFromK8s(name, namespace)
 		return err == nil && result != nil
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of Secret")
 }
 
-func (ite TestEnvironment) EnsureK8sServiceExists(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sServiceExists(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		result, err := ite.GetServiceFromK8s(name, namespace)
+		result, err := env.GetServiceFromK8s(name, namespace)
 		return err == nil && result != nil
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of Service")
 }
 
-func (ite TestEnvironment) EnsureK8sDestinationRuleExists(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sDestinationRuleExists(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		result, err := ite.GetDestinationRuleFromK8s(name, namespace)
+		result, err := env.GetDestinationRuleFromK8s(name, namespace)
 		return err == nil && result != nil
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of DestinationRule")
 }
 
-func (ite TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		result, err := ite.GetStatefulSetFromK8s(name, namespace)
+		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to ensure STS", "error", err,
+			env.Logger.Errorw("failed to ensure STS", "error", err,
 				"name", name, "namespace", namespace)
 		}
 		return err == nil && result != nil
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
 }
 
-func (ite TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		_, err := ite.GetConfigMapFromK8s(name, namespace)
+		_, err := env.GetConfigMapFromK8s(name, namespace)
 		return err != nil && k8serrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of ConfigMap")
 }
 
-func (ite TestEnvironment) EnsureK8sSecretNotFound(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sSecretNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		_, err := ite.GetSecretFromK8s(name, namespace)
+		_, err := env.GetSecretFromK8s(name, namespace)
 		return err != nil && k8serrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of Secret")
 }
 
-func (ite TestEnvironment) EnsureK8sServiceNotFound(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sServiceNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		_, err := ite.GetServiceFromK8s(name, namespace)
+		_, err := env.GetServiceFromK8s(name, namespace)
 		return err != nil && k8serrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of Service")
 }
 
-func (ite TestEnvironment) EnsureK8sDestinationRuleNotFound(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sDestinationRuleNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		_, err := ite.GetDestinationRuleFromK8s(name, namespace)
+		_, err := env.GetDestinationRuleFromK8s(name, namespace)
 		return err != nil && k8serrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of DestinationRule")
 }
 
-func (ite TestEnvironment) EnsureK8sNATSNotFound(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sNATSNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		_, err := ite.GetNATSFromK8s(name, namespace)
+		_, err := env.GetNATSFromK8s(name, namespace)
 		return err != nil && k8serrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of NATS")
 }
 
-func (ite TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, namespace string) {
+func (env TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
-		_, err := ite.GetStatefulSetFromK8s(name, namespace)
+		_, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to ensure STS", "error", err,
+			env.Logger.Errorw("failed to ensure STS", "error", err,
 				"name", name, "namespace", namespace)
 		}
 		return err != nil && k8serrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of StatefulSet")
 }
 
-func (ite TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, namespace string,
+func (env TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, namespace string,
 	labels map[string]string) {
 	require.Eventually(t, func() bool {
-		result, err := ite.GetStatefulSetFromK8s(name, namespace)
+		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to get STS", "error", err,
+			env.Logger.Errorw("failed to get STS", "error", err,
 				"name", name, "namespace", namespace)
 			return false
 		}
@@ -320,12 +320,12 @@ func (ite TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, nam
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure labels")
 }
 
-func (ite TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name, namespace string,
+func (env TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name, namespace string,
 	annotations map[string]string) {
 	require.Eventually(t, func() bool {
-		result, err := ite.GetStatefulSetFromK8s(name, namespace)
+		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to get STS", "error", err,
+			env.Logger.Errorw("failed to get STS", "error", err,
 				"name", name, "namespace", namespace)
 			return false
 		}
@@ -342,12 +342,12 @@ func (ite TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name
 
 // EnsureNATSSpecClusterSizeReflected ensures that NATS CR Spec.cluster.size is reflected
 // in relevant k8s objects.
-func (ite TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats natsv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
-		result, err := ite.GetStatefulSetFromK8s(stsName, nats.Namespace)
+		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to get STS", "error", err,
+			env.Logger.Errorw("failed to get STS", "error", err,
 				"name", stsName, "namespace", nats.Namespace)
 			return false
 		}
@@ -357,12 +357,12 @@ func (ite TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats
 
 // EnsureNATSSpecResourcesReflected ensures that NATS CR Spec.resources is reflected
 // in relevant k8s objects.
-func (ite TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats natsv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
-		result, err := ite.GetStatefulSetFromK8s(stsName, nats.Namespace)
+		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to ensure STS", "error", err,
+			env.Logger.Errorw("failed to ensure STS", "error", err,
 				"name", stsName, "namespace", nats.Namespace)
 			return false
 		}
@@ -376,12 +376,12 @@ func (ite TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats n
 
 // EnsureNATSSpecDebugTraceReflected ensures that NATS CR Spec.trace and Spec.debug is reflected
 // in relevant k8s objects.
-func (ite TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats natsv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
-		result, err := ite.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
+		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to get ConfigMap", "error", err,
+			env.Logger.Errorw("failed to get ConfigMap", "error", err,
 				"name", testutils.GetConfigMapName(nats), "namespace", nats.Namespace)
 			return false
 		}
@@ -400,12 +400,12 @@ func (ite TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats 
 
 // EnsureNATSSpecFileStorageReflected ensures that NATS CR Spec.jetStream.fileStorage is reflected
 // in relevant k8s objects.
-func (ite TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
-		result, err := ite.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
+		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to get ConfigMap", "error", err,
+			env.Logger.Errorw("failed to get ConfigMap", "error", err,
 				"name", testutils.GetConfigMapName(nats), "namespace", nats.Namespace)
 			return false
 		}
@@ -422,9 +422,9 @@ func (ite TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats
 		}
 
 		// now check the PVC info in StatefulSet.
-		sts, err := ite.GetStatefulSetFromK8s(testutils.GetStatefulSetName(nats), nats.Namespace)
+		sts, err := env.GetStatefulSetFromK8s(testutils.GetStatefulSetName(nats), nats.Namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to get STS", "error", err,
+			env.Logger.Errorw("failed to get STS", "error", err,
 				"name", testutils.GetStatefulSetName(nats), "namespace", nats.Namespace)
 			return false
 		}
@@ -444,12 +444,12 @@ func (ite TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats
 
 // EnsureNATSSpecMemStorageReflected ensures that NATS CR Spec.jetStream.memStorage is reflected
 // in relevant k8s objects.
-func (ite TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
-		result, err := ite.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
+		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
 		if err != nil {
-			ite.Logger.Errorw("failed to get ConfigMap", "error", err,
+			env.Logger.Errorw("failed to get ConfigMap", "error", err,
 				"name", testutils.GetConfigMapName(nats), "namespace", nats.Namespace)
 			return false
 		}
@@ -465,74 +465,74 @@ func (ite TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats 
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.jetStream.memStorage")
 }
 
-func (ite TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
+func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
-	err := ite.k8sClient.Get(ite.Context, k8stypes.NamespacedName{
+	err := env.k8sClient.Get(env.Context, k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}, &nats)
 	return nats, err
 }
 
-func (ite TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv1.StatefulSet, error) {
+func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv1.StatefulSet, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
 	result := &appsv1.StatefulSet{}
-	if err := ite.k8sClient.Get(ite.Context, nn, result); err != nil {
+	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (ite TestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
-	return ite.k8sClient.Status().Update(ite.Context, &sts)
+func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
+	return env.k8sClient.Status().Update(env.Context, &sts)
 }
 
-func (ite TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*corev1.ConfigMap, error) {
+func (env TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*corev1.ConfigMap, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
 	result := &corev1.ConfigMap{}
-	if err := ite.k8sClient.Get(ite.Context, nn, result); err != nil {
+	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (ite TestEnvironment) GetSecretFromK8s(name, namespace string) (*corev1.Secret, error) {
+func (env TestEnvironment) GetSecretFromK8s(name, namespace string) (*corev1.Secret, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
 	result := &corev1.Secret{}
-	if err := ite.k8sClient.Get(ite.Context, nn, result); err != nil {
+	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (ite TestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Service, error) {
+func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Service, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
 	result := &corev1.Service{}
-	if err := ite.k8sClient.Get(ite.Context, nn, result); err != nil {
+	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (ite TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*unstructured.Unstructured, error) {
-	return ite.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
-		namespace).Get(ite.Context, name, metav1.GetOptions{})
+func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*unstructured.Unstructured, error) {
+	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
+		namespace).Get(env.Context, name, metav1.GetOptions{})
 }
 
-func (ite TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) error {
-	return ite.k8sClient.Delete(ite.Context, &appsv1.StatefulSet{
+func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) error {
+	return env.k8sClient.Delete(env.Context, &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -540,8 +540,8 @@ func (ite TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) erro
 	})
 }
 
-func (ite TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
-	return ite.k8sClient.Delete(ite.Context, &corev1.Service{
+func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
+	return env.k8sClient.Delete(env.Context, &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -549,8 +549,8 @@ func (ite TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
 	})
 }
 
-func (ite TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error {
-	return ite.k8sClient.Delete(ite.Context, &corev1.ConfigMap{
+func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error {
+	return env.k8sClient.Delete(env.Context, &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -558,8 +558,8 @@ func (ite TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error 
 	})
 }
 
-func (ite TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
-	return ite.k8sClient.Delete(ite.Context, &corev1.Secret{
+func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
+	return env.k8sClient.Delete(env.Context, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -567,16 +567,16 @@ func (ite TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
 	})
 }
 
-func (ite TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) error {
-	return ite.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
-		namespace).Delete(ite.Context, name, metav1.DeleteOptions{})
+func (env TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) error {
+	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
+		namespace).Delete(env.Context, name, metav1.DeleteOptions{})
 }
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.
-func (ite TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
+func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
 	return g.Eventually(func() *natsv1alpha1.NATS {
-		gotNATS, err := ite.GetNATSFromK8s(nats.Name, nats.Namespace)
+		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 		if err != nil {
 			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
 			return &natsv1alpha1.NATS{}
