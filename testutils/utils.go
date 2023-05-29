@@ -22,6 +22,12 @@ import (
 const (
 	charset       = "abcdefghijklmnopqrstuvwxyz0123456789"
 	randomNameLen = 5
+
+	StatefulSetNameFormat     = "%s-nats"
+	ConfigMapNameFormat       = "%s-nats-config"
+	SecretNameFormat          = "%s-nats-secret" //nolint:gosec // only for test purpose
+	ServiceNameFormat         = "%s-nats"
+	DestinationRuleNameFormat = "%s-nats"
 )
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
@@ -161,23 +167,23 @@ func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 }
 
 func GetStatefulSetName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
+	return fmt.Sprintf(StatefulSetNameFormat, nats.GetName())
 }
 
 func GetConfigMapName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats-config", nats.Name)
+	return fmt.Sprintf(ConfigMapNameFormat, nats.Name)
 }
 
 func GetSecretName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats-secret", nats.Name)
+	return fmt.Sprintf(SecretNameFormat, nats.Name)
 }
 
 func GetServiceName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
+	return fmt.Sprintf(ServiceNameFormat, nats.Name)
 }
 
 func GetDestinationRuleName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
+	return fmt.Sprintf(DestinationRuleNameFormat, nats.Name)
 }
 
 func FindContainer(containers []apiv1.Container, name string) *apiv1.Container {
