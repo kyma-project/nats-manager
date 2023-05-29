@@ -18,8 +18,8 @@ import (
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
-// for Random string generation.
 const (
+	// for Random string generation.
 	charset       = "abcdefghijklmnopqrstuvwxyz0123456789"
 	randomNameLen = 5
 
