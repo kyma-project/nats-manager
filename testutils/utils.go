@@ -19,8 +19,10 @@ import (
 )
 
 // for Random string generation.
-const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
-const randomNameLen = 5
+const (
+	charset       = "abcdefghijklmnopqrstuvwxyz0123456789"
+	randomNameLen = 5
+)
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
 
