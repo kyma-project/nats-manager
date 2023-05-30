@@ -337,23 +337,17 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name                        string
-		givenNATS                   *v1alpha1.NATS
-		delFunc                     []integration.DeleteFunc
-		wantStatefulSetDeletion     bool
-		wantConfigMapDeletion       bool
-		wantSecretDeletion          bool
-		wantServiceDeletion         bool
-		wantDestinationRuleDeletion bool
+		name                  string
+		givenNATS             *v1alpha1.NATS
+		wantReseourceDeletion []integration.DeleteFunc
 	}{
 		{
 			name: "should recreate StatefulSet",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantStatefulSetDeletion: true,
-			delFunc: []integration.DeleteFunc{
-				integration.DeleteStatefulSet(),
+			wantReseourceDeletion: []integration.DeleteFunc{
+				integration.DeleteStatefulSetFromK8s,
 			},
 		},
 		{
@@ -361,39 +355,49 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantConfigMapDeletion: true,
+			wantReseourceDeletion: []integration.DeleteFunc{
+				integration.DeleteConfigMapFromK8s,
+			},
 		},
 		{
 			name: "should recreate Secret",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantSecretDeletion: true,
+			wantReseourceDeletion: []integration.DeleteFunc{
+				integration.DeleteSecretFromK8s,
+			},
 		},
 		{
 			name: "should recreate Service",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantServiceDeletion: true,
+			wantReseourceDeletion: []integration.DeleteFunc{
+				integration.DeleteServiceFromK8s,
+			},
 		},
 		{
 			name: "should recreate DestinationRule",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantDestinationRuleDeletion: true,
+			wantReseourceDeletion: []integration.DeleteFunc{
+				integration.DeleteDestinationRuleFromK8s,
+			},
 		},
 		{
 			name: "should recreate all objects",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantServiceDeletion:         true,
-			wantConfigMapDeletion:       true,
-			wantStatefulSetDeletion:     true,
-			wantSecretDeletion:          true,
-			wantDestinationRuleDeletion: true,
+			wantReseourceDeletion: []integration.DeleteFunc{
+				integration.DeleteServiceFromK8s,
+				integration.DeleteConfigMapFromK8s,
+				integration.DeleteStatefulSetFromK8s,
+				integration.DeleteSecretFromK8s,
+				integration.DeleteDestinationRuleFromK8s,
+			},
 		},
 	}
 
@@ -417,35 +421,10 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
-			
-			testEnvironment.EnsureK8sDeletion(t, tc.givenNATS.GetName(), givenNamespace, tc.delFunc...)
 
 			// when
-			if tc.wantStatefulSetDeletion {
-				err := testEnvironment.DeleteStatefulSetFromK8s(testutils.GetStatefulSetName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantConfigMapDeletion {
-				err := testEnvironment.DeleteConfigMapFromK8s(testutils.GetConfigMapName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantSecretDeletion {
-				err := testEnvironment.DeleteSecretFromK8s(testutils.GetSecretName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantServiceDeletion {
-				err := testEnvironment.DeleteServiceFromK8s(testutils.GetServiceName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantDestinationRuleDeletion {
-				err := testEnvironment.DeleteDestinationRuleFromK8s(testutils.GetDestinationRuleName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
+			testEnvironment.EnsureK8sResourceDeletion(
+				t, tc.givenNATS.GetName(), givenNamespace, tc.wantReseourceDeletion...)
 
 			// then
 			// ensure all k8s objects exists again
