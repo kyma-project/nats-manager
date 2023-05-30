@@ -598,6 +598,9 @@ func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
 		UseExistingCluster:       &useExistingCluster,
 	}
 
+	args := testEnv.ControlPlane.GetAPIServer().Configure()
+	args.Set("feature-gates", "CustomResourceValidationExpressions=false")
+
 	var cfg *rest.Config
 	err := retry.Do(func() error {
 		defer func() {
