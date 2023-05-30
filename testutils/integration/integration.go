@@ -93,7 +93,7 @@ func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in
 		return nil, err
 	}
 
-	//+kubebuilder:scaffold:scheme
+	// +kubebuilder:scaffold:scheme
 
 	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: scheme.Scheme})
 	if err != nil {
@@ -205,6 +205,14 @@ func (env TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace strin
 
 func (env TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
 	require.NoError(t, env.k8sClient.Create(env.Context, obj))
+}
+
+func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
+	require.NoError(t, env.k8sClient.Update(env.Context, obj))
+}
+
+func (env TestEnvironment) CreateK8sResource(obj client.Object) error {
+	return env.k8sClient.Create(env.Context, obj)
 }
 
 func (env TestEnvironment) EnsureK8sResourceDeleted(t *testing.T, obj client.Object) {

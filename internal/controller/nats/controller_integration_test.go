@@ -49,7 +49,6 @@ func TestMain(m *testing.M) {
 
 func Test_Validate_CreateNatsCR(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
 
 	testCases := []struct {
 		name       string
@@ -84,12 +83,11 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 			t.Parallel()
 			// given
 			// create unique namespace for this test run.
-			givenNamespace := integration.NewTestNamespace()
-			require.NoError(t, testEnvironment.CreateNamespace(ctx, givenNamespace))
-			tc.givenNATS.Namespace = givenNamespace
+			givenNamespace := tc.givenNATS.GetNamespace()
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
 
 			// when
-			err := testEnvironment.CreateK8sResourceWithErr(tc.givenNATS)
+			err := testEnvironment.CreateK8sResource(tc.givenNATS)
 
 			// then
 			if tc.wantErrMsg == emptyString {
