@@ -7,7 +7,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	apiv1 "k8s.io/api/core/v1"
@@ -15,10 +14,23 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
-// for Random string generation.
-const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+const (
+	// for Random string generation.
+	charset       = "abcdefghijklmnopqrstuvwxyz0123456789"
+	randomNameLen = 5
+
+	NameFormat                = "name-%s"
+	NamespaceFormat           = "namespace-%s"
+	StatefulSetNameFormat     = "%s-nats"
+	ConfigMapNameFormat       = "%s-nats-config"
+	SecretNameFormat          = "%s-nats-secret" //nolint:gosec // only for test purpose
+	ServiceNameFormat         = "%s-nats"
+	DestinationRuleNameFormat = "%s-nats"
+)
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
 
@@ -112,6 +124,9 @@ func NewSecret(opts ...Option) *apiv1.Secret {
 }
 
 func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
+	name := fmt.Sprintf(NameFormat, GetRandString(randomNameLen))
+	namespace := fmt.Sprintf(NamespaceFormat, GetRandString(randomNameLen))
+
 	nats := &v1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
 		TypeMeta: metav1.TypeMeta{
@@ -119,8 +134,8 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 			Kind:       "Nats",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "test-object1",
-			Namespace: "test-ns1",
+			Name:      name,
+			Namespace: namespace,
 			UID:       "1234-5678-1234-5678",
 		},
 	}
@@ -154,23 +169,23 @@ func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 }
 
 func GetStatefulSetName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
+	return fmt.Sprintf(StatefulSetNameFormat, nats.GetName())
 }
 
 func GetConfigMapName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats-config", nats.Name)
+	return fmt.Sprintf(ConfigMapNameFormat, nats.Name)
 }
 
 func GetSecretName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats-secret", nats.Name)
+	return fmt.Sprintf(SecretNameFormat, nats.Name)
 }
 
 func GetServiceName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
+	return fmt.Sprintf(ServiceNameFormat, nats.Name)
 }
 
 func GetDestinationRuleName(nats v1alpha1.NATS) string {
-	return fmt.Sprintf("%s-nats", nats.Name)
+	return fmt.Sprintf(DestinationRuleNameFormat, nats.Name)
 }
 
 func FindContainer(containers []apiv1.Container, name string) *apiv1.Container {
