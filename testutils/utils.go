@@ -23,6 +23,8 @@ const (
 	charset       = "abcdefghijklmnopqrstuvwxyz0123456789"
 	randomNameLen = 5
 
+	NameFormat                = "name-%s"
+	NamespaceFormat           = "namespace-%s"
 	StatefulSetNameFormat     = "%s-nats"
 	ConfigMapNameFormat       = "%s-nats-config"
 	SecretNameFormat          = "%s-nats-secret" //nolint:gosec // only for test purpose
@@ -122,8 +124,8 @@ func NewSecret(opts ...Option) *apiv1.Secret {
 }
 
 func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
-	name := fmt.Sprintf("name-%s", GetRandString(randomNameLen))
-	namespace := fmt.Sprintf("namespace-%s", GetRandString(randomNameLen))
+	name := fmt.Sprintf(NameFormat, GetRandString(randomNameLen))
+	namespace := fmt.Sprintf(NamespaceFormat, GetRandString(randomNameLen))
 
 	nats := &v1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
