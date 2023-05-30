@@ -48,8 +48,8 @@ const (
 
 	TwoMinTimeOut        = 120 * time.Second
 	BigPollingInterval   = 3 * time.Second
-	BigTimeOut           = 40 * time.Second
-	SmallTimeOut         = 5 * time.Second
+	BigTimeOut           = 60 * time.Second
+	SmallTimeOut         = 10 * time.Second
 	SmallPollingInterval = 1 * time.Second
 
 	NATSContainerName  = "nats"
