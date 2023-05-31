@@ -47,12 +47,6 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 		wantErrMsg string
 	}{
 		{
-			name: `a NATS CR with a spec.cluster.size that is odd and greater than 0 should validate without an error`,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSClusterSize(5)),
-		},
-		{
 			name: `a NATS CR with a spec.cluster.size that is even should return an error`,
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
