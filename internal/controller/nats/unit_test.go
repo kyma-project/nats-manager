@@ -28,6 +28,7 @@ type MockedUnitTestEnvironment struct {
 	kubeClient    *k8smocks.Client
 	chartRenderer *chartmocks.Renderer
 	natsManager   *managermocks.Manager
+	ctrlManager   *ctrlmocks.Manager
 	Reconciler    *Reconciler
 	controller    *ctrlmocks.Controller
 	Logger        *zap.SugaredLogger
@@ -47,7 +48,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	err = natsv1alpha1.AddToScheme(newScheme)
 	require.NoError(t, err)
 	fakeClientBuilder := fake.NewClientBuilder().WithScheme(newScheme)
-	fakeClient := fakeClientBuilder.WithObjects(objs...).Build()
+	fakeClient := fakeClientBuilder.WithObjects(objs...).WithStatusSubresource(objs...).Build()
 	recorder := &record.FakeRecorder{}
 
 	// setup custom mocks
@@ -55,6 +56,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	kubeClient := new(k8smocks.Client)
 	natsManager := new(managermocks.Manager)
 	mockController := new(ctrlmocks.Controller)
+	mockManager := new(ctrlmocks.Manager)
 
 	// setup reconciler
 	reconciler := NewReconciler(
@@ -67,6 +69,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		natsManager,
 	)
 	reconciler.controller = mockController
+	reconciler.ctrlManager = mockManager
 
 	return &MockedUnitTestEnvironment{
 		Context:       ctx,
@@ -78,6 +81,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		Logger:        sugaredLogger,
 		Recorder:      recorder,
 		natsManager:   natsManager,
+		ctrlManager:   mockManager,
 	}
 }
 

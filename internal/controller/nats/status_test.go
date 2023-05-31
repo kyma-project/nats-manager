@@ -227,8 +227,10 @@ func Test_watchDestinationRule(t *testing.T) {
 	}
 
 	// define mock behaviour
+	testEnv.ctrlManager.On("GetCache").Return(nil)
+	testEnv.ctrlManager.On("GetRESTMapper").Return(testEnv.Client.RESTMapper())
 	testEnv.controller.On("Watch",
-		&source.Kind{Type: destinationRuleType},
+		source.Kind(nil, destinationRuleType),
 		mock.Anything,
 		mock.Anything,
 		predicate.ResourceVersionChangedPredicate{},

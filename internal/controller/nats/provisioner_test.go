@@ -261,6 +261,10 @@ func Test_handleNATSReconcile(t *testing.T) {
 					natsmanager.RotatePasswordKey: true, // do not recreate secret if it exists
 				},
 			)
+			if tc.wantDestinationRuleWatchStarted {
+				testEnv.ctrlManager.On("GetCache").Return(nil)
+				testEnv.ctrlManager.On("GetRESTMapper").Return(testEnv.Client.RESTMapper())
+			}
 
 			// when
 			_, err := reconciler.handleNATSReconcile(testEnv.Context, nats, testEnv.Logger)
