@@ -4,6 +4,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
+	"github.com/stretchr/testify/require"
+
 	"github.com/kyma-project/nats-manager/testutils/integration"
 )
 
@@ -34,19 +38,47 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func Test_ValidateOddNumber(t *testing.T) {
+func Test_Validate_CreateNatsCR(t *testing.T) {
+	t.Parallel()
+
 	testCases := []struct {
-		name string
+		name       string
+		givenNATS  *v1alpha1.NATS
+		wantErrMsg string
 	}{
 		{
-			name: "Validation test 1",
+			name: `a NATS CR with a spec.cluster.size that is odd and greater than 0 should validate without an error`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSClusterSize(5)),
+		},
+		{
+			name: `a NATS CR with a spec.cluster.size that is even should return an error`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSClusterSize(4)),
+			wantErrMsg: "size only accepts odd numbers",
 		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Logf("Test run 123")
+			t.Parallel()
+			// given
+			// create unique namespace for this test run.
+			givenNamespace := tc.givenNATS.GetNamespace()
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
+
+			// when
+			err := testEnvironment.CreateK8sResource(tc.givenNATS)
+
+			// then
+			if tc.wantErrMsg == "" {
+				require.NoError(t, err)
+			} else {
+				require.Contains(t, err.Error(), tc.wantErrMsg)
+			}
 		})
 	}
 }

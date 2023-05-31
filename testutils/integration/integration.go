@@ -197,6 +197,10 @@ func (env TestEnvironment) TearDown() error {
 	return err
 }
 
+func (env TestEnvironment) CreateK8sResource(obj client.Object) error {
+	return env.k8sClient.Create(env.Context, obj)
+}
+
 func (env TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace string) {
 	if namespace == "default" {
 		return
@@ -602,7 +606,9 @@ func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.En
 	}
 
 	args := testEnv.ControlPlane.GetAPIServer().Configure()
-	if !celValidationEnabled {
+	if celValidationEnabled {
+		args.Set("feature-gates", "CustomResourceValidationExpressions=true")
+	} else {
 		args.Set("feature-gates", "CustomResourceValidationExpressions=false")
 	}
 
