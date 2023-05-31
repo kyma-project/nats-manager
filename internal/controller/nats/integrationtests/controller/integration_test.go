@@ -1,4 +1,4 @@
-package nats_test
+package controller_test
 
 import (
 	"os"
@@ -17,6 +17,8 @@ import (
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
+const projectRootDir = "../../../../../"
+
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
@@ -26,7 +28,7 @@ func TestMain(m *testing.M) {
 
 	// setup env test
 	var err error
-	testEnvironment, err = integration.NewTestEnvironment()
+	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, false)
 	if err != nil {
 		panic(err)
 	}
