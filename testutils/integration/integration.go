@@ -71,7 +71,8 @@ type TestEnvironment struct {
 	TestCancelFn     context.CancelFunc
 }
 
-func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*TestEnvironment, error) { //nolint:funlen,lll // Used in testing.
+//nolint:funlen // Used in testing
+func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*TestEnvironment, error) {
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -82,7 +83,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*Test
 		return nil, err
 	}
 
-	testEnv, envTestKubeCfg, err := StartEnvTest()
+	testEnv, envTestKubeCfg, err := StartEnvTest(projectRootDir, celValidationEnabled)
 	if err != nil {
 		return nil, err
 	}
@@ -605,17 +606,24 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	}, BigTimeOut, SmallPollingInterval)
 }
 
-func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
+func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.Environment, *rest.Config, error) {
 	// Reference: https://book.kubebuilder.io/reference/envtest.html
 	useExistingCluster := useExistingCluster
 	testEnv := &envtest.Environment{
 		CRDDirectoryPaths: []string{
-			filepath.Join("..", "..", "..", "config", "crd", "bases"),
-			filepath.Join("..", "..", "..", "config", "crd", "external"),
+			filepath.Join(projectRootDir, "config", "crd", "bases"),
+			filepath.Join(projectRootDir, "config", "crd", "external"),
 		},
 		ErrorIfCRDPathMissing:    true,
 		AttachControlPlaneOutput: attachControlPlaneOutput,
 		UseExistingCluster:       &useExistingCluster,
+	}
+
+	args := testEnv.ControlPlane.GetAPIServer().Configure()
+	if celValidationEnabled {
+		args.Set("feature-gates", "CustomResourceValidationExpressions=true")
+	} else {
+		args.Set("feature-gates", "CustomResourceValidationExpressions=false")
 	}
 
 	var cfg *rest.Config
@@ -625,7 +633,6 @@ func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
 				log.Println("panic recovered:", r)
 			}
 		}()
-
 		cfgLocal, startErr := testEnv.Start()
 		cfg = cfgLocal
 		return startErr
