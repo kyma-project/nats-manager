@@ -82,7 +82,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*Test
 		return nil, err
 	}
 
-	testEnv, envTestKubeCfg, err := StartEnvTest(projectRootDir, celValidationEnabled)
+	testEnv, envTestKubeCfg, err := StartEnvTest()
 	if err != nil {
 		return nil, err
 	}
