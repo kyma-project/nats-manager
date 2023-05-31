@@ -45,6 +45,7 @@ const (
 // Reconciler reconciles a Nats object.
 //
 //go:generate mockery --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
+//go:generate mockery --name=Manager --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/manager --outpkg=mocks --case=underscore
 type Reconciler struct {
 	client.Client
 	controller                  controller.Controller
@@ -54,6 +55,7 @@ type Reconciler struct {
 	recorder                    record.EventRecorder
 	logger                      *zap.SugaredLogger
 	natsManager                 manager.Manager
+	ctrlManager                 ctrl.Manager
 	destinationRuleWatchStarted bool
 }
 
@@ -177,6 +179,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	r.ctrlManager = mgr
 	var err error
 	r.controller, err = ctrl.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.NATS{}).
