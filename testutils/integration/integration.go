@@ -538,11 +538,11 @@ func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*u
 		namespace).Get(env.Context, name, metav1.GetOptions{})
 }
 
-type DeleteFunc func(env TestEnvironment, natsName, namespace string) error
+type DeletionFunc func(env TestEnvironment, natsName, namespace string) error
 
-func (env TestEnvironment) EnsureK8sResourceDeletion(t *testing.T, name, namespace string, fs ...DeleteFunc) {
+func (env TestEnvironment) EnsureK8sResourceDeletion(t *testing.T, natsName, namespace string, fs ...DeletionFunc) {
 	for _, f := range fs {
-		require.NoError(t, f(env, name, namespace))
+		require.NoError(t, f(env, natsName, namespace))
 	}
 }
 

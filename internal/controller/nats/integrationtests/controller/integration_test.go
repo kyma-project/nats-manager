@@ -337,16 +337,16 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name                  string
-		givenNATS             *v1alpha1.NATS
-		wantReseourceDeletion []integration.DeleteFunc
+		name                 string
+		givenNATS            *v1alpha1.NATS
+		wantResourceDeletion []integration.DeletionFunc
 	}{
 		{
 			name: "should recreate StatefulSet",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantReseourceDeletion: []integration.DeleteFunc{
+			wantResourceDeletion: []integration.DeletionFunc{
 				integration.DeleteStatefulSetFromK8s,
 			},
 		},
@@ -355,7 +355,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantReseourceDeletion: []integration.DeleteFunc{
+			wantResourceDeletion: []integration.DeletionFunc{
 				integration.DeleteConfigMapFromK8s,
 			},
 		},
@@ -364,7 +364,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantReseourceDeletion: []integration.DeleteFunc{
+			wantResourceDeletion: []integration.DeletionFunc{
 				integration.DeleteSecretFromK8s,
 			},
 		},
@@ -373,7 +373,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantReseourceDeletion: []integration.DeleteFunc{
+			wantResourceDeletion: []integration.DeletionFunc{
 				integration.DeleteServiceFromK8s,
 			},
 		},
@@ -382,7 +382,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantReseourceDeletion: []integration.DeleteFunc{
+			wantResourceDeletion: []integration.DeletionFunc{
 				integration.DeleteDestinationRuleFromK8s,
 			},
 		},
@@ -391,7 +391,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantReseourceDeletion: []integration.DeleteFunc{
+			wantResourceDeletion: []integration.DeletionFunc{
 				integration.DeleteServiceFromK8s,
 				integration.DeleteConfigMapFromK8s,
 				integration.DeleteStatefulSetFromK8s,
@@ -424,7 +424,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 
 			// when
 			testEnvironment.EnsureK8sResourceDeletion(
-				t, tc.givenNATS.GetName(), givenNamespace, tc.wantReseourceDeletion...)
+				t, tc.givenNATS.GetName(), givenNamespace, tc.wantResourceDeletion...)
 
 			// then
 			// ensure all k8s objects exists again
