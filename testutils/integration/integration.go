@@ -40,7 +40,7 @@ import (
 )
 
 const (
-	NATSChartDir             = "../../../resources/nats"
+	NATSChartDir             = "resources/nats"
 	useExistingCluster       = false
 	attachControlPlaneOutput = false
 	testEnvStartDelay        = time.Minute
@@ -48,8 +48,8 @@ const (
 
 	TwoMinTimeOut        = 120 * time.Second
 	BigPollingInterval   = 3 * time.Second
-	BigTimeOut           = 40 * time.Second
-	SmallTimeOut         = 5 * time.Second
+	BigTimeOut           = 60 * time.Second
+	SmallTimeOut         = 10 * time.Second
 	SmallPollingInterval = 1 * time.Second
 
 	NATSContainerName  = "nats"
@@ -71,7 +71,7 @@ type TestEnvironment struct {
 	TestCancelFn     context.CancelFunc
 }
 
-func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in testing.
+func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*TestEnvironment, error) { //nolint:funlen,lll // Used in testing.
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -82,7 +82,7 @@ func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in
 		return nil, err
 	}
 
-	testEnv, envTestKubeCfg, err := StartEnvTest()
+	testEnv, envTestKubeCfg, err := StartEnvTest(projectRootDir, celValidationEnabled)
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +112,11 @@ func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in
 	}
 
 	ctrlMgr, err := ctrl.NewManager(envTestKubeCfg, ctrl.Options{
-		Scheme: scheme.Scheme,
-		Port:   metricsPort,
+		Scheme:                 scheme.Scheme,
+		Port:                   metricsPort,
+		MetricsBindAddress:     "0", // disable
+		HealthProbeBindAddress: "0", // disable
+		PprofBindAddress:       "0", // disable
 	})
 	if err != nil {
 		return nil, err
@@ -128,7 +131,7 @@ func NewTestEnvironment() (*TestEnvironment, error) { //nolint:funlen // Used in
 	kubeClient := k8s.NewKubeClient(ctrlMgr.GetClient(), apiClientSet, "nats-manager")
 
 	// create helmRenderer
-	helmRenderer, err := chart.NewHelmRenderer(NATSChartDir, sugaredLogger)
+	helmRenderer, err := chart.NewHelmRenderer(filepath.Join(projectRootDir, NATSChartDir), sugaredLogger)
 	if err != nil {
 		return nil, err
 	}
@@ -192,6 +195,10 @@ func (env TestEnvironment) TearDown() error {
 		time.Sleep(sleepTime)
 	}
 	return err
+}
+
+func (env TestEnvironment) CreateK8sResource(obj client.Object) error {
+	return env.k8sClient.Create(env.Context, obj)
 }
 
 func (env TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace string) {
@@ -585,17 +592,24 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	}, BigTimeOut, SmallPollingInterval)
 }
 
-func StartEnvTest() (*envtest.Environment, *rest.Config, error) {
+func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.Environment, *rest.Config, error) {
 	// Reference: https://book.kubebuilder.io/reference/envtest.html
 	useExistingCluster := useExistingCluster
 	testEnv := &envtest.Environment{
 		CRDDirectoryPaths: []string{
-			filepath.Join("..", "..", "..", "config", "crd", "bases"),
-			filepath.Join("..", "..", "..", "config", "crd", "external"),
+			filepath.Join(projectRootDir, "config", "crd", "bases"),
+			filepath.Join(projectRootDir, "config", "crd", "external"),
 		},
 		ErrorIfCRDPathMissing:    true,
 		AttachControlPlaneOutput: attachControlPlaneOutput,
 		UseExistingCluster:       &useExistingCluster,
+	}
+
+	args := testEnv.ControlPlane.GetAPIServer().Configure()
+	if celValidationEnabled {
+		args.Set("feature-gates", "CustomResourceValidationExpressions=true")
+	} else {
+		args.Set("feature-gates", "CustomResourceValidationExpressions=false")
 	}
 
 	var cfg *rest.Config
