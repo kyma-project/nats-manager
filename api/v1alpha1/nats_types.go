@@ -117,7 +117,7 @@ type JetStream struct {
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
-	// +kubebuilder:default:={storageClassName:"default", size:"1Gi"}
+	// +kubebuilder:default:={storageClassName:"default",size:"1Gi"}
 	FileStorage `json:"fileStorage,omitempty"`
 }
 

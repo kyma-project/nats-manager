@@ -55,6 +55,35 @@ func Test_CreateNATSCR(t *testing.T) {
 		wantEnsureK8sObjects  bool
 	}{
 		{
+			name:                  "empty NATS CR should get default values",
+			givenNATS:             testutils.NewNATSCR(),
+			givenStatefulSetReady: false,
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecClusterSize(3),
+				natsmatchers.HaveSpecLoggingDebug(false),
+				natsmatchers.HaveSpecLoggingTrace(false),
+				natsmatchers.HaveSpecJetStreamMemStorage(v1alpha1.MemStorage{
+					Enabled: false,
+					Size:    resource.MustParse("20Mi"),
+				}),
+				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "default",
+					Size:             resource.MustParse("1Gi"),
+				}),
+				natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"cpu":    resource.MustParse("20m"),
+						"memory": resource.MustParse("64Mi"),
+					},
+					Requests: corev1.ResourceList{
+						"cpu":    resource.MustParse("5m"),
+						"memory": resource.MustParse("16Mi"),
+					},
+				},
+				),
+			),
+		},
+		{
 			name: "NATS CR should have processing status when StatefulSet is not ready",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),

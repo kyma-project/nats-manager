@@ -1,12 +1,13 @@
 package nats
 
 import (
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
@@ -16,6 +17,33 @@ func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
 		}, gomega.Equal(size))
 }
 
+func HaveSpecLoggingDebug(enabled bool) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) bool {
+			return n.Spec.Logging.Debug
+		}, gomega.Equal(enabled))
+}
+
+func HaveSpecLoggingTrace(enabled bool) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) bool {
+			return n.Spec.Logging.Trace
+		}, gomega.Equal(enabled))
+}
+
+func HaveSpecJetStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) v1alpha1.MemStorage {
+			return n.Spec.JetStream.MemStorage
+		}, gomega.Equal(ms))
+}
+
+func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) v1alpha1.FileStorage {
+			return n.Spec.JetStream.FileStorage
+		}, gomega.Equal(fs))
+}
 func HaveSpecResources(resources corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) corev1.ResourceRequirements {
