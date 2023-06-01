@@ -104,8 +104,8 @@ func Test_CreateNATSCR(t *testing.T) {
 					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
-					Size:   resource.MustParse("66Gi"),
+					Enabled: true,
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 			givenStatefulSetReady: true,
@@ -201,8 +201,8 @@ func Test_UpdateNATSCR(t *testing.T) {
 					"test-key2": "value2",
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
-					Size:   resource.MustParse("66Gi"),
+					Enabled: true,
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 		},
@@ -284,8 +284,8 @@ func Test_DeleteNATSCR(t *testing.T) {
 					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
-					Size:   resource.MustParse("66Gi"),
+					Enabled: true,
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 		},
@@ -489,8 +489,8 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
-					Size:   resource.MustParse("66Gi"),
+					Enabled: true,
+					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 			wantMatchers: gomega.And(

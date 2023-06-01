@@ -115,8 +115,8 @@ type JetStream struct {
 
 // MemStorage defines configurations to memory storage in NATS JetStream.
 type MemStorage struct {
-	// Enable allows the enablement of memory storage.
-	Enable bool `json:"enable"`
+	// Enabled allows the enablement of memory storage.
+	Enabled bool `json:"enable"`
 
 	// Size defines the mem.
 	Size resource.Quantity `json:"size"`

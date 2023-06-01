@@ -20,12 +20,13 @@ import (
 	"flag"
 	"os"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/pkg/manager"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -38,9 +39,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
-	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 )
 
 const defaultMetricsPort = 9443
@@ -153,7 +155,7 @@ func main() { //nolint:funlen // main function needs to initialize many object
 		setupLog.Error(err, "unable to create controller", "controller", "NATS")
 		os.Exit(1)
 	}
-	//+kubebuilder:scaffold:builder
+	// +kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
