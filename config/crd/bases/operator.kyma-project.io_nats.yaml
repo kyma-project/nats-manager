@@ -45,6 +45,9 @@ spec:
             default:
               cluster:
                 size: 3
+              logging:
+                debug: false
+                trace: false
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -116,13 +119,18 @@ spec:
                 description: Labels allows to add Labels to NATS.
                 type: object
               logging:
+                default:
+                  debug: false
+                  trace: false
                 description: JetStream defines configurations that are specific to
                   NATS logging in NATS.
                 properties:
                   debug:
+                    default: false
                     description: Debug allows debug logging.
                     type: boolean
                   trace:
+                    default: false
                     description: Trace allows trace logging.
                     type: boolean
                 required:

@@ -61,7 +61,7 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +kubebuilder:default:={cluster:{size:3}}
+	// +kubebuilder:default:={cluster:{size:3},logging:{trace:false,debug:false}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -84,7 +84,8 @@ type NATSSpec struct {
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
 	// +optional
-	Logging `json:"logging,omitempty"`
+	// +kubebuilder:default:={trace:false,debug:false}
+	Logging `json:"logging"`
 
 	// Resources defines resources for NATS.
 	// +optional
@@ -139,9 +140,11 @@ type FileStorage struct {
 // Logging defines logging options.
 type Logging struct {
 	// Debug allows debug logging.
+	// +kubebuilder:default:=false
 	Debug bool `json:"debug"`
 
 	// Trace allows trace logging.
+	// +kubebuilder:default:=false
 	Trace bool `json:"trace"`
 }
 
