@@ -4,12 +4,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/onsi/gomega"
+	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
-
 	"github.com/kyma-project/nats-manager/testutils/integration"
+	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
 const projectRootDir = "../../../../../"
@@ -81,6 +83,42 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 			} else {
 				require.Contains(t, err.Error(), tc.wantErrMsg)
 			}
+		})
+	}
+}
+
+func Test_NATSCR_Defaulting(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name        string
+		givenNATS   *v1alpha1.NATS
+		wantMatches gomegatypes.GomegaMatcher
+	}{
+		{
+			name: "defaulting",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSClusterSize(3)),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecClusterSize(3)),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := gomega.NewGomegaWithT(t)
+
+			// given
+			givenNamespace := tc.givenNATS.GetNamespace()
+			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
+
+			// when
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			// then
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
 		})
 	}
 }

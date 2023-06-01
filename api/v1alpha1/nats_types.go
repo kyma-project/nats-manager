@@ -75,6 +75,7 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
+	// +optional
 	// +kubebuilder:default:={size:3}
 	Cluster `json:"cluster"`
 
@@ -105,8 +106,10 @@ type NATSSpec struct {
 // Cluster defines configurations that are specific to NATS clusters.
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
-	// +kubebuilder:validation:XValidation:rule="( self % 2 ) != 0", message="size only accepts odd numbers"
+	// +optional
 	// +kubebuilder:default:=3
+	// +kubebuilder:validation:Minimum:=1
+	// +kubebuilder:validation:XValidation:rule="( self % 2 ) != 0", message="size only accepts odd numbers"
 	Size int `json:"size"`
 }
 
