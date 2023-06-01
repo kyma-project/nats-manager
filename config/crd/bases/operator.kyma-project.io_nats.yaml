@@ -42,6 +42,9 @@ spec:
           metadata:
             type: object
           spec:
+            default:
+              cluster:
+                size: 3
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -50,10 +53,13 @@ spec:
                 description: Annotations allows to add annotations to NATS.
                 type: object
               cluster:
+                default:
+                  size: 3
                 description: Cluster defines configurations that are specific to NATS
                   clusters.
                 properties:
                   size:
+                    default: 3
                     description: Size of a NATS cluster, i.e. number of NATS nodes.
                     type: integer
                     x-kubernetes-validations:

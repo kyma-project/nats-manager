@@ -61,6 +61,7 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +kubebuilder:default:={cluster:{size:3}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -74,6 +75,7 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
+	// +kubebuilder:default:={size:3}
 	Cluster `json:"cluster"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
@@ -101,6 +103,7 @@ type NATSSpec struct {
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
 	// +kubebuilder:validation:XValidation:rule="( self % 2 ) != 0", message="size only accepts odd numbers"
+	// +kubebuilder:default:=3
 	Size int `json:"size"`
 }
 
