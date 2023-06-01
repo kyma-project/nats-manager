@@ -61,7 +61,7 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +kubebuilder:default:={cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
+	// +kubebuilder:default:={jetStream:{memStorage:{size:"20Mi",enabled:false}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -69,7 +69,7 @@ type NATS struct {
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
 	State      string             `json:"state"`
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
+	Conditions []metav1.Condition `json:"conditions"`
 }
 
 // NATSSpec defines the desired state of NATS.
@@ -80,7 +80,8 @@ type NATSSpec struct {
 
 	// JetStream defines configurations that are specific to NATS JetStream.
 	// +optional
-	JetStream `json:"jetStream,omitempty"`
+	// +kubebuilder:default:={memStorage:{size:"20Mi",enabled:false}}
+	JetStream `json:"jetStream"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
 	// +optional
@@ -90,7 +91,7 @@ type NATSSpec struct {
 	// Resources defines resources for NATS.
 	// +optional
 	// +kubebuilder:default:={limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}
-	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+	Resources corev1.ResourceRequirements `json:"resources"`
 
 	// Annotations allows to add annotations to NATS.
 	// +optional
@@ -113,6 +114,7 @@ type Cluster struct {
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
 	// +optional
+	// +kubebuilder:default:={size:"20Mi",enabled:false}
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
@@ -123,9 +125,11 @@ type JetStream struct {
 // MemStorage defines configurations to memory storage in NATS JetStream.
 type MemStorage struct {
 	// Enabled allows the enablement of memory storage.
-	Enabled bool `json:"enable"`
+	// +kubebuilder:default:=true
+	Enabled bool `json:"enabled"`
 
-	// Size defines the mem.
+	// Size defines the mem.3
+	// +kubebuilder:default:="20Mi"
 	Size resource.Quantity `json:"size"`
 }
 
