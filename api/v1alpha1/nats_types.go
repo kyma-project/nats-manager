@@ -61,7 +61,7 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +kubebuilder:default:={jetStream:{memStorage:{size:"20Mi",enabled:false}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
+	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -80,7 +80,7 @@ type NATSSpec struct {
 
 	// JetStream defines configurations that are specific to NATS JetStream.
 	// +optional
-	// +kubebuilder:default:={memStorage:{size:"20Mi",enabled:false}}
+	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"} ,memStorage:{size:"20Mi",enabled:false}}
 	JetStream `json:"jetStream"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
@@ -113,12 +113,11 @@ type Cluster struct {
 // JetStream defines configurations that are specific to NATS JetStream.
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
-	// +optional
 	// +kubebuilder:default:={size:"20Mi",enabled:false}
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
-	// +optional
+	// +kubebuilder:default:={storageClassName:"default", size:"1Gi"}
 	FileStorage `json:"fileStorage,omitempty"`
 }
 
@@ -136,9 +135,11 @@ type MemStorage struct {
 // FileStorage defines configurations to file storage in NATS JetStream.
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
+	// +kubebuilder:default:="default"
 	StorageClassName string `json:"storageClassName"`
 
 	// Size defines the file storage size.
+	// +kubebuilder:default:="1Gi"
 	Size resource.Quantity `json:"size"`
 }
 

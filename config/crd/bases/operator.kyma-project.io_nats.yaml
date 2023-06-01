@@ -46,6 +46,9 @@ spec:
               cluster:
                 size: 3
               jetStream:
+                fileStorage:
+                  size: 1Gi
+                  storageClassName: default
                 memStorage:
                   enabled: false
                   size: 20Mi
@@ -84,6 +87,9 @@ spec:
                 type: object
               jetStream:
                 default:
+                  fileStorage:
+                    size: 1Gi
+                    storageClassName: default
                   memStorage:
                     enabled: false
                     size: 20Mi
@@ -91,6 +97,9 @@ spec:
                   NATS JetStream.
                 properties:
                   fileStorage:
+                    default:
+                      size: 1Gi
+                      storageClassName: default
                     description: FileStorage defines configurations to file storage
                       in NATS JetStream.
                     properties:
@@ -98,10 +107,12 @@ spec:
                         anyOf:
                         - type: integer
                         - type: string
+                        default: 1Gi
                         description: Size defines the file storage size.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                       storageClassName:
+                        default: default
                         description: StorageClassName defines the file storage class
                           name.
                         type: string
@@ -289,6 +300,7 @@ spec:
               state:
                 type: string
             required:
+            - conditions
             - state
             type: object
         type: object
