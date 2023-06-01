@@ -4,9 +4,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
-	"github.com/stretchr/testify/require"
 
 	"github.com/kyma-project/nats-manager/testutils/integration"
 )
@@ -46,6 +47,13 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 		givenNATS  *v1alpha1.NATS
 		wantErrMsg string
 	}{
+		{
+			name: `a NATS CR with a spec.cluster.size that is odd should NOT return an error`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSClusterSize(3)),
+			wantErrMsg: "",
+		},
 		{
 			name: `a NATS CR with a spec.cluster.size that is even should return an error`,
 			givenNATS: testutils.NewNATSCR(
