@@ -48,6 +48,13 @@ spec:
               logging:
                 debug: false
                 trace: false
+              resources:
+                limits:
+                  cpu: 20m
+                  memory: 64Mi
+                requests:
+                  cpu: 5m
+                  memory: 16Mi
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -138,6 +145,13 @@ spec:
                 - trace
                 type: object
               resources:
+                default:
+                  limits:
+                    cpu: 20m
+                    memory: 64Mi
+                  requests:
+                    cpu: 5m
+                    memory: 16Mi
                 description: Resources defines resources for NATS.
                 properties:
                   claims:
