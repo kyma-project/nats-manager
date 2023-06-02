@@ -5,12 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
 )
 
 func Test_GenerateOverrides(t *testing.T) {
@@ -56,8 +57,8 @@ func Test_GenerateOverrides(t *testing.T) {
 					StorageClassName: "test1",
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
-					Enable: true,
-					Size:   resource.MustParse("16Gi"),
+					Enabled: true,
+					Size:    resource.MustParse("16Gi"),
 				}),
 				testutils.WithNATSResources(corev1.ResourceRequirements{
 					Limits: corev1.ResourceList{

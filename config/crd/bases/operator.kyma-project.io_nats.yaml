@@ -88,8 +88,8 @@ spec:
                     description: MemStorage defines configurations to memory storage
                       in NATS JetStream.
                     properties:
-                      enable:
-                        description: Enable allows the enablement of memory storage.
+                      enabled:
+                        description: Enabled allows the enablement of memory storage.
                         type: boolean
                       size:
                         anyOf:
@@ -99,7 +99,7 @@ spec:
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                     required:
-                    - enable
+                    - enabled
                     - size
                     type: object
                 type: object

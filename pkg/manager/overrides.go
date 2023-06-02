@@ -43,8 +43,8 @@ func (m NATSManager) GenerateOverrides(spec *natsv1alpha1.NATSSpec, istioEnabled
 	}
 
 	// memory storage
-	overrides[MemStorageEnabledKey] = spec.MemStorage.Enable
-	if spec.MemStorage.Enable {
+	overrides[MemStorageEnabledKey] = spec.MemStorage.Enabled
+	if spec.MemStorage.Enabled {
 		overrides[MemStorageSizeKey] = spec.MemStorage.Size.String()
 	}
 
