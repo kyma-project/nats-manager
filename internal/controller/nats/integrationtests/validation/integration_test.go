@@ -14,6 +14,8 @@ import (
 
 const projectRootDir = "../../../../../"
 
+const noError = ""
+
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
@@ -48,18 +50,25 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 		wantErrMsg string
 	}{
 		{
-			name: `a NATS CR with a spec.cluster.size that is odd should NOT return an error`,
+			name: `validation of spec.cluster.size passes for odd numbers`,
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSClusterSize(3)),
-			wantErrMsg: "",
+			wantErrMsg: noError,
 		},
 		{
-			name: `a NATS CR with a spec.cluster.size that is even should return an error`,
+			name: `validation of spec.cluster.size fails for even numbers`,
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSClusterSize(4)),
 			wantErrMsg: "size only accepts odd numbers",
+		},
+		{
+			name: `validation of spec.cluster.size fails for numbers < 1`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSClusterSize(-1)),
+			wantErrMsg: "should be greater than or equal to 1",
 		},
 	}
 
