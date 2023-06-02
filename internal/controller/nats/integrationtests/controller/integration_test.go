@@ -1,6 +1,7 @@
 package controller_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -337,59 +338,67 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name                        string
-		givenNATS                   *v1alpha1.NATS
-		wantStatefulSetDeletion     bool
-		wantConfigMapDeletion       bool
-		wantSecretDeletion          bool
-		wantServiceDeletion         bool
-		wantDestinationRuleDeletion bool
+		name                 string
+		givenNATS            *v1alpha1.NATS
+		wantResourceDeletion []deletionFunc
 	}{
 		{
 			name: "should recreate StatefulSet",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantStatefulSetDeletion: true,
+			wantResourceDeletion: []deletionFunc{
+				deleteStatefulSetFromK8s,
+			},
 		},
 		{
 			name: "should recreate ConfigMap",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantConfigMapDeletion: true,
+			wantResourceDeletion: []deletionFunc{
+				deleteConfigMapFromK8s,
+			},
 		},
 		{
 			name: "should recreate Secret",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantSecretDeletion: true,
+			wantResourceDeletion: []deletionFunc{
+				deleteSecretFromK8s,
+			},
 		},
 		{
 			name: "should recreate Service",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantServiceDeletion: true,
+			wantResourceDeletion: []deletionFunc{
+				deleteServiceFromK8s,
+			},
 		},
 		{
 			name: "should recreate DestinationRule",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantDestinationRuleDeletion: true,
+			wantResourceDeletion: []deletionFunc{
+				deleteDestinationRuleFromK8s,
+			},
 		},
 		{
 			name: "should recreate all objects",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantServiceDeletion:         true,
-			wantConfigMapDeletion:       true,
-			wantStatefulSetDeletion:     true,
-			wantSecretDeletion:          true,
-			wantDestinationRuleDeletion: true,
+			wantResourceDeletion: []deletionFunc{
+				deleteServiceFromK8s,
+				deleteConfigMapFromK8s,
+				deleteStatefulSetFromK8s,
+				deleteSecretFromK8s,
+				deleteDestinationRuleFromK8s,
+			},
 		},
 	}
 
@@ -415,31 +424,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 
 			// when
-			if tc.wantStatefulSetDeletion {
-				err := testEnvironment.DeleteStatefulSetFromK8s(testutils.GetStatefulSetName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantConfigMapDeletion {
-				err := testEnvironment.DeleteConfigMapFromK8s(testutils.GetConfigMapName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantSecretDeletion {
-				err := testEnvironment.DeleteSecretFromK8s(testutils.GetSecretName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantServiceDeletion {
-				err := testEnvironment.DeleteServiceFromK8s(testutils.GetServiceName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
-			if tc.wantDestinationRuleDeletion {
-				err := testEnvironment.DeleteDestinationRuleFromK8s(testutils.GetDestinationRuleName(*tc.givenNATS),
-					givenNamespace)
-				require.NoError(t, err)
-			}
+			ensureK8sResourceDeletion(t, *testEnvironment, tc.givenNATS.GetName(), givenNamespace)
 
 			// then
 			// ensure all k8s objects exists again
@@ -591,4 +576,38 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 		}
 		return true
 	}, integration.SmallTimeOut, integration.SmallPollingInterval, "failed to update status of StatefulSet")
+}
+
+type deletionFunc func(env integration.TestEnvironment, natsName, namespace string) error
+
+func ensureK8sResourceDeletion(
+	t *testing.T, env integration.TestEnvironment, natsName, namespace string, fs ...deletionFunc) {
+	for _, f := range fs {
+		require.NoError(t, f(env, natsName, namespace))
+	}
+}
+
+func deleteStatefulSetFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	stsName := fmt.Sprintf(testutils.StatefulSetNameFormat, natsName)
+	return env.DeleteStatefulSetFromK8s(stsName, namespace)
+}
+
+func deleteServiceFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	svcName := fmt.Sprintf(testutils.ServiceNameFormat, natsName)
+	return env.DeleteServiceFromK8s(svcName, namespace)
+}
+
+func deleteConfigMapFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	cmName := fmt.Sprintf(testutils.ConfigMapNameFormat, natsName)
+	return env.DeleteConfigMapFromK8s(cmName, namespace)
+}
+
+func deleteSecretFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	secName := fmt.Sprintf(testutils.SecretNameFormat, natsName)
+	return env.DeleteSecretFromK8s(secName, namespace)
+}
+
+func deleteDestinationRuleFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	destName := fmt.Sprintf(testutils.DestinationRuleNameFormat, natsName)
+	return env.DeleteDestinationRuleFromK8s(destName, namespace)
 }

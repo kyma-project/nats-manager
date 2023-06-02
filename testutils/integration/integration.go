@@ -45,12 +45,12 @@ const (
 	attachControlPlaneOutput = false
 	testEnvStartDelay        = time.Minute
 	testEnvStartAttempts     = 10
-
-	TwoMinTimeOut        = 120 * time.Second
-	BigPollingInterval   = 3 * time.Second
-	BigTimeOut           = 60 * time.Second
-	SmallTimeOut         = 10 * time.Second
-	SmallPollingInterval = 1 * time.Second
+	namespacePrefixLength    = 5
+	TwoMinTimeOut            = 120 * time.Second
+	BigPollingInterval       = 3 * time.Second
+	BigTimeOut               = 40 * time.Second
+	SmallTimeOut             = 5 * time.Second
+	SmallPollingInterval     = 1 * time.Second
 
 	NATSContainerName  = "nats"
 	NATSConfigFileName = "nats.conf"
@@ -71,7 +71,8 @@ type TestEnvironment struct {
 	TestCancelFn     context.CancelFunc
 }
 
-func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*TestEnvironment, error) { //nolint:funlen,lll // Used in testing.
+//nolint:funlen // Used in testing
+func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*TestEnvironment, error) {
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -619,7 +620,6 @@ func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.En
 				log.Println("panic recovered:", r)
 			}
 		}()
-
 		cfgLocal, startErr := testEnv.Start()
 		cfg = cfgLocal
 		return startErr
