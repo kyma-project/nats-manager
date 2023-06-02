@@ -539,58 +539,45 @@ func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*u
 		namespace).Get(env.Context, name, metav1.GetOptions{})
 }
 
-type DeletionFunc func(env TestEnvironment, natsName, namespace string) error
-
-func (env TestEnvironment) EnsureK8sResourceDeletion(t *testing.T, natsName, namespace string, fs ...DeletionFunc) {
-	for _, f := range fs {
-		require.NoError(t, f(env, natsName, namespace))
-	}
-}
-
-func DeleteStatefulSetFromK8s(env TestEnvironment, natsName, namespace string) error {
-	stsName := fmt.Sprintf(testutils.StatefulSetNameFormat, natsName)
+func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      stsName,
+			Name:      name,
 			Namespace: namespace,
 		},
 	})
 }
 
-func DeleteServiceFromK8s(env TestEnvironment, natsName, namespace string) error {
-	svcName := fmt.Sprintf(testutils.ServiceNameFormat, natsName)
+func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      svcName,
+			Name:      name,
 			Namespace: namespace,
 		},
 	})
 }
 
-func DeleteConfigMapFromK8s(env TestEnvironment, natsName, namespace string) error {
-	cmName := fmt.Sprintf(testutils.ConfigMapNameFormat, natsName)
+func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cmName,
+			Name:      name,
 			Namespace: namespace,
 		},
 	})
 }
 
-func DeleteSecretFromK8s(env TestEnvironment, natsName, namespace string) error {
-	secName := fmt.Sprintf(testutils.SecretNameFormat, natsName)
+func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      secName,
+			Name:      name,
 			Namespace: namespace,
 		},
 	})
 }
 
-func DeleteDestinationRuleFromK8s(env TestEnvironment, natsName, namespace string) error {
-	destName := fmt.Sprintf(testutils.DestinationRuleNameFormat, natsName)
+func (env TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) error {
 	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
-		namespace).Delete(env.Context, destName, metav1.DeleteOptions{})
+		namespace).Delete(env.Context, name, metav1.DeleteOptions{})
 }
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.

@@ -1,6 +1,7 @@
 package controller_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -339,15 +340,15 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 	testCases := []struct {
 		name                 string
 		givenNATS            *v1alpha1.NATS
-		wantResourceDeletion []integration.DeletionFunc
+		wantResourceDeletion []deletionFunc
 	}{
 		{
 			name: "should recreate StatefulSet",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantResourceDeletion: []integration.DeletionFunc{
-				integration.DeleteStatefulSetFromK8s,
+			wantResourceDeletion: []deletionFunc{
+				deleteStatefulSetFromK8s,
 			},
 		},
 		{
@@ -355,8 +356,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantResourceDeletion: []integration.DeletionFunc{
-				integration.DeleteConfigMapFromK8s,
+			wantResourceDeletion: []deletionFunc{
+				deleteConfigMapFromK8s,
 			},
 		},
 		{
@@ -364,8 +365,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantResourceDeletion: []integration.DeletionFunc{
-				integration.DeleteSecretFromK8s,
+			wantResourceDeletion: []deletionFunc{
+				deleteSecretFromK8s,
 			},
 		},
 		{
@@ -373,8 +374,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantResourceDeletion: []integration.DeletionFunc{
-				integration.DeleteServiceFromK8s,
+			wantResourceDeletion: []deletionFunc{
+				deleteServiceFromK8s,
 			},
 		},
 		{
@@ -382,8 +383,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantResourceDeletion: []integration.DeletionFunc{
-				integration.DeleteDestinationRuleFromK8s,
+			wantResourceDeletion: []deletionFunc{
+				deleteDestinationRuleFromK8s,
 			},
 		},
 		{
@@ -391,12 +392,12 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 			),
-			wantResourceDeletion: []integration.DeletionFunc{
-				integration.DeleteServiceFromK8s,
-				integration.DeleteConfigMapFromK8s,
-				integration.DeleteStatefulSetFromK8s,
-				integration.DeleteSecretFromK8s,
-				integration.DeleteDestinationRuleFromK8s,
+			wantResourceDeletion: []deletionFunc{
+				deleteServiceFromK8s,
+				deleteConfigMapFromK8s,
+				deleteStatefulSetFromK8s,
+				deleteSecretFromK8s,
+				deleteDestinationRuleFromK8s,
 			},
 		},
 	}
@@ -423,8 +424,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 
 			// when
-			testEnvironment.EnsureK8sResourceDeletion(
-				t, tc.givenNATS.GetName(), givenNamespace, tc.wantResourceDeletion...)
+			ensureK8sResourceDeletion(t, *testEnvironment, tc.givenNATS.GetName(), givenNamespace)
 
 			// then
 			// ensure all k8s objects exists again
@@ -576,4 +576,38 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 		}
 		return true
 	}, integration.SmallTimeOut, integration.SmallPollingInterval, "failed to update status of StatefulSet")
+}
+
+type deletionFunc func(env integration.TestEnvironment, natsName, namespace string) error
+
+func ensureK8sResourceDeletion(
+	t *testing.T, env integration.TestEnvironment, natsName, namespace string, fs ...deletionFunc) {
+	for _, f := range fs {
+		require.NoError(t, f(env, natsName, namespace))
+	}
+}
+
+func deleteStatefulSetFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	stsName := fmt.Sprintf(testutils.StatefulSetNameFormat, natsName)
+	return env.DeleteStatefulSetFromK8s(stsName, namespace)
+}
+
+func deleteServiceFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	svcName := fmt.Sprintf(testutils.ServiceNameFormat, natsName)
+	return env.DeleteServiceFromK8s(svcName, namespace)
+}
+
+func deleteConfigMapFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	cmName := fmt.Sprintf(testutils.ConfigMapNameFormat, natsName)
+	return env.DeleteConfigMapFromK8s(cmName, namespace)
+}
+
+func deleteSecretFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	secName := fmt.Sprintf(testutils.SecretNameFormat, natsName)
+	return env.DeleteSecretFromK8s(secName, namespace)
+}
+
+func deleteDestinationRuleFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	destName := fmt.Sprintf(testutils.DestinationRuleNameFormat, natsName)
+	return env.DeleteDestinationRuleFromK8s(destName, namespace)
 }
