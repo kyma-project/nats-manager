@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
+//nolint:lll //this is annotation
 package v1alpha1
 
 import (
@@ -38,7 +38,7 @@ const (
 	ConditionReasonProcessing           ConditionReason = "Processing"
 	ConditionReasonDeploying            ConditionReason = "Deploying"
 	ConditionReasonDeployed             ConditionReason = "Deployed"
-	ConditionReasonProcessingError                      = ConditionReason("FailedProcessing")
+	ConditionReasonProcessingError      ConditionReason = "FailedProcessing"
 	ConditionReasonStatefulSetAvailable ConditionReason = "Available"
 	ConditionReasonStatefulSetPending   ConditionReason = "Pending"
 	ConditionReasonSyncFailError        ConditionReason = "FailedToSyncResources"
@@ -46,14 +46,10 @@ const (
 	ConditionReasonDeletionError        ConditionReason = "DeletionError"
 )
 
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
-//nolint:lll //this is annotation
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
-
 // NATS is the Schema for the nats API.
 type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
