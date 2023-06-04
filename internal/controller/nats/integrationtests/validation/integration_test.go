@@ -96,9 +96,8 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 		wantMatches gomegatypes.GomegaMatcher
 	}{
 		{
-			name: "defaulting",
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSClusterSize(3)),
+			name:      "defaulting",
+			givenNATS: testutils.NewNATSCR(),
 			wantMatches: gomega.And(
 				natsmatchers.HaveSpecClusterSize(3)),
 		},
@@ -115,8 +114,9 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
 
 			// when
+			t.Log("AFTER", tc.givenNATS)
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
-
+			t.Log("AFTER:", tc.givenNATS)
 			// then
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
 		})
