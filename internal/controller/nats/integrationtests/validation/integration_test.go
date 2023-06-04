@@ -80,7 +80,7 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			
+
 			// given
 			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
 
