@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// +kubebuilder:validation:Optional // This sets 'required' as the default behaviour.
+//
 //nolint:lll //this is annotation
 package v1alpha1
 
@@ -46,15 +49,22 @@ const (
 	ConditionReasonDeletionError        ConditionReason = "DeletionError"
 )
 
+/*
+TODO share how validation works
+TODO share how Defaulting works
+*/
+
+// NATS is the Schema for the nats API.
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
-// NATS is the Schema for the nats API.
 type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +optional
+	// +kubebuilder:default:={cluster:{size:3}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -68,7 +78,9 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
-	Cluster `json:"cluster"`
+	// +optional
+	// +kubebuilder:default:={size:3}
+	Cluster `json:"cluster,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
 	// +optional
@@ -95,9 +107,10 @@ type NATSSpec struct {
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
 	// +optional
+	// +kubebuilder:default:=3
 	// +kubebuilder:validation:Minimum:=1
-	// +kubebuilder:validation:XValidation:rule="self%2!=0", message="size only accepts odd numbers"
-	Size int `json:"size"`
+	// +kubebuilder:validation:XValidation:rule="(self%2) != 0", message="size only accepts odd numbers"
+	Size int `json:"size,omitempty"`
 }
 
 // JetStream defines configurations that are specific to NATS JetStream.
@@ -114,28 +127,28 @@ type JetStream struct {
 // MemStorage defines configurations to memory storage in NATS JetStream.
 type MemStorage struct {
 	// Enabled allows the enablement of memory storage.
-	Enabled bool `json:"enabled"`
+	Enabled bool `json:"enabled,omitempty"`
 
 	// Size defines the mem.
-	Size resource.Quantity `json:"size"`
+	Size resource.Quantity `json:"size,omitempty"`
 }
 
 // FileStorage defines configurations to file storage in NATS JetStream.
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
-	StorageClassName string `json:"storageClassName"`
+	StorageClassName string `json:"storageClassName,omitempty"`
 
 	// Size defines the file storage size.
-	Size resource.Quantity `json:"size"`
+	Size resource.Quantity `json:"size,omitempty"`
 }
 
 // Logging defines logging options.
 type Logging struct {
 	// Debug allows debug logging.
-	Debug bool `json:"debug"`
+	Debug bool `json:"debug,omitempty"`
 
 	// Trace allows trace logging.
-	Trace bool `json:"trace"`
+	Trace bool `json:"trace,omitempty"`
 }
 
 // +kubebuilder:object:root=true

@@ -42,6 +42,9 @@ spec:
           metadata:
             type: object
           spec:
+            default:
+              cluster:
+                size: 3
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -50,16 +53,19 @@ spec:
                 description: Annotations allows to add annotations to NATS.
                 type: object
               cluster:
+                default:
+                  size: 3
                 description: Cluster defines configurations that are specific to NATS
                   clusters.
                 properties:
                   size:
+                    default: 3
                     description: Size of a NATS cluster, i.e. number of NATS nodes.
                     minimum: 1
                     type: integer
                     x-kubernetes-validations:
                     - message: size only accepts odd numbers
-                      rule: self%2!=0
+                      rule: (self%2) != 0
                 type: object
               jetStream:
                 description: JetStream defines configurations that are specific to
@@ -80,9 +86,6 @@ spec:
                         description: StorageClassName defines the file storage class
                           name.
                         type: string
-                    required:
-                    - size
-                    - storageClassName
                     type: object
                   memStorage:
                     description: MemStorage defines configurations to memory storage
@@ -98,9 +101,6 @@ spec:
                         description: Size defines the mem.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
-                    required:
-                    - enabled
-                    - size
                     type: object
                 type: object
               labels:
@@ -118,9 +118,6 @@ spec:
                   trace:
                     description: Trace allows trace logging.
                     type: boolean
-                required:
-                - debug
-                - trace
                 type: object
               resources:
                 description: Resources defines resources for NATS.
@@ -170,8 +167,6 @@ spec:
                       More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
                     type: object
                 type: object
-            required:
-            - cluster
             type: object
           status:
             description: NATSStatus defines the observed state of NATS.
