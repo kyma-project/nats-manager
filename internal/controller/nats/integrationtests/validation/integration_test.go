@@ -1,7 +1,6 @@
 package validation_test
 
 import (
-	"encoding/json"
 	"os"
 	"testing"
 
@@ -109,7 +108,19 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			name:      "defaulting",
 			givenNATS: testutils.NewNATSCR(),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecClusterSize(3)),
+				natsmatchers.HaveSpecClusterSize(3),
+				// natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
+				// 	Limits: corev1.ResourceList{
+				// 		"cpu":    resource.MustParse("20m"),
+				// 		"memory": resource.MustParse("64Mi"),
+				// 	},
+				// 	Requests: corev1.ResourceList{
+				// 		"cpu":    resource.MustParse("5m"),
+				// 		"memory": resource.MustParse("16Mi"),
+				// 	},
+				// })
+
+			),
 		},
 	}
 
@@ -126,8 +137,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
 
 			// then
-			marshaledNATS, _ := json.Marshal(tc.givenNATS)
-			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches, marshaledNATS)
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
 		})
 	}
 }

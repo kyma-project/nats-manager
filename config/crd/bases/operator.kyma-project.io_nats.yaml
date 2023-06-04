@@ -45,6 +45,23 @@ spec:
             default:
               cluster:
                 size: 3
+              jetStream:
+                fileStorage:
+                  size: 1Gi
+                  storageClassName: default
+                memStorage:
+                  enabled: false
+                  size: 20Mi
+              logging:
+                debug: false
+                trace: false
+              resources:
+                limits:
+                  cpu: 20m
+                  memory: 64Mi
+                requests:
+                  cpu: 5m
+                  memory: 16Mi
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -68,10 +85,20 @@ spec:
                       rule: (self%2) != 0
                 type: object
               jetStream:
+                default:
+                  fileStorage:
+                    size: 1Gi
+                    storageClassName: default
+                  memStorage:
+                    enabled: false
+                    size: 20Mi
                 description: JetStream defines configurations that are specific to
                   NATS JetStream.
                 properties:
                   fileStorage:
+                    default:
+                      size: 1Gi
+                      storageClassName: default
                     description: FileStorage defines configurations to file storage
                       in NATS JetStream.
                     properties:
@@ -79,25 +106,32 @@ spec:
                         anyOf:
                         - type: integer
                         - type: string
+                        default: 1Gi
                         description: Size defines the file storage size.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                       storageClassName:
+                        default: default
                         description: StorageClassName defines the file storage class
                           name.
                         type: string
                     type: object
                   memStorage:
+                    default:
+                      enabled: false
+                      size: 20Mi
                     description: MemStorage defines configurations to memory storage
                       in NATS JetStream.
                     properties:
                       enabled:
+                        default: true
                         description: Enabled allows the enablement of memory storage.
                         type: boolean
                       size:
                         anyOf:
                         - type: integer
                         - type: string
+                        default: 20Mi
                         description: Size defines the mem.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
@@ -109,17 +143,29 @@ spec:
                 description: Labels allows to add Labels to NATS.
                 type: object
               logging:
+                default:
+                  debug: false
+                  trace: false
                 description: JetStream defines configurations that are specific to
                   NATS logging in NATS.
                 properties:
                   debug:
+                    default: false
                     description: Debug allows debug logging.
                     type: boolean
                   trace:
+                    default: false
                     description: Trace allows trace logging.
                     type: boolean
                 type: object
               resources:
+                default:
+                  limits:
+                    cpu: 20m
+                    memory: 64Mi
+                  requests:
+                    cpu: 5m
+                    memory: 16Mi
                 description: Resources defines resources for NATS.
                 properties:
                   claims:

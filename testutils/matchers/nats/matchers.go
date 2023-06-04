@@ -31,25 +31,25 @@ func HaveSpecLoggingTrace(enabled bool) gomegatypes.GomegaMatcher {
 		}, gomega.Equal(enabled))
 }
 
-func HaveSpecJetStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatcher {
-	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) v1alpha1.MemStorage {
-			return n.Spec.JetStream.MemStorage
-		}, gomega.Equal(ms))
-}
-
-func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMatcher {
-	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) v1alpha1.FileStorage {
-			return n.Spec.JetStream.FileStorage
-		}, gomega.Equal(fs))
-}
-
-func HaveSpecResources(resources corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
-	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) corev1.ResourceRequirements {
-			return n.Spec.Resources
-		}, gomega.Equal(resources))
+func HaveSpecResources(res corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Requests.Storage().Equal(*res.Requests.Storage())
+			}, gomega.BeTrue()),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Requests.Cpu().Equal(*res.Requests.Cpu())
+			}, gomega.BeTrue()),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Limits.Storage().Equal(*res.Requests.Storage())
+			}, gomega.BeTrue()),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Requests.Cpu().Equal(*res.Requests.Cpu())
+			}, gomega.BeTrue()),
+	)
 }
 
 func HaveStatusReady() gomegatypes.GomegaMatcher {
