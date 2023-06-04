@@ -1,6 +1,7 @@
 package nats
 
 import (
+	"github.com/google/go-cmp/cmp"
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
@@ -9,6 +10,32 @@ import (
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
+
+func HaveSpecJetsStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.JetStream.MemStorage.Enabled
+			}, gomega.Equal(ms.Enabled)),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return cmp.Equal(n.Spec.JetStream.MemStorage.Size, ms.Size)
+			}, gomega.BeTrue()),
+	)
+}
+
+func HaveSpecJetsStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) string {
+				return n.Spec.JetStream.FileStorage.StorageClassName
+			}, gomega.Equal(fs.StorageClassName)),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return cmp.Equal(n.Spec.JetStream.FileStorage.Size, fs.Size)
+			}, gomega.BeTrue()),
+	)
+}
 
 func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(

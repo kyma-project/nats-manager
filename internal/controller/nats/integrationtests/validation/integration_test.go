@@ -119,7 +119,16 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				// 		"memory": resource.MustParse("16Mi"),
 				// 	},
 				// })
-
+				natsmatchers.HaveSpecLoggingTrace(false),
+				natsmatchers.HaveSpecLoggingDebug(false),
+				// natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
+				// 	Enabled: false,
+				// 	Size:    resource.MustParse("20Mi"),
+				// }),
+				// natsmatchers.HaveSpecJetsStreamFileStorage(v1alpha1.FileStorage{
+				// 	StorageClassName: "default",
+				// 	Size:             resource.MustParse("1Gi"),
+				// }),
 			),
 		},
 	}

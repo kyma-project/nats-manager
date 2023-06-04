@@ -84,7 +84,7 @@ type NATSSpec struct {
 
 	// JetStream defines configurations that are specific to NATS JetStream.
 	// +optional
-	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"} ,memStorage:{size:"20Mi",enabled:false}}
+	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}
 	JetStream `json:"jetStream,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
