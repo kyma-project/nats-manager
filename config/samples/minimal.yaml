@@ -3,27 +3,3 @@ kind: NATS
 metadata:
   name: eventing-nats
   namespace: kyma-system
-spec:
-  cluster:
-    size: 3
-  jetStream:
-    fileStorage:
-      size: "2Gi"
-      storageClassName: "gce-sc-hdd"
-    memStorage:
-      enabled: true
-      size: "256Mi"
-  logging:
-    debug: true
-    trace: true
-  resources:
-    limits:
-      cpu: 350m
-      memory: 3Gi
-    requests:
-      cpu: 150m
-      memory: 768Mi
-  annotations:
-    custom-annotation: nats
-  labels:
-    custom-label: nats
