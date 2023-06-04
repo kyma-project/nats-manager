@@ -1,6 +1,7 @@
 package validation_test
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 
@@ -125,9 +126,10 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
-		
+
 			// then
-			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
+			marshaledNATS, _ := json.Marshal(tc.givenNATS)
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches, marshaledNATS)
 		})
 	}
 }
