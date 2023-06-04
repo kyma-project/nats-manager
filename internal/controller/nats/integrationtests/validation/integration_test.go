@@ -80,10 +80,9 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+			
 			// given
-			// create unique namespace for this test run.
-			givenNamespace := tc.givenNATS.GetNamespace()
-			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
 
 			// when
 			err := testEnvironment.CreateK8sResource(tc.givenNATS)
@@ -121,8 +120,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			g := gomega.NewGomegaWithT(t)
 
 			// given
-			givenNamespace := tc.givenNATS.GetNamespace()
-			testEnvironment.EnsureNamespaceCreation(t, givenNamespace)
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
 
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
