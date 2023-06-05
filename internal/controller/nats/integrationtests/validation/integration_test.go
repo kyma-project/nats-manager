@@ -129,6 +129,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				// 	StorageClassName: "default",
 				// 	Size:             resource.MustParse("1Gi"),
 				// }),
+				natsmatchers.HaveSpecJetsStreamFileStorageClass("default"),
 			),
 		},
 	}

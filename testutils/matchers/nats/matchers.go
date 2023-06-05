@@ -37,6 +37,15 @@ func HaveSpecJetsStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMa
 	)
 }
 
+func HaveSpecJetsStreamFileStorageClass(name string) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) string {
+				return n.Spec.JetStream.FileStorage.StorageClassName
+			}, gomega.Equal(name)),
+	)
+}
+
 func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) int {
