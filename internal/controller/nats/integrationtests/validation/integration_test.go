@@ -1,6 +1,7 @@
 package validation_test
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 
@@ -147,7 +148,9 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
 
-			t.Logf("FileStorage Size is: %s", tc.givenNATS.Spec.JetStream.FileStorage.Size.String())
+			t.Logf("Resource is: %s", tc.givenNATS.Spec.Resources)
+			readable, _ := json.Marshal(tc.givenNATS)
+			t.Log(readable)
 
 			// then
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
