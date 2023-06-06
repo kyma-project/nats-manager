@@ -585,8 +585,8 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
 	return g.Eventually(func() *natsv1alpha1.NATS {
 		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
-		env.Logger.Debugf("MemStorage Size: %s", gotNATS.Spec.JetStream.MemStorage.Size)
-		env.Logger.Debugf("Filestorage Size: %s", gotNATS.Spec.JetStream.FileStorage.Size)
+		env.Logger.Debugf("MemStorage Size: %s", gotNATS.Spec.JetStream.MemStorage.Size.String())
+		env.Logger.Debugf("Filestorage Size: %s", gotNATS.Spec.JetStream.FileStorage.Size.String())
 		env.Logger.Debugf("Resource Size: %s", gotNATS.Spec.Resources.String())
 		if err != nil {
 			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
