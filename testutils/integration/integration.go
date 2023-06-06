@@ -585,6 +585,7 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
 	return g.Eventually(func() *natsv1alpha1.NATS {
 		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
+		env.Logger.Debugf("GOT NATS: %v", gotNATS)
 		if err != nil {
 			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
 			return &natsv1alpha1.NATS{}
