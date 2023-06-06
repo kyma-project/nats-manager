@@ -129,6 +129,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				// 	StorageClassName: "default",
 				// 	Size:             resource.MustParse("1Gi"),
 				// }),
+				natsmatchers.HaveSpecJetsStreamFileStorageSize("1Gi"),
 				natsmatchers.HaveSpecJetsStreamFileStorageClass("default"),
 			),
 		},
@@ -145,6 +146,8 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 
 			// when
 			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			t.Logf("FileStorage Size is: %s", tc.givenNATS.Spec.JetStream.FileStorage.Size.String())
 
 			// then
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)

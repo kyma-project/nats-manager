@@ -6,6 +6,7 @@ import (
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -24,16 +25,13 @@ func HaveSpecJetsStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatc
 	)
 }
 
-func HaveSpecJetsStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMatcher {
-	return gomega.And(
-		gomega.WithTransform(
-			func(n *v1alpha1.NATS) string {
-				return n.Spec.JetStream.FileStorage.StorageClassName
-			}, gomega.Equal(fs.StorageClassName)),
-		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
-				return cmp.Equal(n.Spec.JetStream.FileStorage.Size, fs.Size)
-			}, gomega.BeTrue()),
+func HaveSpecJetsStreamFileStorageSize(s string) gomegatypes.GomegaMatcher {
+	size := resource.MustParse(s)
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) string {
+			actual := n.Spec.JetStream.FileStorage.Size.String()
+			return actual
+		}, gomega.Equal(size.String()),
 	)
 }
 
