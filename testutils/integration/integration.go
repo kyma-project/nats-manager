@@ -149,6 +149,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*Test
 		sugaredLogger,
 		recorder,
 		natsManager,
+		nil,
 	)
 	if err = (natsReconciler).SetupWithManager(ctrlMgr); err != nil {
 		return nil, err
