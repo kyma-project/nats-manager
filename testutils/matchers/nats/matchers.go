@@ -37,6 +37,13 @@ func HaveStatusProcessing() gomegatypes.GomegaMatcher {
 		}, gomega.Equal(v1alpha1.StateProcessing))
 }
 
+func HaveStatusError() gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) string {
+			return n.Status.State
+		}, gomega.Equal(v1alpha1.StateError))
+}
+
 func HaveCondition(condition metav1.Condition) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) []metav1.Condition {
@@ -68,6 +75,15 @@ func HavePendingConditionStatefulSet() gomegatypes.GomegaMatcher {
 	})
 }
 
+func HaveForbiddenConditionStatefulSet() gomegatypes.GomegaMatcher {
+	return HaveCondition(metav1.Condition{
+		Type:    string(v1alpha1.ConditionStatefulSet),
+		Status:  metav1.ConditionFalse,
+		Reason:  string(v1alpha1.ConditionReasonForbidden),
+		Message: "",
+	})
+}
+
 func HaveReadyConditionAvailable() gomegatypes.GomegaMatcher {
 	return HaveCondition(metav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
@@ -83,5 +99,14 @@ func HaveDeployingConditionAvailable() gomegatypes.GomegaMatcher {
 		Status:  metav1.ConditionFalse,
 		Reason:  string(v1alpha1.ConditionReasonDeploying),
 		Message: "",
+	})
+}
+
+func HaveForbiddenConditionAvailableWithMsg(msg string) gomegatypes.GomegaMatcher {
+	return HaveCondition(metav1.Condition{
+		Type:    string(v1alpha1.ConditionAvailable),
+		Status:  metav1.ConditionFalse,
+		Reason:  string(v1alpha1.ConditionReasonForbidden),
+		Message: msg,
 	})
 }

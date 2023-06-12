@@ -72,7 +72,8 @@ type TestEnvironment struct {
 }
 
 //nolint:funlen // Used in testing
-func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*TestEnvironment, error) {
+func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
+	allowedNATSCR *natsv1alpha1.NATS) (*TestEnvironment, error) {
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -149,7 +150,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool) (*Test
 		sugaredLogger,
 		recorder,
 		natsManager,
-		nil,
+		allowedNATSCR,
 	)
 	if err = (natsReconciler).SetupWithManager(ctrlMgr); err != nil {
 		return nil, err
@@ -209,7 +210,7 @@ func (env TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace strin
 	}
 	// create namespace
 	ns := testutils.NewNamespace(namespace)
-	require.NoError(t, env.k8sClient.Create(env.Context, ns))
+	require.NoError(t, client.IgnoreAlreadyExists(env.k8sClient.Create(env.Context, ns)))
 }
 
 func (env TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
