@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -26,8 +25,8 @@ func WithNATSCRDefaults() NATSOption {
 					Enabled: false,
 				},
 				FileStorage: v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
+					StorageClassName: DefaultSpec().FileStorage.StorageClassName,
+					Size:             DefaultSpec().FileStorage.Size,
 				},
 			},
 		}
