@@ -17,16 +17,18 @@ const projectRootDir = "../../../../../"
 
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
+// define allowed NATS CR.
+//
+//nolint:gochecknoglobals // used in tests
+var givenAllowedNATS = testutils.NewNATSCR(
+	testutils.WithNATSCRName("eventing-nats"),
+	testutils.WithNATSCRNamespace("kyma-system"),
+)
+
 // TestMain pre-hook and post-hook to run before and after all tests.
 func TestMain(m *testing.M) {
 	// Note: The setup will provision a single K8s env and
 	// all the tests need to create and use a separate namespace
-
-	// define allowed NATS CR
-	givenAllowedNATS := testutils.NewNATSCR(
-		testutils.WithNATSCRName("eventing-nats"),
-		testutils.WithNATSCRNamespace("kyma-system"),
-	)
 
 	// setup env test
 	var err error
@@ -63,8 +65,8 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 			name: "should allow NATS CR if name and namespace is correct",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSCRName("eventing-nats"),
-				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSCRName(givenAllowedNATS.Name),
+				testutils.WithNATSCRNamespace(givenAllowedNATS.Namespace),
 			),
 			wantMatches: gomega.And(
 				natsmatchers.HaveStatusProcessing(),
