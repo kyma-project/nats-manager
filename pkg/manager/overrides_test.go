@@ -14,6 +14,8 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
+var size = resource.MustParse("15Gi") //nolint:gochecknoglobals // used in tests
+
 func Test_GenerateOverrides(t *testing.T) {
 	t.Parallel()
 
@@ -37,7 +39,7 @@ func Test_GenerateOverrides(t *testing.T) {
 				RotatePasswordKey:      true,
 				ClusterSizeKey:         0,
 				ClusterEnabledKey:      false,
-				FileStorageSizeKey:     "0",
+				FileStorageSizeKey:     nil,
 				MemStorageEnabledKey:   false,
 				DebugEnabledKey:        false,
 				TraceEnabledKey:        false,
@@ -53,7 +55,7 @@ func Test_GenerateOverrides(t *testing.T) {
 				testutils.WithNATSClusterSize(5),
 				testutils.WithNATSLogging(true, true),
 				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
-					Size:             resource.MustParse("15Gi"),
+					Size:             &size,
 					StorageClassName: "test1",
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
