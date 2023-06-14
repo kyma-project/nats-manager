@@ -21,7 +21,6 @@ import (
 const projectRootDir = "../../../../../"
 
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
-var specificSize = resource.MustParse("66Gi")    //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
 func TestMain(m *testing.M) {
@@ -103,7 +102,7 @@ func Test_CreateNATSCR(t *testing.T) {
 				}),
 				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
-					Size:             &specificSize,
+					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,
@@ -283,7 +282,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 				}),
 				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
-					Size:             &specificSize,
+					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,
@@ -472,7 +471,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 				}),
 				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
-					Size:             &specificSize,
+					Size:             resource.MustParse("66Gi"),
 				}),
 				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
 					Enabled: true,

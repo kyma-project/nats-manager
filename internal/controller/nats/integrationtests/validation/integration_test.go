@@ -125,10 +125,12 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				// 	Enabled: false,
 				// 	Size:    resource.MustParse("20Mi"),
 				// }),
-				natsmatchers.HaveSpecJetsStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: testutils.DefaultSpec().FileStorage.StorageClassName,
-					Size:             testutils.DefaultSpec().FileStorage.Size,
-				}),
+				// natsmatchers.HaveSpecJetsStreamFileStorage(v1alpha1.FileStorage{
+				// 	StorageClassName: "default",
+				// 	Size:             resource.MustParse("1Gi"),
+				// }),
+				natsmatchers.HaveSpecJetsStreamFileStorageSize("1Gi"),
+				natsmatchers.HaveSpecJetsStreamFileStorageClass("default"),
 			),
 		},
 	}

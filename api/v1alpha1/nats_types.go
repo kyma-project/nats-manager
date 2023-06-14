@@ -148,7 +148,7 @@ type FileStorage struct {
 
 	// Size defines the file storage size.
 	// +kubebuilder:default:="1Gi"
-	Size *resource.Quantity `json:"size,omitempty"`
+	Size resource.Quantity `json:"size,omitempty"`
 }
 
 // Logging defines logging options.

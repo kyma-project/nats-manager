@@ -7,15 +7,13 @@ import (
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
-const clusterSize = 3
-
 func DefaultSpec() *v1alpha1.NATSSpec {
 	quant20Mi := resource.MustParse("20Mi")
 	quant1Gi := resource.MustParse("1Gi")
 
 	return &v1alpha1.NATSSpec{
 		Cluster: v1alpha1.Cluster{
-			Size: clusterSize,
+			Size: 3,
 		},
 		JetStream: v1alpha1.JetStream{
 			MemStorage: v1alpha1.MemStorage{
