@@ -51,24 +51,23 @@ const (
 )
 
 /*
-NATS uses kubebuilder decorators for validation and defaulting instead of webhooks. Here is an overview to this topic:
-https://book.kubebuilder.io/reference/markers/crd-validation.html
+NATS uses kubebuilder decorators for validation and defaulting instead of webhooks. You can find an overview to this
+topic at https://book.kubebuilder.io/reference/markers/crd-validation.html.
 
-Default values are defined at multiple levels to ensure that values are set independent of what level of NATS is defined
-or gets deleted. E.g. spec.cluster.size will get set to a default value whether spec.cluster.size, spec.cluster or
-spec gets deleted.
+Default values are defined at multiple levels to ensure that values are set independently of what level of NATS is
+defined or gets deleted. For example, spec.cluster.size will get set to a default value whether spec.cluster.size,
+spec.cluster or spec gets deleted.
 
-Validation utilizes the Common Expression Language (CEL, https://github.com/google/cel-spec). Here is an introduction
-doc to this topic: https://kubernetes.io/docs/reference/using-api/cel/.
+Validation uses the Common Expression Language (CEL, https://github.com/google/cel-spec). You can find an introduction
+to this topic at https://kubernetes.io/docs/reference/using-api/cel/.
 
-Testing for validation and defaulting is done via envtest at
+Testing of validation and defaulting is done via envtest in
 nats-manager/internal/controller/nats/integrationtests/validation/integration_test.go.
 
-For testing of defaulting it is advised to send an Unstructured object
-(https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1/unstructured#Unstructured) to the API-Server, because if
-not nil-able properties like ResourceRequirements (https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements) stay
-undefined they will be interpreted as set to "" and will result into 0, instead of getting replaced by the default
-value.
+For testing of defaulting, it is recommended to send an Unstructured object
+(https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1/unstructured#Unstructured) to the API-Server. If
+non-nil-able properties like ResourceRequirements (https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements) are
+undefined they will be interpreted as "" and result in 0 instead of being replaced by the default value.
 */
 
 // NATS is the Schema for the nats API.
