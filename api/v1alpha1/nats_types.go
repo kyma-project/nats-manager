@@ -61,7 +61,13 @@ Validation utilizes the Common Expression Language (CEL, https://github.com/goog
 doc to this topic: https://kubernetes.io/docs/reference/using-api/cel/.
 
 Testing for validation and defaulting is done via envtest at
-nats-manager/internal/controller/nats/integrationtests/validation/integration_test.go
+nats-manager/internal/controller/nats/integrationtests/validation/integration_test.go.
+
+For testing of defaulting it is advised to send an Unstructured object
+(https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1/unstructured#Unstructured) to the API-Server, because if
+not nil-able properties like ResourceRequirements (https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements) stay
+undefined they will be interpreted as set to "" and will result into 0, instead of getting replaced by the default
+value.
 */
 
 // NATS is the Schema for the nats API.
