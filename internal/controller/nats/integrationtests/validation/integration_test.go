@@ -105,7 +105,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 
 	testCases := []struct {
 		name string
-		// We use Unstructured instead NATS, to ensure that all undefined properties are nil and not default.
+		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
 		givenUnstructuredNATS unstructured.Unstructured
 		wantMatches           gomegatypes.GomegaMatcher
 	}{
@@ -139,7 +139,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 					Enabled: false,
 					Size:    resource.MustParse("20Mi"),
 				}),
-				natsmatchers.HaveSpecJetStramFileStorage(v1alpha1.FileStorage{
+				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
 					StorageClassName: "default",
 					Size:             resource.MustParse("1Gi"),
 				}),
