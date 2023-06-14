@@ -7,6 +7,7 @@ import (
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -122,16 +123,16 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			},
 			wantMatches: gomega.And(
 				natsmatchers.HaveSpecClusterSize(3),
-				// natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
-				// 	Limits: corev1.ResourceList{
-				// 		"cpu":    resource.MustParse("20m"),
-				// 		"memory": resource.MustParse("64Mi"),
-				// 	},
-				// 	Requests: corev1.ResourceList{
-				// 		"cpu":    resource.MustParse("5m"),
-				// 		"memory": resource.MustParse("16Mi"),
-				// 	},
-				// })
+				natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"cpu":    resource.MustParse("20m"),
+						"memory": resource.MustParse("64Mi"),
+					},
+					Requests: corev1.ResourceList{
+						"cpu":    resource.MustParse("5m"),
+						"memory": resource.MustParse("16Mi"),
+					},
+				}),
 				natsmatchers.HaveSpecLoggingTrace(false),
 				natsmatchers.HaveSpecLoggingDebug(false),
 				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
