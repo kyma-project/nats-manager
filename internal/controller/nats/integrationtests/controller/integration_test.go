@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 
 	// setup env test
 	var err error
-	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, false)
+	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, false, nil)
 	if err != nil {
 		panic(err)
 	}

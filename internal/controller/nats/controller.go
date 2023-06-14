@@ -28,6 +28,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -57,6 +58,7 @@ type Reconciler struct {
 	natsManager                 manager.Manager
 	ctrlManager                 ctrl.Manager
 	destinationRuleWatchStarted bool
+	allowedNATSCR               *natsv1alpha1.NATS
 }
 
 func NewReconciler(
@@ -67,6 +69,7 @@ func NewReconciler(
 	logger *zap.SugaredLogger,
 	recorder record.EventRecorder,
 	natsManager manager.Manager,
+	allowedNATSCR *natsv1alpha1.NATS,
 ) *Reconciler {
 	return &Reconciler{
 		Client:                      client,
@@ -77,6 +80,7 @@ func NewReconciler(
 		logger:                      logger,
 		natsManager:                 natsManager,
 		destinationRuleWatchStarted: false,
+		allowedNATSCR:               allowedNATSCR,
 		controller:                  nil,
 	}
 }
@@ -121,8 +125,37 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return r.handleNATSDeletion(ctx, nats, log)
 	}
 
+	// check if the NATS CR is allowed to be created.
+	if r.allowedNATSCR != nil {
+		if result, err := r.handleNATSCRAllowedCheck(ctx, nats, log); !result || err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
 	// handle reconciliation
 	return r.handleNATSReconcile(ctx, nats, log)
+}
+
+// handleNATSCRAllowedCheck checks if NATS CR is allowed to be created or not.
+// returns true if the NATS CR is allowed.
+func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1alpha1.NATS,
+	log *zap.SugaredLogger) (bool, error) {
+	// if the name and namespace matches with allowed NATS CR then allow the CR to be reconciled.
+	if nats.Name == r.allowedNATSCR.Name && nats.Namespace == r.allowedNATSCR.Namespace {
+		return true, nil
+	}
+
+	// set error state in status.
+	nats.Status.SetStateError()
+	// update conditions in status.
+	nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
+		natsv1alpha1.ConditionReasonForbidden, "")
+	errorMessage := fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s "+
+		"is allowed to be created in a Kyma cluster.", r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
+	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse,
+		natsv1alpha1.ConditionReasonForbidden, errorMessage)
+
+	return false, r.syncNATSStatus(ctx, nats, log)
 }
 
 // generateNatsResources renders the NATS chart with provided overrides.

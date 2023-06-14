@@ -22,6 +22,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
@@ -149,6 +150,12 @@ func main() { //nolint:funlen // main function needs to initialize many object
 		sugaredLogger,
 		mgr.GetEventRecorderFor("nats-manager"),
 		natsManager,
+		&natsv1alpha1.NATS{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      envConfigs.NATSCRName,
+				Namespace: envConfigs.NATSCRNamespace,
+			},
+		},
 	)
 
 	if err = (natsReconciler).SetupWithManager(mgr); err != nil {

@@ -72,6 +72,10 @@ spec:
         env:
         - name: NATS_CHART_DIR
           value: "/resources/nats"
+        - name: NATS_CR_NAME
+          value: "eventing-nats"
+        - name: NATS_CR_NAMESPACE
+          value: "kyma-system"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
