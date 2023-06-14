@@ -67,6 +67,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		sugaredLogger,
 		recorder,
 		natsManager,
+		nil,
 	)
 	reconciler.controller = mockController
 	reconciler.ctrlManager = mockManager
