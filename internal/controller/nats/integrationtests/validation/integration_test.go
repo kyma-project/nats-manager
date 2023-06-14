@@ -7,6 +7,7 @@ import (
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
@@ -133,16 +134,14 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				// })
 				natsmatchers.HaveSpecLoggingTrace(false),
 				natsmatchers.HaveSpecLoggingDebug(false),
-				// natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-				// 	Enabled: false,
-				// 	Size:    resource.MustParse("20Mi"),
-				// }),
-				// natsmatchers.HaveSpecJetsStreamFileStorage(v1alpha1.FileStorage{
-				// 	StorageClassName: "default",
-				// 	Size:             resource.MustParse("1Gi"),
-				// }),
-				natsmatchers.HaveSpecJetsStreamFileStorageSize("1Gi"),
-				natsmatchers.HaveSpecJetsStreamFileStorageClass("default"),
+				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
+					Enabled: false,
+					Size:    resource.MustParse("20Mi"),
+				}),
+				natsmatchers.HaveSpecJetStramFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "default",
+					Size:             resource.MustParse("1Gi"),
+				}),
 			),
 		},
 	}
