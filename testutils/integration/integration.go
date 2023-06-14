@@ -215,6 +215,10 @@ func (env TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Obj
 	require.NoError(t, env.k8sClient.Create(env.Context, obj))
 }
 
+func (env TestEnvironment) EnsureK8sUnStructResourceCreated(t *testing.T, obj *unstructured.Unstructured) {
+	require.NoError(t, env.k8sClient.Create(env.Context, obj))
+}
+
 func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
 	require.NoError(t, env.k8sClient.Update(env.Context, obj))
 }
@@ -585,10 +589,6 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
 	return g.Eventually(func() *natsv1alpha1.NATS {
 		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
-		env.Logger.Debugf("CR: %s")
-		env.Logger.Debugf("MemStorage Size: %s", gotNATS.Spec.JetStream.MemStorage.Size.String())
-		env.Logger.Debugf("Filestorage Size: %s", gotNATS.Spec.JetStream.FileStorage.Size.String())
-		env.Logger.Debugf("Resource Size: %s", gotNATS.Spec.Resources.String())
 		if err != nil {
 			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
 			return nil

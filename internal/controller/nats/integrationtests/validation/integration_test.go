@@ -7,6 +7,8 @@ import (
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -100,13 +102,23 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name        string
-		givenNATS   *v1alpha1.NATS
-		wantMatches gomegatypes.GomegaMatcher
+		name string
+		// We use Unstructured instead NATS, to ensure that all undefined properties are nil and not default.
+		givenUnstructuredNATS unstructured.Unstructured
+		wantMatches           gomegatypes.GomegaMatcher
 	}{
 		{
-			name:      "defaulting",
-			givenNATS: testutils.NewNATSCR(),
+			name: "defaulting",
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"kind":       "Nats",
+					"apiVersion": "v1alpha1",
+					"metadata": map[string]interface{}{
+						"name":      "name-defaulting01",
+						"namespace": "namespace-defaulting01",
+					},
+				},
+			},
 			wantMatches: gomega.And(
 				natsmatchers.HaveSpecClusterSize(3),
 				// natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
@@ -142,13 +154,15 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			g := gomega.NewGomegaWithT(t)
 
 			// given
-			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
 
 			// when
-			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+			testEnvironment.EnsureK8sUnStructResourceCreated(t, &tc.givenUnstructuredNATS)
 
 			// then
-			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
+			testEnvironment.GetNATSAssert(g, &v1alpha1.NATS{
+				ObjectMeta: metav1.ObjectMeta{Name: "name-defaulting01", Namespace: "namespace-defaulting01"},
+			}).Should(tc.wantMatches)
 		})
 	}
 }
