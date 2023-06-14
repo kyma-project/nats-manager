@@ -111,8 +111,8 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			name: "defaulting",
 			givenUnstructuredNATS: unstructured.Unstructured{
 				Object: map[string]interface{}{
-					"kind":       "Nats",
-					"apiVersion": "v1alpha1",
+					"kind":       "NATS",
+					"apiVersion": "operator.kyma-project.io/v1alpha1",
 					"metadata": map[string]interface{}{
 						"name":      "name-defaulting01",
 						"namespace": "namespace-defaulting01",
