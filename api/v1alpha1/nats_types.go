@@ -50,8 +50,18 @@ const (
 )
 
 /*
-TODO share how validation works
-TODO share how Defaulting works
+NATS uses kubebuilder decorators for validation and defaulting instead of webhooks. Here is an overview to this topic:
+https://book.kubebuilder.io/reference/markers/crd-validation.html
+
+Default values are defined at multiple levels to ensure that values are set independent of what level of NATS is defined
+or gets deleted. E.g. spec.cluster.size will get set to a default value whether spec.cluster.size, spec.cluster or
+spec gets deleted.
+
+Validation utilizes the Common Expression Language (CEL, https://github.com/google/cel-spec). Here is an introduction
+doc to this topic: https://kubernetes.io/docs/reference/using-api/cel/.
+
+Testing for validation and defaulting is done via envtest at
+nats-manager/internal/controller/nats/integrationtests/validation/integration_test.go
 */
 
 // NATS is the Schema for the nats API.
