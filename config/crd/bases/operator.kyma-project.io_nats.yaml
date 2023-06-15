@@ -27,7 +27,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: NATS is the Schema for the nats API.
+        description: NATS is the Schema for the NATS API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -124,7 +124,7 @@ spec:
                       in NATS JetStream.
                     properties:
                       enabled:
-                        default: true
+                        default: false
                         description: Enabled allows the enablement of memory storage.
                         type: boolean
                       size:
