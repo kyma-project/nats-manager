@@ -23,6 +23,21 @@ const projectRootDir = "../../../../../"
 
 const noError = ""
 
+const (
+	spec           = "spec"
+	kind           = "kind"
+	cluster        = "cluster"
+	jetStream      = "jetStream"
+	memStorage     = "memStorage"
+	fileStorage    = "fileStorage"
+	apiVersion     = "apiVersion"
+	metadata       = "metadata"
+	name           = "name"
+	namespace      = "namespace"
+	kindNATS       = "NATS"
+	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
+)
+
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
@@ -110,14 +125,14 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 		wantMatches           gomegatypes.GomegaMatcher
 	}{
 		{
-			name: "defaulting",
+			name: "defaulting with bare minimum NATS",
 			givenUnstructuredNATS: unstructured.Unstructured{
-				Object: map[string]interface{}{
-					"kind":       "NATS",
-					"apiVersion": "operator.kyma-project.io/v1alpha1",
-					"metadata": map[string]interface{}{
-						"name":      "name-defaulting01",
-						"namespace": "namespace-defaulting01",
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
 					},
 				},
 			},
@@ -145,6 +160,117 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				}),
 			),
 		},
+		{
+			name: "defaulting with an empty spec",
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{},
+				},
+			},
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecClusterSize(3),
+				natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"cpu":    resource.MustParse("20m"),
+						"memory": resource.MustParse("64Mi"),
+					},
+					Requests: corev1.ResourceList{
+						"cpu":    resource.MustParse("5m"),
+						"memory": resource.MustParse("16Mi"),
+					},
+				}),
+				natsmatchers.HaveSpecLoggingTrace(false),
+				natsmatchers.HaveSpecLoggingDebug(false),
+				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
+					Enabled: false,
+					Size:    resource.MustParse("20Mi"),
+				}),
+				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "default",
+					Size:             resource.MustParse("1Gi"),
+				}),
+			),
+		},
+		{
+			name: "defaulting with an empty spec.cluster",
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						cluster: map[string]any{},
+					},
+				},
+			},
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecClusterSize(3),
+			),
+		},
+		{
+			name: "defaulting with an empty spec.jetStream",
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{},
+					},
+				},
+			},
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
+					Enabled: false,
+					Size:    resource.MustParse("20Mi"),
+				}),
+				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "default",
+					Size:             resource.MustParse("1Gi"),
+				}),
+			),
+		},
+		{
+			name: "defaulting with an empty spec.jetStream.memStorage and spec.jetStream.fileStorage",
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage:  map[string]any{},
+							fileStorage: map[string]any{},
+						},
+					},
+				},
+			},
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
+					Enabled: false,
+					Size:    resource.MustParse("20Mi"),
+				}),
+				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "default",
+					Size:             resource.MustParse("1Gi"),
+				}),
+			),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -161,7 +287,10 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 
 			// then
 			testEnvironment.GetNATSAssert(g, &v1alpha1.NATS{
-				ObjectMeta: metav1.ObjectMeta{Name: "name-defaulting01", Namespace: "namespace-defaulting01"},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      tc.givenUnstructuredNATS.GetName(),
+					Namespace: tc.givenUnstructuredNATS.GetNamespace(),
+				},
 			}).Should(tc.wantMatches)
 		})
 	}

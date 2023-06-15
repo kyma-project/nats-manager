@@ -43,6 +43,11 @@ func GetRandString(length int) string {
 	return string(b)
 }
 
+// GetRandK8sName returns a valid name for K8s objects.
+func GetRandK8sName(length int) string {
+	return fmt.Sprintf("name-%s", GetRandString(length))
+}
+
 func NewNamespace(name string) *apiv1.Namespace {
 	namespace := apiv1.Namespace{
 		TypeMeta: metav1.TypeMeta{
