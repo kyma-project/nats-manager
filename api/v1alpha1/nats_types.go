@@ -98,6 +98,7 @@ type NATSSpec struct {
 
 	// JetStream defines configurations that are specific to NATS JetStream.
 	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}
+	// +kubebuilder:validation:XValidation:rule="self.fileStorage == oldSelf.fileStorage",message="fileStorage is immutable once it was set"
 	JetStream `json:"jetStream,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
@@ -133,6 +134,7 @@ type JetStream struct {
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
 	// +kubebuilder:default:={storageClassName:"default",size:"1Gi"}
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="fileStorage is immutable once it was set"
 	FileStorage `json:"fileStorage,omitempty"`
 }
 
@@ -151,10 +153,12 @@ type MemStorage struct {
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
 	// +kubebuilder:default:="default"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="fileStorage is immutable once it was set"
 	StorageClassName string `json:"storageClassName,omitempty"`
 
 	// Size defines the file storage size.
 	// +kubebuilder:default:="1Gi"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="fileStorage is immutable once it was set"
 	Size resource.Quantity `json:"size,omitempty"`
 }
 

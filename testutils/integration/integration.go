@@ -229,6 +229,21 @@ func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Obj
 	require.NoError(t, env.k8sClient.Update(env.Context, obj))
 }
 
+func (env TestEnvironment) UpdatedNATSInK8s(nats *natsv1alpha1.NATS, options ...testutils.NATSOption) error {
+	natsOnK8s, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, o := range options {
+		if er := o(&natsOnK8s); er != nil {
+			panic(er)
+		}
+	}
+
+	return env.k8sClient.Update(env.Context, &natsOnK8s)
+}
+
 func (env TestEnvironment) EnsureK8sResourceDeleted(t *testing.T, obj client.Object) {
 	require.NoError(t, env.k8sClient.Delete(env.Context, obj))
 }
