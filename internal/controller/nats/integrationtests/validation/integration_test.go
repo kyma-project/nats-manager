@@ -31,6 +31,7 @@ const (
 	memStorage     = "memStorage"
 	fileStorage    = "fileStorage"
 	apiVersion     = "apiVersion"
+	logging        = "logging"
 	metadata       = "metadata"
 	name           = "name"
 	namespace      = "namespace"
@@ -271,6 +272,26 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				}),
 			),
 		},
+		{
+			name: "defaulting with an empty spec.logging",
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						logging: map[string]any{},
+					},
+				},
+			},
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecLoggingTrace(false),
+				natsmatchers.HaveSpecLoggingDebug(false),
+			),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -281,7 +302,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 
 			// given
 			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
-
+			2
 			// when
 			testEnvironment.EnsureK8sUnStructResourceCreated(t, &tc.givenUnstructuredNATS)
 
