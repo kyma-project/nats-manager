@@ -79,7 +79,6 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +optional
 	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
@@ -94,38 +93,31 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
-	// +optional
 	// +kubebuilder:default:={size:3}
 	Cluster `json:"cluster,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
-	// +optional
 	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}
 	JetStream `json:"jetStream,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
-	// +optional
 	// +kubebuilder:default:={trace:false,debug:false}
 	Logging `json:"logging,omitempty"`
 
 	// Resources defines resources for NATS.
-	// +optional
 	// +kubebuilder:default:={limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}
 	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Annotations allows to add annotations to NATS.
-	// +optional
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// Labels allows to add Labels to NATS.
-	// +optional
 	Labels map[string]string `json:"labels,omitempty"`
 }
 
 // Cluster defines configurations that are specific to NATS clusters.
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
-	// +optional
 	// +kubebuilder:default:=3
 	// +kubebuilder:validation:Minimum:=1
 	// +kubebuilder:validation:XValidation:rule="(self%2) != 0", message="size only accepts odd numbers"
@@ -135,12 +127,10 @@ type Cluster struct {
 // JetStream defines configurations that are specific to NATS JetStream.
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
-	// +optional
 	// +kubebuilder:default:={size:"20Mi",enabled:false}
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
-	// +optional
 	// +kubebuilder:default:={storageClassName:"default",size:"1Gi"}
 	FileStorage `json:"fileStorage,omitempty"`
 }
