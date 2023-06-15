@@ -37,6 +37,7 @@ const (
 	namespace      = "namespace"
 	kindNATS       = "NATS"
 	size           = "size"
+	enabled        = "enabled"
 	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
 )
 
@@ -131,6 +132,72 @@ func Test_Validate_CreateNATS(t *testing.T) {
 			},
 			wantErrMsg: "should be greater than or equal to 1",
 		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if enabled is true and size is not 0`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: true,
+								size:    "1Gi",
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: noError,
+		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if size is 0 but enabled is false`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: false,
+								size:    0,
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: noError,
+		},
+		{
+			name: `validation of spec.jetStream.memStorage fails if enabled is true but size is 0`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: true,
+								size:    0,
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: "can only be enabled if size is not 0",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -142,7 +209,7 @@ func Test_Validate_CreateNATS(t *testing.T) {
 			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
 
 			// when
-			err := testEnvironment.CreateUnstructK8sResourceWithError(&tc.givenUnstructuredNATS)
+			err := testEnvironment.CreateUnstructuredK8sResource(&tc.givenUnstructuredNATS)
 
 			// then
 			if tc.wantErrMsg == noError {

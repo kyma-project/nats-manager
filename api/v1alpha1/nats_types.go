@@ -128,6 +128,7 @@ type Cluster struct {
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
 	// +kubebuilder:default:={size:"20Mi",enabled:false}
+	// +kubebuilder:validation:XValidation:rule="!self.enabled || self.size != 0", message="can only be enabled if size is not 0"
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
