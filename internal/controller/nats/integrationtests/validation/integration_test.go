@@ -24,20 +24,22 @@ const projectRootDir = "../../../../../"
 const noError = ""
 
 const (
-	spec           = "spec"
-	kind           = "kind"
-	cluster        = "cluster"
-	jetStream      = "jetStream"
-	memStorage     = "memStorage"
-	fileStorage    = "fileStorage"
-	apiVersion     = "apiVersion"
-	logging        = "logging"
-	metadata       = "metadata"
-	name           = "name"
-	namespace      = "namespace"
-	kindNATS       = "NATS"
-	size           = "size"
-	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
+	spec             = "spec"
+	kind             = "kind"
+	cluster          = "cluster"
+	jetStream        = "jetStream"
+	memStorage       = "memStorage"
+	fileStorage      = "fileStorage"
+	apiVersion       = "apiVersion"
+	logging          = "logging"
+	metadata         = "metadata"
+	name             = "name"
+	namespace        = "namespace"
+	kindNATS         = "NATS"
+	size             = "size"
+	enabled          = "enabled"
+	storageClassName = "storageClassName"
+	apiVersionNATS   = "operator.kyma-project.io/v1alpha1"
 )
 
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
@@ -130,6 +132,72 @@ func Test_Validate_CreateNATS(t *testing.T) {
 				},
 			},
 			wantErrMsg: "should be greater than or equal to 1",
+		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if it is enabled and size is not 0`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: true,
+								size:    "1Gi",
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: noError,
+		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if size is 0 but it is not enabled`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: false,
+								size:    0,
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: noError,
+		},
+		{
+			name: `validation of spec.jetStream.memStorage fails if it is enabled but size is 0`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: true,
+								size:    0,
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: "can only be enabled if size is not 0",
 		},
 	}
 
