@@ -133,7 +133,7 @@ func Test_Validate_CreateNATS(t *testing.T) {
 			wantErrMsg: "should be greater than or equal to 1",
 		},
 		{
-			name: `validation of spec.jetStream.memStorage passes if it is enabled and size is not 0`,
+			name: `validation of spec.jetStream.memStorage passes if enabled is true and size is not 0`,
 			givenUnstructuredNATS: unstructured.Unstructured{
 				Object: map[string]any{
 					kind:       kindNATS,
@@ -155,7 +155,7 @@ func Test_Validate_CreateNATS(t *testing.T) {
 			wantErrMsg: noError,
 		},
 		{
-			name: `validation of spec.jetStream.memStorage passes if size is 0 but it is not enabled`,
+			name: `validation of spec.jetStream.memStorage passes if size is 0 but enabled is false`,
 			givenUnstructuredNATS: unstructured.Unstructured{
 				Object: map[string]any{
 					kind:       kindNATS,
@@ -177,7 +177,7 @@ func Test_Validate_CreateNATS(t *testing.T) {
 			wantErrMsg: noError,
 		},
 		{
-			name: `validation of spec.jetStream.memStorage fails if it is enabled but size is 0`,
+			name: `validation of spec.jetStream.memStorage fails if enabled is true but size is 0`,
 			givenUnstructuredNATS: unstructured.Unstructured{
 				Object: map[string]any{
 					kind:       kindNATS,
