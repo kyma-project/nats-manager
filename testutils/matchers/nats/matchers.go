@@ -1,13 +1,40 @@
 package nats
 
 import (
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
+
+func HaveSpecJetsStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.JetStream.MemStorage.Enabled
+			}, gomega.Equal(ms.Enabled)),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.JetStream.MemStorage.Size.Equal(ms.Size)
+			}, gomega.BeTrue()),
+	)
+}
+
+func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) string {
+				return n.Spec.JetStream.FileStorage.StorageClassName
+			}, gomega.Equal(fs.StorageClassName)),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.JetStream.FileStorage.Size.Equal(fs.Size)
+			}, gomega.BeTrue()),
+	)
+}
 
 func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
@@ -16,11 +43,39 @@ func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
 		}, gomega.Equal(size))
 }
 
-func HaveSpecResources(resources corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
+func HaveSpecLoggingDebug(enabled bool) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) corev1.ResourceRequirements {
-			return n.Spec.Resources
-		}, gomega.Equal(resources))
+		func(n *v1alpha1.NATS) bool {
+			return n.Spec.Logging.Debug
+		}, gomega.Equal(enabled))
+}
+
+func HaveSpecLoggingTrace(enabled bool) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) bool {
+			return n.Spec.Logging.Trace
+		}, gomega.Equal(enabled))
+}
+
+func HaveSpecResources(res corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Requests.Storage().Equal(*res.Requests.Storage())
+			}, gomega.BeTrue()),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Requests.Cpu().Equal(*res.Requests.Cpu())
+			}, gomega.BeTrue()),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Limits.Storage().Equal(*res.Requests.Storage())
+			}, gomega.BeTrue()),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Resources.Requests.Cpu().Equal(*res.Requests.Cpu())
+			}, gomega.BeTrue()),
+	)
 }
 
 func HaveStatusReady() gomegatypes.GomegaMatcher {

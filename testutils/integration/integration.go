@@ -217,6 +217,10 @@ func (env TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Obj
 	require.NoError(t, env.k8sClient.Create(env.Context, obj))
 }
 
+func (env TestEnvironment) EnsureK8sUnStructResourceCreated(t *testing.T, obj *unstructured.Unstructured) {
+	require.NoError(t, env.k8sClient.Create(env.Context, obj))
+}
+
 func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
 	require.NoError(t, env.k8sClient.Update(env.Context, obj))
 }
@@ -589,7 +593,7 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 		if err != nil {
 			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
-			return &natsv1alpha1.NATS{}
+			return nil
 		}
 		return &gotNATS
 	}, BigTimeOut, SmallPollingInterval)

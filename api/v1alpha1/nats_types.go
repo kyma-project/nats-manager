@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// +kubebuilder:validation:Optional // This sets 'required' as the default behaviour.
+//
+//nolint:lll //this is annotation
 package v1alpha1
 
 import (
@@ -38,8 +41,8 @@ const (
 	ConditionReasonProcessing           ConditionReason = "Processing"
 	ConditionReasonDeploying            ConditionReason = "Deploying"
 	ConditionReasonDeployed             ConditionReason = "Deployed"
-	ConditionReasonProcessingError                      = ConditionReason("FailedProcessing")
-	ConditionReasonForbidden                            = ConditionReason("Forbidden")
+	ConditionReasonProcessingError      ConditionReason = "FailedProcessing"
+	ConditionReasonForbidden            ConditionReason = "Forbidden"
 	ConditionReasonStatefulSetAvailable ConditionReason = "Available"
 	ConditionReasonStatefulSetPending   ConditionReason = "Pending"
 	ConditionReasonSyncFailError        ConditionReason = "FailedToSyncResources"
@@ -47,19 +50,36 @@ const (
 	ConditionReasonDeletionError        ConditionReason = "DeletionError"
 )
 
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+/*
+NATS uses kubebuilder decorators for validation and defaulting instead of webhooks. You can find an overview to this
+topic at https://book.kubebuilder.io/reference/markers/crd-validation.html.
 
-//nolint:lll //this is annotation
+Default values are defined at multiple levels to ensure that values are set independently of what level of NATS is
+defined or gets deleted. For example, spec.cluster.size will get set to a default value whether spec.cluster.size,
+spec.cluster or spec gets deleted.
+
+Validation uses the Common Expression Language (CEL, https://github.com/google/cel-spec). You can find an introduction
+to this topic at https://kubernetes.io/docs/reference/using-api/cel/.
+
+Testing of validation and defaulting is done via envtest in
+nats-manager/internal/controller/nats/integrationtests/validation/integration_test.go.
+
+For testing of defaulting, it is recommended to send an Unstructured object
+(https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1/unstructured#Unstructured) to the API-Server. If
+non-nil-able properties like ResourceRequirements (https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements) are
+undefined they will be interpreted as "" and result in 0 instead of being replaced by the default value.
+*/
+
+// NATS is the Schema for the NATS API.
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
-
-// NATS is the Schema for the nats API.
 type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -73,74 +93,79 @@ type NATSStatus struct {
 // NATSSpec defines the desired state of NATS.
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
-	Cluster `json:"cluster"`
+	// +kubebuilder:default:={size:3}
+	Cluster `json:"cluster,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
-	// +optional
+	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}
 	JetStream `json:"jetStream,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS logging in NATS.
-	// +optional
+	// +kubebuilder:default:={trace:false,debug:false}
 	Logging `json:"logging,omitempty"`
 
 	// Resources defines resources for NATS.
-	// +optional
+	// +kubebuilder:default:={limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}
 	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Annotations allows to add annotations to NATS.
-	// +optional
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// Labels allows to add Labels to NATS.
-	// +optional
 	Labels map[string]string `json:"labels,omitempty"`
 }
 
 // Cluster defines configurations that are specific to NATS clusters.
 type Cluster struct {
 	// Size of a NATS cluster, i.e. number of NATS nodes.
-	// +optional
+	// +kubebuilder:default:=3
 	// +kubebuilder:validation:Minimum:=1
-	// +kubebuilder:validation:XValidation:rule="self%2!=0", message="size only accepts odd numbers"
-	Size int `json:"size"`
+	// +kubebuilder:validation:XValidation:rule="(self%2) != 0", message="size only accepts odd numbers"
+	Size int `json:"size,omitempty"`
 }
 
 // JetStream defines configurations that are specific to NATS JetStream.
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
-	// +optional
+	// +kubebuilder:default:={size:"20Mi",enabled:false}
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
-	// +optional
+	// +kubebuilder:default:={storageClassName:"default",size:"1Gi"}
 	FileStorage `json:"fileStorage,omitempty"`
 }
 
 // MemStorage defines configurations to memory storage in NATS JetStream.
 type MemStorage struct {
-	// Enable allows the enablement of memory storage.
-	Enable bool `json:"enable"`
+	// Enabled allows the enablement of memory storage.
+	// +kubebuilder:default:=false
+	Enabled bool `json:"enabled,omitempty"`
 
 	// Size defines the mem.
-	Size resource.Quantity `json:"size"`
+	// +kubebuilder:default:="20Mi"
+	Size resource.Quantity `json:"size,omitempty"`
 }
 
 // FileStorage defines configurations to file storage in NATS JetStream.
 type FileStorage struct {
 	// StorageClassName defines the file storage class name.
-	StorageClassName string `json:"storageClassName"`
+	// +kubebuilder:default:="default"
+	StorageClassName string `json:"storageClassName,omitempty"`
 
 	// Size defines the file storage size.
-	Size resource.Quantity `json:"size"`
+	// +kubebuilder:default:="1Gi"
+	Size resource.Quantity `json:"size,omitempty"`
 }
 
 // Logging defines logging options.
 type Logging struct {
 	// Debug allows debug logging.
-	Debug bool `json:"debug"`
+	// +kubebuilder:default:=false
+	Debug bool `json:"debug,omitempty"`
 
 	// Trace allows trace logging.
-	Trace bool `json:"trace"`
+	// +kubebuilder:default:=false
+	Trace bool `json:"trace,omitempty"`
 }
 
 // +kubebuilder:object:root=true

@@ -27,7 +27,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: NATS is the Schema for the nats API.
+        description: NATS is the Schema for the NATS API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -42,6 +42,26 @@ spec:
           metadata:
             type: object
           spec:
+            default:
+              cluster:
+                size: 3
+              jetStream:
+                fileStorage:
+                  size: 1Gi
+                  storageClassName: default
+                memStorage:
+                  enabled: false
+                  size: 20Mi
+              logging:
+                debug: false
+                trace: false
+              resources:
+                limits:
+                  cpu: 20m
+                  memory: 64Mi
+                requests:
+                  cpu: 5m
+                  memory: 16Mi
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -50,22 +70,35 @@ spec:
                 description: Annotations allows to add annotations to NATS.
                 type: object
               cluster:
+                default:
+                  size: 3
                 description: Cluster defines configurations that are specific to NATS
                   clusters.
                 properties:
                   size:
+                    default: 3
                     description: Size of a NATS cluster, i.e. number of NATS nodes.
                     minimum: 1
                     type: integer
                     x-kubernetes-validations:
                     - message: size only accepts odd numbers
-                      rule: self%2!=0
+                      rule: (self%2) != 0
                 type: object
               jetStream:
+                default:
+                  fileStorage:
+                    size: 1Gi
+                    storageClassName: default
+                  memStorage:
+                    enabled: false
+                    size: 20Mi
                 description: JetStream defines configurations that are specific to
                   NATS JetStream.
                 properties:
                   fileStorage:
+                    default:
+                      size: 1Gi
+                      storageClassName: default
                     description: FileStorage defines configurations to file storage
                       in NATS JetStream.
                     properties:
@@ -73,34 +106,35 @@ spec:
                         anyOf:
                         - type: integer
                         - type: string
+                        default: 1Gi
                         description: Size defines the file storage size.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                       storageClassName:
+                        default: default
                         description: StorageClassName defines the file storage class
                           name.
                         type: string
-                    required:
-                    - size
-                    - storageClassName
                     type: object
                   memStorage:
+                    default:
+                      enabled: false
+                      size: 20Mi
                     description: MemStorage defines configurations to memory storage
                       in NATS JetStream.
                     properties:
-                      enable:
-                        description: Enable allows the enablement of memory storage.
+                      enabled:
+                        default: false
+                        description: Enabled allows the enablement of memory storage.
                         type: boolean
                       size:
                         anyOf:
                         - type: integer
                         - type: string
+                        default: 20Mi
                         description: Size defines the mem.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
-                    required:
-                    - enable
-                    - size
                     type: object
                 type: object
               labels:
@@ -109,20 +143,29 @@ spec:
                 description: Labels allows to add Labels to NATS.
                 type: object
               logging:
+                default:
+                  debug: false
+                  trace: false
                 description: JetStream defines configurations that are specific to
                   NATS logging in NATS.
                 properties:
                   debug:
+                    default: false
                     description: Debug allows debug logging.
                     type: boolean
                   trace:
+                    default: false
                     description: Trace allows trace logging.
                     type: boolean
-                required:
-                - debug
-                - trace
                 type: object
               resources:
+                default:
+                  limits:
+                    cpu: 20m
+                    memory: 64Mi
+                  requests:
+                    cpu: 5m
+                    memory: 16Mi
                 description: Resources defines resources for NATS.
                 properties:
                   claims:
@@ -170,8 +213,6 @@ spec:
                       More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
                     type: object
                 type: object
-            required:
-            - cluster
             type: object
           status:
             description: NATSStatus defines the observed state of NATS.

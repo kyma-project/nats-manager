@@ -11,7 +11,7 @@ spec:
       size: "2Gi"
       storageClassName: "gce-sc-hdd"
     memStorage:
-      enable: true
+      enabled: true
       size: "256Mi"
   logging:
     debug: true
