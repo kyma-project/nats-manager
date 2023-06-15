@@ -70,7 +70,7 @@ non-nil-able properties like ResourceRequirements (https://pkg.go.dev/k8s.io/api
 undefined they will be interpreted as "" and result in 0 instead of being replaced by the default value.
 */
 
-// NATS is the Schema for the nats API.
+// NATS is the Schema for the NATS API.
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"

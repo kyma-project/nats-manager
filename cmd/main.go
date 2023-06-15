@@ -64,7 +64,7 @@ func main() { //nolint:funlen // main function needs to initialize many object
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081",
 		"The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
-		"Enabled leader election for controller manager. "+
+		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.StringVar(&leaderElectionID, "leaderElectionID", "26479083.kyma-project.io",
 		"ID for the controller leader election.")
