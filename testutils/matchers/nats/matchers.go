@@ -1,6 +1,8 @@
 package nats
 
 import (
+	"reflect"
+
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
@@ -36,11 +38,31 @@ func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMat
 	)
 }
 
+func HaveSpecCluster(cluster v1alpha1.Cluster) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *v1alpha1.NATS) bool {
+			return reflect.DeepEqual(n.Spec.Cluster, cluster)
+		}, gomega.BeTrue())
+}
+
 func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) int {
 			return n.Spec.Cluster.Size
 		}, gomega.Equal(size))
+}
+
+func HaveSpecLogging(logging v1alpha1.Logging) gomegatypes.GomegaMatcher {
+	return gomega.And(
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Logging.Debug
+			}, gomega.Equal(logging.Debug)),
+		gomega.WithTransform(
+			func(n *v1alpha1.NATS) bool {
+				return n.Spec.Logging.Trace
+			}, gomega.Equal(logging.Trace)),
+	)
 }
 
 func HaveSpecLoggingDebug(enabled bool) gomegatypes.GomegaMatcher {

@@ -107,7 +107,7 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 			err := testEnvironment.CreateK8sResource(tc.givenNATS)
 
 			// then
-			if tc.wantErrMsg == "" {
+			if tc.wantErrMsg == noError {
 				require.NoError(t, err)
 			} else {
 				require.Contains(t, err.Error(), tc.wantErrMsg)
@@ -138,27 +138,11 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecClusterSize(3),
-				natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
-						"cpu":    resource.MustParse("20m"),
-						"memory": resource.MustParse("64Mi"),
-					},
-					Requests: corev1.ResourceList{
-						"cpu":    resource.MustParse("5m"),
-						"memory": resource.MustParse("16Mi"),
-					},
-				}),
-				natsmatchers.HaveSpecLoggingTrace(false),
-				natsmatchers.HaveSpecLoggingDebug(false),
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecCluster(defaultCluster()),
+				natsmatchers.HaveSpecResources(defaultResources()),
+				natsmatchers.HaveSpecLogging(defaultLogging()),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -175,27 +159,11 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecClusterSize(3),
-				natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
-						"cpu":    resource.MustParse("20m"),
-						"memory": resource.MustParse("64Mi"),
-					},
-					Requests: corev1.ResourceList{
-						"cpu":    resource.MustParse("5m"),
-						"memory": resource.MustParse("16Mi"),
-					},
-				}),
-				natsmatchers.HaveSpecLoggingTrace(false),
-				natsmatchers.HaveSpecLoggingDebug(false),
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecCluster(defaultCluster()),
+				natsmatchers.HaveSpecResources(defaultResources()),
+				natsmatchers.HaveSpecLogging(defaultLogging()),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -214,7 +182,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecClusterSize(3),
+				natsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 		},
 		{
@@ -233,14 +201,8 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -262,14 +224,8 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -288,8 +244,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecLoggingTrace(false),
-				natsmatchers.HaveSpecLoggingDebug(false),
+				natsmatchers.HaveSpecLogging(defaultLogging()),
 			),
 		},
 	}
@@ -315,4 +270,42 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			}).Should(tc.wantMatches)
 		})
 	}
+}
+
+func defaultResources() corev1.ResourceRequirements {
+	return corev1.ResourceRequirements{
+		Limits: corev1.ResourceList{
+			"cpu":    resource.MustParse("20m"),
+			"memory": resource.MustParse("64Mi"),
+		},
+		Requests: corev1.ResourceList{
+			"cpu":    resource.MustParse("5m"),
+			"memory": resource.MustParse("16Mi"),
+		},
+	}
+}
+
+func defaultMemStorage() v1alpha1.MemStorage {
+	return v1alpha1.MemStorage{
+		Enabled: false,
+		Size:    resource.MustParse("20Mi"),
+	}
+}
+
+func defaultFileStorage() v1alpha1.FileStorage {
+	return v1alpha1.FileStorage{
+		StorageClassName: "default",
+		Size:             resource.MustParse("1Gi"),
+	}
+}
+
+func defaultLogging() v1alpha1.Logging {
+	return v1alpha1.Logging{
+		Debug: false,
+		Trace: false,
+	}
+}
+
+func defaultCluster() v1alpha1.Cluster {
+	return v1alpha1.Cluster{Size: 3}
 }
