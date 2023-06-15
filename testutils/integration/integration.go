@@ -221,7 +221,7 @@ func (env TestEnvironment) EnsureK8sUnStructResourceCreated(t *testing.T, obj *u
 	require.NoError(t, env.k8sClient.Create(env.Context, obj))
 }
 
-func (env TestEnvironment) CreateUnstructK8sResourceWithError(obj *unstructured.Unstructured) error {
+func (env TestEnvironment) CreateUnstructuredK8sResource(obj *unstructured.Unstructured) error {
 	return env.k8sClient.Create(env.Context, obj)
 }
 

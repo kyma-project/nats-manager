@@ -24,22 +24,21 @@ const projectRootDir = "../../../../../"
 const noError = ""
 
 const (
-	spec             = "spec"
-	kind             = "kind"
-	cluster          = "cluster"
-	jetStream        = "jetStream"
-	memStorage       = "memStorage"
-	fileStorage      = "fileStorage"
-	apiVersion       = "apiVersion"
-	logging          = "logging"
-	metadata         = "metadata"
-	name             = "name"
-	namespace        = "namespace"
-	kindNATS         = "NATS"
-	size             = "size"
-	enabled          = "enabled"
-	storageClassName = "storageClassName"
-	apiVersionNATS   = "operator.kyma-project.io/v1alpha1"
+	spec           = "spec"
+	kind           = "kind"
+	cluster        = "cluster"
+	jetStream      = "jetStream"
+	memStorage     = "memStorage"
+	fileStorage    = "fileStorage"
+	apiVersion     = "apiVersion"
+	logging        = "logging"
+	metadata       = "metadata"
+	name           = "name"
+	namespace      = "namespace"
+	kindNATS       = "NATS"
+	size           = "size"
+	enabled        = "enabled"
+	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
 )
 
 var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
@@ -210,7 +209,7 @@ func Test_Validate_CreateNATS(t *testing.T) {
 			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
 
 			// when
-			err := testEnvironment.CreateUnstructK8sResourceWithError(&tc.givenUnstructuredNATS)
+			err := testEnvironment.CreateUnstructuredK8sResource(&tc.givenUnstructuredNATS)
 
 			// then
 			if tc.wantErrMsg == noError {
