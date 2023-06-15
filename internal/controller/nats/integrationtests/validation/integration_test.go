@@ -36,6 +36,7 @@ const (
 	name           = "name"
 	namespace      = "namespace"
 	kindNATS       = "NATS"
+	size           = "size"
 	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
 )
 
@@ -64,33 +65,70 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func Test_Validate_CreateNatsCR(t *testing.T) {
+func Test_Validate_CreateNATS(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name       string
-		givenNATS  *v1alpha1.NATS
-		wantErrMsg string
+		name string
+		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
+		givenUnstructuredNATS unstructured.Unstructured
+		wantErrMsg            string
 	}{
 		{
 			name: `validation of spec.cluster.size passes for odd numbers`,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSClusterSize(3)),
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						cluster: map[string]any{
+							size: 3,
+						},
+					},
+				},
+			},
 			wantErrMsg: noError,
 		},
 		{
 			name: `validation of spec.cluster.size fails for even numbers`,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSClusterSize(4)),
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						cluster: map[string]any{
+							size: 4,
+						},
+					},
+				},
+			},
 			wantErrMsg: "size only accepts odd numbers",
 		},
 		{
 			name: `validation of spec.cluster.size fails for numbers < 1`,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSClusterSize(-1)),
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						cluster: map[string]any{
+							size: -1,
+						},
+					},
+				},
+			},
 			wantErrMsg: "should be greater than or equal to 1",
 		},
 	}
@@ -101,10 +139,10 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 			t.Parallel()
 
 			// given
-			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
 
 			// when
-			err := testEnvironment.CreateK8sResource(tc.givenNATS)
+			err := testEnvironment.CreateUnstructK8sResourceWithError(&tc.givenUnstructuredNATS)
 
 			// then
 			if tc.wantErrMsg == noError {
@@ -116,7 +154,7 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 	}
 }
 
-func Test_NATSCR_Defaulting(t *testing.T) {
+func Test_NATS_Defaulting(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
