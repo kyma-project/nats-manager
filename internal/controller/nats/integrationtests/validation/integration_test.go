@@ -221,6 +221,81 @@ func Test_Validate_CreateNATS(t *testing.T) {
 	}
 }
 
+// Test_Validate_UpdateNATS creates a givenNATS on a K8s cluster, runs wantMatches against the corresponding NATS
+// object in the K8s cluster, then tries to modify it with givenUpdates, and test the error that was caused by this
+// update, against a wantErrMsg.
+func Test_Validate_UpdateNATS(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name         string
+		givenNATS    *v1alpha1.NATS
+		wantMatches  gomegatypes.GomegaMatcher
+		givenUpdates []testutils.NATSOption
+		wantErrMsg   string
+	}{
+		{
+			name: `validation of fileStorage fails, if fileStorage.size gets changed`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSFileStorage(defaultFileStorage()),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+			),
+			givenUpdates: []testutils.NATSOption{
+				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+					StorageClassName: defaultFileStorage().StorageClassName,
+					Size:             resource.MustParse("2Gi"),
+				}),
+			},
+			wantErrMsg: "fileStorage is immutable once it was set",
+		},
+		{
+			name: `validation of fileStorage fails, if fileStorage.storageClassName gets changed`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSFileStorage(defaultFileStorage()),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+			),
+			givenUpdates: []testutils.NATSOption{
+				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "not-standard",
+					Size:             defaultFileStorage().Size,
+				}),
+			},
+			wantErrMsg: "fileStorage is immutable once it was set",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := gomega.NewGomegaWithT(t)
+
+			// given
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
+
+			// when
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			// then
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
+
+			// when
+			err := testEnvironment.UpdatedNATSInK8s(tc.givenNATS, tc.givenUpdates...)
+
+			// then
+			if tc.wantErrMsg == noError {
+				require.NoError(t, err)
+			} else {
+				require.Contains(t, err.Error(), tc.wantErrMsg)
+			}
+		})
+	}
+}
+
 func Test_NATS_Defaulting(t *testing.T) {
 	t.Parallel()
 
