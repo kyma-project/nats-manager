@@ -302,7 +302,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 
 			// given
 			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
-			2
+
 			// when
 			testEnvironment.EnsureK8sUnStructResourceCreated(t, &tc.givenUnstructuredNATS)
 
