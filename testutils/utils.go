@@ -154,16 +154,6 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 	return nats
 }
 
-// GetPatchedNATS takes nats and patches it via opts.
-func GetPatchedNATS(nats v1alpha1.NATS, opts ...NATSOption) v1alpha1.NATS {
-	for _, opt := range opts {
-		if err := opt(&nats); err != nil {
-			panic(err)
-		}
-	}
-	return nats
-}
-
 func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 	result := &apiextensionsv1.CustomResourceDefinition{
 		TypeMeta: metav1.TypeMeta{
