@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: nolar/setup-k3d-k3s@v1
         with:
+          # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
           version: v1.26.5
       - name: apply crd
         run: kubectl apply -f config/crd/bases/operator.kyma-project.io_nats.yaml
