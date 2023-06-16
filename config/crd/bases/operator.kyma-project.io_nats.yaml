@@ -110,12 +110,21 @@ spec:
                         description: Size defines the file storage size.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
+                        x-kubernetes-validations:
+                        - message: fileStorage is immutable once it was set
+                          rule: self == oldSelf
                       storageClassName:
                         default: default
                         description: StorageClassName defines the file storage class
                           name.
                         type: string
+                        x-kubernetes-validations:
+                        - message: fileStorage is immutable once it was set
+                          rule: self == oldSelf
                     type: object
+                    x-kubernetes-validations:
+                    - message: fileStorage is immutable once it was set
+                      rule: self == oldSelf
                   memStorage:
                     default:
                       enabled: false
@@ -136,7 +145,13 @@ spec:
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                     type: object
+                    x-kubernetes-validations:
+                    - message: can only be enabled if size is not 0
+                      rule: '!self.enabled || self.size != 0'
                 type: object
+                x-kubernetes-validations:
+                - message: fileStorage is immutable once it was set
+                  rule: self.fileStorage == oldSelf.fileStorage
               labels:
                 additionalProperties:
                   type: string

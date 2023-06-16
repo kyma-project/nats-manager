@@ -36,6 +36,8 @@ const (
 	name           = "name"
 	namespace      = "namespace"
 	kindNATS       = "NATS"
+	size           = "size"
+	enabled        = "enabled"
 	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
 )
 
@@ -64,34 +66,137 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func Test_Validate_CreateNatsCR(t *testing.T) {
+func Test_Validate_CreateNATS(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name       string
-		givenNATS  *v1alpha1.NATS
-		wantErrMsg string
+		name string
+		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
+		givenUnstructuredNATS unstructured.Unstructured
+		wantErrMsg            string
 	}{
 		{
 			name: `validation of spec.cluster.size passes for odd numbers`,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSClusterSize(3)),
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						cluster: map[string]any{
+							size: 3,
+						},
+					},
+				},
+			},
 			wantErrMsg: noError,
 		},
 		{
 			name: `validation of spec.cluster.size fails for even numbers`,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSClusterSize(4)),
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						cluster: map[string]any{
+							size: 4,
+						},
+					},
+				},
+			},
 			wantErrMsg: "size only accepts odd numbers",
 		},
 		{
 			name: `validation of spec.cluster.size fails for numbers < 1`,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRDefaults(),
-				testutils.WithNATSClusterSize(-1)),
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						cluster: map[string]any{
+							size: -1,
+						},
+					},
+				},
+			},
 			wantErrMsg: "should be greater than or equal to 1",
+		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if enabled is true and size is not 0`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: true,
+								size:    "1Gi",
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: noError,
+		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if size is 0 but enabled is false`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: false,
+								size:    0,
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: noError,
+		},
+		{
+			name: `validation of spec.jetStream.memStorage fails if enabled is true but size is 0`,
+			givenUnstructuredNATS: unstructured.Unstructured{
+				Object: map[string]any{
+					kind:       kindNATS,
+					apiVersion: apiVersionNATS,
+					metadata: map[string]any{
+						name:      testutils.GetRandK8sName(7),
+						namespace: testutils.GetRandK8sName(7),
+					},
+					spec: map[string]any{
+						jetStream: map[string]any{
+							memStorage: map[string]any{
+								enabled: true,
+								size:    0,
+							},
+						},
+					},
+				},
+			},
+			wantErrMsg: "can only be enabled if size is not 0",
 		},
 	}
 
@@ -101,13 +206,13 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 			t.Parallel()
 
 			// given
-			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
 
 			// when
-			err := testEnvironment.CreateK8sResource(tc.givenNATS)
+			err := testEnvironment.CreateUnstructuredK8sResource(&tc.givenUnstructuredNATS)
 
 			// then
-			if tc.wantErrMsg == "" {
+			if tc.wantErrMsg == noError {
 				require.NoError(t, err)
 			} else {
 				require.Contains(t, err.Error(), tc.wantErrMsg)
@@ -116,7 +221,82 @@ func Test_Validate_CreateNatsCR(t *testing.T) {
 	}
 }
 
-func Test_NATSCR_Defaulting(t *testing.T) {
+// Test_Validate_UpdateNATS creates a givenNATS on a K8s cluster, runs wantMatches against the corresponding NATS
+// object in the K8s cluster, then tries to modify it with givenUpdates, and test the error that was caused by this
+// update, against a wantErrMsg.
+func Test_Validate_UpdateNATS(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name         string
+		givenNATS    *v1alpha1.NATS
+		wantMatches  gomegatypes.GomegaMatcher
+		givenUpdates []testutils.NATSOption
+		wantErrMsg   string
+	}{
+		{
+			name: `validation of fileStorage fails, if fileStorage.size gets changed`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSFileStorage(defaultFileStorage()),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+			),
+			givenUpdates: []testutils.NATSOption{
+				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+					StorageClassName: defaultFileStorage().StorageClassName,
+					Size:             resource.MustParse("2Gi"),
+				}),
+			},
+			wantErrMsg: "fileStorage is immutable once it was set",
+		},
+		{
+			name: `validation of fileStorage fails, if fileStorage.storageClassName gets changed`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSFileStorage(defaultFileStorage()),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+			),
+			givenUpdates: []testutils.NATSOption{
+				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+					StorageClassName: "not-standard",
+					Size:             defaultFileStorage().Size,
+				}),
+			},
+			wantErrMsg: "fileStorage is immutable once it was set",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			g := gomega.NewGomegaWithT(t)
+
+			// given
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
+
+			// when
+			testEnvironment.EnsureK8sResourceCreated(t, tc.givenNATS)
+
+			// then
+			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
+
+			// when
+			err := testEnvironment.UpdatedNATSInK8s(tc.givenNATS, tc.givenUpdates...)
+
+			// then
+			if tc.wantErrMsg == noError {
+				require.NoError(t, err)
+			} else {
+				require.Contains(t, err.Error(), tc.wantErrMsg)
+			}
+		})
+	}
+}
+
+func Test_NATS_Defaulting(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -138,27 +318,11 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecClusterSize(3),
-				natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
-						"cpu":    resource.MustParse("20m"),
-						"memory": resource.MustParse("64Mi"),
-					},
-					Requests: corev1.ResourceList{
-						"cpu":    resource.MustParse("5m"),
-						"memory": resource.MustParse("16Mi"),
-					},
-				}),
-				natsmatchers.HaveSpecLoggingTrace(false),
-				natsmatchers.HaveSpecLoggingDebug(false),
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecCluster(defaultCluster()),
+				natsmatchers.HaveSpecResources(defaultResources()),
+				natsmatchers.HaveSpecLogging(defaultLogging()),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -175,27 +339,11 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecClusterSize(3),
-				natsmatchers.HaveSpecResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
-						"cpu":    resource.MustParse("20m"),
-						"memory": resource.MustParse("64Mi"),
-					},
-					Requests: corev1.ResourceList{
-						"cpu":    resource.MustParse("5m"),
-						"memory": resource.MustParse("16Mi"),
-					},
-				}),
-				natsmatchers.HaveSpecLoggingTrace(false),
-				natsmatchers.HaveSpecLoggingDebug(false),
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecCluster(defaultCluster()),
+				natsmatchers.HaveSpecResources(defaultResources()),
+				natsmatchers.HaveSpecLogging(defaultLogging()),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -214,7 +362,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecClusterSize(3),
+				natsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 		},
 		{
@@ -233,14 +381,8 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -262,14 +404,8 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(v1alpha1.MemStorage{
-					Enabled: false,
-					Size:    resource.MustParse("20Mi"),
-				}),
-				natsmatchers.HaveSpecJetStreamFileStorage(v1alpha1.FileStorage{
-					StorageClassName: "default",
-					Size:             resource.MustParse("1Gi"),
-				}),
+				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -288,8 +424,7 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecLoggingTrace(false),
-				natsmatchers.HaveSpecLoggingDebug(false),
+				natsmatchers.HaveSpecLogging(defaultLogging()),
 			),
 		},
 	}
@@ -315,4 +450,42 @@ func Test_NATSCR_Defaulting(t *testing.T) {
 			}).Should(tc.wantMatches)
 		})
 	}
+}
+
+func defaultResources() corev1.ResourceRequirements {
+	return corev1.ResourceRequirements{
+		Limits: corev1.ResourceList{
+			"cpu":    resource.MustParse("20m"),
+			"memory": resource.MustParse("64Mi"),
+		},
+		Requests: corev1.ResourceList{
+			"cpu":    resource.MustParse("5m"),
+			"memory": resource.MustParse("16Mi"),
+		},
+	}
+}
+
+func defaultMemStorage() v1alpha1.MemStorage {
+	return v1alpha1.MemStorage{
+		Enabled: false,
+		Size:    resource.MustParse("20Mi"),
+	}
+}
+
+func defaultFileStorage() v1alpha1.FileStorage {
+	return v1alpha1.FileStorage{
+		StorageClassName: "default",
+		Size:             resource.MustParse("1Gi"),
+	}
+}
+
+func defaultLogging() v1alpha1.Logging {
+	return v1alpha1.Logging{
+		Debug: false,
+		Trace: false,
+	}
+}
+
+func defaultCluster() v1alpha1.Cluster {
+	return v1alpha1.Cluster{Size: 3}
 }
