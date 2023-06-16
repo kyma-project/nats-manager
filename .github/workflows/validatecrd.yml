@@ -14,5 +14,5 @@ jobs:
       - uses: nolar/setup-k3d-k3s@v1
         with:
           version: v1.26.5
-      - name: install crd
+      - name: apply crd
         run: kubectl apply -f config/crd/bases/operator.kyma-project.io_nats.yaml
