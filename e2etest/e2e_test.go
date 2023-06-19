@@ -1,9 +1,14 @@
-package main
+//go:build e2etest
+// +build e2etest
+
+package e2etest
 
 import (
 	"context"
 	"fmt"
+	"testing"
 
+	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -12,7 +17,7 @@ import (
 const kymaSystem = "kyma-system"
 const eventingNats = "eventing-nats"
 
-func main() {
+func Test_podsHealthy(t *testing.T) {
 	// Get the kubeconfig.
 	kubeconfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
@@ -37,7 +42,7 @@ func main() {
 		panic(err)
 	}
 
-	// Get the pods via a label selector.
+	// Get the pods via labels.
 	listOptions := metav1.ListOptions{
 		LabelSelector: "nats_cluster=eventing-nats",
 	}
@@ -47,15 +52,17 @@ func main() {
 	}
 
 	fmt.Printf("\n the sts has `replicas=%v` and there are %v pods \n", int(*sts.Spec.Replicas), len(pods.Items))
+	assert.Equal(t, int(*sts.Spec.Replicas), len(pods.Items))
 
-	// Check that all Pods are Ready (the status.conditions array has an entry with .type="Ready" and the
-	// .status="True")
+	// Check if all Pods are ready (the status.conditions array has an entry with .type="Ready" and the
+	// .status="True").
 	for _, pod := range pods.Items {
 		fmt.Printf("\n the pod %s ", pod.GetName())
 		for _, cond := range pod.Status.Conditions {
 			if cond.Type == "Ready" {
 				fmt.Printf("has the condition of type %s ", cond.Type)
 				fmt.Printf("and the status %s \n", cond.Status)
+				assert.Equal(t, cond.Status, "True")
 			}
 		}
 	}
