@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -21,39 +22,26 @@ const eventingNats = "eventing-nats"
 
 func Test_podsHealthy(t *testing.T) {
 	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Printf("error getting user home dir: %v\n", err)
-		os.Exit(1)
-	}
+	require.NoError(t, err)
 	kubeConfigPath := filepath.Join(userHomeDir, ".kube", "config")
 	fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
 	kubeConfig, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	if err != nil {
-		fmt.Printf("error getting Kubernetes config: %v\n", err)
-		os.Exit(1)
-	}
+	require.NoError(t, err)
 
 	clientSet, err := kubernetes.NewForConfig(kubeConfig)
-	if err != nil {
-		fmt.Printf("error getting Kubernetes clientset: %v\n", err)
-		os.Exit(1)
-	}
+	require.NoError(t, err)
 
 	ctx := context.TODO()
 	sts, err := clientSet.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	// Get the pods via labels.
 	listOptions := metav1.ListOptions{
 		LabelSelector: "nats_cluster=eventing-nats",
 	}
 	pods, err := clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(t, err)
 
 	fmt.Printf("\n the sts has `replicas=%v` and there are %v pods \n", int(*sts.Spec.Replicas), len(pods.Items))
 	assert.Equal(t, int(*sts.Spec.Replicas), len(pods.Items))
