@@ -51,6 +51,7 @@ type Reconciler struct {
 	client.Client
 	controller                  controller.Controller
 	kubeClient                  k8s.Client
+	natsClient                  Client
 	chartRenderer               chart.Renderer
 	scheme                      *runtime.Scheme
 	recorder                    record.EventRecorder

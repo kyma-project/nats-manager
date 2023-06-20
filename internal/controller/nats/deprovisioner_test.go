@@ -90,6 +90,8 @@ func Test_handleNATSDeletion(t *testing.T) {
 				mock.Anything).Return(false, nil)
 			testEnv.kubeClient.On("GetSecret",
 				mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+			testEnv.natsClient.On("StreamExists",
+				mock.Anything, mock.Anything).Return(false, nil)
 
 			natsResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
