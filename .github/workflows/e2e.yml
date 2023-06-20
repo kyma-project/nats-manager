@@ -32,11 +32,11 @@ jobs:
         with:
           context: .
           push: true
-          tags: localhost:5000/nats-manager/app/:latest
+          tags: localhost:5000/nats-manager:latest
       -
         name: Inspect
         run: |
-          docker buildx imagetools inspect localhost:5000/nats-manager/app:latest
+          docker buildx imagetools inspect localhost:5000/nats-manager:latest
       -
         name: Setup-k3d
         uses: nolar/setup-k3d-k3s@v1
@@ -63,6 +63,6 @@ jobs:
         name: Test
         run: |
           go test ./e2e/... --tags=e2e
-          
+
 # references:
 # local docker registry in gh action: https://docs.docker.com/build/ci/github-actions/local-registry/
