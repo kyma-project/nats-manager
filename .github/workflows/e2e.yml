@@ -32,6 +32,9 @@ jobs:
           # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
           version: v1.26.5
       -
+        name: Install
+        run: make install
+      -
         name: Deploy
         run: make deploy IMG=localhost:5000/nats-manager:latest
       -
