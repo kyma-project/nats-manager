@@ -36,7 +36,7 @@ jobs:
         run: make deploy IMG=localhost:5000/nats-manager:latest
       -
         name: Create NATS-Manager on cluster
-        run: kubectl apply -f config/samples/eventing-nats-eval.yaml && sleep 1m
+        run: kubectl create ns kyma-system && kubectl apply -f config/samples/eventing-nats-eval.yaml && sleep 1m
       -
         name: Test
         run: go test ./e2e/... --tags=e2e
