@@ -1,8 +1,5 @@
 name: ci
 
-env:
-  IMG: localhost:5000/nats-manager:latest
-
 on:
   push:
     branches: [ "main" ]
@@ -27,7 +24,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: $IMG
+          tags: localhost:5000/nats-manager:latest
       -
         name: Setup-k3d
         uses: nolar/setup-k3d-k3s@v1
@@ -35,7 +32,7 @@ jobs:
           # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
           version: v1.26.5
       - name: Deploy
-        run: make deploy IMG=$IMG
+        run: make deploy IMG=localhost:5000/nats-manager:latest
       - name: Test
         run: go test ./e2e/... --tags=e2e
 
