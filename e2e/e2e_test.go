@@ -6,6 +6,8 @@ package e2e_test
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,16 +34,10 @@ func Test_podsHealthy(t *testing.T) {
 		os.Exit(1)
 	}
 
-	// Extract the config from the kubeconfig.
-	config, err := kubeconfig.ClientConfig()
+	clientSet, err := kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
-		panic(err)
-	}
-
-	// Get a clientSet to connect to K8s.
-	clientSet, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
+		fmt.Printf("error getting Kubernetes clientset: %v\n", err)
+		os.Exit(1)
 	}
 
 	ctx := context.TODO()
