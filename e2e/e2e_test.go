@@ -18,11 +18,19 @@ const kymaSystem = "kyma-system"
 const eventingNats = "eventing-nats"
 
 func Test_podsHealthy(t *testing.T) {
-	// Get the kubeconfig.
-	kubeconfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		clientcmd.NewDefaultClientConfigLoadingRules(),
-		&clientcmd.ConfigOverrides{},
-	)
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Printf("error getting user home dir: %v\n", err)
+		os.Exit(1)
+	}
+	kubeConfigPath := filepath.Join(userHomeDir, ".kube", "config")
+	fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
+
+	kubeConfig, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	if err != nil {
+		fmt.Printf("error getting Kubernetes config: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Extract the config from the kubeconfig.
 	config, err := kubeconfig.ClientConfig()
