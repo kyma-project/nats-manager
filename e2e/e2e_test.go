@@ -33,6 +33,11 @@ func Test_podsHealthy(t *testing.T) {
 	require.NoError(t, err)
 
 	ctx := context.TODO()
+	ns, err := clientSet.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
+	require.NoError(t, err)
+	fmt.Printf("found namespace: '%s'", ns.GetName())
+
+	// Get the StatefulSet.
 	sts, err := clientSet.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
 	require.NoError(t, err)
 
