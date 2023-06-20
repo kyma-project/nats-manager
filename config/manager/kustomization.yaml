@@ -16,4 +16,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: jfwilken/nats-manager
-  newTag: dev
+  newTag: latest
