@@ -1,7 +1,7 @@
-//go:build e2etest
-// +build e2etest
+//go:build e2e
+// +build e2e
 
-package e2etest
+package e2e_test
 
 import (
 	"context"
@@ -60,9 +60,9 @@ func Test_podsHealthy(t *testing.T) {
 		fmt.Printf("\n the pod %s ", pod.GetName())
 		for _, cond := range pod.Status.Conditions {
 			if cond.Type == "Ready" {
-				fmt.Printf("has the condition of type %s ", cond.Type)
-				fmt.Printf("and the status %s \n", cond.Status)
-				assert.Equal(t, cond.Status, "True")
+				expected := "True"
+				actual := fmt.Sprintf("%v", cond.Status)
+				assert.Equal(t, expected, actual)
 			}
 		}
 	}
