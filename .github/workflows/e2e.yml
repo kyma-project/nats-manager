@@ -65,7 +65,14 @@ jobs:
       -
         name: Wait
         run: |
-          sleep 3m
+          sleep 5m
+      -
+        name: debug
+        run: |
+          kubectl get namespaces
+          kubectl get sts --all-namespaces
+          kubectl get crd --all-namespaces
+          kubectl get pods --all-namespaces
       -
         name: Test
         run: |
