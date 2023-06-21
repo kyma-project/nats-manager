@@ -15,7 +15,7 @@ jobs:
       -
         name: debug
         run: |
-          echo: $DOCKER_IMAGE
+          echo $DOCKER_IMAGE
       -
         name: Checkout
         uses: actions/checkout@v3
