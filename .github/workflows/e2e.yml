@@ -1,7 +1,7 @@
 name: e2e
 
 env:
-  DOCKER_IMAGE: europe-docker.pkg.dev/kyma-project/dev/nats-manager:PR-${{ github.event.number }}:latest
+  DOCKER_IMAGE: europe-docker.pkg.dev/kyma-project/dev/nats-manager:PR-${{ github.event.number }}
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ jobs:
 
     steps:
       -
-        name: debug
+        name: debug, remove after dev work
         run: |
           echo $DOCKER_IMAGE
       -
