@@ -13,6 +13,10 @@ jobs:
 
     steps:
       -
+        name: debug
+        run: |
+          echo: $DOCKER_IMAGE
+      -
         name: Checkout
         uses: actions/checkout@v3
       -
@@ -43,7 +47,7 @@ jobs:
       -
         name: Wait
         run: |
-          sleep 5m
+          sleep 2m
       -
         name: debug
         run: |
