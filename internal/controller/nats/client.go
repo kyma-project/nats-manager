@@ -25,7 +25,7 @@ type natsConfig struct {
 
 type natsClient struct {
 	Config *natsConfig
-	conn   *nats.Conn
+	conn   NatsConn
 }
 
 func NewNatsClient(natsConfig *natsConfig) Client {
@@ -42,19 +42,19 @@ func (c *natsClient) Init() error {
 		if err != nil || !conn.IsConnected() {
 			return fmt.Errorf("failed to connect to NATS server: %w", err)
 		}
-		c.conn = conn
+		c.conn = &natsConn{conn: conn}
 	}
 	return nil
 }
 
 func (c *natsClient) StreamExists() (bool, error) {
 	// get JetStream context
-	jetStream, err := c.conn.JetStream()
+	jetStreamCtx, err := c.conn.JetStream()
 	if err != nil {
 		return false, fmt.Errorf("failed to get JetStream: %w", err)
 	}
 	// get all streams and check if any exists
-	streams := jetStream.Streams()
+	streams := jetStreamCtx.Streams()
 	// if it has no streams, it will return false
 	_, ok := <-streams
 	if !ok {
@@ -65,5 +65,32 @@ func (c *natsClient) StreamExists() (bool, error) {
 }
 
 func (c *natsClient) Close() {
+	c.conn.Close()
+}
+
+type NatsConn interface {
+	Status() nats.Status
+	JetStream() (nats.JetStreamContext, error)
+	IsConnected() bool
+	Close()
+}
+
+type natsConn struct {
+	conn *nats.Conn
+}
+
+func (c *natsConn) Status() nats.Status {
+	return c.conn.Status()
+}
+
+func (c *natsConn) JetStream() (nats.JetStreamContext, error) {
+	return c.conn.JetStream()
+}
+
+func (c *natsConn) IsConnected() bool {
+	return c.conn.IsConnected()
+}
+
+func (c *natsConn) Close() {
 	c.conn.Close()
 }
