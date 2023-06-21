@@ -70,133 +70,118 @@ func Test_Validate_CreateNATS(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name string
-		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
-		givenUnstructuredNATS unstructured.Unstructured
-		wantErrMsg            string
+		name       string
+		givenNATS  *v1alpha1.NATS
+		wantErrMsg string
 	}{
 		{
 			name: `validation of spec.cluster.size passes for odd numbers`,
-			givenUnstructuredNATS: unstructured.Unstructured{
-				Object: map[string]any{
-					kind:       kindNATS,
-					apiVersion: apiVersionNATS,
-					metadata: map[string]any{
-						name:      testutils.GetRandK8sName(7),
-						namespace: testutils.GetRandK8sName(7),
-					},
-					spec: map[string]any{
-						cluster: map[string]any{
-							size: 3,
-						},
-					},
-				},
-			},
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSClusterSize(3),
+			),
 			wantErrMsg: noError,
 		},
 		{
 			name: `validation of spec.cluster.size fails for even numbers`,
-			givenUnstructuredNATS: unstructured.Unstructured{
-				Object: map[string]any{
-					kind:       kindNATS,
-					apiVersion: apiVersionNATS,
-					metadata: map[string]any{
-						name:      testutils.GetRandK8sName(7),
-						namespace: testutils.GetRandK8sName(7),
-					},
-					spec: map[string]any{
-						cluster: map[string]any{
-							size: 4,
-						},
-					},
-				},
-			},
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSClusterSize(4),
+			),
 			wantErrMsg: "size only accepts odd numbers",
 		},
 		{
 			name: `validation of spec.cluster.size fails for numbers < 1`,
-			givenUnstructuredNATS: unstructured.Unstructured{
-				Object: map[string]any{
-					kind:       kindNATS,
-					apiVersion: apiVersionNATS,
-					metadata: map[string]any{
-						name:      testutils.GetRandK8sName(7),
-						namespace: testutils.GetRandK8sName(7),
-					},
-					spec: map[string]any{
-						cluster: map[string]any{
-							size: -1,
-						},
-					},
-				},
-			},
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSClusterSize(-1),
+			),
 			wantErrMsg: "should be greater than or equal to 1",
 		},
 		{
 			name: `validation of spec.jetStream.memStorage passes if enabled is true and size is not 0`,
-			givenUnstructuredNATS: unstructured.Unstructured{
-				Object: map[string]any{
-					kind:       kindNATS,
-					apiVersion: apiVersionNATS,
-					metadata: map[string]any{
-						name:      testutils.GetRandK8sName(7),
-						namespace: testutils.GetRandK8sName(7),
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enabled: true,
+					Size:    resource.MustParse("1Gi"),
+				}),
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"memory": resource.MustParse("2Gi"),
 					},
-					spec: map[string]any{
-						jetStream: map[string]any{
-							memStorage: map[string]any{
-								enabled: true,
-								size:    "1Gi",
-							},
-						},
-					},
-				},
-			},
+				}),
+			),
 			wantErrMsg: noError,
 		},
 		{
 			name: `validation of spec.jetStream.memStorage passes if size is 0 but enabled is false`,
-			givenUnstructuredNATS: unstructured.Unstructured{
-				Object: map[string]any{
-					kind:       kindNATS,
-					apiVersion: apiVersionNATS,
-					metadata: map[string]any{
-						name:      testutils.GetRandK8sName(7),
-						namespace: testutils.GetRandK8sName(7),
-					},
-					spec: map[string]any{
-						jetStream: map[string]any{
-							memStorage: map[string]any{
-								enabled: false,
-								size:    0,
-							},
-						},
-					},
-				},
-			},
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enabled: false,
+					Size:    resource.MustParse("0"),
+				}),
+			),
 			wantErrMsg: noError,
 		},
 		{
 			name: `validation of spec.jetStream.memStorage fails if enabled is true but size is 0`,
-			givenUnstructuredNATS: unstructured.Unstructured{
-				Object: map[string]any{
-					kind:       kindNATS,
-					apiVersion: apiVersionNATS,
-					metadata: map[string]any{
-						name:      testutils.GetRandK8sName(7),
-						namespace: testutils.GetRandK8sName(7),
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enabled: true,
+					Size:    resource.MustParse("0"),
+				}),
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"memory": resource.MustParse("64Mi"),
 					},
-					spec: map[string]any{
-						jetStream: map[string]any{
-							memStorage: map[string]any{
-								enabled: true,
-								size:    0,
-							},
-						},
-					},
-				},
-			},
+				}),
+			),
 			wantErrMsg: "can only be enabled if size is not 0",
+		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if enabled is true ` +
+				` and size is less than resources.limits.memory`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"memory": resource.MustParse("64Mi"),
+					},
+				}),
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enabled: true,
+					Size:    resource.MustParse("32Mi"),
+				}),
+			),
+			wantErrMsg: noError,
+		},
+		{
+			name: `validation of spec.jetStream.memStorage fails if enabled is true ` +
+				` and size is greater than resources.limits.memory`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"memory": resource.MustParse("64Mi"),
+					},
+				}),
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enabled: true,
+					Size:    resource.MustParse("1Gi"),
+				}),
+			),
+			wantErrMsg: "memStorage.size should be less than resources.limits.memory.",
+		},
+		{
+			name: `validation of spec.jetStream.memStorage passes if enabled is false ` +
+				` even if size is greater than resources.limits.memory`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSResources(corev1.ResourceRequirements{
+					Limits: corev1.ResourceList{
+						"memory": resource.MustParse("64Mi"),
+					},
+				}),
+				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+					Enabled: true,
+					Size:    resource.MustParse("1Gi"),
+				}),
+			),
+			wantErrMsg: noError,
 		},
 	}
 
@@ -206,15 +191,19 @@ func Test_Validate_CreateNATS(t *testing.T) {
 			t.Parallel()
 
 			// given
-			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
+			testEnvironment.EnsureNamespaceCreation(t, tc.givenNATS.GetNamespace())
 
 			// when
-			err := testEnvironment.CreateUnstructuredK8sResource(&tc.givenUnstructuredNATS)
+			err := testEnvironment.CreateK8sResource(tc.givenNATS)
+
+			//ss := resource.MustParse("0")
+			//require.Equal(t, "0", ss.Size())
 
 			// then
 			if tc.wantErrMsg == noError {
 				require.NoError(t, err)
 			} else {
+				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.wantErrMsg)
 			}
 		})

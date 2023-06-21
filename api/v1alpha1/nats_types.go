@@ -80,6 +80,7 @@ type NATS struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
+	// +kubebuilder:validation:XValidation:rule="!self.jetStream.memStorage.enabled || self.jetStream.memStorage.size < self.resources.limits.memory", message="memStorage.size should be less than resources.limits.memory."
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }

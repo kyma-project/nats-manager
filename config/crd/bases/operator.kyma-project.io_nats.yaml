@@ -229,6 +229,10 @@ spec:
                     type: object
                 type: object
             type: object
+            x-kubernetes-validations:
+            - message: memStorage.size should be less than resources.limits.memory.
+              rule: '!self.jetStream.memStorage.enabled || self.jetStream.memStorage.size
+                < self.resources.limits.memory'
           status:
             description: NATSStatus defines the observed state of NATS.
             properties:
