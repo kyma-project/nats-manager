@@ -30,6 +30,14 @@ jobs:
         run: |
           make install
       -
+        name: Wait for build job to succeed
+        uses: fountainhead/action-wait-for-check@v1.1.0
+        id: wait-for-build
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: pull-nats-manager-build
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      -
         name: Deploy
         run: |
           make deploy IMG=$DOCKER_IMAGE
