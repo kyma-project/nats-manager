@@ -37,6 +37,7 @@ jobs:
           running-workflow-name: 'pull-nats-manager-build'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          allowed-conclusions: success
       -
         name: Deploy
         run: |
