@@ -31,12 +31,12 @@ jobs:
           make install
       -
         name: Wait for build job to succeed
-        uses: fountainhead/action-wait-for-check@v1.1.0
-        id: wait-for-build
+        uses: lewagon/wait-on-check-action@v1.3.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: pull-nats-manager-build
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.ref }}
+          running-workflow-name: 'pull-nats-manager-build'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
       -
         name: Deploy
         run: |
