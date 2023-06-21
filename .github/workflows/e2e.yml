@@ -20,17 +20,17 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Setup-k3d
+        name: Setup a k3d cluster
         uses: nolar/setup-k3d-k3s@v1
         with:
           # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
           version: v1.26.5
       -
-        name: Install
+        name: Install the NATS CRD on the cluster
         run: |
           make install
       -
-        name: Wait for build job to succeed
+        name: Wait for the 'pull-nats-manager-build' job to succeed
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
@@ -38,16 +38,17 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
           allowed-conclusions: success
+          verbose: false # change for debugging
       -
-        name: Deploy
+        name: Deploy the controller to the cluster
         run: |
           make deploy IMG=$DOCKER_IMAGE
       -
-        name: Apply NATS-Manger CR to cluster
+        name: Apply a NATS CR to the cluster
         run: |
           kubectl apply -f config/samples/e2e.yaml
       -
-        name: debug
+        name: List namespaces, statefulSets, CRDs and Pods
         run: |
           kubectl get namespaces
           kubectl get sts --all-namespaces
