@@ -11,7 +11,3 @@ metadata:
 spec:
   cluster:
     size: 3
-  jetStream:
-    fileStorage:
-      size: 1.2Gi
-      storageClassName: default
