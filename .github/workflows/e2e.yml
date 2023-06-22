@@ -54,6 +54,14 @@ jobs:
         run: |
           go test ./e2e/... --tags=e2e
       -
+        name: get statefulset
+        run: |
+          k get sts -n kyma-system eventing-nats -o yaml
+      -
+        name: get pod
+        run: |
+          kubectl get pods -n kyma-system eventing-nats-0 -o yaml
+      -
         name: run NATS bench
         run: |
           go install github.com/nats-io/natscli/nats@latest
