@@ -27,11 +27,29 @@ const (
 )
 
 const (
+	timeout  = 3 * time.Minute
+	interval = 10 * time.Second
+)
+
+const (
 	attempts = 30
 	delay    = 10 * time.Second
 )
 
 var clientset *kubernetes.Clientset
+
+func Retry[T any](timeout, interval time.Duration, fn func() (*T, error)) (*T, error) {
+	var err error
+	var obj *T
+	for start := time.Now(); time.Since(start) <= timeout; {
+		obj, err = fn()
+		if err == nil {
+			return obj, err
+		}
+		time.Sleep(interval)
+	}
+	return obj, err
+}
 
 func TestMain(m *testing.M) {
 	userHomeDir, err := os.UserHomeDir()
@@ -55,20 +73,12 @@ func TestMain(m *testing.M) {
 // Test_namespace_was_created simply tries to get the namespace on the cluster.
 func Test_namespace_was_created(t *testing.T) {
 	t.Parallel()
-
 	ctx := context.TODO()
-	err := retry.Do(
-		func() error {
-			var err error
-			_, err = clientset.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-		retry.Delay(delay),
-		retry.Attempts(attempts),
+	ns, err := Retry(timeout, interval, func() (*v1.Namespace, error) {
+		return clientset.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
+	},
 	)
+	println(ns.GetName())
 	require.NoError(t, err)
 }
 
@@ -77,19 +87,9 @@ func Test_podsHealthy(t *testing.T) {
 
 	// Get the StatefulSet.
 	ctx := context.TODO()
-	var sts *appsv1.StatefulSet
-	err := retry.Do(
-		func() error {
-			var err error
-			sts, err = clientset.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-		retry.Delay(delay),
-		retry.Attempts(attempts),
-	)
+	sts, err := Retry(timeout, interval, func() (*appsv1.StatefulSet, error) {
+		return clientset.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
+	})
 	require.NoError(t, err)
 
 	// Get the pods via labels.
