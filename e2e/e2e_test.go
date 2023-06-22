@@ -195,18 +195,17 @@ func Test_NumberOfPods(t *testing.T) {
 
 func Test_PVC(t *testing.T) {
 	t.Parallel()
-	// Get the StatefulSet.
-	ctx := context.TODO()
 
 	// Get the NATS CR
+	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
 		return getNATS(ctx, eventingNats, kymaSystem)
 	})
 	require.NoError(t, err)
 
 	// Get the PersistentVolumeClaims, PVCs.
-	listOpt := metav1.ListOptions{LabelSelector: nameNatsLabel}
 	var pvcs *v1.PersistentVolumeClaimList
+	listOpt := metav1.ListOptions{LabelSelector: nameNatsLabel}
 	err = retry(attempts, interval,
 		func() error {
 			// Get PVCs via Label.
