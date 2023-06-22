@@ -8,14 +8,9 @@ on:
     branches: [ "main" ]
 
 jobs:
-  docker:
+  e2e:
     runs-on: ubuntu-latest
-
     steps:
-      -
-        name: debug, remove after dev work
-        run: |
-          echo $DOCKER_IMAGE
       -
         name: Checkout
         uses: actions/checkout@v3
@@ -58,6 +53,6 @@ jobs:
         name: Test
         run: |
           go test ./e2e/... --tags=e2e
-
+      
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
