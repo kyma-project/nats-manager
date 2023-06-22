@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/avast/retry-go/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
@@ -22,33 +21,33 @@ import (
 )
 
 const (
-	kymaSystem   = "kyma-system"
-	eventingNats = "eventing-nats"
+	kymaSystem       = "kyma-system"
+	eventingNats     = "eventing-nats"
+	natsCLusterLabel = "nats_cluster=eventing-nats"
 )
 
 const (
-	timeout  = 3 * time.Minute
 	interval = 10 * time.Second
-)
-
-const (
 	attempts = 30
 	delay    = 10 * time.Second
 )
 
 var clientset *kubernetes.Clientset
 
-func Retry[T any](timeout, interval time.Duration, fn func() (*T, error)) (*T, error) {
+func Retry[T any](att int, interval time.Duration, fn func() (*T, error)) (*T, error) {
+	ticker := time.NewTicker(interval)
 	var err error
 	var obj *T
-	for start := time.Now(); time.Since(start) <= timeout; {
-		obj, err = fn()
-		if err == nil {
-			return obj, err
+	for {
+		select {
+		case <-ticker.C:
+			att -= 1
+			obj, err = fn()
+			if err == nil || att == 0 {
+				return obj, err
+			}
 		}
-		time.Sleep(interval)
 	}
-	return obj, err
 }
 
 func TestMain(m *testing.M) {
@@ -74,7 +73,7 @@ func TestMain(m *testing.M) {
 func Test_namespace_was_created(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
-	ns, err := Retry(timeout, interval, func() (*v1.Namespace, error) {
+	ns, err := Retry(attempts, interval, func() (*v1.Namespace, error) {
 		return clientset.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
 	},
 	)
@@ -87,31 +86,18 @@ func Test_podsHealthy(t *testing.T) {
 
 	// Get the StatefulSet.
 	ctx := context.TODO()
-	sts, err := Retry(timeout, interval, func() (*appsv1.StatefulSet, error) {
+	sts, err := Retry(attempts, interval, func() (*appsv1.StatefulSet, error) {
 		return clientset.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
 	})
 	require.NoError(t, err)
 
 	// Get the pods via labels.
 	var pods *v1.PodList
-	listOptions := metav1.ListOptions{
-		LabelSelector: "nats_cluster=eventing-nats",
-	}
-	err = retry.Do(
-		func() error {
-			pods, err = clientset.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
-			if err != nil {
-				return err
-			}
-			if len(pods.Items) != int(*sts.Spec.Replicas) {
-				return fmt.Errorf("Error fetching Pods; expexted %v but is %v", sts.Spec.Replicas, len(pods.Items))
-			}
-			return nil
-		},
-		retry.Delay(delay),
-		retry.Attempts(attempts),
-	)
+	listOptions := metav1.ListOptions{}
+
+	pods, err = clientset.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
 	require.NoError(t, err)
+	require.Equal(t, int32(len(pods.Items)), sts.Spec.Replicas)
 
 	// Check if all Pods are ready (the status.conditions array has an entry with .type="Ready" and the
 	// .status="True").
