@@ -115,7 +115,7 @@ func Test_PodsHealthy(t *testing.T) {
 
 		// The number of Pods must be equal to the number of Replicas in the StatefulSet.
 		if int32(len(pods.Items)) != *sts.Spec.Replicas {
-			return fmt.Errorf("Error while fetching pods; wanted %v Pods but got %s")
+			return fmt.Errorf("Error while fetching pods; wanted %v Pods but got %s", sts.Spec.Replicas, pods.Items)
 		}
 
 		// Check if all Pods are ready (the status.conditions array has an entry with .type="Ready" and .status="True").
