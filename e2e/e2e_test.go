@@ -15,14 +15,21 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/clientcmd"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 const (
-	kymaSystem       = "kyma-system"
-	eventingNats     = "eventing-nats"
-	natsCLusterLabel = "nats_cluster=eventing-nats"
+	kymaSystem            = "kyma-system"
+	eventingNats          = "eventing-nats"
+	natsCLusterLabel      = "nats_cluster=eventing-nats"
+	nameNatsLabel         = "app.kubernetes.io/name=nats"
+	instanceEventingLabel = "app.kubernetes.io/instance=eventing"
 )
 
 const (
@@ -30,7 +37,11 @@ const (
 	attempts = 30
 )
 
+// clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
 var clientSet *kubernetes.Clientset
+
+// k8sClient is what is used to access the NATS CR.
+var k8sClient client.Client
 
 func retry(attempts int, interval time.Duration, fn func() error) error {
 	ticker := time.NewTicker(interval)
@@ -63,15 +74,34 @@ func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 	}
 }
 
+func getNATS(ctx context.Context, name, namespace string, opts ...client.GetOption) (*natsv1alpha1.NATS, error) {
+	var nats *natsv1alpha1.NATS
+	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}, nats, opts...)
+	return nats, err
+}
+
 func TestMain(m *testing.M) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
 	}
 	kubeConfigPath := filepath.Join(userHomeDir, ".kube", "config")
-	fmt.Printf("Using kubeconfig: %s\n", kubeConfigPath)
 
 	kubeConfig, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	if err != nil {
+		panic(err)
+	}
+
+	err = natsv1alpha1.AddToScheme(scheme.Scheme)
+	if err != nil {
+		panic(err)
+	}
+
+	// +kubebuilder:scaffold:scheme
+	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: scheme.Scheme})
 	if err != nil {
 		panic(err)
 	}
@@ -80,6 +110,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+
 }
 
 // Test_namespace_was_created tries to get the namespace from the cluster.
@@ -114,7 +145,9 @@ func Test_PodsAreHealthy(t *testing.T) {
 					expected := "True"
 					actual := fmt.Sprintf("%v", cond.Status)
 					if expected != actual {
-						return fmt.Errorf("Pod %s has 'Ready' conditon '%s' but wanted 'True'.", pod.GetName(), actual)
+						return fmt.Errorf(
+							"Pod %s has 'Ready' conditon '%s' but wanted 'True'.", pod.GetName(), actual,
+						)
 					}
 				}
 			}
@@ -138,10 +171,11 @@ func Test_NumberOfPods(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	// Get NATS Pods and check, hat the number matches the Replicas of the StatefulSet.
+	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
 	err = retry(attempts, interval, func() error {
-		// Get the NATS pods via labels.
-		listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
 		var pods *v1.PodList
+		// Get the NATS Pods via labels.
 		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
 		if err != nil {
 			return err
@@ -149,10 +183,53 @@ func Test_NumberOfPods(t *testing.T) {
 
 		// The number of Pods must be equal to the number of Replicas in the StatefulSet.
 		if int32(len(pods.Items)) != *sts.Spec.Replicas {
-			return fmt.Errorf("Error while fetching pods; wanted %v Pods but got %v", sts.Spec.Replicas, pods.Items)
+			return fmt.Errorf(
+				"Error while fetching pods; wanted %v Pods but got %v", sts.Spec.Replicas, pods.Items,
+			)
 		}
 
 		return nil
 	})
 	require.NoError(t, err)
+}
+
+func Test_PVC(t *testing.T) {
+	t.Parallel()
+	// Get the StatefulSet.
+	ctx := context.TODO()
+
+	// Get the NATS CR
+	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+		return getNATS(ctx, eventingNats, kymaSystem)
+	})
+	require.NoError(t, err)
+
+	// Get the PersistentVolumeClaims, PVCs.
+	listOpt := metav1.ListOptions{LabelSelector: nameNatsLabel}
+	var pvcs *v1.PersistentVolumeClaimList
+	err = retry(attempts, interval,
+		func() error {
+			// Get PVCs via Label.
+			pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
+				return clientSet.CoreV1().PersistentVolumeClaims(kymaSystem).List(ctx, listOpt)
+			})
+			if err != nil {
+				return err
+			}
+
+			// Check if the amount of PVCs is equal to the number of Replicas in the StatefulSet.
+			want, actual := nats.Spec.Cluster.Size, len(pvcs.Items)
+			if want != actual {
+				return fmt.Errorf("Error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
+			}
+
+			return nil
+		})
+	require.NoError(t, err)
+
+	// Compare the PVC's sizes with the definition in the CRD.
+	for _, pvc := range pvcs.Items {
+		size := pvc.Spec.Resources.Requests[v1.ResourceStorage]
+		require.True(t, size.Equal(nats.Spec.FileStorage.Size))
+	}
 }

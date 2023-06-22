@@ -54,11 +54,11 @@ jobs:
         run: |
           go test ./e2e/... --tags=e2e
       -
-        name: get statefulset
+        name: Inspect the `eventing-nats` StatefulSet
         run: |
           kubectl get sts -n kyma-system eventing-nats -o yaml
       -
-        name: get pod
+        name: Inspect the `eventing-nats-0` Pod
         run: |
           kubectl get pods -n kyma-system eventing-nats-0 -o yaml
       -
@@ -67,6 +67,8 @@ jobs:
           go install github.com/nats-io/natscli/nats@latest
           kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
           sleep 1
-          $HOME/go/bin/nats bench foo --pub 5 --sub 5 --size 16 --msgs 1000
+          # The following will run `bench` with the subject 'testsubject', 5 publishers 5 subscribers, 
+          # 16 byte size per message, 1000 messages using JetStream.
+          $HOME/go/bin/nats bench testsubject --pub 5 --sub 5 --size 16 --msgs 1000 --js
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
