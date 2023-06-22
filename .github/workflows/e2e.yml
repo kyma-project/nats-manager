@@ -58,6 +58,6 @@ jobs:
         run: |
           go install github.com/nats-io/natscli/nats@latest
           kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
-          nats bench foo --pub 5 --sub 5 --size 16 --msgs 1000
+          $HOME/go/bin/nats bench foo --pub 5 --sub 5 --size 16 --msgs 1000
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
