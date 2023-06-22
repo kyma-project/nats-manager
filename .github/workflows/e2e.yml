@@ -56,7 +56,7 @@ jobs:
       -
         name: get statefulset
         run: |
-          k get sts -n kyma-system eventing-nats -o yaml
+          kubectl get sts -n kyma-system eventing-nats -o yaml
       -
         name: get pod
         run: |
