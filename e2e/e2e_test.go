@@ -28,10 +28,9 @@ const (
 const (
 	interval = 10 * time.Second
 	attempts = 30
-	delay    = 10 * time.Second
 )
 
-var clientset *kubernetes.Clientset
+var clientSet *kubernetes.Clientset
 
 func retry(attempts int, interval time.Duration, fn func() error) error {
 	ticker := time.NewTicker(interval)
@@ -77,45 +76,33 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	clientset, err = kubernetes.NewForConfig(kubeConfig)
+	clientSet, err = kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
 		panic(err)
 	}
 }
 
 // Test_namespace_was_created tries to get the namespace from the cluster.
-func Test_namespace_was_created(t *testing.T) {
+func Test_NamespaceWasCreated(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
 	_, err := retryGet(attempts, interval, func() (*v1.Namespace, error) {
-		return clientset.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
+		return clientSet.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
 	})
 	require.NoError(t, err)
 }
 
-func Test_PodsHealthy(t *testing.T) {
+func Test_PodsAreHealthy(t *testing.T) {
 	t.Parallel()
 
-	// Get the StatefulSet.
 	ctx := context.TODO()
-	sts, err := retryGet(attempts, interval, func() (*appsv1.StatefulSet, error) {
-		return clientset.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
-	})
-	require.NoError(t, err)
-
-	err = retry(attempts, interval, func() error {
+	err := retry(attempts, interval, func() error {
 		// Get the NATS pods via labels.
 		listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
-		var pods *v1.PodList
-		pods, err = clientset.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+		pods, err := clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
 		if err != nil {
 			return err
-		}
-
-		// The number of Pods must be equal to the number of Replicas in the StatefulSet.
-		if int32(len(pods.Items)) != *sts.Spec.Replicas {
-			return fmt.Errorf("Error while fetching pods; wanted %v Pods but got %v", sts.Spec.Replicas, pods.Items)
 		}
 
 		// Check if all Pods are ready (the status.conditions array has an entry with .type="Ready" and .status="True").
@@ -134,6 +121,35 @@ func Test_PodsHealthy(t *testing.T) {
 			if !foundReadyCondition {
 				return fmt.Errorf("Could not find 'Ready' condition for Pod %s", pod.GetName())
 			}
+		}
+
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func Test_NumberOfPods(t *testing.T) {
+	t.Parallel()
+
+	// Get the StatefulSet.
+	ctx := context.TODO()
+	sts, err := retryGet(attempts, interval, func() (*appsv1.StatefulSet, error) {
+		return clientSet.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
+	})
+	require.NoError(t, err)
+
+	err = retry(attempts, interval, func() error {
+		// Get the NATS pods via labels.
+		listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
+		var pods *v1.PodList
+		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+		if err != nil {
+			return err
+		}
+
+		// The number of Pods must be equal to the number of Replicas in the StatefulSet.
+		if int32(len(pods.Items)) != *sts.Spec.Replicas {
+			return fmt.Errorf("Error while fetching pods; wanted %v Pods but got %v", sts.Spec.Replicas, pods.Items)
 		}
 
 		return nil
