@@ -55,13 +55,6 @@ jobs:
           kubectl get crd --all-namespaces
           kubectl get pods --all-namespaces
       -
-        name: debug
-        run: |
-          kubectl get namespaces
-          kubectl get sts --all-namespaces
-          kubectl get crd --all-namespaces
-          kubectl get pods --all-namespaces
-      -
         name: Test
         run: |
           go test ./e2e/... --tags=e2e
