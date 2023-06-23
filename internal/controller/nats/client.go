@@ -2,6 +2,7 @@ package nats
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nats-io/nats.go"
 )
@@ -18,9 +19,8 @@ type Client interface {
 //go:generate mockery --name=Client --outpkg=mocks --case=underscore
 
 type natsConfig struct {
-	URL           string
-	MaxReconnects int
-	ReconnectWait int
+	URL     string
+	Timeout time.Duration `default:"5s"`
 }
 
 type natsClient struct {
@@ -35,8 +35,8 @@ func NewNatsClient(natsConfig *natsConfig) Client {
 func (c *natsClient) Init() error {
 	if c.conn == nil || c.conn.Status() != nats.CONNECTED {
 		natsOptions := []nats.Option{
-			nats.RetryOnFailedConnect(true),
-			nats.Name("NATS Controller"),
+			nats.Timeout(c.Config.Timeout),
+			nats.Name("NATS Manager"),
 		}
 		conn, err := nats.Connect(c.Config.URL, natsOptions...)
 		if err != nil || !conn.IsConnected() {

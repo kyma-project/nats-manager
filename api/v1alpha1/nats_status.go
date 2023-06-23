@@ -80,6 +80,18 @@ func (ns *NATSStatus) SetStateDeleting() {
 	ns.State = StateDeleting
 }
 
+func (ns *NATSStatus) UpdateConditionDeletion(status metav1.ConditionStatus, reason ConditionReason,
+	message string) {
+	condition := metav1.Condition{
+		Type:               string(ConditionDeleted),
+		Status:             status,
+		LastTransitionTime: metav1.Now(),
+		Reason:             string(reason),
+		Message:            message,
+	}
+	meta.SetStatusCondition(&ns.Conditions, condition)
+}
+
 func (ns *NATSStatus) Initialize() {
 	ns.SetStateProcessing()
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse, ConditionReasonProcessing, "")
