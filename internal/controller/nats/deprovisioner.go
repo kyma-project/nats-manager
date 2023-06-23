@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -27,16 +26,8 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	r.logger.Info("Deleting the NATS")
 	nats.Status.SetStateDeleting()
 
-	// get NATS resources to de-provision
-	instance, err := r.initNATSInstance(ctx, nats, log)
-	if err != nil {
-		nats.Status.UpdateConditionDeletion(metav1.ConditionFalse,
-			natsv1alpha1.ConditionReasonDeletionError, err.Error())
-		return ctrl.Result{}, r.syncNATSStatus(ctx, nats, log)
-	}
-
 	// create a new NATS client instance
-	if err = r.createAndConnectNatsClient(ctx, instance); err != nil {
+	if err := r.createAndConnectNatsClient(ctx, nats); err != nil {
 		// delete the NATS cluster in case cannot be connected
 		return r.removeFinalizer(ctx, nats)
 	}
@@ -57,11 +48,11 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 }
 
 // create a new NATS client instance and connect to the NATS server
-func (r *Reconciler) createAndConnectNatsClient(ctx context.Context, instance *chart.ReleaseInstance) error {
+func (r *Reconciler) createAndConnectNatsClient(ctx context.Context, nats *natsv1alpha1.NATS) error {
 	// create a new instance if it does not exist
 	if r.natsClient == nil {
 		r.natsClient = NewNatsClient(&natsConfig{
-			URL: fmt.Sprintf("nats://%s.%s.svc.cluster.local:%d", instance.Name, instance.Namespace, natsClientPort),
+			URL: fmt.Sprintf("nats://%s.%s.svc.cluster.local:%d", nats.Name, nats.Namespace, natsClientPort),
 		})
 	}
 	if err := r.natsClient.Init(); err != nil {
