@@ -43,46 +43,8 @@ var clientSet *kubernetes.Clientset
 // k8sClient is what is used to access the NATS CR.
 var k8sClient client.Client
 
-func retry(attempts int, interval time.Duration, fn func() error) error {
-	ticker := time.NewTicker(interval)
-	var err error
-	for {
-		select {
-		case <-ticker.C:
-			attempts -= 1
-			err = fn()
-			if err == nil || attempts == 0 {
-				return err
-			}
-		}
-	}
-}
-
-func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)) (*T, error) {
-	ticker := time.NewTicker(interval)
-	var err error
-	var obj *T
-	for {
-		select {
-		case <-ticker.C:
-			attempts -= 1
-			obj, err = fn()
-			if err == nil || attempts == 0 {
-				return obj, err
-			}
-		}
-	}
-}
-
-func getNATS(ctx context.Context, name, namespace string, opts ...client.GetOption) (*natsv1alpha1.NATS, error) {
-	var nats *natsv1alpha1.NATS
-	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
-		Name:      name,
-		Namespace: namespace,
-	}, nats, opts...)
-	return nats, err
-}
-
+// TestMain runs before all the other test functions. It sets up all the resources that are shared between the different
+// test functions.
 func TestMain(m *testing.M) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -95,22 +57,24 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	err = natsv1alpha1.AddToScheme(scheme.Scheme)
-	if err != nil {
-		panic(err)
-	}
-
-	// +kubebuilder:scaffold:scheme
-	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: scheme.Scheme})
-	if err != nil {
-		panic(err)
-	}
-
+	// Set up the clientSet, that is used to access regular K8s objects.
 	clientSet, err = kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
 		panic(err)
 	}
 
+	// We need to add the NATS CRD to the scheme, so we can create a client that can access NATS objects.
+	err = natsv1alpha1.AddToScheme(scheme.Scheme)
+	if err != nil {
+		panic(err)
+	}
+
+	// Set up the k8s client, so we can access NATS CR-objects.
+	// +kubebuilder:scaffold:scheme
+	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: scheme.Scheme})
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Test_namespace_was_created tries to get the namespace from the cluster.
@@ -231,4 +195,44 @@ func Test_PVC(t *testing.T) {
 		size := pvc.Spec.Resources.Requests[v1.ResourceStorage]
 		require.True(t, size.Equal(nats.Spec.FileStorage.Size))
 	}
+}
+
+func retry(attempts int, interval time.Duration, fn func() error) error {
+	ticker := time.NewTicker(interval)
+	var err error
+	for {
+		select {
+		case <-ticker.C:
+			attempts -= 1
+			err = fn()
+			if err == nil || attempts == 0 {
+				return err
+			}
+		}
+	}
+}
+
+func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)) (*T, error) {
+	ticker := time.NewTicker(interval)
+	var err error
+	var obj *T
+	for {
+		select {
+		case <-ticker.C:
+			attempts -= 1
+			obj, err = fn()
+			if err == nil || attempts == 0 {
+				return obj, err
+			}
+		}
+	}
+}
+
+func getNATS(ctx context.Context, name, namespace string, opts ...client.GetOption) (*natsv1alpha1.NATS, error) {
+	var nats *natsv1alpha1.NATS
+	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}, nats, opts...)
+	return nats, err
 }
