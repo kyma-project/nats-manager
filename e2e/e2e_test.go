@@ -43,7 +43,7 @@ var clientSet *kubernetes.Clientset //nolint:gochecknoglobals // This will only 
 var k8sClient client.Client //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
 // TestMain runs before all the other test functions. It sets up all the resources that are shared between the different
-// test functions.
+// test functions. It will then run the tests and finally shuts everything down.
 func TestMain(m *testing.M) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -56,7 +56,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Set up the clientSet, that is used to access regular K8s objects.
+	// Set up the clientSet that is used to access regular K8s objects.
 	clientSet, err = kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
 		panic(err)
@@ -104,7 +104,7 @@ func Test_Pods(t *testing.T) {
 		})
 	require.NoError(t, err)
 
-	// Get the NATS Pods via a label.
+	// Get the NATS Pods and test them.
 	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
 	err = retry(attempts, interval, func() error {
 		var pods *v1.PodList
@@ -148,8 +148,8 @@ func Test_Pods(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// Test PVCs will test if any PVCs can be found, if their number is equal to the NATS CR's spec.cluster.size and if
-// they all have the right size.
+// Test PVCs will test if any PVCs can be found, if their number is equal to the NATS CR's `spec.cluster.size` and if
+// they all have the right size, as defined in `spec.jetStream.fileStorage`.
 func Test_PVCs(t *testing.T) {
 	t.Parallel()
 
@@ -161,7 +161,7 @@ func Test_PVCs(t *testing.T) {
 		})
 	require.NoError(t, err)
 
-	// Get the PersistentVolumeClaims, PVCs, via a label.
+	// Get the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
 	listOpt := metav1.ListOptions{LabelSelector: nameNatsLabel}
 	err = retry(attempts, interval, func() error {
@@ -173,7 +173,7 @@ func Test_PVCs(t *testing.T) {
 			return err
 		}
 
-		// Check if the amount of PVCs is equal to the number of Replicas in the NATS CR. We do this in the retry,
+		// Check if the amount of PVCs is equal to the spec.cluster.size in the NATS CR. We do this in the retry,
 		// because it may take some time for all PVCs to be there.
 		want, actual := nats.Spec.Cluster.Size, len(pvcs.Items)
 		if want != actual {
