@@ -26,6 +26,10 @@ Dockerfile.cross
 *~
 .DS_Store
 
+# vscode
+launch.json
+settings.json
+
 # Binaries
 bin/*
 
