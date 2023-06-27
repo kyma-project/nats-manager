@@ -47,10 +47,6 @@ Selector labels
 {{- define "nats.selectorLabels" -}}
 {{- if .Values.nats.selectorLabels -}}
 {{ .Values.nats.selectorLabels | toYaml }}
-{{- else if eq .Release.Name "eventing-nats" -}}
-app.kubernetes.io/name: {{ include "nats.name" . }}
-app.kubernetes.io/instance: eventing
-kyma-project.io/dashboard: eventing
 {{- else -}}
 app.kubernetes.io/name: {{ include "nats.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}

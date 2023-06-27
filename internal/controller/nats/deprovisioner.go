@@ -6,13 +6,17 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
 	StreamExistsErrorMsg = "Cannot delete NATS cluster as stream exists"
 	natsClientPort       = 4222
+	instanceLabelKey     = "app.kubernetes.io/instance"
 )
 
 func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.NATS,
@@ -28,14 +32,14 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 
 	// create a new NATS client instance
 	if err := r.createAndConnectNatsClient(ctx, nats); err != nil {
-		// delete the NATS cluster in case cannot be connected
-		return r.removeFinalizer(ctx, nats)
+		// delete a PVC if NATS client cannot be created
+		return r.deletePVCsAndRemoveFinalizer(ctx, r.Client, nats, r.logger)
 	}
 	// check if NATS JetStream stream exists
 	streamExists, err := r.natsClient.StreamExists()
 	if err != nil {
-		// delete the NATS cluster if stream cannot be checked
-		return r.removeFinalizer(ctx, nats)
+		// delete a PVC if NATS client cannot be created
+		return r.deletePVCsAndRemoveFinalizer(ctx, r.Client, nats, r.logger)
 	}
 	if streamExists {
 		// if a stream exists, do not delete the NATS cluster
@@ -44,7 +48,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 		return ctrl.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
 	}
 
-	return r.removeFinalizer(ctx, nats)
+	return r.deletePVCsAndRemoveFinalizer(ctx, r.Client, nats, r.logger)
 }
 
 // create a new NATS client instance and connect to the NATS server
@@ -58,5 +62,47 @@ func (r *Reconciler) createAndConnectNatsClient(ctx context.Context, nats *natsv
 	if err := r.natsClient.Init(); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context, client client.Client, nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
+	if err := deletePVCsWithLabel(ctx, client, nats, log); err != nil {
+		return ctrl.Result{}, err
+	}
+	return r.removeFinalizer(ctx, nats)
+}
+
+func deletePVCsWithLabel(ctx context.Context, c client.Client, nats *natsv1alpha1.NATS, log *zap.SugaredLogger) error {
+	// create a new labels.Selector object for the label selector
+	labelSelector := fmt.Sprintf("%s=%s", instanceLabelKey, nats.Name)
+	selector, err := labels.Parse(labelSelector)
+	if err != nil {
+		return err
+	}
+
+	// create a new list of PVC objects that match the label selector
+	pvcList := &corev1.PersistentVolumeClaimList{}
+	err = c.List(ctx, pvcList, &client.ListOptions{
+		Namespace:     nats.Namespace,
+		LabelSelector: selector,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to list PVCs: %w", err)
+	}
+
+	if len(pvcList.Items) == 0 {
+		log.Debug("No PVCs found")
+		return nil
+	}
+
+	// delete each PVC in the list
+	for _, pvc := range pvcList.Items {
+		err = c.Delete(ctx, &pvc)
+		if err != nil {
+			return fmt.Errorf("failed to delete PVC: %w", err)
+		}
+		log.Debugf("PVC deleted: %s/%s", pvc.Namespace, pvc.Name)
+	}
+
 	return nil
 }
