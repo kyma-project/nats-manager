@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
@@ -93,16 +92,34 @@ func Test_NamespaceWasCreated(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func Test_PodsAreHealthy(t *testing.T) {
+// Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods are ready.
+func Test_Pods(t *testing.T) {
 	t.Parallel()
 
+	// Get the NATS CR. It will tell us how many Pods we should expect.
 	ctx := context.TODO()
-	err := retry(attempts, interval, func() error {
-		// Get the NATS pods via labels.
-		listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
-		pods, err := clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+	nats, err := retryGet(attempts, interval,
+		func() (*natsv1alpha1.NATS, error) {
+			return getNATS(ctx, eventingNats, kymaSystem)
+		})
+	require.NoError(t, err)
+
+	// Get the NATS Pods via a label.
+	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
+	err = retry(attempts, interval, func() error {
+		var pods *v1.PodList
+		// Get the NATS Pods via labels.
+		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
 		if err != nil {
 			return err
+		}
+
+		// The number of Pods must be equal NATS.spec.cluster.size. We check this in the retry, because it may take
+		// some time for all Pods to be there.
+		if len(pods.Items) != nats.Spec.Cluster.Size {
+			return fmt.Errorf(
+				"Error while fetching pods; wanted %v Pods but got %v", nats.Spec.Cluster.Size, pods.Items,
+			)
 		}
 
 		// Check if all Pods are ready (the status.conditions array has an entry with .type="Ready" and .status="True").
@@ -125,47 +142,18 @@ func Test_PodsAreHealthy(t *testing.T) {
 			}
 		}
 
+		// Everything is fine.
 		return nil
 	})
 	require.NoError(t, err)
 }
 
-func Test_NumberOfPods(t *testing.T) {
+// Test PVCs will test if any PVCs can be found, if their number is equal to the NATS CR's spec.cluster.size and if
+// they all have the right size.
+func Test_PVCs(t *testing.T) {
 	t.Parallel()
 
-	// Get the StatefulSet.
-	ctx := context.TODO()
-	sts, err := retryGet(attempts, interval, func() (*appsv1.StatefulSet, error) {
-		return clientSet.AppsV1().StatefulSets(kymaSystem).Get(ctx, eventingNats, metav1.GetOptions{})
-	})
-	require.NoError(t, err)
-
-	// Get NATS Pods and check, hat the number matches the Replicas of the StatefulSet.
-	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
-	err = retry(attempts, interval, func() error {
-		var pods *v1.PodList
-		// Get the NATS Pods via labels.
-		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
-		if err != nil {
-			return err
-		}
-
-		// The number of Pods must be equal to the number of Replicas in the StatefulSet.
-		if int32(len(pods.Items)) != *sts.Spec.Replicas {
-			return fmt.Errorf(
-				"Error while fetching pods; wanted %v Pods but got %v", sts.Spec.Replicas, pods.Items,
-			)
-		}
-
-		return nil
-	})
-	require.NoError(t, err)
-}
-
-func Test_PVC(t *testing.T) {
-	t.Parallel()
-
-	// Get the NATS CR
+	// Get the NATS CR. It will tell us how many PVCs we should expect.
 	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
@@ -173,11 +161,11 @@ func Test_PVC(t *testing.T) {
 		})
 	require.NoError(t, err)
 
-	// Get the PersistentVolumeClaims, PVCs.
+	// Get the PersistentVolumeClaims, PVCs, via a label.
 	var pvcs *v1.PersistentVolumeClaimList
 	listOpt := metav1.ListOptions{LabelSelector: nameNatsLabel}
 	err = retry(attempts, interval, func() error {
-		// Get PVCs via Label.
+		// Get PVCs via a label.
 		pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
 			return clientSet.CoreV1().PersistentVolumeClaims(kymaSystem).List(ctx, listOpt)
 		})
@@ -185,12 +173,14 @@ func Test_PVC(t *testing.T) {
 			return err
 		}
 
-		// Check if the amount of PVCs is equal to the number of Replicas in the StatefulSet.
+		// Check if the amount of PVCs is equal to the number of Replicas in the NATS CR. We do this in the retry,
+		// because it may take some time for all PVCs to be there.
 		want, actual := nats.Spec.Cluster.Size, len(pvcs.Items)
 		if want != actual {
 			return fmt.Errorf("Error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
 		}
 
+		// Everything is fine.
 		return nil
 	})
 	require.NoError(t, err)
