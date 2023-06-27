@@ -54,13 +54,6 @@ jobs:
         run: |
           go test ./e2e/... --tags=e2e
       -
-        name: List namespaces, statefulSets, CRDs and Pods
-        run: |
-          kubectl get namespaces
-          kubectl get sts --all-namespaces
-          kubectl get crd --all-namespaces
-          kubectl get pods --all-namespaces
-      -
         name: run NATS bench
         run: |
           go install github.com/nats-io/natscli/nats@latest
@@ -76,5 +69,6 @@ jobs:
           kubectl get sts --all-namespaces
           kubectl get crd --all-namespaces
           kubectl get pods --all-namespaces
+
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
