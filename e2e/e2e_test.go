@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 
@@ -29,6 +30,7 @@ const (
 	natsCLusterLabel      = "nats_cluster=eventing-nats"
 	nameNatsLabel         = "app.kubernetes.io/name=nats"
 	instanceEventingLabel = "app.kubernetes.io/instance=eventing"
+	containerName         = "nats"
 )
 
 const (
@@ -93,7 +95,61 @@ func Test_NamespaceWasCreated(t *testing.T) {
 }
 
 // Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods are ready.
-func Test_Pods(t *testing.T) {
+func Test_Pods_resources(t *testing.T) {
+	t.Parallel()
+
+	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
+	ctx := context.TODO()
+	nats, err := retryGet(attempts, interval,
+		func() (*natsv1alpha1.NATS, error) {
+			return getNATS(ctx, eventingNats, kymaSystem)
+		})
+	require.NoError(t, err)
+
+	// Get the NATS Pods and test them.
+	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
+	err = retry(attempts, interval, func() error {
+		var pods *v1.PodList
+		// Get the NATS Pods via labels.
+		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+		if err != nil {
+			return err
+		}
+
+		// The number of Pods must be equal NATS.spec.cluster.size. We check this in the retry, because it may take
+		// some time for all Pods to be there.
+		if len(pods.Items) != nats.Spec.Cluster.Size {
+			return fmt.Errorf(
+				"Error while fetching pods; wanted %v Pods but got %v", nats.Spec.Cluster.Size, pods.Items,
+			)
+		}
+
+		// Go through all Pods, find the nats container and compare the Resources with what is Resources defined in
+		// the NATS CR.
+		for _, pod := range pods.Items {
+			for _, container := range pod.Spec.Containers {
+				if !(container.Name == containerName) {
+					continue
+				}
+				if !reflect.DeepEqual(nats.Spec.Resources, container.Resources) {
+					return fmt.Errorf(
+						"error when checking pod %s resources:\n\twanted: %s\n\tgot: %s",
+						pod.GetName(),
+						nats.Spec.Resources.String(),
+						container.Resources.String(),
+					)
+				}
+			}
+		}
+
+		// Everything is fine.
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+// Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods are ready.
+func Test_Pods_health(t *testing.T) {
 	t.Parallel()
 
 	// Get the NATS CR. It will tell us how many Pods we should expect.
@@ -153,7 +209,7 @@ func Test_Pods(t *testing.T) {
 func Test_PVCs(t *testing.T) {
 	t.Parallel()
 
-	// Get the NATS CR. It will tell us how many PVCs we should expect.
+	// Get the NATS CR. It will tell us how many PVCs we should expect and what its size should be.
 	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
