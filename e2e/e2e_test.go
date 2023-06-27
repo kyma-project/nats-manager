@@ -1,6 +1,3 @@
-//go:build e2e
-// +build e2e
-
 package e2e_test
 
 import (
@@ -75,6 +72,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+
+	// Run the tests.
+	code := m.Run()
+
+	os.Exit(code)
 }
 
 // Test_namespace_was_created tries to get the namespace from the cluster.
@@ -170,24 +172,23 @@ func Test_PVC(t *testing.T) {
 	// Get the PersistentVolumeClaims, PVCs.
 	var pvcs *v1.PersistentVolumeClaimList
 	listOpt := metav1.ListOptions{LabelSelector: nameNatsLabel}
-	err = retry(attempts, interval,
-		func() error {
-			// Get PVCs via Label.
-			pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
-				return clientSet.CoreV1().PersistentVolumeClaims(kymaSystem).List(ctx, listOpt)
-			})
-			if err != nil {
-				return err
-			}
-
-			// Check if the amount of PVCs is equal to the number of Replicas in the StatefulSet.
-			want, actual := nats.Spec.Cluster.Size, len(pvcs.Items)
-			if want != actual {
-				return fmt.Errorf("Error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
-			}
-
-			return nil
+	err = retry(attempts, interval, func() error {
+		// Get PVCs via Label.
+		pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
+			return clientSet.CoreV1().PersistentVolumeClaims(kymaSystem).List(ctx, listOpt)
 		})
+		if err != nil {
+			return err
+		}
+
+		// Check if the amount of PVCs is equal to the number of Replicas in the StatefulSet.
+		want, actual := nats.Spec.Cluster.Size, len(pvcs.Items)
+		if want != actual {
+			return fmt.Errorf("Error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
+		}
+
+		return nil
+	})
 	require.NoError(t, err)
 
 	// Compare the PVC's sizes with the definition in the CRD.
