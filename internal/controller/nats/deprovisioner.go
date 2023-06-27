@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -29,15 +28,15 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	nats.Status.SetStateDeleting()
 
 	// create a new NATS client instance
-	if err := r.createAndConnectNatsClient(ctx, nats); err != nil {
+	if err := r.createAndConnectNatsClient(nats); err != nil {
 		// delete a PVC if NATS client cannot be created
-		return r.deletePVCsAndRemoveFinalizer(ctx, r.Client, nats, r.logger)
+		return r.deletePVCsAndRemoveFinalizer(ctx, nats, r.logger)
 	}
 	// check if NATS JetStream stream exists
 	streamExists, err := r.natsClient.StreamExists()
 	if err != nil {
 		// delete a PVC if NATS client cannot be created
-		return r.deletePVCsAndRemoveFinalizer(ctx, r.Client, nats, r.logger)
+		return r.deletePVCsAndRemoveFinalizer(ctx, nats, r.logger)
 	}
 	if streamExists {
 		// if a stream exists, do not delete the NATS cluster
@@ -46,28 +45,27 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 		return ctrl.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
 	}
 
-	return r.deletePVCsAndRemoveFinalizer(ctx, r.Client, nats, r.logger)
+	return r.deletePVCsAndRemoveFinalizer(ctx, nats, r.logger)
 }
 
-// create a new NATS client instance and connect to the NATS server
-func (r *Reconciler) createAndConnectNatsClient(ctx context.Context, nats *natsv1alpha1.NATS) error {
+// create a new NATS client instance and connect to the NATS server.
+func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 	// create a new instance if it does not exist
 	if r.natsClient == nil {
 		r.natsClient = NewNatsClient(&natsConfig{
 			URL: fmt.Sprintf("nats://%s.%s.svc.cluster.local:%d", nats.Name, nats.Namespace, natsClientPort),
 		})
 	}
-	if err := r.natsClient.Init(); err != nil {
-		return err
-	}
-	return nil
+	return r.natsClient.Init()
 }
 
-func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context, client client.Client, nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
+func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
+	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
 	// delete PVCs with the label selector
 	labelSelector := fmt.Sprintf("%s=%s", instanceLabelKey, nats.Name)
 	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Namespace); err != nil {
 		return ctrl.Result{}, err
 	}
+	log.Debugf("deleted PVCs with a namespace: %s and label selector: %s", nats.Namespace, labelSelector)
 	return r.removeFinalizer(ctx, nats)
 }

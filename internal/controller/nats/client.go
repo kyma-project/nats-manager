@@ -25,7 +25,7 @@ type natsConfig struct {
 
 type natsClient struct {
 	Config *natsConfig
-	conn   NatsConn
+	conn   Conn
 }
 
 func NewNatsClient(natsConfig *natsConfig) Client {
@@ -68,7 +68,7 @@ func (c *natsClient) Close() {
 	c.conn.Close()
 }
 
-type NatsConn interface {
+type Conn interface {
 	Status() nats.Status
 	JetStream() (nats.JetStreamContext, error)
 	IsConnected() bool

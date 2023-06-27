@@ -99,20 +99,21 @@ func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector stri
 	}
 
 	pvcList := &apiv1.PersistentVolumeClaimList{}
-	if err := c.client.List(ctx, pvcList, &client.ListOptions{
+	if err = c.client.List(ctx, pvcList, &client.ListOptions{
 		Namespace:     namespace,
 		LabelSelector: selector,
 	}); err != nil {
 		return err
 	}
 
-	// if there are no PVCs in the list, do nothing
+	// if there are no PVCs in the list, do nothing.
 	if len(pvcList.Items) == 0 {
 		return nil
 	}
 
-	// delete each PVC in the list
-	for _, pvc := range pvcList.Items {
+	// delete each PVC in the list.
+	for i := range pvcList.Items {
+		pvc := pvcList.Items[i]
 		err = c.client.Delete(ctx, &pvc)
 		if err != nil {
 			return err
