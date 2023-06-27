@@ -167,9 +167,10 @@ func Test_PVC(t *testing.T) {
 
 	// Get the NATS CR
 	ctx := context.TODO()
-	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATS(ctx, eventingNats, kymaSystem)
-	})
+	nats, err := retryGet(attempts, interval,
+		func() (*natsv1alpha1.NATS, error) {
+			return getNATS(ctx, eventingNats, kymaSystem)
+		})
 	require.NoError(t, err)
 
 	// Get the PersistentVolumeClaims, PVCs.
@@ -232,11 +233,11 @@ func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 	}
 }
 
-func getNATS(ctx context.Context, name, namespace string, opts ...client.GetOption) (*natsv1alpha1.NATS, error) {
-	var nats *natsv1alpha1.NATS
+func getNATS(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
+	var nats natsv1alpha1.NATS
 	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
-	}, nats, opts...)
-	return nats, err
+	}, &nats)
+	return &nats, err
 }
