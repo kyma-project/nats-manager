@@ -1,3 +1,6 @@
+//go:build e2e
+// +build e2e
+
 package e2e_test
 
 import (
@@ -35,10 +38,10 @@ const (
 )
 
 // clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
-var clientSet *kubernetes.Clientset
+var clientSet *kubernetes.Clientset //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
 // k8sClient is what is used to access the NATS CR.
-var k8sClient client.Client
+var k8sClient client.Client //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
 // TestMain runs before all the other test functions. It sets up all the resources that are shared between the different
 // test functions.
