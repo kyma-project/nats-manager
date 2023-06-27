@@ -140,6 +140,8 @@ func Test_handleNATSDeletion(t *testing.T) {
 				mock.Anything).Return(false, nil)
 			testEnv.kubeClient.On("GetSecret",
 				mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+			testEnv.kubeClient.On("DeletePVCsWithLabel",
+				mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 			natsResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{

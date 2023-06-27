@@ -6,9 +6,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -66,43 +64,10 @@ func (r *Reconciler) createAndConnectNatsClient(ctx context.Context, nats *natsv
 }
 
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context, client client.Client, nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
-	if err := deletePVCsWithLabel(ctx, client, nats, log); err != nil {
+	// delete PVCs with the label selector
+	labelSelector := fmt.Sprintf("%s=%s", instanceLabelKey, nats.Name)
+	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Namespace); err != nil {
 		return ctrl.Result{}, err
 	}
 	return r.removeFinalizer(ctx, nats)
-}
-
-func deletePVCsWithLabel(ctx context.Context, c client.Client, nats *natsv1alpha1.NATS, log *zap.SugaredLogger) error {
-	// create a new labels.Selector object for the label selector
-	labelSelector := fmt.Sprintf("%s=%s", instanceLabelKey, nats.Name)
-	selector, err := labels.Parse(labelSelector)
-	if err != nil {
-		return err
-	}
-
-	// create a new list of PVC objects that match the label selector
-	pvcList := &corev1.PersistentVolumeClaimList{}
-	err = c.List(ctx, pvcList, &client.ListOptions{
-		Namespace:     nats.Namespace,
-		LabelSelector: selector,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to list PVCs: %w", err)
-	}
-
-	if len(pvcList.Items) == 0 {
-		log.Debug("No PVCs found")
-		return nil
-	}
-
-	// delete each PVC in the list
-	for _, pvc := range pvcList.Items {
-		err = c.Delete(ctx, &pvc)
-		if err != nil {
-			return fmt.Errorf("failed to delete PVC: %w", err)
-		}
-		log.Debugf("PVC deleted: %s/%s", pvc.Namespace, pvc.Name)
-	}
-
-	return nil
 }

@@ -7,6 +7,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 
 	k8sclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -26,6 +27,7 @@ type Client interface {
 	GetSecret(context.Context, string, string) (*apiv1.Secret, error)
 	GetCRD(context.Context, string) (*apiextensionsv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
+	DeletePVCsWithLabel(context.Context, string, string) error
 }
 
 type KubeClient struct {
@@ -87,4 +89,34 @@ func (c *KubeClient) DestinationRuleCRDExists(ctx context.Context) (bool, error)
 		return false, client.IgnoreNotFound(err)
 	}
 	return true, nil
+}
+
+func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector string, namespace string) error {
+	// create a new labels.Selector object for the label selector
+	selector, err := labels.Parse(labelSelector)
+	if err != nil {
+		return err
+	}
+
+	pvcList := &apiv1.PersistentVolumeClaimList{}
+	if err := c.client.List(ctx, pvcList, &client.ListOptions{
+		Namespace:     namespace,
+		LabelSelector: selector,
+	}); err != nil {
+		return err
+	}
+
+	// if there are no PVCs in the list, do nothing
+	if len(pvcList.Items) == 0 {
+		return nil
+	}
+
+	// delete each PVC in the list
+	for _, pvc := range pvcList.Items {
+		err = c.client.Delete(ctx, &pvc)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
