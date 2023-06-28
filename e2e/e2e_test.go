@@ -1,5 +1,5 @@
-//go:build e2e
-// +build e2e
+//go:build e2esetup
+// +build e2esetup
 
 package e2e_test
 
@@ -87,6 +87,7 @@ func TestMain(m *testing.M) {
 func Test_NamespaceWasCreated(t *testing.T) {
 	t.Parallel()
 
+	// We will not do anything with the Namespace, so will only try to get it.
 	ctx := context.TODO()
 	_, err := retryGet(attempts, interval, func() (*v1.Namespace, error) {
 		return clientSet.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
@@ -94,23 +95,23 @@ func Test_NamespaceWasCreated(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods are ready.
+// Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
+// that .
 func Test_Pods_resources(t *testing.T) {
 	t.Parallel()
 
 	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	ctx := context.TODO()
-	nats, err := retryGet(attempts, interval,
-		func() (*natsv1alpha1.NATS, error) {
-			return getNATS(ctx, eventingNats, kymaSystem)
-		})
+	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+		return getNATS(ctx, eventingNats, kymaSystem)
+	})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
 	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
 	err = retry(attempts, interval, func() error {
-		var pods *v1.PodList
 		// Get the NATS Pods via labels.
+		var pods *v1.PodList
 		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
 		if err != nil {
 			return err
@@ -120,17 +121,21 @@ func Test_Pods_resources(t *testing.T) {
 		// some time for all Pods to be there.
 		if len(pods.Items) != nats.Spec.Cluster.Size {
 			return fmt.Errorf(
-				"Error while fetching pods; wanted %v Pods but got %v", nats.Spec.Cluster.Size, pods.Items,
+				"error while fetching Pods; wanted %v Pods but got %v",
+				nats.Spec.Cluster.Size,
+				pods.Items,
 			)
 		}
 
-		// Go through all Pods, find the nats container and compare the Resources with what is Resources defined in
+		// Go through all Pods, find the nats container in each and compare its Resources with what is defined in
 		// the NATS CR.
+		foundContainers := 0
 		for _, pod := range pods.Items {
 			for _, container := range pod.Spec.Containers {
 				if !(container.Name == containerName) {
 					continue
 				}
+				foundContainers += 1
 				if !reflect.DeepEqual(nats.Spec.Resources, container.Resources) {
 					return fmt.Errorf(
 						"error when checking pod %s resources:\n\twanted: %s\n\tgot: %s",
@@ -140,6 +145,13 @@ func Test_Pods_resources(t *testing.T) {
 					)
 				}
 			}
+		}
+		if foundContainers != nats.Spec.Resources.Size() {
+			return fmt.Errorf(
+				"error while fethching 'nats' Containers: expected %v but found %v",
+				nats.Spec.Cluster.Size,
+				foundContainers,
+			)
 		}
 
 		// Everything is fine.
@@ -182,15 +194,14 @@ func Test_Pods_health(t *testing.T) {
 		for _, pod := range pods.Items {
 			foundReadyCondition := false
 			for _, cond := range pod.Status.Conditions {
-				if cond.Type == "Ready" {
-					foundReadyCondition = true
-					expected := "True"
-					actual := fmt.Sprintf("%v", cond.Status)
-					if expected != actual {
-						return fmt.Errorf(
-							"Pod %s has 'Ready' conditon '%s' but wanted 'True'.", pod.GetName(), actual,
-						)
-					}
+				if cond.Type != "Ready" {
+					continue
+				}
+				foundReadyCondition = true
+				if cond.Status != "True" {
+					return fmt.Errorf(
+						"Pod %s has 'Ready' conditon '%s' but wanted 'True'.", pod.GetName(), cond.Status,
+					)
 				}
 			}
 			if !foundReadyCondition {
@@ -209,12 +220,11 @@ func Test_Pods_health(t *testing.T) {
 func Test_PVCs(t *testing.T) {
 	t.Parallel()
 
-	// Get the NATS CR. It will tell us how many PVCs we should expect and what its size should be.
+	// Get the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
 	ctx := context.TODO()
-	nats, err := retryGet(attempts, interval,
-		func() (*natsv1alpha1.NATS, error) {
-			return getNATS(ctx, eventingNats, kymaSystem)
-		})
+	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+		return getNATS(ctx, eventingNats, kymaSystem)
+	})
 	require.NoError(t, err)
 
 	// Get the PersistentVolumeClaims, PVCs, and test them.
@@ -233,7 +243,7 @@ func Test_PVCs(t *testing.T) {
 		// because it may take some time for all PVCs to be there.
 		want, actual := nats.Spec.Cluster.Size, len(pvcs.Items)
 		if want != actual {
-			return fmt.Errorf("Error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
+			return fmt.Errorf("error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
 		}
 
 		// Everything is fine.
