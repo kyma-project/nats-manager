@@ -12,6 +12,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/dynamic"
 
 	corev1 "k8s.io/api/core/v1"
@@ -49,7 +50,7 @@ const (
 	TwoMinTimeOut            = 120 * time.Second
 	BigPollingInterval       = 3 * time.Second
 	BigTimeOut               = 40 * time.Second
-	SmallTimeOut             = 5 * time.Second
+	SmallTimeOut             = 20 * time.Second
 	SmallPollingInterval     = 1 * time.Second
 
 	NATSContainerName  = "nats"
@@ -287,6 +288,17 @@ func (env TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namesp
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
 }
 
+func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace string) {
+	require.Eventually(t, func() bool {
+		result, err := env.GetPVCFromK8s(label, namespace)
+		if err != nil {
+			env.Logger.Errorw("failed to ensure PVC", "error", err,
+				natscontroller.InstanceLabelKey, label, "namespace", namespace)
+		}
+		return err == nil && result != nil
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of PVC")
+}
+
 func (env TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetConfigMapFromK8s(name, namespace)
@@ -331,6 +343,17 @@ func (env TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, name
 		}
 		return err != nil && k8serrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of StatefulSet")
+}
+
+func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace string) {
+	require.Eventually(t, func() bool {
+		pvc, err := env.GetPVCFromK8s(name, namespace)
+		if err != nil {
+			env.Logger.Errorw("failed to ensure PVC", "error", err,
+				"name", name, "namespace", namespace)
+		}
+		return (err != nil && k8serrors.IsNotFound(err)) || (pvc == nil && err == nil)
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of PVC")
 }
 
 func (env TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, namespace string,
@@ -517,6 +540,23 @@ func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv
 		return nil, err
 	}
 	return result, nil
+}
+
+func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*corev1.PersistentVolumeClaim, error) {
+	// get PVCs.
+	pvcList := &corev1.PersistentVolumeClaimList{}
+	if err := env.k8sClient.List(env.Context, pvcList, &client.ListOptions{
+		Namespace: namespace,
+		LabelSelector: labels.SelectorFromSet(map[string]string{
+			natscontroller.InstanceLabelKey: label,
+		}),
+	}); err != nil {
+		return nil, err
+	}
+	if len(pvcList.Items) == 0 {
+		return nil, nil //nolint:nilnil // this is a test code.
+	}
+	return &pvcList.Items[0], nil
 }
 
 func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {

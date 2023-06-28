@@ -249,6 +249,10 @@ func Test_UpdateNATSCR(t *testing.T) {
 func Test_DeleteNATSCR(t *testing.T) {
 	t.Parallel()
 
+	if !*testEnvironment.EnvTestInstance.UseExistingCluster {
+		t.Skip("This test can only run with a real cluster as k8s garbage collector is used.")
+	}
+
 	testCases := []struct {
 		name      string
 		givenNATS *v1alpha1.NATS
@@ -312,6 +316,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sPVCExists(t, tc.givenNATS.Name, givenNamespace)
 
 			// when
 			testEnvironment.EnsureK8sResourceDeleted(t, tc.givenNATS)
@@ -325,6 +330,8 @@ func Test_DeleteNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sServiceNotFound(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleNotFound(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+
+			testEnvironment.EnsureK8sPVCNotFound(t, tc.givenNATS.Name, givenNamespace)
 
 			// ensure NATS CR is deleted.
 			testEnvironment.EnsureK8sNATSNotFound(t, tc.givenNATS.Name, givenNamespace)

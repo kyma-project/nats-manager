@@ -13,7 +13,7 @@ import (
 const (
 	StreamExistsErrorMsg = "Cannot delete NATS cluster as stream exists"
 	natsClientPort       = 4222
-	instanceLabelKey     = "app.kubernetes.io/instance"
+	InstanceLabelKey     = "app.kubernetes.io/instance"
 )
 
 func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.NATS,
@@ -62,7 +62,7 @@ func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
 	// delete PVCs with the label selector
-	labelSelector := fmt.Sprintf("%s=%s", instanceLabelKey, nats.Name)
+	labelSelector := fmt.Sprintf("%s=%s", InstanceLabelKey, nats.Name)
 	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Namespace); err != nil {
 		return ctrl.Result{}, err
 	}
