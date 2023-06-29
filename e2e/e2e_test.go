@@ -294,10 +294,10 @@ func Test_NATSServer(t *testing.T) {
 	fmt.Printf(pod.GetName())
 
 	pf, err := portForward(ctx, *pod, "4222")
-	pf.SetDeadline()
 	require.NoError(t, err)
 
 	pf.Close()
+	ctx.Done()
 }
 
 func retry(attempts int, interval time.Duration, fn func() error) error {
