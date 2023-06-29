@@ -1,11 +1,12 @@
-//go:build e2esetup
-// +build e2esetup
-
 package e2e_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
+	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -13,12 +14,17 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/httpstream"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/portforward"
+	"k8s.io/client-go/transport/spdy"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -38,6 +44,9 @@ const (
 	attempts = 30
 )
 
+// kubeConfig will not only be needed to set up the clientSet and the k8sClient, but also to forward the ports of Pods.
+var kubeConfig *rest.Config //nolint:gochecknoglobals // This will only be accessible in e2e tests.
+
 // clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
 var clientSet *kubernetes.Clientset //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
@@ -53,7 +62,7 @@ func TestMain(m *testing.M) {
 	}
 	kubeConfigPath := filepath.Join(userHomeDir, ".kube", "config")
 
-	kubeConfig, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	kubeConfig, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	if err != nil {
 		panic(err)
 	}
@@ -77,9 +86,8 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Run the tests.
+	// Run the tests and exit.
 	code := m.Run()
-
 	os.Exit(code)
 }
 
@@ -258,6 +266,38 @@ func Test_PVCs(t *testing.T) {
 	}
 }
 
+func Test_NATSServer(t *testing.T) {
+	t.Parallel()
+
+	// Get the NATS CR.
+	ctx := context.TODO()
+	_, err := retryGet(attempts, interval,
+		func() (*natsv1alpha1.NATS, error) {
+			return getNATS(ctx, eventingNats, kymaSystem)
+		})
+	require.NoError(t, err)
+
+	pod, err := retryGet(attempts, interval, func() (*v1.Pod, error) {
+		listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
+		pods, podErr := clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+		if podErr != nil {
+			return nil, err
+		}
+
+		if len(pods.Items) == 0 {
+			return nil, fmt.Errorf("could not find pod")
+		}
+
+		return &pods.Items[0], nil
+	})
+
+	fmt.Printf(pod.GetName())
+
+	pf, err := portForward(ctx, *pod, "4222")
+
+	pf.Close()
+}
+
 func retry(attempts int, interval time.Duration, fn func() error) error {
 	ticker := time.NewTicker(interval)
 	var err error
@@ -296,4 +336,161 @@ func getNATS(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, e
 		Namespace: namespace,
 	}, &nats)
 	return &nats, err
+}
+
+// the following section is all about the port forward. I borrowed it from a much smarter person:
+// https://microcumul.us/blog/k8s-port-forwarding/
+
+func portForward(ctx context.Context, pod corev1.Pod, port string) (net.Conn, error) {
+	req := clientSet.RESTClient().
+		Post().
+		Prefix("api/v1").
+		Resource("pods").
+		Name(pod.Name).
+		Namespace(pod.Namespace).
+		SubResource("portforward")
+
+	transport, upgrader, err := spdy.RoundTripperFor(kubeConfig)
+	if err != nil {
+		return nil, fmt.Errorf("error getting transport/upgrader from restconfig: %w", err)
+	}
+
+	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", req.URL())
+	conn, _, err := dialer.Dial(portforward.PortForwardProtocolV1Name)
+	if err != nil {
+		return nil, fmt.Errorf("error dialing for conn %w", err)
+	}
+
+	headers := http.Header{}
+	headers.Set(v1.StreamType, v1.StreamTypeError)
+	headers.Set(v1.PortHeader, port)
+	headers.Set(v1.PortForwardRequestIDHeader, "1")
+
+	errorStream, err := conn.CreateStream(headers)
+	if err != nil {
+		return nil, fmt.Errorf("error creating err stream: %w", err)
+	}
+	// we're not writing to this stream
+	errorStream.Close()
+
+	headers.Set(v1.StreamType, v1.StreamTypeData)
+	dataStream, err := conn.CreateStream(headers)
+	if err != nil {
+		return nil, fmt.Errorf("error creating data stream: %w", err)
+	}
+
+	fc := &fakeConn{
+		parent: conn,
+		port:   port,
+		err:    errorStream,
+		errch:  make(chan error),
+		data:   dataStream,
+		pod:    pod,
+	}
+	go fc.watchErr(ctx)
+
+	return fc, nil
+}
+
+// This is a FakeAddr type used just in case anything asks for the net.Addr on
+// either side of this "network connection." It's there for debug and helps to
+// show that the source is memory and the destination is a k8s pod in a specific
+// namespace. `Network` returns "memory" because it's in-memory rather than tcp/udp.
+type fakeAddr string
+
+func (f fakeAddr) Network() string {
+	return "memory"
+}
+func (f fakeAddr) String() string {
+	return string(f)
+}
+
+// FakeConn is the guts of our connection. Most of this code is for handling
+// channels and the fact that two things may error, resulting in a problem for
+// our callers.
+type fakeConn struct {
+	parent    httpstream.Connection
+	data, err httpstream.Stream
+	errch     chan error
+	port      string
+	pod       v1.Pod
+}
+
+func (f *fakeConn) watchErr(ctx context.Context) {
+	// This should only return if an err comes back.
+	bs, err := io.ReadAll(f.err)
+	if err != nil {
+		select {
+		case <-ctx.Done():
+		case f.errch <- fmt.Errorf("error during read: %w", err):
+		}
+	}
+	if len(bs) > 0 {
+		select {
+		case <-ctx.Done():
+		case f.errch <- fmt.Errorf("error during read: %s", string(bs)):
+		}
+	}
+}
+
+func (f *fakeConn) Read(b []byte) (n int, err error) {
+	select {
+	case err := <-f.errch:
+		return 0, err
+	default:
+	}
+	return f.data.Read(b)
+}
+
+func (f *fakeConn) Write(b []byte) (n int, err error) {
+	select {
+	case err := <-f.errch:
+		return 0, err
+	default:
+	}
+	return f.data.Write(b)
+}
+
+func (f *fakeConn) Close() error {
+	var errs []error
+	select {
+	case err := <-f.errch:
+		if err != nil {
+			errs = append(errs, err)
+		}
+	default:
+	}
+	err := f.data.Close()
+	if err != nil {
+		errs = append(errs, err)
+	}
+	f.parent.RemoveStreams(f.data, f.err)
+	err = f.parent.Close()
+	if err != nil {
+		errs = append(errs, err)
+	}
+	return errors.Join(errs...)
+}
+
+func (f *fakeConn) LocalAddr() net.Addr {
+	return fakeAddr("memory:" + f.port)
+}
+
+func (f *fakeConn) RemoteAddr() net.Addr {
+	return fakeAddr(fmt.Sprintf("k8s/%s/%s:%s", f.pod.Namespace, f.pod.Name, f.port))
+}
+
+func (f *fakeConn) SetDeadline(t time.Time) error {
+	f.parent.SetIdleTimeout(time.Until(t))
+	return nil
+}
+
+func (f *fakeConn) SetReadDeadline(t time.Time) error {
+	f.parent.SetIdleTimeout(time.Until(t))
+	return nil
+}
+
+func (f *fakeConn) SetWriteDeadline(t time.Time) error {
+	f.parent.SetIdleTimeout(time.Until(t))
+	return nil
 }
