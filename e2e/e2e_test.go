@@ -154,7 +154,7 @@ func Test_Pods_resources(t *testing.T) {
 				}
 			}
 		}
-		if foundContainers != nats.Spec.Resources.Size() {
+		if foundContainers != nats.Spec.Cluster.Size {
 			return fmt.Errorf(
 				"error while fethching 'nats' Containers: expected %v but found %v",
 				nats.Spec.Cluster.Size,
@@ -294,6 +294,8 @@ func Test_NATSServer(t *testing.T) {
 	fmt.Printf(pod.GetName())
 
 	pf, err := portForward(ctx, *pod, "4222")
+	pf.SetDeadline()
+	require.NoError(t, err)
 
 	pf.Close()
 }
