@@ -24,32 +24,25 @@ func Test_handleNATSDeletion(t *testing.T) {
 
 	// define test cases
 	testCases := []struct {
-		name                 string
-		givenNATS            *natsv1alpha1.NATS
-		givenWithNATSCreated bool
-		mockNatsClientFunc   func() Client
-		wantCondition        *metav1.Condition
-		wantNATSStatusState  string
-		wantFinalizerExists  bool
-		wantResult           ctrl.Result
+		name                   string
+		givenWithNATSCreated   bool
+		natsCrWithoutFinalizer bool
+		mockNatsClientFunc     func() Client
+		wantCondition          *metav1.Condition
+		wantNATSStatusState    string
+		wantFinalizerExists    bool
+		wantResult             ctrl.Result
 	}{
 		{
-			name:                 "should not do anything if finalizer is not set",
-			givenWithNATSCreated: false,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSStateReady(),
-			),
-			wantNATSStatusState: natsv1alpha1.StateReady,
-			wantResult:          ctrl.Result{},
+			name:                   "should not do anything if finalizer is not set",
+			givenWithNATSCreated:   false,
+			natsCrWithoutFinalizer: true,
+			wantNATSStatusState:    natsv1alpha1.StateReady,
+			wantResult:             ctrl.Result{},
 		},
 		{
 			name:                 "should delete resources if connection to NATS server is not established",
 			givenWithNATSCreated: true,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRStatusInitialized(),
-				testutils.WithNATSStateReady(),
-				testutils.WithNATSCRFinalizer(NATSFinalizerName),
-			),
 			mockNatsClientFunc: func() Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(errors.New("connection cannot be established"))
@@ -59,14 +52,9 @@ func Test_handleNATSDeletion(t *testing.T) {
 			wantResult:          ctrl.Result{},
 		},
 		{
-			name:                 "should delete resources if natsClient StreamExists returns error",
+			name:                 "should delete resources if natsClients StreamExists returns error",
 			givenWithNATSCreated: true,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRStatusInitialized(),
-				testutils.WithNATSStateReady(),
-				testutils.WithNATSCRFinalizer(NATSFinalizerName),
-			),
-			wantNATSStatusState: natsv1alpha1.StateDeleting,
+			wantNATSStatusState:  natsv1alpha1.StateDeleting,
 			mockNatsClientFunc: func() Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
@@ -78,12 +66,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should add deleted condition with error when stream exists",
 			givenWithNATSCreated: true,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRStatusInitialized(),
-				testutils.WithNATSStateReady(),
-				testutils.WithNATSCRFinalizer(NATSFinalizerName),
-			),
-			wantNATSStatusState: natsv1alpha1.StateDeleting,
+			wantNATSStatusState:  natsv1alpha1.StateDeleting,
 			wantCondition: &metav1.Condition{
 				Type:               string(natsv1alpha1.ConditionDeleted),
 				Status:             metav1.ConditionFalse,
@@ -103,11 +86,6 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should delete resources if stream does not exist",
 			givenWithNATSCreated: true,
-			givenNATS: testutils.NewNATSCR(
-				testutils.WithNATSCRStatusInitialized(),
-				testutils.WithNATSStateReady(),
-				testutils.WithNATSCRFinalizer(NATSFinalizerName),
-			),
 			mockNatsClientFunc: func() Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
@@ -126,14 +104,28 @@ func Test_handleNATSDeletion(t *testing.T) {
 			t.Parallel()
 
 			// given
+			var givenNats *natsv1alpha1.NATS
+			if tc.natsCrWithoutFinalizer {
+				givenNats = testutils.NewNATSCR(
+					testutils.WithNATSCRStatusInitialized(),
+					testutils.WithNATSStateReady(),
+				)
+			} else {
+				givenNats = testutils.NewNATSCR(
+					testutils.WithNATSCRStatusInitialized(),
+					testutils.WithNATSStateReady(),
+					testutils.WithNATSCRFinalizer(NATSFinalizerName),
+				)
+			}
 			var objs []client.Object
 			if tc.givenWithNATSCreated {
-				objs = append(objs, tc.givenNATS)
+				objs = append(objs, givenNats)
 			}
 
 			testEnv := NewMockedUnitTestEnvironment(t, objs...)
 			reconciler := testEnv.Reconciler
-			nats := tc.givenNATS.DeepCopy()
+
+			nats := givenNats.DeepCopy()
 
 			// define mocks behaviour
 			testEnv.kubeClient.On("DestinationRuleCRDExists",
@@ -159,7 +151,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			)
 
 			if tc.mockNatsClientFunc != nil {
-				reconciler.natsClient = tc.mockNatsClientFunc()
+				reconciler.natsClients[nats.Namespace+"/"+nats.Name] = tc.mockNatsClientFunc()
 			}
 
 			// when

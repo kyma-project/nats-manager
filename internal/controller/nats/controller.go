@@ -51,7 +51,7 @@ type Reconciler struct {
 	client.Client
 	controller                  controller.Controller
 	kubeClient                  k8s.Client
-	natsClient                  Client
+	natsClients                 map[string]Client
 	chartRenderer               chart.Renderer
 	scheme                      *runtime.Scheme
 	recorder                    record.EventRecorder
@@ -75,6 +75,7 @@ func NewReconciler(
 	return &Reconciler{
 		Client:                      client,
 		kubeClient:                  kubeClient,
+		natsClients:                 make(map[string]Client),
 		chartRenderer:               chartRenderer,
 		scheme:                      scheme,
 		recorder:                    recorder,

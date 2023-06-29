@@ -33,7 +33,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 		return r.deletePVCsAndRemoveFinalizer(ctx, nats, r.logger)
 	}
 	// check if NATS JetStream stream exists
-	streamExists, err := r.natsClient.StreamExists()
+	streamExists, err := r.getNatsClient(nats).StreamExists()
 	if err != nil {
 		// delete a PVC if NATS client cannot be created
 		return r.deletePVCsAndRemoveFinalizer(ctx, nats, r.logger)
@@ -51,12 +51,12 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 // create a new NATS client instance and connect to the NATS server.
 func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 	// create a new instance if it does not exist
-	if r.natsClient == nil {
-		r.natsClient = NewNatsClient(&natsConfig{
+	if r.getNatsClient(nats) == nil {
+		r.setNatsClient(nats, NewNatsClient(&natsConfig{
 			URL: fmt.Sprintf("nats://%s.%s.svc.cluster.local:%d", nats.Name, nats.Namespace, natsClientPort),
-		})
+		}))
 	}
-	return r.natsClient.Init()
+	return r.getNatsClient(nats).Init()
 }
 
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
@@ -68,4 +68,14 @@ func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	}
 	log.Debugf("deleted PVCs with a namespace: %s and label selector: %s", nats.Namespace, labelSelector)
 	return r.removeFinalizer(ctx, nats)
+}
+
+func (r *Reconciler) getNatsClient(nats *natsv1alpha1.NATS) Client {
+	crKey := nats.Namespace + "/" + nats.Name
+	return r.natsClients[crKey]
+}
+
+func (r *Reconciler) setNatsClient(nats *natsv1alpha1.NATS, newNatsClient Client) {
+	crKey := nats.Namespace + "/" + nats.Name
+	r.natsClients[crKey] = newNatsClient
 }
