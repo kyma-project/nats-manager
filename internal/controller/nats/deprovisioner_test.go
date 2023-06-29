@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/kyma-project/nats-manager/pkg/nats"
+
 	"github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
 
@@ -27,7 +29,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		name                   string
 		givenWithNATSCreated   bool
 		natsCrWithoutFinalizer bool
-		mockNatsClientFunc     func() Client
+		mockNatsClientFunc     func() nats.Client
 		wantCondition          *metav1.Condition
 		wantNATSStatusState    string
 		wantFinalizerExists    bool
@@ -43,7 +45,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should delete resources if connection to NATS server is not established",
 			givenWithNATSCreated: true,
-			mockNatsClientFunc: func() Client {
+			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(errors.New("connection cannot be established"))
 				return natsClient
@@ -55,7 +57,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			name:                 "should delete resources if natsClients StreamExists returns error",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  natsv1alpha1.StateDeleting,
-			mockNatsClientFunc: func() Client {
+			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("StreamExists").Return(false, errors.New("unexpected error"))
@@ -74,7 +76,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				Reason:             string(natsv1alpha1.ConditionReasonDeletionError),
 				Message:            StreamExistsErrorMsg,
 			},
-			mockNatsClientFunc: func() Client {
+			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("StreamExists").Return(true, nil)
@@ -86,7 +88,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should delete resources if stream does not exist",
 			givenWithNATSCreated: true,
-			mockNatsClientFunc: func() Client {
+			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("StreamExists").Return(false, nil)

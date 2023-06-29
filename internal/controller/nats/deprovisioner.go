@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	natspkg "github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -52,7 +53,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 	// create a new instance if it does not exist
 	if r.getNatsClient(nats) == nil {
-		r.setNatsClient(nats, NewNatsClient(&natsConfig{
+		r.setNatsClient(nats, natspkg.NewNatsClient(&natspkg.Config{
 			URL: fmt.Sprintf("nats://%s.%s.svc.cluster.local:%d", nats.Name, nats.Namespace, natsClientPort),
 		}))
 	}
@@ -70,12 +71,12 @@ func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	return r.removeFinalizer(ctx, nats)
 }
 
-func (r *Reconciler) getNatsClient(nats *natsv1alpha1.NATS) Client {
+func (r *Reconciler) getNatsClient(nats *natsv1alpha1.NATS) natspkg.Client {
 	crKey := nats.Namespace + "/" + nats.Name
 	return r.natsClients[crKey]
 }
 
-func (r *Reconciler) setNatsClient(nats *natsv1alpha1.NATS, newNatsClient Client) {
+func (r *Reconciler) setNatsClient(nats *natsv1alpha1.NATS, newNatsClient natspkg.Client) {
 	crKey := nats.Namespace + "/" + nats.Name
 	r.natsClients[crKey] = newNatsClient
 }

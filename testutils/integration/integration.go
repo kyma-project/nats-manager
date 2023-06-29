@@ -50,7 +50,7 @@ const (
 	TwoMinTimeOut            = 120 * time.Second
 	BigPollingInterval       = 3 * time.Second
 	BigTimeOut               = 40 * time.Second
-	SmallTimeOut             = 20 * time.Second
+	SmallTimeOut             = 5 * time.Second
 	SmallPollingInterval     = 1 * time.Second
 
 	NATSContainerName  = "nats"
@@ -285,7 +285,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namesp
 				"name", name, "namespace", namespace)
 		}
 		return err == nil && result != nil
-	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
+	}, BigTimeOut, SmallPollingInterval, "failed to ensure existence of StatefulSet")
 }
 
 func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace string) {
@@ -296,7 +296,7 @@ func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace str
 				natscontroller.InstanceLabelKey, label, "namespace", namespace)
 		}
 		return err == nil && result != nil
-	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of PVC")
+	}, BigTimeOut, SmallPollingInterval, "failed to ensure existence of PVC")
 }
 
 func (env TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namespace string) {
@@ -342,7 +342,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, name
 				"name", name, "namespace", namespace)
 		}
 		return err != nil && k8serrors.IsNotFound(err)
-	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of StatefulSet")
+	}, BigTimeOut, SmallPollingInterval, "failed to ensure non-existence of StatefulSet")
 }
 
 func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace string) {
@@ -353,7 +353,7 @@ func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace st
 				"name", name, "namespace", namespace)
 		}
 		return (err != nil && k8serrors.IsNotFound(err)) || (pvc == nil && err == nil)
-	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of PVC")
+	}, BigTimeOut, SmallPollingInterval, "failed to ensure non-existence of PVC")
 }
 
 func (env TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, namespace string,

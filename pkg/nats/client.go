@@ -18,17 +18,17 @@ type Client interface {
 
 //go:generate mockery --name=Client --outpkg=mocks --case=underscore
 
-type natsConfig struct {
+type Config struct {
 	URL     string
 	Timeout time.Duration `default:"5s"`
 }
 
 type natsClient struct {
-	Config *natsConfig
+	Config *Config
 	conn   Conn
 }
 
-func NewNatsClient(natsConfig *natsConfig) Client {
+func NewNatsClient(natsConfig *Config) Client {
 	return &natsClient{Config: natsConfig}
 }
 
