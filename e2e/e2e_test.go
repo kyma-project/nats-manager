@@ -35,7 +35,7 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
-var errNamespaceExists = errors.New(fmt.Sprint("namespaces \" \" already exists", e2eNamespace))
+var errNamespaceExists = errors.New(`namespaces "kyma-system" already exists`)
 
 const (
 	e2eNamespace          = "kyma-system"
