@@ -98,6 +98,8 @@ func TestMain(m *testing.M) {
 
 // Test_CreateNATSCR create the namespace and the
 func Test_CreateNATSCR(t *testing.T) {
+	t.Parallel()
+
 	// Create a Namespace.
 	ctx := context.TODO()
 	ns := testutils.NewNamespace(e2eNamespace)
@@ -110,7 +112,7 @@ func Test_CreateNATSCR(t *testing.T) {
 	// Create a NATS CR.
 	natsCR := testutils.NewNATSCR(
 		testutils.WithNATSCRName(eventingNats),
-		testutils.WithNATSCRNamespace("kyma-system"),
+		testutils.WithNATSCRNamespace(e2eNamespace),
 		testutils.WithNATSClusterSize(3),
 		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
 			StorageClassName: "default",
