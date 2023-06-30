@@ -94,6 +94,56 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
+	// Set up namespace and nats cr.
+	ctx := context.TODO()
+	ns := testutils.NewNamespace(e2eNamespace)
+	err = retry(attempts, interval, func() error {
+		nsErr := k8sClient.Create(ctx, ns)
+		// If the error is only, that the namespaces already exists, we are fine.
+		if errors.Is(nsErr, errNamespaceExists) {
+			return nil
+		}
+		return nsErr
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	// Create a NATS CR.
+	natsCR := testutils.NewNATSCR(
+		testutils.WithNATSCRName(eventingNats),
+		testutils.WithNATSCRNamespace(e2eNamespace),
+		testutils.WithNATSClusterSize(3),
+		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
+			StorageClassName: "default",
+			Size:             resource.MustParse("1Gi"),
+		}),
+		testutils.WithNATSMemStorage(natsv1alpha1.MemStorage{
+			Enabled: false,
+			Size:    resource.MustParse("20Mi"),
+		}),
+		testutils.WithNATSResources(corev1.ResourceRequirements{
+			Limits: corev1.ResourceList{
+				"cpu":    resource.MustParse("20m"),
+				"memory": resource.MustParse("64Mi"),
+			},
+			Requests: corev1.ResourceList{
+				"cpu":    resource.MustParse("5m"),
+				"memory": resource.MustParse("16Mi"),
+			},
+		}),
+		testutils.WithNATSLogging(
+			true,
+			true,
+		),
+	)
+	err = retry(attempts, interval, func() error {
+		return k8sClient.Create(ctx, natsCR)
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	// Run the tests and exit.
 	code := m.Run()
 	os.Exit(code)
