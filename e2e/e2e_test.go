@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	e2eNamespace          = "e2e-test"
+	e2eNamespace          = "kyma-system"
 	eventingNats          = "eventing-nats"
 	natsCLusterLabel      = "nats_cluster=eventing-nats"
 	nameNatsLabel         = "app.kubernetes.io/name=nats"
