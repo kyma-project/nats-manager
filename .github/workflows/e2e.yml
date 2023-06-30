@@ -39,9 +39,9 @@ jobs:
         run: |
           make deploy IMG=$DOCKER_IMAGE
       -
-        name: Apply a NATS CR to the cluster
+        name: Test
         run: |
-          kubectl apply -f config/samples/e2e.yaml
+          go test ./e2e/... --tags=e2e
       -
         name: List namespaces, statefulSets, CRDs and Pods
         run: |
@@ -49,10 +49,6 @@ jobs:
           kubectl get sts --all-namespaces
           kubectl get crd --all-namespaces
           kubectl get pods --all-namespaces
-      -
-        name: Test
-        run: |
-          go test ./e2e/... --tags=e2e
       -
         name: run NATS bench
         run: |
@@ -62,13 +58,6 @@ jobs:
           # The following will run `bench` with the subject 'testsubject', 5 publishers 5 subscribers, 
           # 16 byte size per message, 1000 messages using JetStream.
           $HOME/go/bin/nats bench testsubject --pub 5 --sub 5 --size 16 --msgs 1000 --js
-      -
-        name: List namespaces, statefulSets, CRDs and Pods
-        run: |
-          kubectl get namespaces
-          kubectl get sts --all-namespaces
-          kubectl get crd --all-namespaces
-          kubectl get pods --all-namespaces
 
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check

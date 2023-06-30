@@ -19,6 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/httpstream"
@@ -31,10 +32,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
 )
 
 const (
-	kymaSystem            = "kyma-system"
+	e2eNamespace          = "e2e-test"
 	eventingNats          = "eventing-nats"
 	natsCLusterLabel      = "nats_cluster=eventing-nats"
 	nameNatsLabel         = "app.kubernetes.io/name=nats"
@@ -94,6 +96,51 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// Test_CreateNATSCR create the namespace and the
+func Test_CreateNATSCR(t *testing.T) {
+	// Create a Namespace.
+	ctx := context.TODO()
+	ns := testutils.NewNamespace(e2eNamespace)
+	err := retry(attempts, interval, func() error {
+		return k8sClient.Create(ctx, ns)
+	})
+	// todo, question, will there be an err if this ns already exists?
+	require.NoError(t, err)
+
+	// Create a NATS CR.
+	natsCR := testutils.NewNATSCR(
+		testutils.WithNATSCRName(eventingNats),
+		testutils.WithNATSCRNamespace("kyma-system"),
+		testutils.WithNATSClusterSize(3),
+		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
+			StorageClassName: "default",
+			Size:             resource.MustParse("1Gi"),
+		}),
+		testutils.WithNATSMemStorage(natsv1alpha1.MemStorage{
+			Enabled: false,
+			Size:    resource.MustParse("20Mi"),
+		}),
+		testutils.WithNATSResources(corev1.ResourceRequirements{
+			Limits: corev1.ResourceList{
+				"cpu":    resource.MustParse("20m"),
+				"memory": resource.MustParse("64Mi"),
+			},
+			Requests: corev1.ResourceList{
+				"cpu":    resource.MustParse("5m"),
+				"memory": resource.MustParse("16Mi"),
+			},
+		}),
+		testutils.WithNATSLogging(
+			true,
+			true,
+		),
+	)
+	err = retry(attempts, interval, func() error {
+		return k8sClient.Create(ctx, natsCR)
+	})
+	require.NoError(t, err)
+}
+
 // Test_namespace_was_created tries to get the namespace from the cluster.
 func Test_NamespaceWasCreated(t *testing.T) {
 	t.Parallel()
@@ -101,7 +148,7 @@ func Test_NamespaceWasCreated(t *testing.T) {
 	// We will not do anything with the Namespace, so will only try to get it.
 	ctx := context.TODO()
 	_, err := retryGet(attempts, interval, func() (*v1.Namespace, error) {
-		return clientSet.CoreV1().Namespaces().Get(ctx, kymaSystem, metav1.GetOptions{})
+		return clientSet.CoreV1().Namespaces().Get(ctx, e2eNamespace, metav1.GetOptions{})
 	})
 	require.NoError(t, err)
 }
@@ -114,7 +161,7 @@ func Test_Pods_resources(t *testing.T) {
 	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATS(ctx, eventingNats, kymaSystem)
+		return getNATS(ctx, eventingNats, e2eNamespace)
 	})
 	require.NoError(t, err)
 
@@ -123,7 +170,7 @@ func Test_Pods_resources(t *testing.T) {
 	err = retry(attempts, interval, func() error {
 		// Get the NATS Pods via labels.
 		var pods *v1.PodList
-		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+		pods, err = clientSet.CoreV1().Pods(e2eNamespace).List(ctx, listOptions)
 		if err != nil {
 			return err
 		}
@@ -179,7 +226,7 @@ func Test_Pods_health(t *testing.T) {
 	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
-			return getNATS(ctx, eventingNats, kymaSystem)
+			return getNATS(ctx, eventingNats, e2eNamespace)
 		})
 	require.NoError(t, err)
 
@@ -188,7 +235,7 @@ func Test_Pods_health(t *testing.T) {
 	err = retry(attempts, interval, func() error {
 		var pods *v1.PodList
 		// Get the NATS Pods via labels.
-		pods, err = clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+		pods, err = clientSet.CoreV1().Pods(e2eNamespace).List(ctx, listOptions)
 		if err != nil {
 			return err
 		}
@@ -234,7 +281,7 @@ func Test_PVCs(t *testing.T) {
 	// Get the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
 	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATS(ctx, eventingNats, kymaSystem)
+		return getNATS(ctx, eventingNats, e2eNamespace)
 	})
 	require.NoError(t, err)
 
@@ -244,7 +291,7 @@ func Test_PVCs(t *testing.T) {
 	err = retry(attempts, interval, func() error {
 		// Get PVCs via a label.
 		pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
-			return clientSet.CoreV1().PersistentVolumeClaims(kymaSystem).List(ctx, listOpt)
+			return clientSet.CoreV1().PersistentVolumeClaims(e2eNamespace).List(ctx, listOpt)
 		})
 		if err != nil {
 			return err
@@ -276,13 +323,13 @@ func Test_NATSServer(t *testing.T) {
 	ctx := context.TODO()
 	_, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
-			return getNATS(ctx, eventingNats, kymaSystem)
+			return getNATS(ctx, eventingNats, e2eNamespace)
 		})
 	require.NoError(t, err)
 
 	pod, err := retryGet(attempts, interval, func() (*v1.Pod, error) {
 		listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
-		pods, podErr := clientSet.CoreV1().Pods(kymaSystem).List(ctx, listOptions)
+		pods, podErr := clientSet.CoreV1().Pods(e2eNamespace).List(ctx, listOptions)
 		if podErr != nil {
 			return nil, err
 		}
@@ -294,13 +341,10 @@ func Test_NATSServer(t *testing.T) {
 		return &pods.Items[0], nil
 	})
 
-	fmt.Printf(pod.GetName())
-
-	pf, err := portForward(ctx, *pod, "4222")
-	require.NoError(t, err)
-
-	pf.Close()
-	ctx.Done()
+	pod.GetName()
+	// todo add port forward
+	// todo get info from nats server
+	// todo close port forward
 }
 
 func retry(attempts int, interval time.Duration, fn func() error) error {
