@@ -35,9 +35,8 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
-var errNamespaceExists = errors.New(`namespaces "kyma-system" already exists`)
-
 const (
+	errNamespaceExists    = `namespaces "kyma-system" already exists`
 	e2eNamespace          = "kyma-system"
 	eventingNats          = "eventing-nats"
 	natsCLusterLabel      = "nats_cluster=eventing-nats"
@@ -100,7 +99,7 @@ func TestMain(m *testing.M) {
 	err = retry(attempts, interval, func() error {
 		nsErr := k8sClient.Create(ctx, ns)
 		// If the error is only, that the namespaces already exists, we are fine.
-		if errors.Is(nsErr, errNamespaceExists) {
+		if nsErr.Error() == errNamespaceExists {
 			return nil
 		}
 		return nsErr
@@ -147,58 +146,6 @@ func TestMain(m *testing.M) {
 	// Run the tests and exit.
 	code := m.Run()
 	os.Exit(code)
-}
-
-// Test_CreateNATSCR create the namespace and the
-func Test_CreateNATSCR(t *testing.T) {
-	t.Parallel()
-
-	// Create a Namespace.
-	ctx := context.TODO()
-	ns := testutils.NewNamespace(e2eNamespace)
-	err := retry(attempts, interval, func() error {
-		nsErr := k8sClient.Create(ctx, ns)
-		// If the error is only, that the namespaces already exists, we are fine.
-		if errors.Is(nsErr, errNamespaceExists) {
-			return nil
-		}
-		return nsErr
-	})
-	// todo, question, will there be an err if this ns already exists?
-	require.NoError(t, err)
-
-	// Create a NATS CR.
-	natsCR := testutils.NewNATSCR(
-		testutils.WithNATSCRName(eventingNats),
-		testutils.WithNATSCRNamespace(e2eNamespace),
-		testutils.WithNATSClusterSize(3),
-		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
-			StorageClassName: "default",
-			Size:             resource.MustParse("1Gi"),
-		}),
-		testutils.WithNATSMemStorage(natsv1alpha1.MemStorage{
-			Enabled: false,
-			Size:    resource.MustParse("20Mi"),
-		}),
-		testutils.WithNATSResources(corev1.ResourceRequirements{
-			Limits: corev1.ResourceList{
-				"cpu":    resource.MustParse("20m"),
-				"memory": resource.MustParse("64Mi"),
-			},
-			Requests: corev1.ResourceList{
-				"cpu":    resource.MustParse("5m"),
-				"memory": resource.MustParse("16Mi"),
-			},
-		}),
-		testutils.WithNATSLogging(
-			true,
-			true,
-		),
-	)
-	err = retry(attempts, interval, func() error {
-		return k8sClient.Create(ctx, natsCR)
-	})
-	require.NoError(t, err)
 }
 
 // Test_namespace_was_created tries to get the namespace from the cluster.
@@ -380,7 +327,7 @@ func Test_NATSServer(t *testing.T) {
 	t.Parallel()
 
 	// Get the NATS CR.
-	ctx, cnclfunc := context.WithCancel(context.TODO())
+	ctx, cancel := context.WithCancel(context.TODO())
 	_, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
 			return getNATS(ctx, eventingNats, e2eNamespace)
@@ -401,11 +348,11 @@ func Test_NATSServer(t *testing.T) {
 		return &pods.Items[0], nil
 	})
 
-	pod.GetName()
+	// Forwarding the port is so easy.
 	_, err = portForward(ctx, *pod, "4222")
 	require.NoError(t, err)
 
-	cnclfunc()
+	cancel()
 }
 
 func retry(attempts int, interval time.Duration, fn func() error) error {
@@ -448,7 +395,7 @@ func getNATS(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, e
 	return &nats, err
 }
 
-// the following section is all about the port forward. I borrowed it from a much smarter person:
+// The following section is all about the port forward. It was borrowed from a much smarter person:
 // https://microcumul.us/blog/k8s-port-forwarding/
 func portForward(ctx context.Context, pod corev1.Pod, port string) (net.Conn, error) {
 	req := clientSet.RESTClient().
