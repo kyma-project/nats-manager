@@ -35,6 +35,8 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
+var errNamespaceExists = errors.New(fmt.Sprint("namespaces \" \" already exists", e2eNamespace))
+
 const (
 	e2eNamespace          = "kyma-system"
 	eventingNats          = "eventing-nats"
@@ -44,6 +46,7 @@ const (
 	containerName         = "nats"
 )
 
+// Const for retries; the retry and the retryGet functions.
 const (
 	interval = 10 * time.Second
 	attempts = 30
@@ -104,7 +107,12 @@ func Test_CreateNATSCR(t *testing.T) {
 	ctx := context.TODO()
 	ns := testutils.NewNamespace(e2eNamespace)
 	err := retry(attempts, interval, func() error {
-		return k8sClient.Create(ctx, ns)
+		nsErr := k8sClient.Create(ctx, ns)
+		// If the error is only, that the namespaces already exists, we are fine.
+		if errors.Is(nsErr, errNamespaceExists) {
+			return nil
+		}
+		return nsErr
 	})
 	// todo, question, will there be an err if this ns already exists?
 	require.NoError(t, err)
@@ -157,7 +165,7 @@ func Test_NamespaceWasCreated(t *testing.T) {
 
 // Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
 // that .
-func Test_Pods_resources(t *testing.T) {
+func Test_PodResources(t *testing.T) {
 	t.Parallel()
 
 	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
