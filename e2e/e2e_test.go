@@ -380,7 +380,7 @@ func Test_NATSServer(t *testing.T) {
 	t.Parallel()
 
 	// Get the NATS CR.
-	ctx := context.TODO()
+	ctx, cnclfunc := context.WithCancel(context.TODO())
 	_, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
 			return getNATS(ctx, eventingNats, e2eNamespace)
@@ -402,9 +402,10 @@ func Test_NATSServer(t *testing.T) {
 	})
 
 	pod.GetName()
-	// todo add port forward
-	// todo get info from nats server
-	// todo close port forward
+	_, err = portForward(ctx, *pod, "4222")
+	require.NoError(t, err)
+
+	cnclfunc()
 }
 
 func retry(attempts int, interval time.Duration, fn func() error) error {
@@ -449,7 +450,6 @@ func getNATS(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, e
 
 // the following section is all about the port forward. I borrowed it from a much smarter person:
 // https://microcumul.us/blog/k8s-port-forwarding/
-
 func portForward(ctx context.Context, pod corev1.Pod, port string) (net.Conn, error) {
 	req := clientSet.RESTClient().
 		Post().
