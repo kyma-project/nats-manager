@@ -136,6 +136,9 @@ func Test_handleNATSDeletion(t *testing.T) {
 				mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 			testEnv.kubeClient.On("DeletePVCsWithLabel",
 				mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			testEnv.kubeClient.On("GetStatefulSet",
+				mock.Anything, mock.Anything, mock.Anything).Return(testutils.NewStatefulSet(
+				"test-nats", "test-namespace", map[string]string{"app.kubernetes.io/instance": "test-nats"}), nil)
 
 			natsResources := &chart.ManifestResources{
 				Items: []*unstructured.Unstructured{

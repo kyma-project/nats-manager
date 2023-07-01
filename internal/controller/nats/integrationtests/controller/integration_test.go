@@ -322,7 +322,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sResourceDeleted(t, tc.givenNATS)
 
 			// then
-			// ensure all k8s objects are deleted
+			// we expect k8s garbage collector to delete the following objects.
 			testEnvironment.EnsureK8sStatefulSetNotFound(t,
 				testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sConfigMapNotFound(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
@@ -330,7 +330,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sServiceNotFound(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleNotFound(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
-
+			// ensure PVC is deleted
 			testEnvironment.EnsureK8sPVCNotFound(t, tc.givenNATS.Name, givenNamespace)
 
 			// ensure NATS CR is deleted.

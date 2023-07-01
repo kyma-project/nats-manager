@@ -10,6 +10,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -226,6 +227,16 @@ func NewPVC(name, namespace string, labels map[string]string) *apiv1.PersistentV
 					apiv1.ResourceStorage: resource.MustParse("1Gi"),
 				},
 			},
+		},
+	}
+}
+
+func NewStatefulSet(name, namespace string, labels map[string]string) *appsv1.StatefulSet {
+	return &appsv1.StatefulSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+			Labels:    labels,
 		},
 	}
 }

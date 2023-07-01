@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -62,10 +63,17 @@ func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
-	// delete PVCs with the label selector
-	labelSelector := fmt.Sprintf("%s=%s", InstanceLabelKey, nats.Name)
-	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Namespace); err != nil {
+	// retrieve the labelSelector from the StatefulSet with the name: nats.Name
+	sts, err := r.kubeClient.GetStatefulSet(ctx, nats.Name, nats.Namespace)
+	if err != nil {
 		return ctrl.Result{}, err
+	}
+	labelValue := sts.Labels[InstanceLabelKey]
+
+	// delete PVCs with the label selector
+	labelSelector := fmt.Sprintf("%s=%s", InstanceLabelKey, labelValue)
+	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Namespace); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	log.Debugf("deleted PVCs with a namespace: %s and label selector: %s", nats.Namespace, labelSelector)
 	return r.removeFinalizer(ctx, nats)
