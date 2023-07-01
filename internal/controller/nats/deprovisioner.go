@@ -75,6 +75,10 @@ func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Namespace); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+	// close the nats connection and remove the client instance
+	r.getNatsClient(nats).Close()
+	r.setNatsClient(nats, nil)
+
 	log.Debugf("deleted PVCs with a namespace: %s and label selector: %s", nats.Namespace, labelSelector)
 	return r.removeFinalizer(ctx, nats)
 }

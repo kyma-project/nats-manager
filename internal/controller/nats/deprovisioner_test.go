@@ -48,6 +48,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(errors.New("connection cannot be established"))
+				natsClient.On("Close").Return()
 				return natsClient
 			},
 			wantNATSStatusState: natsv1alpha1.StateDeleting,
@@ -61,6 +62,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("StreamExists").Return(false, errors.New("unexpected error"))
+				natsClient.On("Close").Return()
 				return natsClient
 			},
 			wantResult: ctrl.Result{},
@@ -92,6 +94,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("StreamExists").Return(false, nil)
+				natsClient.On("Close").Return()
 				return natsClient
 			},
 			wantNATSStatusState: natsv1alpha1.StateDeleting,
