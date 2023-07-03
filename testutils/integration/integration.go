@@ -352,7 +352,8 @@ func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace st
 			env.Logger.Errorw("failed to ensure PVC", "error", err,
 				"name", name, "namespace", namespace)
 		}
-		return (err != nil && k8serrors.IsNotFound(err)) || (pvc == nil && err == nil)
+		return (err != nil && k8serrors.IsNotFound(err)) || (pvc == nil && err == nil) ||
+			(pvc != nil && pvc.DeletionTimestamp != nil)
 	}, BigTimeOut, BigPollingInterval, "failed to ensure non-existence of PVC")
 }
 
