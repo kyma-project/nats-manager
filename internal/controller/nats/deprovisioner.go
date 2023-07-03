@@ -63,21 +63,18 @@ func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
-	// retrieve the labelSelector from the StatefulSet with the name: nats.Name
-	sts, err := r.kubeClient.GetStatefulSet(ctx, nats.Name, nats.Namespace)
-	if err != nil {
-		return ctrl.Result{}, err
+	labelValue := nats.Name
+	// TODO: delete the following logic after migrating to modular Kyma
+	if nats.Name == "eventing-nats" {
+		labelValue = "eventing"
 	}
-	labelValue := sts.Labels[InstanceLabelKey]
-
 	// delete PVCs with the label selector
 	labelSelector := fmt.Sprintf("%s=%s", InstanceLabelKey, labelValue)
 	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Namespace); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	// close the nats connection and remove the client instance
-	r.getNatsClient(nats).Close()
-	r.setNatsClient(nats, nil)
+	r.closeNatsClient(nats)
 
 	log.Debugf("deleted PVCs with a namespace: %s and label selector: %s", nats.Namespace, labelSelector)
 	return r.removeFinalizer(ctx, nats)
@@ -91,4 +88,13 @@ func (r *Reconciler) getNatsClient(nats *natsv1alpha1.NATS) natspkg.Client {
 func (r *Reconciler) setNatsClient(nats *natsv1alpha1.NATS, newNatsClient natspkg.Client) {
 	crKey := nats.Namespace + "/" + nats.Name
 	r.natsClients[crKey] = newNatsClient
+}
+
+// close the nats connection and remove the client instance.
+func (r *Reconciler) closeNatsClient(nats *natsv1alpha1.NATS) {
+	// check if nats client exists
+	if r.getNatsClient(nats) != nil {
+		r.getNatsClient(nats).Close()
+		r.setNatsClient(nats, nil)
+	}
 }

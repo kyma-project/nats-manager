@@ -65,7 +65,9 @@ func (c *natsClient) StreamExists() (bool, error) {
 }
 
 func (c *natsClient) Close() {
-	c.conn.Close()
+	if c.conn != nil {
+		c.conn.Close()
+	}
 }
 
 type Conn interface {
