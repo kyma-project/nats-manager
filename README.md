@@ -25,7 +25,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 - Access to Kubernetes cluster ([k3d](https://k3d.io/) / k8s)
 
 ### Running locally
-1. Download go packages
+1. Download Go packages:
    ```sh
    $ go mod vendor && go mod tidy
    ```
@@ -34,7 +34,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
     make install
     ```
 
-3. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
+3. Run your controller (this will run in the foreground, so if you want to leave it running, switch to a new terminal).
     ```sh
     make run
     ```
@@ -89,7 +89,7 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
 
 ### Deploying on the cluster
 
-1. Download go packages
+1. Download Go packages:
    ```sh
    $ go mod vendor && go mod tidy
    ```

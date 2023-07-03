@@ -250,7 +250,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 	t.Parallel()
 
 	if !*testEnvironment.EnvTestInstance.UseExistingCluster {
-		t.Skip("This test can only run with a real cluster as k8s garbage collector is used.")
+		t.Skip("Skipping as the test contains PVC creation/deletion and K8s garbage collection.")
 	}
 
 	testCases := []struct {
