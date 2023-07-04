@@ -72,13 +72,13 @@ func (_c *Client_Delete_Call) RunAndReturn(run func(context.Context, *unstructur
 	return _c
 }
 
-// DeletePVCsWithLabel provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Client) DeletePVCsWithLabel(_a0 context.Context, _a1 string, _a2 string) error {
-	ret := _m.Called(_a0, _a1, _a2)
+// DeletePVCsWithLabel provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *Client) DeletePVCsWithLabel(_a0 context.Context, _a1 string, _a2 string, _a3 string) error {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
-		r0 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -95,13 +95,14 @@ type Client_DeletePVCsWithLabel_Call struct {
 //   - _a0 context.Context
 //   - _a1 string
 //   - _a2 string
-func (_e *Client_Expecter) DeletePVCsWithLabel(_a0 interface{}, _a1 interface{}, _a2 interface{}) *Client_DeletePVCsWithLabel_Call {
-	return &Client_DeletePVCsWithLabel_Call{Call: _e.mock.On("DeletePVCsWithLabel", _a0, _a1, _a2)}
+//   - _a3 string
+func (_e *Client_Expecter) DeletePVCsWithLabel(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *Client_DeletePVCsWithLabel_Call {
+	return &Client_DeletePVCsWithLabel_Call{Call: _e.mock.On("DeletePVCsWithLabel", _a0, _a1, _a2, _a3)}
 }
 
-func (_c *Client_DeletePVCsWithLabel_Call) Run(run func(_a0 context.Context, _a1 string, _a2 string)) *Client_DeletePVCsWithLabel_Call {
+func (_c *Client_DeletePVCsWithLabel_Call) Run(run func(_a0 context.Context, _a1 string, _a2 string, _a3 string)) *Client_DeletePVCsWithLabel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
 	})
 	return _c
 }
@@ -111,7 +112,7 @@ func (_c *Client_DeletePVCsWithLabel_Call) Return(_a0 error) *Client_DeletePVCsW
 	return _c
 }
 
-func (_c *Client_DeletePVCsWithLabel_Call) RunAndReturn(run func(context.Context, string, string) error) *Client_DeletePVCsWithLabel_Call {
+func (_c *Client_DeletePVCsWithLabel_Call) RunAndReturn(run func(context.Context, string, string, string) error) *Client_DeletePVCsWithLabel_Call {
 	_c.Call.Return(run)
 	return _c
 }

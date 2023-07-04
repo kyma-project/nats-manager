@@ -338,18 +338,20 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name            string
-		labelSelector   string
-		namespace       string
-		givenPVC        *apiv1.PersistentVolumeClaim
-		wantNotFoundErr bool
+		name               string
+		mustHaveNamePrefix string
+		labelSelector      string
+		namespace          string
+		givenPVC           *apiv1.PersistentVolumeClaim
+		wantNotFoundErr    bool
 	}{
 		{
-			name:            "should delete PVCs with matching label",
-			labelSelector:   "app=myapp",
-			namespace:       "mynamespace",
-			givenPVC:        testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "myapp"}),
-			wantNotFoundErr: true,
+			name:               "should delete PVCs with matching label and name prefix",
+			mustHaveNamePrefix: "my",
+			labelSelector:      "app=myapp",
+			namespace:          "mynamespace",
+			givenPVC:           testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "myapp"}),
+			wantNotFoundErr:    true,
 		},
 		{
 			name:     "should do nothing if no PVC exists",
@@ -373,6 +375,13 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 			namespace:     "mynamespace",
 			givenPVC:      testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "notmyapp"}),
 		},
+		{
+			name:               "should not delete PVCs if mustHaveNamePrefix is not matched",
+			labelSelector:      "app=myapp",
+			mustHaveNamePrefix: "app=notmy",
+			namespace:          "mynamespace",
+			givenPVC:           testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "myapp"}),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -390,7 +399,7 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 			kubeClient := NewKubeClient(fakeClient, nil, testFieldManager)
 
 			// when
-			err := kubeClient.DeletePVCsWithLabel(context.Background(), tc.labelSelector, tc.namespace)
+			err := kubeClient.DeletePVCsWithLabel(context.Background(), tc.labelSelector, tc.mustHaveNamePrefix, tc.namespace)
 
 			// then
 			require.NoError(t, err)

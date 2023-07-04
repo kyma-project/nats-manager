@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -27,7 +28,7 @@ type Client interface {
 	GetSecret(context.Context, string, string) (*apiv1.Secret, error)
 	GetCRD(context.Context, string) (*apiextensionsv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
-	DeletePVCsWithLabel(context.Context, string, string) error
+	DeletePVCsWithLabel(context.Context, string, string, string) error
 }
 
 type KubeClient struct {
@@ -91,7 +92,8 @@ func (c *KubeClient) DestinationRuleCRDExists(ctx context.Context) (bool, error)
 	return true, nil
 }
 
-func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector string, namespace string) error {
+func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector string,
+	mustHaveNamePrefix, namespace string) error {
 	// create a new labels.Selector object for the label selector
 	selector, err := labels.Parse(labelSelector)
 	if err != nil {
@@ -114,9 +116,12 @@ func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector stri
 	// delete each PVC in the list.
 	for i := range pvcList.Items {
 		pvc := pvcList.Items[i]
-		err = c.client.Delete(ctx, &pvc)
-		if err != nil {
-			return err
+		// pvc.Name string starts with "eventing-"
+		if strings.HasPrefix(pvc.Name, mustHaveNamePrefix) {
+			err = c.client.Delete(ctx, &pvc)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
