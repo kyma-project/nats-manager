@@ -21,6 +21,8 @@ import (
 	"github.com/nats-io/nats-server/v2/server"
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -64,9 +66,13 @@ var clientSet *kubernetes.Clientset //nolint:gochecknoglobals // This will only 
 // k8sClient is what is used to access the NATS CR.
 var k8sClient client.Client //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
+var logger *zap.Logger
+
 // TestMain runs before all the other test functions. It sets up all the resources that are shared between the different
 // test functions. It will then run the tests and finally shuts everything down.
 func TestMain(m *testing.M) {
+	setupLogging()
+
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
@@ -361,6 +367,36 @@ func Test_NATSServer(t *testing.T) {
 	//
 	// // Close the port-forward.
 	// cancel()
+}
+
+func setupLogging() {
+	logLevel := os.Getenv("E2E_LOG_LEVEL")
+
+	var level zapcore.Level
+	switch logLevel {
+	case "debug":
+		level = zap.DebugLevel
+	case "info":
+		level = zap.InfoLevel
+	case "warn":
+		level = zap.WarnLevel
+	default:
+		level = zap.ErrorLevel
+	}
+
+	config := zap.Config{
+		Level:            zap.NewAtomicLevelAt(level),
+		Development:      false,
+		Encoding:         "json",
+		EncoderConfig:    zap.NewProductionEncoderConfig(),
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
+	var err error
+	logger, err = config.Build()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func retry(attempts int, interval time.Duration, fn func() error) error {
