@@ -75,24 +75,28 @@ func TestMain(m *testing.M) {
 
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 	kubeConfigPath := filepath.Join(userHomeDir, ".kube", "config")
 
 	kubeConfig, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 
 	// Set up the clientSet that is used to access regular K8s objects.
 	clientSet, err = kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 
 	// We need to add the NATS CRD to the scheme, so we can create a client that can access NATS objects.
 	err = natsv1alpha1.AddToScheme(scheme.Scheme)
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 
@@ -100,6 +104,7 @@ func TestMain(m *testing.M) {
 	// +kubebuilder:scaffold:scheme
 	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: scheme.Scheme})
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 
@@ -115,6 +120,7 @@ func TestMain(m *testing.M) {
 		return nsErr
 	})
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 
@@ -150,6 +156,7 @@ func TestMain(m *testing.M) {
 		return k8sClient.Create(ctx, natsCR)
 	})
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 
@@ -381,7 +388,9 @@ func setupLogging() {
 	case "warn":
 		level = zap.WarnLevel
 	default:
-		level = zap.ErrorLevel
+		// level = zap.ErrorLevel
+		// todo
+		level = zap.DebugLevel
 	}
 
 	config := zap.Config{
@@ -410,6 +419,7 @@ func retry(attempts int, interval time.Duration, fn func() error) error {
 			if err == nil || attempts == 0 {
 				return err
 			}
+			logger.Warn(fmt.Sprintf("retrying with %v attempts left", attempts))
 		}
 	}
 }
@@ -426,6 +436,7 @@ func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 			if err == nil || attempts == 0 {
 				return obj, err
 			}
+			logger.Warn(fmt.Sprintf("retrying with %v attempts left", attempts))
 		}
 	}
 }
