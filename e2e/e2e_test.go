@@ -113,7 +113,6 @@ func TestMain(m *testing.M) {
 	ns := testutils.NewNamespace(e2eNamespace)
 	err = retry(attempts, interval, func() error {
 		nsErr := k8sClient.Create(ctx, ns)
-		// If the error is only, that the namespaces already exists, we are fine.
 		if nsErr == nil || nsErr.Error() == errNamespaceExists {
 			return nil
 		}
@@ -416,6 +415,9 @@ func retry(attempts int, interval time.Duration, fn func() error) error {
 		case <-ticker.C:
 			attempts -= 1
 			err = fn()
+			if err != nil {
+				logger.Warn(fmt.Sprintf("error while retrying: %s", err.Error()))
+			}
 			if err == nil || attempts == 0 {
 				return err
 			}
@@ -433,6 +435,9 @@ func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 		case <-ticker.C:
 			attempts -= 1
 			obj, err = fn()
+			if err != nil {
+				logger.Warn(fmt.Sprintf("error while retrying: %s", err.Error()))
+			}
 			if err == nil || attempts == 0 {
 				return obj, err
 			}
