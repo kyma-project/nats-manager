@@ -22,7 +22,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/httpstream"
@@ -35,15 +34,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/testutils"
-)
-
-const (
-	e2eNamespace  = "kyma-system"
-	eventingNats  = "eventing-nats"
-	containerName = "nats"
-	pvcLabel      = "app.kubernetes.io/name=nats"
-	podLabel      = "nats_cluster=eventing-nats"
+	"github.com/kyma-project/nats-manager/e2e/fixtures"
 )
 
 // Const for retries; the retry and the retryGet functions.
@@ -105,13 +96,8 @@ func TestMain(m *testing.M) {
 
 	// Create the Namespace used for testing.
 	ctx := context.TODO()
-	namespaceObj := &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: e2eNamespace,
-		},
-	}
 	err = retry(attempts, interval, func() error {
-		_, nsErr := clientSet.CoreV1().Namespaces().Create(ctx, namespaceObj, metav1.CreateOptions{})
+		_, nsErr := clientSet.CoreV1().Namespaces().Create(ctx, fixtures.Namespace(), metav1.CreateOptions{})
 		if nsErr == nil || k8serrors.IsAlreadyExists(nsErr) {
 			return nil
 		}
@@ -123,35 +109,8 @@ func TestMain(m *testing.M) {
 	}
 
 	// Create the NATS CR used for testing.
-	natsCR := testutils.NewNATSCR(
-		testutils.WithNATSCRName(eventingNats),
-		testutils.WithNATSCRNamespace(e2eNamespace),
-		testutils.WithNATSClusterSize(3),
-		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
-			StorageClassName: "default",
-			Size:             resource.MustParse("1Gi"),
-		}),
-		testutils.WithNATSMemStorage(natsv1alpha1.MemStorage{
-			Enabled: false,
-			Size:    resource.MustParse("20Mi"),
-		}),
-		testutils.WithNATSResources(corev1.ResourceRequirements{
-			Limits: corev1.ResourceList{
-				"cpu":    resource.MustParse("20m"),
-				"memory": resource.MustParse("64Mi"),
-			},
-			Requests: corev1.ResourceList{
-				"cpu":    resource.MustParse("5m"),
-				"memory": resource.MustParse("16Mi"),
-			},
-		}),
-		testutils.WithNATSLogging(
-			true,
-			true,
-		),
-	)
 	err = retry(attempts, interval, func() error {
-		return k8sClient.Create(ctx, natsCR)
+		return k8sClient.Create(ctx, fixtures.NATSCR())
 	})
 	if err != nil {
 		logger.Error(err.Error())
@@ -163,18 +122,6 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// Test_namespace_was_created tries to get the namespace from the cluster.
-func Test_NamespaceWasCreated(t *testing.T) {
-	t.Parallel()
-
-	// We will not do anything with the Namespace, so will only try to get it.
-	ctx := context.TODO()
-	_, err := retryGet(attempts, interval, func() (*v1.Namespace, error) {
-		return clientSet.CoreV1().Namespaces().Get(ctx, e2eNamespace, metav1.GetOptions{})
-	})
-	require.NoError(t, err)
-}
-
 // Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
 // that .
 func Test_PodResources(t *testing.T) {
@@ -183,16 +130,16 @@ func Test_PodResources(t *testing.T) {
 	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATSCR(ctx, eventingNats, e2eNamespace)
+		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 	})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
-	listOptions := metav1.ListOptions{LabelSelector: podLabel}
+	listOptions := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
 	err = retry(attempts, interval, func() error {
 		// Get the NATS Pods via labels.
 		var pods *v1.PodList
-		pods, err = clientSet.CoreV1().Pods(e2eNamespace).List(ctx, listOptions)
+		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOptions)
 		if err != nil {
 			return err
 		}
@@ -212,7 +159,7 @@ func Test_PodResources(t *testing.T) {
 		foundContainers := 0
 		for _, pod := range pods.Items {
 			for _, container := range pod.Spec.Containers {
-				if !(container.Name == containerName) {
+				if !(container.Name == fixtures.ContainerName) {
 					continue
 				}
 				foundContainers += 1
@@ -248,16 +195,16 @@ func Test_Pods_health(t *testing.T) {
 	ctx := context.TODO()
 	natsCR, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
-			return getNATSCR(ctx, eventingNats, e2eNamespace)
+			return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 		})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
-	listOptions := metav1.ListOptions{LabelSelector: podLabel}
+	listOptions := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
 	err = retry(attempts, interval, func() error {
 		var pods *v1.PodList
 		// Get the NATS Pods via labels.
-		pods, err = clientSet.CoreV1().Pods(e2eNamespace).List(ctx, listOptions)
+		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOptions)
 		if err != nil {
 			return err
 		}
@@ -303,17 +250,17 @@ func Test_PVCs(t *testing.T) {
 	// Get the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
 	ctx := context.TODO()
 	natsCR, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATSCR(ctx, eventingNats, e2eNamespace)
+		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 	})
 	require.NoError(t, err)
 
 	// Get the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
-	listOpt := metav1.ListOptions{LabelSelector: pvcLabel}
+	listOpt := metav1.ListOptions{LabelSelector: fixtures.PVCLabel}
 	err = retry(attempts, interval, func() error {
 		// Get PVCs via a label.
 		pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
-			return clientSet.CoreV1().PersistentVolumeClaims(e2eNamespace).List(ctx, listOpt)
+			return clientSet.CoreV1().PersistentVolumeClaims(fixtures.NamespaceName).List(ctx, listOpt)
 		})
 		if err != nil {
 			return err
@@ -339,39 +286,40 @@ func Test_PVCs(t *testing.T) {
 }
 
 func Test_NATSServer(t *testing.T) {
-	// t.Parallel()
-	//
-	// // We need a context that can be canceled, if we work with port-forwarding
-	// ctx, cancel := context.WithCancel(context.TODO())
-	//
-	// // Get the NATS CR.
-	// _, err := retryGet(attempts, interval,
-	// 	func() (*natsv1alpha1.NATS, error) {
-	// 		return getNATSCR(ctx, eventingNats, e2eNamespace)
-	// 	})
-	// require.NoError(t, err)
-	//
-	// // Get one of the Pods.
-	// pod, err := retryGet(attempts, interval, func() (*v1.Pod, error) {
-	// 	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
-	// 	pods, podErr := clientSet.CoreV1().Pods(e2eNamespace).List(ctx, listOptions)
-	// 	if podErr != nil {
-	// 		return nil, err
-	// 	}
-	//
-	// 	if len(pods.Items) == 0 {
-	// 		return nil, fmt.Errorf("could not find pod")
-	// 	}
-	//
-	// 	return &pods.Items[0], nil
-	// })
-	//
-	// // Forwarding the port is so easy.
-	// _, err = portForward(ctx, *pod, "4222")
-	// require.NoError(t, err)
-	//
-	// // Close the port-forward.
-	// cancel()
+	t.Parallel()
+
+	// We need a context that can be canceled, if we work with port-forwarding
+	ctx, cancel := context.WithCancel(context.TODO())
+
+	// Get the NATS CR.
+	_, err := retryGet(attempts, interval,
+		func() (*natsv1alpha1.NATS, error) {
+			return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
+		})
+	require.NoError(t, err)
+
+	// Get one of the Pods.
+	var pod *v1.Pod
+	pod, err = retryGet(attempts, interval, func() (*v1.Pod, error) {
+		listOpts := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
+		pods, podErr := clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOpts)
+		if podErr != nil {
+			return nil, err
+		}
+
+		if len(pods.Items) == 0 {
+			return nil, fmt.Errorf("could not find pod")
+		}
+
+		return &pods.Items[0], nil
+	})
+
+	// Forwarding the port is so easy.
+	_, err = portForward(ctx, *pod, "4222")
+	require.NoError(t, err)
+
+	// Close the port-forward.
+	cancel()
 }
 
 func setupLogging() {
