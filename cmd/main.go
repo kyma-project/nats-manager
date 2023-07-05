@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package main //nolint:cyclop // main function needs to initialize many objects
 
 import (
 	"flag"
@@ -48,12 +48,20 @@ import (
 
 const defaultMetricsPort = 9443
 
-func main() { //nolint:funlen // main function needs to initialize many object
+func main() { //nolint:funlen // main function needs to initialize many objects
 	scheme := runtime.NewScheme()
 	setupLog := ctrl.Log.WithName("setup")
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(natsv1alpha1.AddToScheme(scheme))
 
+	// get configs from ENV
+	envConfigs, err := env.GetConfig()
+	if err != nil {
+		setupLog.Error(err, "unable to get configs from env")
+		os.Exit(1)
+	}
+
+	// get configs from command-line args
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
@@ -70,35 +78,36 @@ func main() { //nolint:funlen // main function needs to initialize many object
 		"ID for the controller leader election.")
 	flag.IntVar(&metricsPort, "metricsPort", defaultMetricsPort, "Port number for metrics endpoint.")
 
+	// setup k8s ctrl logger
+	logLevel, err := zapcore.ParseLevel(envConfigs.LogLevel)
+	if err != nil {
+		setupLog.Error(err, "unable to parse log level")
+		os.Exit(1)
+	}
 	opts := k8szap.Options{
-		Development: true,
+		Development: false,
+		Level:       logLevel,
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	// get configs from ENV
-	envConfigs, err := env.GetConfig()
-	if err != nil {
-		setupLog.Error(err, "unable to get configs from env")
-		os.Exit(1)
-	}
-
-	// @TODO: Re-check logger setup and init
 	ctrl.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
 
-	loggerConfig := zap.NewDevelopmentConfig()
+	// setup logger
+	loggerConfig := zap.NewProductionConfig()
 	loggerConfig.EncoderConfig.TimeKey = "timestamp"
 	loggerConfig.Encoding = "json"
 	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("Jan 02 15:04:05.000000000")
+	loggerConfig.Level = zap.NewAtomicLevelAt(logLevel)
 
 	logger, err := loggerConfig.Build()
 	if err != nil {
 		setupLog.Error(err, "unable to setup logger")
 		os.Exit(1)
 	}
-
 	sugaredLogger := logger.Sugar()
 
+	// setup ctrl manager
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,

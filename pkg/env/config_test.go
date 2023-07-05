@@ -20,6 +20,7 @@ func Test_GetConfig(t *testing.T) {
 	givenEnvs["NATS_CHART_DIR"] = "/test1/test2"
 	givenEnvs["NATS_CR_NAME"] = "name1"
 	givenEnvs["NATS_CR_NAMESPACE"] = "namespace1"
+	givenEnvs["LOG_LEVEL"] = "info"
 
 	for k, v := range givenEnvs {
 		t.Setenv(k, v)
