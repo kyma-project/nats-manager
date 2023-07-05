@@ -5,6 +5,7 @@ package e2e_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,9 +14,12 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/nats-io/nats-server/v2/server"
+	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
@@ -326,14 +330,17 @@ func Test_PVCs(t *testing.T) {
 func Test_NATSServer(t *testing.T) {
 	t.Parallel()
 
-	// Get the NATS CR.
+	// We need a context that can be canceled, if we work with port-forwarding
 	ctx, cancel := context.WithCancel(context.TODO())
+
+	// Get the NATS CR.
 	_, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
 			return getNATS(ctx, eventingNats, e2eNamespace)
 		})
 	require.NoError(t, err)
 
+	// Get one of the Pods.
 	pod, err := retryGet(attempts, interval, func() (*v1.Pod, error) {
 		listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
 		pods, podErr := clientSet.CoreV1().Pods(e2eNamespace).List(ctx, listOptions)
@@ -352,6 +359,7 @@ func Test_NATSServer(t *testing.T) {
 	_, err = portForward(ctx, *pod, "4222")
 	require.NoError(t, err)
 
+	// Close the port-forward.
 	cancel()
 }
 
@@ -395,8 +403,66 @@ func getNATS(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, e
 	return &nats, err
 }
 
+func connectToNATSServer() (*nats.Conn, error) {
+	nc, err := nats.Connect("nats://nats:4222")
+	if err != nil {
+		return nil, fmt.Errorf("nats connect: %w", err)
+	}
+	return nc, nil
+}
+
+func getNATSServerInfo(c *nats.Conn) error {
+	nc, err := connectToNATSServer()
+	if err != nil {
+		return err
+	}
+
+	id := "" // todo
+
+	subj := fmt.Sprintf("$SYS.REQ.SERVER.%s.VARZ", id)
+	body := []byte("{}")
+
+	if len(id) != 56 || strings.ToUpper(id) != id {
+		subj = "$SYS.REQ.SERVER.PING.VARZ"
+		opts := server.VarzEventOptions{EventFilterOptions: server.EventFilterOptions{Name: id}}
+		body, err = json.Marshal(opts)
+		if err != nil {
+			return err
+		}
+	}
+
+	resp, err := nc.Request(subj, body, interval)
+	if err != nil {
+		return fmt.Errorf("no results received, ensure the account used has system privileges and appropriate permissions")
+	}
+
+	reqresp := map[string]json.RawMessage{}
+	err = json.Unmarshal(resp.Data, &reqresp)
+	if err != nil {
+		return err
+	}
+
+	data, ok := reqresp["data"]
+	if !ok {
+		return fmt.Errorf("no data received in response: %#v", reqresp)
+	}
+
+	varz := &server.Varz{}
+	err = json.Unmarshal(data, varz)
+	if err != nil {
+		return err
+	}
+
+	// Todo
+
+	return nil
+}
+
 // The following section is all about the port forward. It was borrowed from a much smarter person:
 // https://microcumul.us/blog/k8s-port-forwarding/
+
+// portForward allows to forward a port. Pass context that can be canceled, so the port-forwarding can be closed,
+// once it is no longer needed.
 func portForward(ctx context.Context, pod corev1.Pod, port string) (net.Conn, error) {
 	req := clientSet.RESTClient().
 		Post().
