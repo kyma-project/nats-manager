@@ -7,6 +7,7 @@ import (
 
 	"github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 	"github.com/nats-io/nats.go"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_StreamExists(t *testing.T) {
@@ -61,11 +62,11 @@ func Test_StreamExists(t *testing.T) {
 			actual, err := natsClient.StreamExists()
 
 			if actual != tt.expected {
-				t.Errorf("expected %v, but got %v", tt.expected, actual)
+				require.Equal(t, tt.expected, actual)
 			}
 
 			if err != nil && err.Error() != tt.err.Error() {
-				t.Errorf("expected error %v, but got %v", tt.err, err)
+				require.Equal(t, tt.err, err)
 			}
 		})
 	}

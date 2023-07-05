@@ -1,16 +1,20 @@
 package nats
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/kyma-project/nats-manager/pkg/nats"
+	"go.uber.org/zap"
 
 	"github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	k8smocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -177,6 +181,170 @@ func Test_handleNATSDeletion(t *testing.T) {
 			}
 
 			require.Equal(t, tc.wantFinalizerExists, controllerutil.ContainsFinalizer(nats, NATSFinalizerName))
+		})
+	}
+}
+
+func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
+	tests := []struct {
+		name           string
+		nats           *natsv1alpha1.NATS
+		labelValue     string
+		deleteErr      error
+		expectedResult ctrl.Result
+		expectedErr    error
+	}{
+		{
+			name: "delete PVCs and remove finalizer",
+			nats: testutils.NewNATSCR(
+				testutils.WithNATSCRName("test-nats"),
+				testutils.WithNATSCRNamespace("test-namespace"),
+				testutils.WithNATSCRFinalizer(NATSFinalizerName),
+			),
+			labelValue:     "test-nats",
+			deleteErr:      nil,
+			expectedResult: ctrl.Result{},
+			expectedErr:    nil,
+		},
+		{
+			name: "labelSelector must be 'app.kubernetes.io/instance=eventing' for 'eventing-nats' nats CR name",
+			nats: testutils.NewNATSCR(
+				testutils.WithNATSCRName("eventing-nats"),
+				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSCRFinalizer(NATSFinalizerName),
+			),
+			labelValue:     "eventing",
+			deleteErr:      nil,
+			expectedResult: ctrl.Result{},
+			expectedErr:    nil,
+		},
+		{
+			name: "delete PVCs error",
+			nats: testutils.NewNATSCR(
+				testutils.WithNATSCRName("test-nats"),
+				testutils.WithNATSCRNamespace("test-namespace"),
+				testutils.WithNATSCRFinalizer(NATSFinalizerName),
+			),
+			labelValue:     "test-nats",
+			deleteErr:      errors.New("delete error"),
+			expectedResult: ctrl.Result{},
+			expectedErr:    errors.New("delete error"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var objs []client.Object
+			if tt.nats != nil {
+				objs = append(objs, tt.nats)
+			}
+
+			testEnv := NewMockedUnitTestEnvironment(t, objs...)
+			r := testEnv.Reconciler
+
+			r.kubeClient.(*k8smocks.Client).On("DeletePVCsWithLabel", mock.Anything, mock.Anything,
+				tt.nats.Name, tt.nats.Namespace).Return(tt.deleteErr)
+			natsClient := new(mocks.Client)
+			r.setNatsClient(tt.nats, natsClient)
+			r.getNatsClient(tt.nats).(*mocks.Client).On("Close").Return(nil)
+
+			result, err := r.deletePVCsAndRemoveFinalizer(context.Background(), tt.nats, zap.NewNop().Sugar())
+
+			require.Equal(t, tt.expectedResult, result)
+			require.Equal(t, tt.expectedErr, err)
+			if tt.deleteErr == nil {
+				require.False(t, r.containsFinalizer(tt.nats))
+			}
+
+			labelSelector := fmt.Sprintf("%s=%s", InstanceLabelKey, tt.labelValue)
+			r.kubeClient.(*k8smocks.Client).EXPECT().DeletePVCsWithLabel(mock.Anything, labelSelector,
+				tt.nats.Name, tt.nats.Namespace).Times(1)
+		})
+	}
+}
+
+func Test_CreateAndConnectNatsClient(t *testing.T) {
+	tests := []struct {
+		name        string
+		nats        *natsv1alpha1.NATS
+		initErr     error
+		expectedErr error
+	}{
+		{
+			name: "connect to existing client instance",
+			nats: testutils.NewNATSCR(
+				testutils.WithNATSCRName("test-nats"),
+				testutils.WithNATSCRNamespace("test-namespace"),
+			),
+			initErr:     nil,
+			expectedErr: nil,
+		},
+		{
+			name: "init error",
+			nats: testutils.NewNATSCR(
+				testutils.WithNATSCRName("test-nats"),
+				testutils.WithNATSCRNamespace("test-namespace"),
+			),
+			initErr:     errors.New("init error"),
+			expectedErr: errors.New("init error"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &Reconciler{}
+			r.natsClients = make(map[string]nats.Client)
+			r.setNatsClient(tt.nats, new(mocks.Client))
+			r.getNatsClient(tt.nats).(*mocks.Client).On("Init").Return(tt.initErr)
+
+			err := r.createAndConnectNatsClient(tt.nats)
+
+			if err != nil {
+				require.Equal(t, tt.expectedErr.Error(), err.Error())
+			}
+			r.getNatsClient(tt.nats).(*mocks.Client).AssertExpectations(t)
+		})
+	}
+}
+
+func Test_CloseNatsClient(t *testing.T) {
+	tests := []struct {
+		name           string
+		nats           *natsv1alpha1.NATS
+		existingClient *mocks.Client
+	}{
+		{
+			name: "close existing client",
+			nats: testutils.NewNATSCR(
+				testutils.WithNATSCRName("test-nats"),
+				testutils.WithNATSCRNamespace("test-namespace"),
+			),
+			existingClient: new(mocks.Client),
+		},
+		{
+			name: "no existing client",
+			nats: testutils.NewNATSCR(
+				testutils.WithNATSCRName("test-nats"),
+				testutils.WithNATSCRNamespace("test-namespace"),
+			),
+			existingClient: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &Reconciler{}
+			r.natsClients = make(map[string]nats.Client)
+			if tt.existingClient != nil {
+				tt.existingClient.On("Close").Return(nil)
+				r.setNatsClient(tt.nats, tt.existingClient)
+			}
+
+			r.closeNatsClient(tt.nats)
+			if tt.existingClient != nil {
+				tt.existingClient.AssertExpectations(t)
+			}
+			require.Nil(t, r.getNatsClient(tt.nats), "natsClient should be nil")
 		})
 	}
 }
