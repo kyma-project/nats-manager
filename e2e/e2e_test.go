@@ -25,6 +25,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
@@ -42,7 +43,6 @@ import (
 )
 
 const (
-	errNamespaceExists    = `namespaces "kyma-system" already exists`
 	e2eNamespace          = "kyma-system"
 	eventingNats          = "eventing-nats"
 	natsCLusterLabel      = "nats_cluster=eventing-nats"
@@ -53,8 +53,8 @@ const (
 
 // Const for retries; the retry and the retryGet functions.
 const (
-	interval = 10 * time.Second
-	attempts = 30
+	interval = 5 * time.Second
+	attempts = 60
 )
 
 // kubeConfig will not only be needed to set up the clientSet and the k8sClient, but also to forward the ports of Pods.
@@ -108,12 +108,16 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Set up namespace and nats cr.
+	// Create the Namespace used for testing.
 	ctx := context.TODO()
-	ns := testutils.NewNamespace(e2eNamespace)
+	namespaceObj := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: e2eNamespace,
+		},
+	}
 	err = retry(attempts, interval, func() error {
-		nsErr := k8sClient.Create(ctx, ns)
-		if nsErr == nil || nsErr.Error() == errNamespaceExists {
+		_, nsErr := clientSet.CoreV1().Namespaces().Create(ctx, namespaceObj, metav1.CreateOptions{})
+		if nsErr == nil || k8serrors.IsAlreadyExists(nsErr) {
 			return nil
 		}
 		return nsErr
@@ -123,7 +127,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Create a NATS CR.
+	// Create the NATS CR used for testing.
 	natsCR := testutils.NewNATSCR(
 		testutils.WithNATSCRName(eventingNats),
 		testutils.WithNATSCRNamespace(e2eNamespace),
