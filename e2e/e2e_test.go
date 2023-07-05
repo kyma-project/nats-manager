@@ -114,7 +114,7 @@ func TestMain(m *testing.M) {
 	err = retry(attempts, interval, func() error {
 		nsErr := k8sClient.Create(ctx, ns)
 		// If the error is only, that the namespaces already exists, we are fine.
-		if nsErr.Error() == errNamespaceExists {
+		if nsErr == nil || nsErr.Error() == errNamespaceExists {
 			return nil
 		}
 		return nsErr
