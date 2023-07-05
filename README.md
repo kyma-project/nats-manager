@@ -25,12 +25,16 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 - Access to Kubernetes cluster ([k3d](https://k3d.io/) / k8s)
 
 ### Running locally
-1. Install the CRDs into the cluster:
+1. Download Go packages:
+   ```sh
+   $ go mod vendor && go mod tidy
+   ```
+2. Install the CRDs into the cluster:
     ```sh
     make install
     ```
 
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
+3. Run your controller (this will run in the foreground, so if you want to leave it running, switch to a new terminal).
     ```sh
     make run
     ```
@@ -85,22 +89,27 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
 
 ### Deploying on the cluster
 
-1. Install the CRDs to the cluster:
+1. Download Go packages:
+   ```sh
+   $ go mod vendor && go mod tidy
+   ```
+
+2. Install the CRDs to the cluster:
     ```sh
     make install
     ```
-2. Build and push your image to the location specified by `IMG`:
+3. Build and push your image to the location specified by `IMG`:
 
    ```sh
    make docker-build docker-push IMG=<container-registry>/nats-manager:<tag>
    ```
 
-3. Deploy the `nats-manager` controller to the cluster:
+4. Deploy the `nats-manager` controller to the cluster:
     ```sh
     make deploy IMG=<container-registry>/nats-manager:<tag>
     ```
 
-4. [Optional] Install NATS Custom Resource:
+5. [Optional] Install NATS Custom Resource:
 
     ```sh
     kubectl apply -f config/samples/eventing-nats-eval.yaml

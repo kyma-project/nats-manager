@@ -6,10 +6,12 @@ import (
 
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
+	apiv1 "k8s.io/api/core/v1"
 	apiclientsetfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -328,6 +330,91 @@ func Test_DestinationRuleCRDExists(t *testing.T) {
 			// then
 			require.NoError(t, err)
 			require.Equal(t, tc.wantResult, gotResult)
+		})
+	}
+}
+
+func Test_DeletePVCsWithLabel(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name               string
+		mustHaveNamePrefix string
+		labelSelector      string
+		namespace          string
+		givenPVC           *apiv1.PersistentVolumeClaim
+		wantNotFoundErr    bool
+	}{
+		{
+			name:               "should delete PVCs with matching label and name prefix",
+			mustHaveNamePrefix: "my",
+			labelSelector:      "app=myapp",
+			namespace:          "mynamespace",
+			givenPVC:           testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "myapp"}),
+			wantNotFoundErr:    true,
+		},
+		{
+			name:     "should do nothing if no PVC exists",
+			givenPVC: nil,
+		},
+		{
+			name:          "should not delete PVCs with non-matching label",
+			labelSelector: "app=myapp",
+			namespace:     "mynamespace",
+			givenPVC:      testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "notmyapp"}),
+		},
+		{
+			name:          "should not delete PVCs in different namespace",
+			labelSelector: "app=myapp",
+			namespace:     "mynamespace",
+			givenPVC:      testutils.NewPVC("mypvc", "othernamespace", map[string]string{"app": "myapp"}),
+		},
+		{
+			name:          "should not delete PVCs if none match label",
+			labelSelector: "app=myapp",
+			namespace:     "mynamespace",
+			givenPVC:      testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "notmyapp"}),
+		},
+		{
+			name:               "should not delete PVCs if mustHaveNamePrefix is not matched",
+			labelSelector:      "app=myapp",
+			mustHaveNamePrefix: "app=notmy",
+			namespace:          "mynamespace",
+			givenPVC:           testutils.NewPVC("mypvc", "mynamespace", map[string]string{"app": "myapp"}),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// given
+			var objs []client.Object
+			if tc.givenPVC != nil {
+				objs = append(objs, tc.givenPVC)
+			}
+			fakeClientBuilder := fake.NewClientBuilder()
+			fakeClient := fakeClientBuilder.WithObjects(objs...).Build()
+			kubeClient := NewKubeClient(fakeClient, nil, testFieldManager)
+
+			// when
+			err := kubeClient.DeletePVCsWithLabel(context.Background(), tc.labelSelector, tc.mustHaveNamePrefix, tc.namespace)
+
+			// then
+			require.NoError(t, err)
+			// no need to execute following checks if no PVCs were given
+			if tc.givenPVC == nil {
+				return
+			}
+			// check that the PVCs were deleted
+			err = fakeClient.Get(context.Background(),
+				types.NamespacedName{Name: tc.givenPVC.Name, Namespace: tc.givenPVC.Namespace}, tc.givenPVC)
+			if tc.wantNotFoundErr {
+				require.True(t, k8serrors.IsNotFound(err))
+			} else {
+				require.NoError(t, err)
+			}
 		})
 	}
 }
