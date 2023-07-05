@@ -37,6 +37,7 @@ const (
 
 	ConditionAvailable   ConditionType = "Available"
 	ConditionStatefulSet ConditionType = "StatefulSet"
+	ConditionDeleted     ConditionType = "Deleted"
 
 	ConditionReasonProcessing           ConditionReason = "Processing"
 	ConditionReasonDeploying            ConditionReason = "Deploying"

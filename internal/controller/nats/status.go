@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-// syncNATSStatus syncs NATS status and updates the k8s subscription.
+// syncNATSStatus syncs NATS status.
 // Returns the relevant error.
 func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 	nats *natsv1alpha1.NATS, err error, log *zap.SugaredLogger) error {
@@ -26,7 +26,7 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 	return r.syncNATSStatus(ctx, nats, log)
 }
 
-// syncNATSStatus syncs NATS status and updates the k8s subscription.
+// syncNATSStatus syncs NATS status.
 func (r *Reconciler) syncNATSStatus(ctx context.Context,
 	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) error {
 	namespacedName := &k8stype.NamespacedName{
@@ -44,7 +44,7 @@ func (r *Reconciler) syncNATSStatus(ctx context.Context,
 	desiredNATS := actualNATS.DeepCopy()
 	desiredNATS.Status = nats.Status
 
-	// sync subscription status with k8s
+	// sync nats resource status with k8s
 	return r.updateStatus(ctx, actualNATS, desiredNATS, log)
 }
 
@@ -56,7 +56,7 @@ func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *natsv1a
 		return nil
 	}
 
-	// update the status for subscription in k8s
+	// update the status for nats resource
 	if err := r.Status().Update(ctx, newNATS); err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
@@ -313,18 +314,22 @@ func Test_DeleteNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 
+			if !*testEnvironment.EnvTestInstance.UseExistingCluster {
+				// create a PVC as local envtest cluster cannot create PVCs.
+				pvc := testutils.NewPVC(tc.givenNATS.Name, givenNamespace,
+					map[string]string{nats.InstanceLabelKey: tc.givenNATS.Name})
+				testEnvironment.EnsureK8sResourceCreated(t, pvc)
+			}
+
+			testEnvironment.EnsureK8sPVCExists(t, tc.givenNATS.Name, givenNamespace)
+
 			// when
 			testEnvironment.EnsureK8sResourceDeleted(t, tc.givenNATS)
 
 			// then
-			// ensure all k8s objects are deleted
-			testEnvironment.EnsureK8sStatefulSetNotFound(t,
-				testutils.GetStatefulSetName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sConfigMapNotFound(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sSecretNotFound(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sServiceNotFound(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
-			testEnvironment.EnsureK8sDestinationRuleNotFound(t,
-				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
+			// we expect the other resources are deleted by k8s garbage collector.
+			// ensure PVC is deleted
+			testEnvironment.EnsureK8sPVCNotFound(t, tc.givenNATS.Name, givenNamespace)
 
 			// ensure NATS CR is deleted.
 			testEnvironment.EnsureK8sNATSNotFound(t, tc.givenNATS.Name, givenNamespace)
