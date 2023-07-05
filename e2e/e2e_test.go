@@ -5,7 +5,6 @@ package e2e_test
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -14,12 +13,9 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats-server/v2/server"
-	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -43,12 +39,11 @@ import (
 )
 
 const (
-	e2eNamespace          = "kyma-system"
-	eventingNats          = "eventing-nats"
-	natsCLusterLabel      = "nats_cluster=eventing-nats"
-	nameNatsLabel         = "app.kubernetes.io/name=nats"
-	instanceEventingLabel = "app.kubernetes.io/instance=eventing"
-	containerName         = "nats"
+	e2eNamespace  = "kyma-system"
+	eventingNats  = "eventing-nats"
+	containerName = "nats"
+	pvcLabel      = "app.kubernetes.io/name=nats"
+	podLabel      = "nats_cluster=eventing-nats"
 )
 
 // Const for retries; the retry and the retryGet functions.
@@ -188,12 +183,12 @@ func Test_PodResources(t *testing.T) {
 	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	ctx := context.TODO()
 	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATS(ctx, eventingNats, e2eNamespace)
+		return getNATSCR(ctx, eventingNats, e2eNamespace)
 	})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
-	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
+	listOptions := metav1.ListOptions{LabelSelector: podLabel}
 	err = retry(attempts, interval, func() error {
 		// Get the NATS Pods via labels.
 		var pods *v1.PodList
@@ -251,14 +246,14 @@ func Test_Pods_health(t *testing.T) {
 
 	// Get the NATS CR. It will tell us how many Pods we should expect.
 	ctx := context.TODO()
-	nats, err := retryGet(attempts, interval,
+	natsCR, err := retryGet(attempts, interval,
 		func() (*natsv1alpha1.NATS, error) {
-			return getNATS(ctx, eventingNats, e2eNamespace)
+			return getNATSCR(ctx, eventingNats, e2eNamespace)
 		})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
-	listOptions := metav1.ListOptions{LabelSelector: natsCLusterLabel}
+	listOptions := metav1.ListOptions{LabelSelector: podLabel}
 	err = retry(attempts, interval, func() error {
 		var pods *v1.PodList
 		// Get the NATS Pods via labels.
@@ -269,9 +264,9 @@ func Test_Pods_health(t *testing.T) {
 
 		// The number of Pods must be equal NATS.spec.cluster.size. We check this in the retry, because it may take
 		// some time for all Pods to be there.
-		if len(pods.Items) != nats.Spec.Cluster.Size {
+		if len(pods.Items) != natsCR.Spec.Cluster.Size {
 			return fmt.Errorf(
-				"Error while fetching pods; wanted %v Pods but got %v", nats.Spec.Cluster.Size, pods.Items,
+				"Error while fetching pods; wanted %v Pods but got %v", natsCR.Spec.Cluster.Size, pods.Items,
 			)
 		}
 
@@ -307,14 +302,14 @@ func Test_PVCs(t *testing.T) {
 
 	// Get the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
 	ctx := context.TODO()
-	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATS(ctx, eventingNats, e2eNamespace)
+	natsCR, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+		return getNATSCR(ctx, eventingNats, e2eNamespace)
 	})
 	require.NoError(t, err)
 
 	// Get the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
-	listOpt := metav1.ListOptions{LabelSelector: nameNatsLabel}
+	listOpt := metav1.ListOptions{LabelSelector: pvcLabel}
 	err = retry(attempts, interval, func() error {
 		// Get PVCs via a label.
 		pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
@@ -326,7 +321,7 @@ func Test_PVCs(t *testing.T) {
 
 		// Check if the amount of PVCs is equal to the spec.cluster.size in the NATS CR. We do this in the retry,
 		// because it may take some time for all PVCs to be there.
-		want, actual := nats.Spec.Cluster.Size, len(pvcs.Items)
+		want, actual := natsCR.Spec.Cluster.Size, len(pvcs.Items)
 		if want != actual {
 			return fmt.Errorf("error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
 		}
@@ -339,7 +334,7 @@ func Test_PVCs(t *testing.T) {
 	// Compare the PVC's sizes with the definition in the CRD.
 	for _, pvc := range pvcs.Items {
 		size := pvc.Spec.Resources.Requests[v1.ResourceStorage]
-		require.True(t, size.Equal(nats.Spec.FileStorage.Size))
+		require.True(t, size.Equal(natsCR.Spec.FileStorage.Size))
 	}
 }
 
@@ -352,7 +347,7 @@ func Test_NATSServer(t *testing.T) {
 	// // Get the NATS CR.
 	// _, err := retryGet(attempts, interval,
 	// 	func() (*natsv1alpha1.NATS, error) {
-	// 		return getNATS(ctx, eventingNats, e2eNamespace)
+	// 		return getNATSCR(ctx, eventingNats, e2eNamespace)
 	// 	})
 	// require.NoError(t, err)
 	//
@@ -450,69 +445,69 @@ func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 	}
 }
 
-func getNATS(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
-	var nats natsv1alpha1.NATS
+func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
+	var natsCR natsv1alpha1.NATS
 	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
-	}, &nats)
-	return &nats, err
+	}, &natsCR)
+	return &natsCR, err
 }
 
-func connectToNATSServer() (*nats.Conn, error) {
-	nc, err := nats.Connect("nats://nats:4222")
-	if err != nil {
-		return nil, fmt.Errorf("nats connect: %w", err)
-	}
-	return nc, nil
-}
+// func connectToNATSServer() (*nats.Conn, error) {
+// 	nc, err := nats.Connect("nats://nats:4222")
+// 	if err != nil {
+// 		return nil, fmt.Errorf("nats connect: %w", err)
+// 	}
+// 	return nc, nil
+// }
 
-func getNATSServerInfo(c *nats.Conn) error {
-	nc, err := connectToNATSServer()
-	if err != nil {
-		return err
-	}
-
-	id := "" // todo
-
-	subj := fmt.Sprintf("$SYS.REQ.SERVER.%s.VARZ", id)
-	body := []byte("{}")
-
-	if len(id) != 56 || strings.ToUpper(id) != id {
-		subj = "$SYS.REQ.SERVER.PING.VARZ"
-		opts := server.VarzEventOptions{EventFilterOptions: server.EventFilterOptions{Name: id}}
-		body, err = json.Marshal(opts)
-		if err != nil {
-			return err
-		}
-	}
-
-	resp, err := nc.Request(subj, body, interval)
-	if err != nil {
-		return fmt.Errorf("no results received, ensure the account used has system privileges and appropriate permissions")
-	}
-
-	reqresp := map[string]json.RawMessage{}
-	err = json.Unmarshal(resp.Data, &reqresp)
-	if err != nil {
-		return err
-	}
-
-	data, ok := reqresp["data"]
-	if !ok {
-		return fmt.Errorf("no data received in response: %#v", reqresp)
-	}
-
-	varz := &server.Varz{}
-	err = json.Unmarshal(data, varz)
-	if err != nil {
-		return err
-	}
-
-	// Todo
-
-	return nil
-}
+// func getNATSServerInfo(c *nats.Conn) error {
+// 	nc, err := connectToNATSServer()
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	id := "" // todo
+//
+// 	subj := fmt.Sprintf("$SYS.REQ.SERVER.%s.VARZ", id)
+// 	body := []byte("{}")
+//
+// 	if len(id) != 56 || strings.ToUpper(id) != id {
+// 		subj = "$SYS.REQ.SERVER.PING.VARZ"
+// 		opts := server.VarzEventOptions{EventFilterOptions: server.EventFilterOptions{Name: id}}
+// 		body, err = json.Marshal(opts)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+//
+// 	resp, err := nc.Request(subj, body, interval)
+// 	if err != nil {
+// 		return fmt.Errorf("no results received, ensure the account used has system privileges and appropriate permissions")
+// 	}
+//
+// 	reqresp := map[string]json.RawMessage{}
+// 	err = json.Unmarshal(resp.Data, &reqresp)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	data, ok := reqresp["data"]
+// 	if !ok {
+// 		return fmt.Errorf("no data received in response: %#v", reqresp)
+// 	}
+//
+// 	varz := &server.Varz{}
+// 	err = json.Unmarshal(data, varz)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	// Todo
+//
+// 	return nil
+// }
 
 // The following section is all about the port forward. It was borrowed from a much smarter person:
 // https://microcumul.us/blog/k8s-port-forwarding/
