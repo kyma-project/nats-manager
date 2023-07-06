@@ -12,10 +12,12 @@ import (
 const (
 	NamespaceName = "kyma-system"
 	CRName        = "eventing-nats"
+	STSName       = CRName
 	ContainerName = "nats"
 	pvcLabel      = "app.kubernetes.io/name=nats"
 	podLabel      = "nats_cluster=eventing-nats"
 	ClusterSize   = 3
+	SecretName    = "eventing-nats-secret"
 )
 
 func NATSCR() *natsv1alpha1.NATS {

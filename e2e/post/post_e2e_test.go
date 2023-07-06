@@ -5,6 +5,7 @@ package post
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8stypes "k8s.io/apimachinery/pkg/types"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -22,7 +25,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
-	"github.com/kyma-project/nats-manager/e2e/fixtures"
+	. "github.com/kyma-project/nats-manager/e2e/fixtures"
 	"github.com/kyma-project/nats-manager/testutils/retry"
 )
 
@@ -90,7 +93,7 @@ func TestMain(m *testing.M) {
 	// Create the NATS CR used for testing.
 	ctx := context.TODO()
 	err = retry.Do(attempts, interval, logger, func() error {
-		errDel := k8sClient.Delete(ctx, fixtures.NATSCR())
+		errDel := k8sClient.Delete(ctx, NATSCR())
 		return errDel
 	})
 	if err != nil {
@@ -103,12 +106,12 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func Test_NoPodExists(t *testing.T) {
+func Test_NoPodsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
 	err := retry.Do(attempts, interval, logger, func() error {
-		pods, podErr := clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, fixtures.PodListOpts())
+		pods, podErr := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if podErr != nil {
 			return podErr
 		}
@@ -122,12 +125,13 @@ func Test_NoPodExists(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func Test_NoPVCExists(t *testing.T) {
+// Test_NoPVCsExists verifies that no PVC, that was created in the E2E test, sti
+func Test_NoPVCsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
 	err := retry.Do(attempts, interval, logger, func() error {
-		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(fixtures.NamespaceName).List(ctx, fixtures.PVCListOpts())
+		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		if pvcErr != nil {
 			return pvcErr
 		}
@@ -139,4 +143,74 @@ func Test_NoPVCExists(t *testing.T) {
 		return nil
 	})
 	require.NoError(t, err)
+}
+
+func Test_NoSTSExists(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.TODO()
+	err := retry.Do(attempts, interval, logger, func() error {
+		// Try, if we still can get the STS.
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
+		// This is what we want here.
+		if clientcmd.IsContextNotFound(stsErr) && sts == nil {
+			return nil
+		}
+		// All other errors are unexpected here.
+		if stsErr != nil {
+			return stsErr
+		}
+		// If we still find and STS we will return an error.
+		return errors.New("found sts, but wanted the sts to be deleted")
+	})
+	require.NoError(t, err)
+}
+
+func Test_NoNATSSecretExists(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.TODO()
+	err := retry.Do(attempts, interval, logger, func() error {
+		sec, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, v1.GetOptions{})
+		// This is what we want here.
+		if clientcmd.IsContextNotFound(secErr) && sec == nil {
+			return nil
+		}
+		// All other errors are unexpected here.
+		if secErr != nil {
+			return secErr
+		}
+		// If we still find Secret we will return an error.
+		return errors.New("found Secret, but wanted the Secret to be deleted")
+	})
+	require.NoError(t, err)
+}
+
+func Test_NoNATSCRExists(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.TODO()
+	err := retry.Do(attempts, interval, logger, func() error {
+		cr, crErr := getNATSCR(ctx, CRName, NamespaceName)
+		// This is what we want here.
+		if clientcmd.IsContextNotFound(crErr) && cr == nil {
+			return nil
+		}
+		// All other errors are unexpected here.
+		if crErr != nil {
+			return crErr
+		}
+		// If we still find the CR we will return an error.
+		return errors.New("found NATS CR, but wanted the NATS CR to be deleted")
+	})
+	require.NoError(t, err)
+}
+
+func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
+	var natsCR natsv1alpha1.NATS
+	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}, &natsCR)
+	return &natsCR, err
 }

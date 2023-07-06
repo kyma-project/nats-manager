@@ -5,34 +5,22 @@ package e2e_test
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"net"
-	"net/http"
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/nats-io/nats-server/v2/server"
-	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	k8stypes "k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/httpstream"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/tools/portforward"
-	"k8s.io/client-go/transport/spdy"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -102,8 +90,8 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Create the Namespace used for testing.
 	ctx := context.TODO()
+	// Create the Namespace used for testing.
 	err = retry.Do(attempts, interval, logger, func() error {
 		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, fixtures.Namespace()))
 	})
@@ -138,8 +126,8 @@ func TestMain(m *testing.M) {
 func Test_PodResources(t *testing.T) {
 	t.Parallel()
 
-	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	ctx := context.TODO()
+	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 	})
@@ -198,11 +186,11 @@ func Test_PodResources(t *testing.T) {
 }
 
 // Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods are ready.
-func Test_Pods_health(t *testing.T) {
+func Test_PodsHealth(t *testing.T) {
 	t.Parallel()
 
-	// Get the NATS CR. It will tell us how many Pods we should expect.
 	ctx := context.TODO()
+	// Get the NATS CR. It will tell us how many Pods we should expect.
 	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 	})
@@ -292,51 +280,6 @@ func Test_PVCs(t *testing.T) {
 	}
 }
 
-// func Test_NATSServer(t *testing.T) {
-// 	t.Parallel()
-//
-// 	// We need a context that can be canceled, if we work with port-forwarding
-// 	ctx, cancel := context.WithCancel(context.TODO())
-//
-// 	// Get the NATS CR.
-// 	_, err := retryGet(attempts, interval,
-// 		func() (*natsv1alpha1.NATS, error) {
-// 			return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
-// 		})
-// 	require.NoError(t, err)
-//
-// 	// Get one of the Pods.
-// 	var pod *v1.Pod
-// 	pod, err = retryGet(attempts, interval, func() (*v1.Pod, error) {
-// 		listOpts := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
-// 		pods, podErr := clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOpts)
-// 		if podErr != nil {
-// 			return nil, err
-// 		}
-//
-// 		if len(pods.Items) == 0 {
-// 			return nil, fmt.Errorf("could not find pod")
-// 		}
-//
-// 		return &pods.Items[0], nil
-// 	})
-//
-// 	// Forwarding the port is so easy.
-// 	_, err = portForward(ctx, *pod, "4222")
-// 	require.NoError(t, err)
-//
-// 	var varz *server.Varz
-// 	varz, err = retryGet(attempts, interval, func() (*server.Varz, error) {
-// 		return getVarz()
-// 	})
-// 	require.NoError(t, err)
-//
-// 	logger.Debug(fmt.Sprintf("max mem %v", varz.JetStream.Config.MaxMemory))
-//
-// 	// Close the port-forward.
-// 	cancel()
-// }
-
 func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
 	var natsCR natsv1alpha1.NATS
 	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
@@ -344,218 +287,4 @@ func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS,
 		Namespace: namespace,
 	}, &natsCR)
 	return &natsCR, err
-}
-
-func connectToNATSServer() (*nats.Conn, error) {
-	nc, err := nats.Connect("nats://nats:4222")
-	if err != nil {
-		return nil, fmt.Errorf("nats connect: %w", err)
-	}
-	return nc, nil
-}
-
-func getVarz() (*server.Varz, error) {
-	nc, err := connectToNATSServer()
-	if err != nil {
-		return nil, err
-	}
-
-	id := "" // todo
-
-	subj := fmt.Sprintf("$SYS.REQ.SERVER.%s.VARZ", id)
-	body := []byte("{}")
-
-	if len(id) != 56 || strings.ToUpper(id) != id {
-		subj = "$SYS.REQ.SERVER.PING.VARZ"
-		opts := server.VarzEventOptions{EventFilterOptions: server.EventFilterOptions{Name: id}}
-		body, err = json.Marshal(opts)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	resp, err := nc.Request(subj, body, interval)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"no results received, ensure the account used has system privileges and appropriate permissions",
-		)
-	}
-
-	reqresp := map[string]json.RawMessage{}
-	err = json.Unmarshal(resp.Data, &reqresp)
-	if err != nil {
-		return nil, err
-	}
-
-	data, ok := reqresp["data"]
-	if !ok {
-		return nil, fmt.Errorf("no data received in response: %#v", reqresp)
-	}
-
-	varz := &server.Varz{}
-	err = json.Unmarshal(data, varz)
-	if err != nil {
-		return nil, err
-	}
-
-	return varz, err
-}
-
-// The following section is all about the port forward. It was borrowed from a much smarter person:
-// https://microcumul.us/blog/k8s-port-forwarding/
-
-// portForward allows to forward a port. Pass context that can be canceled, so the port-forwarding can be closed,
-// once it is no longer needed.
-func portForward(ctx context.Context, pod corev1.Pod, port string) (net.Conn, error) {
-	req := clientSet.RESTClient().
-		Post().
-		Prefix("api/v1").
-		Resource("pods").
-		Name(pod.Name).
-		Namespace(pod.Namespace).
-		SubResource("portforward")
-
-	transport, upgrader, err := spdy.RoundTripperFor(kubeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("error getting transport/upgrader from restconfig: %w", err)
-	}
-
-	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", req.URL())
-	conn, _, err := dialer.Dial(portforward.PortForwardProtocolV1Name)
-	if err != nil {
-		return nil, fmt.Errorf("error dialing for conn %w", err)
-	}
-
-	headers := http.Header{}
-	headers.Set(v1.StreamType, v1.StreamTypeError)
-	headers.Set(v1.PortHeader, port)
-	headers.Set(v1.PortForwardRequestIDHeader, "1")
-
-	errorStream, err := conn.CreateStream(headers)
-	if err != nil {
-		return nil, fmt.Errorf("error creating err stream: %w", err)
-	}
-	// we're not writing to this stream
-	errorStream.Close()
-
-	headers.Set(v1.StreamType, v1.StreamTypeData)
-	dataStream, err := conn.CreateStream(headers)
-	if err != nil {
-		return nil, fmt.Errorf("error creating data stream: %w", err)
-	}
-
-	fc := &fakeConn{
-		parent: conn,
-		port:   port,
-		err:    errorStream,
-		errch:  make(chan error),
-		data:   dataStream,
-		pod:    pod,
-	}
-	go fc.watchErr(ctx)
-
-	return fc, nil
-}
-
-// This is a FakeAddr type used just in case anything asks for the net.Addr on
-// either side of this "network connection." It's there for debug and helps to
-// show that the source is memory and the destination is a k8s pod in a specific
-// namespace. `Network` returns "memory" because it's in-memory rather than tcp/udp.
-type fakeAddr string
-
-func (f fakeAddr) Network() string {
-	return "memory"
-}
-func (f fakeAddr) String() string {
-	return string(f)
-}
-
-// FakeConn is the guts of our connection. Most of this code is for handling
-// channels and the fact that two things may error, resulting in a problem for
-// our callers.
-type fakeConn struct {
-	parent    httpstream.Connection
-	data, err httpstream.Stream
-	errch     chan error
-	port      string
-	pod       v1.Pod
-}
-
-func (f *fakeConn) watchErr(ctx context.Context) {
-	// This should only return if an err comes back.
-	bs, err := io.ReadAll(f.err)
-	if err != nil {
-		select {
-		case <-ctx.Done():
-		case f.errch <- fmt.Errorf("error during read: %w", err):
-		}
-	}
-	if len(bs) > 0 {
-		select {
-		case <-ctx.Done():
-		case f.errch <- fmt.Errorf("error during read: %s", string(bs)):
-		}
-	}
-}
-
-func (f *fakeConn) Read(b []byte) (n int, err error) {
-	select {
-	case err := <-f.errch:
-		return 0, err
-	default:
-	}
-	return f.data.Read(b)
-}
-
-func (f *fakeConn) Write(b []byte) (n int, err error) {
-	select {
-	case err := <-f.errch:
-		return 0, err
-	default:
-	}
-	return f.data.Write(b)
-}
-
-func (f *fakeConn) Close() error {
-	var errs []error
-	select {
-	case err := <-f.errch:
-		if err != nil {
-			errs = append(errs, err)
-		}
-	default:
-	}
-	err := f.data.Close()
-	if err != nil {
-		errs = append(errs, err)
-	}
-	f.parent.RemoveStreams(f.data, f.err)
-	err = f.parent.Close()
-	if err != nil {
-		errs = append(errs, err)
-	}
-	return errors.Join(errs...)
-}
-
-func (f *fakeConn) LocalAddr() net.Addr {
-	return fakeAddr("memory:" + f.port)
-}
-
-func (f *fakeConn) RemoteAddr() net.Addr {
-	return fakeAddr(fmt.Sprintf("k8s/%s/%s:%s", f.pod.Namespace, f.pod.Name, f.port))
-}
-
-func (f *fakeConn) SetDeadline(t time.Time) error {
-	f.parent.SetIdleTimeout(time.Until(t))
-	return nil
-}
-
-func (f *fakeConn) SetReadDeadline(t time.Time) error {
-	f.parent.SetIdleTimeout(time.Until(t))
-	return nil
-}
-
-func (f *fakeConn) SetWriteDeadline(t time.Time) error {
-	f.parent.SetIdleTimeout(time.Until(t))
-	return nil
 }
