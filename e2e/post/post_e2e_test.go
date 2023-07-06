@@ -30,9 +30,10 @@ import (
 )
 
 // Consts for retries; the retry and the retryGet functions.
+// todo maybe put this to the fixtures
 const (
 	interval = 5 * time.Second
-	attempts = 20
+	attempts = 60
 )
 
 // kubeConfig will not only be needed to set up the clientSet and the k8sClient, but also to forward the ports of Pods.
