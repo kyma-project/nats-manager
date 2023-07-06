@@ -39,7 +39,7 @@ jobs:
         run: |
           make deploy IMG=$DOCKER_IMAGE
       -
-        name: Test
+        name: E2E Tests
         run: |
           go test ./e2e/... --tags=e2e
       -
@@ -59,5 +59,9 @@ jobs:
           # 16 byte size per message, 1000 messages using JetStream.
           $HOME/go/bin/nats bench testsubject --pub 5 --sub 5 --size 16 --msgs 1000 --js
 
+      -
+        name: Post E2E
+        run: |
+          go test ./e2e/post/... --tags=poste2e
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
