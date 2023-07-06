@@ -14,6 +14,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 
@@ -154,7 +155,7 @@ func Test_NoSTSExists(t *testing.T) {
 		// Try, if we still can get the STS.
 		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
 		// This is what we want here.
-		if clientcmd.IsContextNotFound(stsErr) && sts == nil {
+		if k8serrors.IsNotFound(stsErr) && sts == nil {
 			return nil
 		}
 		// All other errors are unexpected here.
@@ -173,8 +174,9 @@ func Test_NoNATSSecretExists(t *testing.T) {
 	ctx := context.TODO()
 	err := retry.Do(attempts, interval, logger, func() error {
 		sec, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, v1.GetOptions{})
+
 		// This is what we want here.
-		if clientcmd.IsContextNotFound(secErr) && sec == nil {
+		if k8serrors.IsNotFound(secErr) && sec == nil {
 			return nil
 		}
 		// All other errors are unexpected here.
@@ -194,7 +196,7 @@ func Test_NoNATSCRExists(t *testing.T) {
 	err := retry.Do(attempts, interval, logger, func() error {
 		cr, crErr := getNATSCR(ctx, CRName, NamespaceName)
 		// This is what we want here.
-		if clientcmd.IsContextNotFound(crErr) && cr == nil {
+		if k8serrors.IsNotFound(crErr) && cr == nil {
 			return nil
 		}
 		// All other errors are unexpected here.
