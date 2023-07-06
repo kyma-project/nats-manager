@@ -25,7 +25,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
-	"github.com/kyma-project/nats-manager/e2e/fixtures"
+	. "github.com/kyma-project/nats-manager/e2e/fixtures"
 	"github.com/kyma-project/nats-manager/testutils/retry"
 )
 
@@ -93,7 +93,7 @@ func TestMain(m *testing.M) {
 	ctx := context.TODO()
 	// Create the Namespace used for testing.
 	err = retry.Do(attempts, interval, logger, func() error {
-		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, fixtures.Namespace()))
+		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, Namespace()))
 	})
 	if err != nil {
 		logger.Error(err.Error())
@@ -102,7 +102,7 @@ func TestMain(m *testing.M) {
 
 	// Create the NATS CR used for testing.
 	err = retry.Do(attempts, interval, logger, func() error {
-		errNATS := k8sClient.Create(ctx, fixtures.NATSCR())
+		errNATS := k8sClient.Create(ctx, NATSCR())
 		if k8serrors.IsAlreadyExists(errNATS) {
 			logger.Warn(
 				"error while creating NATS CR, resource already exist; test will continue with existing NATS CR",
@@ -123,31 +123,24 @@ func TestMain(m *testing.M) {
 
 // Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
 // that .
-func Test_PodResources(t *testing.T) {
+func Test_Pods(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
-	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
-		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
-	})
-	require.NoError(t, err)
-
 	// Get the NATS Pods and test them.
-	err = retry.Do(attempts, interval, logger, func() error {
+	err := retry.Do(attempts, interval, logger, func() error {
 		// Get the NATS Pods via labels.
-		var pods *v1.PodList
-		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, fixtures.PodListOpts())
+		pods, err := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if err != nil {
 			return err
 		}
 
 		// The number of Pods must be equal NATS.spec.cluster.size. We check this in the retry, because it may take
 		// some time for all Pods to be there.
-		if len(pods.Items) != natsCR.Spec.Cluster.Size {
+		if len(pods.Items) != NATSCR().Spec.Cluster.Size {
 			return fmt.Errorf(
 				"error while fetching Pods; wanted %v Pods but got %v",
-				natsCR.Spec.Cluster.Size,
+				NATSCR().Spec.Cluster.Size,
 				pods.Items,
 			)
 		}
@@ -157,24 +150,24 @@ func Test_PodResources(t *testing.T) {
 		foundContainers := 0
 		for _, pod := range pods.Items {
 			for _, container := range pod.Spec.Containers {
-				if !(container.Name == fixtures.ContainerName) {
+				if !(container.Name == ContainerName) {
 					continue
 				}
 				foundContainers += 1
-				if !reflect.DeepEqual(natsCR.Spec.Resources, container.Resources) {
+				if !reflect.DeepEqual(NATSCR().Spec.Resources, container.Resources) {
 					return fmt.Errorf(
 						"error when checking pod %s resources:\n\twanted: %s\n\tgot: %s",
 						pod.GetName(),
-						natsCR.Spec.Resources.String(),
+						NATSCR().Spec.Resources.String(),
 						container.Resources.String(),
 					)
 				}
 			}
 		}
-		if foundContainers != natsCR.Spec.Cluster.Size {
+		if foundContainers != NATSCR().Spec.Cluster.Size {
 			return fmt.Errorf(
 				"error while fethching 'natsCR' Containers: expected %v but found %v",
-				natsCR.Spec.Cluster.Size,
+				NATSCR().Spec.Cluster.Size,
 				foundContainers,
 			)
 		}
@@ -192,7 +185,7 @@ func Test_PodsHealth(t *testing.T) {
 	ctx := context.TODO()
 	// Get the NATS CR. It will tell us how many Pods we should expect.
 	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
-		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
+		return getNATSCR(ctx, CRName, NamespaceName)
 	})
 	require.NoError(t, err)
 
@@ -200,7 +193,7 @@ func Test_PodsHealth(t *testing.T) {
 	err = retry.Do(attempts, interval, logger, func() error {
 		var pods *v1.PodList
 		// Get the NATS Pods via labels.
-		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, fixtures.PodListOpts())
+		pods, err = clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if err != nil {
 			return err
 		}
@@ -245,17 +238,13 @@ func Test_PVCs(t *testing.T) {
 
 	// Get the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
 	ctx := context.TODO()
-	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
-		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
-	})
-	require.NoError(t, err)
-
 	// Get the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
-	err = retry.Do(attempts, interval, logger, func() error {
+	err := retry.Do(attempts, interval, logger, func() error {
 		// Get PVCs via a label.
+		var err error
 		pvcs, err = retry.Get(attempts, interval, logger, func() (*v1.PersistentVolumeClaimList, error) {
-			return clientSet.CoreV1().PersistentVolumeClaims(fixtures.NamespaceName).List(ctx, fixtures.PVCListOpts())
+			return clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		})
 		if err != nil {
 			return err
@@ -263,7 +252,7 @@ func Test_PVCs(t *testing.T) {
 
 		// Check if the amount of PVCs is equal to the spec.cluster.size in the NATS CR. We do this in the retry,
 		// because it may take some time for all PVCs to be there.
-		want, actual := natsCR.Spec.Cluster.Size, len(pvcs.Items)
+		want, actual := NATSCR().Spec.Cluster.Size, len(pvcs.Items)
 		if want != actual {
 			return fmt.Errorf("error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
 		}
@@ -276,7 +265,7 @@ func Test_PVCs(t *testing.T) {
 	// Compare the PVC's sizes with the definition in the CRD.
 	for _, pvc := range pvcs.Items {
 		size := pvc.Spec.Resources.Requests[v1.ResourceStorage]
-		require.True(t, size.Equal(natsCR.Spec.FileStorage.Size))
+		require.True(t, size.Equal(NATSCR().Spec.FileStorage.Size))
 	}
 }
 
