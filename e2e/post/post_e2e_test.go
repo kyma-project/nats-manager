@@ -27,7 +27,6 @@ import (
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/fixtures"
-	"github.com/kyma-project/nats-manager/testutils/retry"
 )
 
 // Consts for retries; the retry and the retryGet functions.
@@ -94,7 +93,7 @@ func TestMain(m *testing.M) {
 
 	// Delete the NATS CR.
 	ctx := context.TODO()
-	err = retry.Do(attempts, interval, logger, func() error {
+	err = Retry(attempts, interval, logger, func() error {
 		errDel := k8sClient.Delete(ctx, NATSCR())
 		if k8serrors.IsNotFound(errDel) {
 			return nil
@@ -115,7 +114,7 @@ func Test_NoPodsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := retry.Do(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, logger, func() error {
 		pods, podErr := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if podErr != nil {
 			return podErr
@@ -135,7 +134,7 @@ func Test_NoPVCsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := retry.Do(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, logger, func() error {
 		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		if pvcErr != nil {
 			return pvcErr
@@ -154,7 +153,7 @@ func Test_NoSTSExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := retry.Do(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, logger, func() error {
 		// Try, if we still can get the STS.
 		_, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
 		// This is what we want here.
@@ -175,7 +174,7 @@ func Test_NoNATSSecretExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := retry.Do(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, logger, func() error {
 		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, v1.GetOptions{})
 		// This is what we want here.
 		if k8serrors.IsNotFound(secErr) {
@@ -195,7 +194,7 @@ func Test_NoNATSCRExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := retry.Do(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, logger, func() error {
 		_, crErr := getNATSCR(ctx, CRName, NamespaceName)
 		// This is what we want here.
 		if k8serrors.IsNotFound(crErr) {

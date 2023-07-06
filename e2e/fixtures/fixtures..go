@@ -18,7 +18,7 @@ const (
 	secLabel      = "app.kubernetes.io/name=nats"
 	podLabel      = "nats_cluster=eventing-nats"
 	ClusterSize   = 3
-	SecretName    = "eventing-nats-secret" //nolint:gosec
+	SecretName    = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
 )
 
 func NATSCR() *natsv1alpha1.NATS {

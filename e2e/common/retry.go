@@ -1,4 +1,4 @@
-package retry
+package common
 
 import (
 	"fmt"
@@ -7,10 +7,10 @@ import (
 	"go.uber.org/zap"
 )
 
-func Do(attempts int, interval time.Duration, logger *zap.Logger, fn func() error) error {
+func Retry(attempts int, interval time.Duration, logger *zap.Logger, fn func() error) error {
 	ticker := time.NewTicker(interval)
 	var err error
-	for { //noling:gosimple
+	for { //nolint:gosimple//There is no range here.
 		select {
 		case <-ticker.C:
 			attempts--
@@ -26,11 +26,11 @@ func Do(attempts int, interval time.Duration, logger *zap.Logger, fn func() erro
 	}
 }
 
-func Get[T any](attempts int, interval time.Duration, logger *zap.Logger, fn func() (*T, error)) (*T, error) {
+func RetryGet[T any](attempts int, interval time.Duration, logger *zap.Logger, fn func() (*T, error)) (*T, error) {
 	ticker := time.NewTicker(interval)
 	var err error
 	var obj *T
-	for { //noling:gosimple
+	for { //nolint:gosimple//There is no range here.
 		select {
 		case <-ticker.C:
 			attempts--

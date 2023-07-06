@@ -26,7 +26,6 @@ import (
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/fixtures"
-	"github.com/kyma-project/nats-manager/testutils/retry"
 )
 
 // Consts for retries; the retry and the retryGet functions.
@@ -92,7 +91,7 @@ func TestMain(m *testing.M) {
 
 	ctx := context.TODO()
 	// Create the Namespace used for testing.
-	err = retry.Do(attempts, interval, logger, func() error {
+	err = Retry(attempts, interval, logger, func() error {
 		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, Namespace()))
 	})
 	if err != nil {
@@ -101,7 +100,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// Create the NATS CR used for testing.
-	err = retry.Do(attempts, interval, logger, func() error {
+	err = Retry(attempts, interval, logger, func() error {
 		errNATS := k8sClient.Create(ctx, NATSCR())
 		if k8serrors.IsAlreadyExists(errNATS) {
 			logger.Warn(
@@ -126,7 +125,7 @@ func Test_CR(t *testing.T) {
 	want := NATSCR()
 
 	ctx := context.TODO()
-	actual, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
+	actual, err := RetryGet(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, want.Name, want.Namespace)
 	})
 	require.NoError(t, err)
@@ -143,9 +142,9 @@ func Test_Pods(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	// Get the NATS Pods and test them.
-	err := retry.Do(attempts, interval, logger, func() error {
-		// Get the NATS Pods via labels.
+	// RetryGet the NATS Pods and test them.
+	err := Retry(attempts, interval, logger, func() error {
+		// RetryGet the NATS Pods via labels.
 		pods, err := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if err != nil {
 			return err
@@ -199,16 +198,16 @@ func Test_PodsHealth(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	// Get the NATS CR. It will tell us how many Pods we should expect.
-	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
+	// RetryGet the NATS CR. It will tell us how many Pods we should expect.
+	natsCR, err := RetryGet(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, CRName, NamespaceName)
 	})
 	require.NoError(t, err)
 
-	// Get the NATS Pods and test them.
-	err = retry.Do(attempts, interval, logger, func() error {
+	// RetryGet the NATS Pods and test them.
+	err = Retry(attempts, interval, logger, func() error {
 		var pods *v1.PodList
-		// Get the NATS Pods via labels.
+		// RetryGet the NATS Pods via labels.
 		pods, err = clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if err != nil {
 			return err
@@ -252,14 +251,14 @@ func Test_PodsHealth(t *testing.T) {
 func Test_PVCs(t *testing.T) {
 	t.Parallel()
 
-	// Get the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
+	// RetryGet the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
 	ctx := context.TODO()
-	// Get the PersistentVolumeClaims, PVCs, and test them.
+	// RetryGet the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
-	err := retry.Do(attempts, interval, logger, func() error {
-		// Get PVCs via a label.
+	err := Retry(attempts, interval, logger, func() error {
+		// RetryGet PVCs via a label.
 		var err error
-		pvcs, err = retry.Get(attempts, interval, logger, func() (*v1.PersistentVolumeClaimList, error) {
+		pvcs, err = RetryGet(attempts, interval, logger, func() (*v1.PersistentVolumeClaimList, error) {
 			return clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		})
 		if err != nil {
