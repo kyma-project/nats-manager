@@ -13,7 +13,7 @@ func Do(attempts int, interval time.Duration, logger *zap.Logger, fn func() erro
 	for {
 		select {
 		case <-ticker.C:
-			attempts -= 1
+			attempts--
 			err = fn()
 			if err != nil {
 				logger.Warn(fmt.Sprintf("error while retrying: %s", err.Error()))
@@ -33,7 +33,7 @@ func Get[T any](attempts int, interval time.Duration, logger *zap.Logger, fn fun
 	for {
 		select {
 		case <-ticker.C:
-			attempts -= 1
+			attempts--
 			obj, err = fn()
 			if err != nil {
 				logger.Warn(fmt.Sprintf("error while retrying: %s", err.Error()))
