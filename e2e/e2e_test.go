@@ -52,6 +52,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+
 	logger = l
 
 	userHomeDir, err := os.UserHomeDir()
@@ -125,6 +126,7 @@ func Test_CR(t *testing.T) {
 	want := NATSCR()
 
 	ctx := context.TODO()
+	// Get the NATS CR from the cluster.
 	actual, err := RetryGet(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, want.Name, want.Namespace)
 	})
