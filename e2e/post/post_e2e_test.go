@@ -1,3 +1,6 @@
+//go:build poste2e
+// +build poste2e
+
 package post
 
 import (
