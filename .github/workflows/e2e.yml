@@ -43,15 +43,6 @@ jobs:
         run: |
           go test ./e2e/e2e_test.go --tags=e2e
       -
-        name: List namespaces, statefulSets, CRDs and Pods
-        run: |
-          kubectl get namespaces
-          kubectl get sts --all-namespaces
-          kubectl get secret --all-namespaces
-          kubectl get pvc --all-namespaces
-          kubectl get crd --all-namespaces
-          kubectl get po --all-namespaces
-      -
         name: run NATS bench
         run: |
           go install github.com/nats-io/natscli/nats@latest
@@ -65,5 +56,15 @@ jobs:
         name: Post E2E
         run: |
           go test ./e2e/post/post_e2e_test.go --tags=e2e
+      -
+        name: List namespaces, statefulSets, CRDs and Pods
+        if: always()
+        run: |
+          kubectl get namespaces
+          kubectl get sts --all-namespaces
+          kubectl get secret --all-namespaces
+          kubectl get pvc --all-namespaces
+          kubectl get crd --all-namespaces
+          kubectl get po --all-namespaces
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
