@@ -47,6 +47,8 @@ jobs:
         run: |
           kubectl get namespaces
           kubectl get sts --all-namespaces
+          kubectl get secrets --all-namespaces
+          kubectl get pvs --all-namespaces
           kubectl get crd --all-namespaces
           kubectl get pods --all-namespaces
       -
