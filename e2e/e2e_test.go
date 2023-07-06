@@ -22,7 +22,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -38,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	. "github.com/kyma-project/nats-manager/e2e/common"
 	"github.com/kyma-project/nats-manager/e2e/fixtures"
 	"github.com/kyma-project/nats-manager/testutils/retry"
 )
@@ -62,7 +62,11 @@ var logger *zap.Logger
 // TestMain runs before all the other test functions. It sets up all the resources that are shared between the different
 // test functions. It will then run the tests and finally shuts everything down.
 func TestMain(m *testing.M) {
-	setupLogging()
+	l, err := SetupLogger()
+	if err != nil {
+		panic(err)
+	}
+	logger = l
 
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -336,38 +340,6 @@ func Test_PVCs(t *testing.T) {
 // 	// Close the port-forward.
 // 	cancel()
 // }
-
-func setupLogging() {
-	logLevel := os.Getenv("E2E_LOG_LEVEL")
-
-	var level zapcore.Level
-	switch logLevel {
-	case "debug":
-		level = zap.DebugLevel
-	case "info":
-		level = zap.InfoLevel
-	case "warn":
-		level = zap.WarnLevel
-	default:
-		// level = zap.ErrorLevel
-		// todo
-		level = zap.DebugLevel
-	}
-
-	config := zap.Config{
-		Level:            zap.NewAtomicLevelAt(level),
-		Development:      false,
-		Encoding:         "json",
-		EncoderConfig:    zap.NewProductionEncoderConfig(),
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-	}
-	var err error
-	logger, err = config.Build()
-	if err != nil {
-		panic(err)
-	}
-}
 
 func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
 	var natsCR natsv1alpha1.NATS
