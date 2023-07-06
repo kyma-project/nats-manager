@@ -41,7 +41,7 @@ jobs:
       -
         name: E2E Tests
         run: |
-          go test ./e2e/pre/test.go --tags=e2e
+          go test ./e2e/pre/e2e_test.go --tags=e2e
       -
         name: run NATS bench
         run: |
@@ -58,7 +58,7 @@ jobs:
       -
         name: Post E2E
         run: |
-          go test ./e2e/post/test.go --tags=e2e
+          go test ./e2e/post/e2e_test.go --tags=e2e
       -
         name: List namespaces, statefulSets, CRDs and Pods
         if: always()
