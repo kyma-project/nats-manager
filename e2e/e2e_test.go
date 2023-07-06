@@ -31,7 +31,7 @@ import (
 
 // Consts for retries; the retry and the retryGet functions.
 const (
-	interval = 5 * time.Second
+	interval = 2 * time.Second
 	attempts = 60
 )
 

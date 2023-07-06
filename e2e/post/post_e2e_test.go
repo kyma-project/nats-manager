@@ -1,5 +1,5 @@
-//go:build poste2e
-// +build poste2e
+//go:build e2e
+// +build e2e
 
 package post
 
@@ -33,7 +33,7 @@ import (
 // Consts for retries; the retry and the retryGet functions.
 // todo maybe put this to the fixtures
 const (
-	interval = 5 * time.Second
+	interval = 2 * time.Second
 	attempts = 60
 )
 
