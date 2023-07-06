@@ -121,6 +121,22 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// Test_CR checks if the CR in the cluster is equal to what we created.
+func Test_CR(t *testing.T) {
+	want := NATSCR()
+
+	ctx := context.TODO()
+	actual, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
+		return getNATSCR(ctx, want.Name, want.Namespace)
+	})
+	require.NoError(t, err)
+
+	require.True(t,
+		reflect.DeepEqual(want.Spec, actual.Spec),
+		fmt.Sprintf("wanted spec.cluster to be \n\t%v\n but got \n\t%v", want.Spec, actual.Spec),
+	)
+}
+
 // Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
 // that .
 func Test_Pods(t *testing.T) {
