@@ -47,10 +47,10 @@ jobs:
         run: |
           kubectl get namespaces
           kubectl get sts --all-namespaces
-          kubectl get secrets --all-namespaces
-          kubectl get pvcs --all-namespaces
+          kubectl get secret --all-namespaces
+          kubectl get pvc --all-namespaces
           kubectl get crd --all-namespaces
-          kubectl get pods --all-namespaces
+          kubectl get po --all-namespaces
       -
         name: run NATS bench
         run: |
