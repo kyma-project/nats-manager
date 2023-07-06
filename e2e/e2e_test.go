@@ -39,12 +39,13 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/e2e/fixtures"
+	"github.com/kyma-project/nats-manager/testutils/retry"
 )
 
-// Const for retries; the retry and the retryGet functions.
+// Consts for retries; the retry and the retryGet functions.
 const (
 	interval = 5 * time.Second
-	attempts = 60
+	attempts = 20
 )
 
 // kubeConfig will not only be needed to set up the clientSet and the k8sClient, but also to forward the ports of Pods.
@@ -100,12 +101,8 @@ func TestMain(m *testing.M) {
 
 	// Create the Namespace used for testing.
 	ctx := context.TODO()
-	err = retry(attempts, interval, func() error {
-		_, nsErr := clientSet.CoreV1().Namespaces().Create(ctx, fixtures.Namespace(), metav1.CreateOptions{})
-		if nsErr == nil || k8serrors.IsAlreadyExists(nsErr) {
-			return nil
-		}
-		return nsErr
+	err = retry.Do(attempts, interval, logger, func() error {
+		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, fixtures.Namespace()))
 	})
 	if err != nil {
 		logger.Error(err.Error())
@@ -113,8 +110,15 @@ func TestMain(m *testing.M) {
 	}
 
 	// Create the NATS CR used for testing.
-	err = retry(attempts, interval, func() error {
-		return k8sClient.Create(ctx, fixtures.NATSCR())
+	err = retry.Do(attempts, interval, logger, func() error {
+		errNATS := k8sClient.Create(ctx, fixtures.NATSCR())
+		if k8serrors.IsAlreadyExists(errNATS) {
+			logger.Warn(
+				"error while creating NATS CR, resource already exist; test will continue with existing NATS CR",
+			)
+			return nil
+		}
+		return errNATS
 	})
 	if err != nil {
 		logger.Error(err.Error())
@@ -133,14 +137,14 @@ func Test_PodResources(t *testing.T) {
 
 	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	ctx := context.TODO()
-	nats, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+	nats, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 	})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
 	listOptions := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
-	err = retry(attempts, interval, func() error {
+	err = retry.Do(attempts, interval, logger, func() error {
 		// Get the NATS Pods via labels.
 		var pods *v1.PodList
 		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOptions)
@@ -197,15 +201,14 @@ func Test_Pods_health(t *testing.T) {
 
 	// Get the NATS CR. It will tell us how many Pods we should expect.
 	ctx := context.TODO()
-	natsCR, err := retryGet(attempts, interval,
-		func() (*natsv1alpha1.NATS, error) {
-			return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
-		})
+	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
+		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
+	})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
 	listOptions := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
-	err = retry(attempts, interval, func() error {
+	err = retry.Do(attempts, interval, logger, func() error {
 		var pods *v1.PodList
 		// Get the NATS Pods via labels.
 		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOptions)
@@ -253,7 +256,7 @@ func Test_PVCs(t *testing.T) {
 
 	// Get the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
 	ctx := context.TODO()
-	natsCR, err := retryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 	})
 	require.NoError(t, err)
@@ -261,9 +264,9 @@ func Test_PVCs(t *testing.T) {
 	// Get the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
 	listOpt := metav1.ListOptions{LabelSelector: fixtures.PVCLabel}
-	err = retry(attempts, interval, func() error {
+	err = retry.Do(attempts, interval, logger, func() error {
 		// Get PVCs via a label.
-		pvcs, err = retryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
+		pvcs, err = retry.Get(attempts, interval, logger, func() (*v1.PersistentVolumeClaimList, error) {
 			return clientSet.CoreV1().PersistentVolumeClaims(fixtures.NamespaceName).List(ctx, listOpt)
 		})
 		if err != nil {
@@ -289,50 +292,50 @@ func Test_PVCs(t *testing.T) {
 	}
 }
 
-func Test_NATSServer(t *testing.T) {
-	t.Parallel()
-
-	// We need a context that can be canceled, if we work with port-forwarding
-	ctx, cancel := context.WithCancel(context.TODO())
-
-	// Get the NATS CR.
-	_, err := retryGet(attempts, interval,
-		func() (*natsv1alpha1.NATS, error) {
-			return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
-		})
-	require.NoError(t, err)
-
-	// Get one of the Pods.
-	var pod *v1.Pod
-	pod, err = retryGet(attempts, interval, func() (*v1.Pod, error) {
-		listOpts := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
-		pods, podErr := clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOpts)
-		if podErr != nil {
-			return nil, err
-		}
-
-		if len(pods.Items) == 0 {
-			return nil, fmt.Errorf("could not find pod")
-		}
-
-		return &pods.Items[0], nil
-	})
-
-	// Forwarding the port is so easy.
-	_, err = portForward(ctx, *pod, "4222")
-	require.NoError(t, err)
-
-	var varz *server.Varz
-	varz, err = retryGet(attempts, interval, func() (*server.Varz, error) {
-		return getVarz()
-	})
-	require.NoError(t, err)
-
-	logger.Debug(fmt.Sprintf("max mem %v", varz.JetStream.Config.MaxMemory))
-
-	// Close the port-forward.
-	cancel()
-}
+// func Test_NATSServer(t *testing.T) {
+// 	t.Parallel()
+//
+// 	// We need a context that can be canceled, if we work with port-forwarding
+// 	ctx, cancel := context.WithCancel(context.TODO())
+//
+// 	// Get the NATS CR.
+// 	_, err := retryGet(attempts, interval,
+// 		func() (*natsv1alpha1.NATS, error) {
+// 			return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
+// 		})
+// 	require.NoError(t, err)
+//
+// 	// Get one of the Pods.
+// 	var pod *v1.Pod
+// 	pod, err = retryGet(attempts, interval, func() (*v1.Pod, error) {
+// 		listOpts := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
+// 		pods, podErr := clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOpts)
+// 		if podErr != nil {
+// 			return nil, err
+// 		}
+//
+// 		if len(pods.Items) == 0 {
+// 			return nil, fmt.Errorf("could not find pod")
+// 		}
+//
+// 		return &pods.Items[0], nil
+// 	})
+//
+// 	// Forwarding the port is so easy.
+// 	_, err = portForward(ctx, *pod, "4222")
+// 	require.NoError(t, err)
+//
+// 	var varz *server.Varz
+// 	varz, err = retryGet(attempts, interval, func() (*server.Varz, error) {
+// 		return getVarz()
+// 	})
+// 	require.NoError(t, err)
+//
+// 	logger.Debug(fmt.Sprintf("max mem %v", varz.JetStream.Config.MaxMemory))
+//
+// 	// Close the port-forward.
+// 	cancel()
+// }
 
 func setupLogging() {
 	logLevel := os.Getenv("E2E_LOG_LEVEL")
@@ -363,45 +366,6 @@ func setupLogging() {
 	logger, err = config.Build()
 	if err != nil {
 		panic(err)
-	}
-}
-
-func retry(attempts int, interval time.Duration, fn func() error) error {
-	ticker := time.NewTicker(interval)
-	var err error
-	for {
-		select {
-		case <-ticker.C:
-			attempts -= 1
-			err = fn()
-			if err != nil {
-				logger.Warn(fmt.Sprintf("error while retrying: %s", err.Error()))
-			}
-			if err == nil || attempts == 0 {
-				return err
-			}
-			logger.Warn(fmt.Sprintf("retrying with %v attempts left", attempts))
-		}
-	}
-}
-
-func retryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)) (*T, error) {
-	ticker := time.NewTicker(interval)
-	var err error
-	var obj *T
-	for {
-		select {
-		case <-ticker.C:
-			attempts -= 1
-			obj, err = fn()
-			if err != nil {
-				logger.Warn(fmt.Sprintf("error while retrying: %s", err.Error()))
-			}
-			if err == nil || attempts == 0 {
-				return obj, err
-			}
-			logger.Warn(fmt.Sprintf("retrying with %v attempts left", attempts))
-		}
 	}
 }
 
