@@ -13,8 +13,8 @@ const (
 	NamespaceName = "kyma-system"
 	CRName        = "eventing-nats"
 	ContainerName = "nats"
-	PVCLabel      = "app.kubernetes.io/name=nats"
-	PodLabel      = "nats_cluster=eventing-nats"
+	pvcLabel      = "app.kubernetes.io/name=nats"
+	podLabel      = "nats_cluster=eventing-nats"
 	ClusterSize   = 3
 )
 
@@ -54,4 +54,12 @@ func Namespace() *corev1.Namespace {
 			Name: NamespaceName,
 		},
 	}
+}
+
+func PodListOpts() metav1.ListOptions {
+	return metav1.ListOptions{LabelSelector: podLabel}
+}
+
+func PVCListOpts() metav1.ListOptions {
+	return metav1.ListOptions{LabelSelector: pvcLabel}
 }

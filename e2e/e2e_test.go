@@ -25,7 +25,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/httpstream"
 	"k8s.io/client-go/kubernetes"
@@ -141,32 +140,31 @@ func Test_PodResources(t *testing.T) {
 
 	// Get the NATS CR. It will tell us how many Pods we should expect and what the resources should be configured to.
 	ctx := context.TODO()
-	nats, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
+	natsCR, err := retry.Get(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, fixtures.CRName, fixtures.NamespaceName)
 	})
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
-	listOptions := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
 	err = retry.Do(attempts, interval, logger, func() error {
 		// Get the NATS Pods via labels.
 		var pods *v1.PodList
-		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOptions)
+		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, fixtures.PodListOpts())
 		if err != nil {
 			return err
 		}
 
 		// The number of Pods must be equal NATS.spec.cluster.size. We check this in the retry, because it may take
 		// some time for all Pods to be there.
-		if len(pods.Items) != nats.Spec.Cluster.Size {
+		if len(pods.Items) != natsCR.Spec.Cluster.Size {
 			return fmt.Errorf(
 				"error while fetching Pods; wanted %v Pods but got %v",
-				nats.Spec.Cluster.Size,
+				natsCR.Spec.Cluster.Size,
 				pods.Items,
 			)
 		}
 
-		// Go through all Pods, find the nats container in each and compare its Resources with what is defined in
+		// Go through all Pods, find the natsCR container in each and compare its Resources with what is defined in
 		// the NATS CR.
 		foundContainers := 0
 		for _, pod := range pods.Items {
@@ -175,20 +173,20 @@ func Test_PodResources(t *testing.T) {
 					continue
 				}
 				foundContainers += 1
-				if !reflect.DeepEqual(nats.Spec.Resources, container.Resources) {
+				if !reflect.DeepEqual(natsCR.Spec.Resources, container.Resources) {
 					return fmt.Errorf(
 						"error when checking pod %s resources:\n\twanted: %s\n\tgot: %s",
 						pod.GetName(),
-						nats.Spec.Resources.String(),
+						natsCR.Spec.Resources.String(),
 						container.Resources.String(),
 					)
 				}
 			}
 		}
-		if foundContainers != nats.Spec.Cluster.Size {
+		if foundContainers != natsCR.Spec.Cluster.Size {
 			return fmt.Errorf(
-				"error while fethching 'nats' Containers: expected %v but found %v",
-				nats.Spec.Cluster.Size,
+				"error while fethching 'natsCR' Containers: expected %v but found %v",
+				natsCR.Spec.Cluster.Size,
 				foundContainers,
 			)
 		}
@@ -211,11 +209,10 @@ func Test_Pods_health(t *testing.T) {
 	require.NoError(t, err)
 
 	// Get the NATS Pods and test them.
-	listOptions := metav1.ListOptions{LabelSelector: fixtures.PodLabel}
 	err = retry.Do(attempts, interval, logger, func() error {
 		var pods *v1.PodList
 		// Get the NATS Pods via labels.
-		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, listOptions)
+		pods, err = clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, fixtures.PodListOpts())
 		if err != nil {
 			return err
 		}
@@ -267,11 +264,10 @@ func Test_PVCs(t *testing.T) {
 
 	// Get the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
-	listOpt := metav1.ListOptions{LabelSelector: fixtures.PVCLabel}
 	err = retry.Do(attempts, interval, logger, func() error {
 		// Get PVCs via a label.
 		pvcs, err = retry.Get(attempts, interval, logger, func() (*v1.PersistentVolumeClaimList, error) {
-			return clientSet.CoreV1().PersistentVolumeClaims(fixtures.NamespaceName).List(ctx, listOpt)
+			return clientSet.CoreV1().PersistentVolumeClaims(fixtures.NamespaceName).List(ctx, fixtures.PVCListOpts())
 		})
 		if err != nil {
 			return err

@@ -5,11 +5,13 @@ package post
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
 	"k8s.io/client-go/kubernetes"
@@ -99,4 +101,42 @@ func TestMain(m *testing.M) {
 	// Run the tests and exit.
 	code := m.Run()
 	os.Exit(code)
+}
+
+func Test_NoPodExists(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.TODO()
+	err := retry.Do(attempts, interval, logger, func() error {
+		pods, podErr := clientSet.CoreV1().Pods(fixtures.NamespaceName).List(ctx, fixtures.PodListOpts())
+		if podErr != nil {
+			return podErr
+		}
+
+		if l := len(pods.Items); l > 0 {
+			return fmt.Errorf("expected to not find any pods but found %v", l)
+		}
+
+		return nil
+	})
+	require.NoError(t, err)
+}
+
+func Test_NoPVCExists(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.TODO()
+	err := retry.Do(attempts, interval, logger, func() error {
+		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(fixtures.NamespaceName).List(ctx, fixtures.PVCListOpts())
+		if pvcErr != nil {
+			return pvcErr
+		}
+
+		if l := len(pvcs.Items); l > 0 {
+			return fmt.Errorf("expected to not find any PVCs but found %v", l)
+		}
+
+		return nil
+	})
+	require.NoError(t, err)
 }
