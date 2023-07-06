@@ -322,6 +322,14 @@ func Test_NATSServer(t *testing.T) {
 	_, err = portForward(ctx, *pod, "4222")
 	require.NoError(t, err)
 
+	var varz *server.Varz
+	varz, err = retryGet(attempts, interval, func() (*server.Varz, error) {
+		return getVarz()
+	})
+	require.NoError(t, err)
+
+	logger.Debug(fmt.Sprintf("max mem %v", varz.JetStream.Config.MaxMemory))
+
 	// Close the port-forward.
 	cancel()
 }
@@ -414,10 +422,10 @@ func connectToNATSServer() (*nats.Conn, error) {
 	return nc, nil
 }
 
-func getNATSServerInfo(c *nats.Conn) error {
+func getVarz() (*server.Varz, error) {
 	nc, err := connectToNATSServer()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := "" // todo
@@ -430,13 +438,13 @@ func getNATSServerInfo(c *nats.Conn) error {
 		opts := server.VarzEventOptions{EventFilterOptions: server.EventFilterOptions{Name: id}}
 		body, err = json.Marshal(opts)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
 	resp, err := nc.Request(subj, body, interval)
 	if err != nil {
-		return fmt.Errorf(
+		return nil, fmt.Errorf(
 			"no results received, ensure the account used has system privileges and appropriate permissions",
 		)
 	}
@@ -444,23 +452,21 @@ func getNATSServerInfo(c *nats.Conn) error {
 	reqresp := map[string]json.RawMessage{}
 	err = json.Unmarshal(resp.Data, &reqresp)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	data, ok := reqresp["data"]
 	if !ok {
-		return fmt.Errorf("no data received in response: %#v", reqresp)
+		return nil, fmt.Errorf("no data received in response: %#v", reqresp)
 	}
 
 	varz := &server.Varz{}
 	err = json.Unmarshal(data, varz)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// Todo
-
-	return nil
+	return varz, err
 }
 
 // The following section is all about the port forward. It was borrowed from a much smarter person:
