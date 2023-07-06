@@ -10,7 +10,7 @@ import (
 func Do(attempts int, interval time.Duration, logger *zap.Logger, fn func() error) error {
 	ticker := time.NewTicker(interval)
 	var err error
-	for {
+	for { //noling:gosimple
 		select {
 		case <-ticker.C:
 			attempts--
@@ -30,7 +30,7 @@ func Get[T any](attempts int, interval time.Duration, logger *zap.Logger, fn fun
 	ticker := time.NewTicker(interval)
 	var err error
 	var obj *T
-	for {
+	for { //noling:gosimple
 		select {
 		case <-ticker.C:
 			attempts--
