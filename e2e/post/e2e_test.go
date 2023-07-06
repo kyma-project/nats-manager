@@ -1,14 +1,13 @@
 //go:build e2e
 // +build e2e
 
-package post
+package post_test
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -19,9 +18,6 @@ import (
 	k8stypes "k8s.io/apimachinery/pkg/types"
 
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -29,15 +25,11 @@ import (
 	. "github.com/kyma-project/nats-manager/e2e/fixtures"
 )
 
-// Consts for retries; the retry and the retryGet functions.
-// todo maybe put this to the fixtures
+// Constants for retries.
 const (
 	interval = 2 * time.Second
 	attempts = 60
 )
-
-// kubeConfig will not only be needed to set up the clientSet and the k8sClient, but also to forward the ports of Pods.
-var kubeConfig *rest.Config //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
 // clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
 var clientSet *kubernetes.Clientset //nolint:gochecknoglobals // This will only be accessible in e2e tests.
@@ -50,42 +42,15 @@ var logger *zap.Logger
 // TestMain runs before all the other test functions. It sets up all the resources that are shared between the different
 // test functions. It will then run the tests and finally shuts everything down.
 func TestMain(m *testing.M) {
+	var err error
 	l, err := SetupLogger()
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 	logger = l
 
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-	kubeConfigPath := filepath.Join(userHomeDir, ".kube", "config")
-
-	kubeConfig, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-
-	// Set up the clientSet that is used to access regular K8s objects.
-	clientSet, err = kubernetes.NewForConfig(kubeConfig)
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-
-	// We need to add the NATS CRD to the scheme, so we can create a client that can access NATS objects.
-	err = natsv1alpha1.AddToScheme(scheme.Scheme)
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-
-	// Set up the k8s client, so we can access NATS CR-objects.
-	// +kubebuilder:scaffold:scheme
-	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: scheme.Scheme})
+	clientSet, k8sClient, err = GetK8sClients()
 	if err != nil {
 		logger.Error(err.Error())
 		panic(err)
@@ -95,6 +60,7 @@ func TestMain(m *testing.M) {
 	ctx := context.TODO()
 	err = Retry(attempts, interval, logger, func() error {
 		errDel := k8sClient.Delete(ctx, NATSCR())
+		// If it is gone already, that's fine too.
 		if k8serrors.IsNotFound(errDel) {
 			return nil
 		}
@@ -110,16 +76,18 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// Test_NoPodsExists verifies that all Pods got removed.
 func Test_NoPodsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
 	err := Retry(attempts, interval, logger, func() error {
+		// Try to get the Pods.
 		pods, podErr := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if podErr != nil {
 			return podErr
 		}
-
+		// We want them all to be gone, otherwise we return an error.
 		if l := len(pods.Items); l > 0 {
 			return fmt.Errorf("expected to not find any pods but found %v", l)
 		}
@@ -129,17 +97,18 @@ func Test_NoPodsExists(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// Test_NoPVCsExists verifies that no PVC, that was created in the E2E test, sti
+// Test_NoPVCsExists verifies that all PVCs got removed.
 func Test_NoPVCsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
 	err := Retry(attempts, interval, logger, func() error {
+		// Try to get the PVCs.
 		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		if pvcErr != nil {
 			return pvcErr
 		}
-
+		// We want them all to be gone, otherwise we return an error.
 		if l := len(pvcs.Items); l > 0 {
 			return fmt.Errorf("expected to not find any PVCs but found %v", l)
 		}
@@ -149,12 +118,13 @@ func Test_NoPVCsExists(t *testing.T) {
 	require.NoError(t, err)
 }
 
+// Test_NoSTSExists verifies that the StatefulSet got removed.
 func Test_NoSTSExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
 	err := Retry(attempts, interval, logger, func() error {
-		// Try, if we still can get the STS.
+		// Try to get the STS.
 		_, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
 		// This is what we want here.
 		if k8serrors.IsNotFound(stsErr) {
@@ -184,7 +154,7 @@ func Test_NoNATSSecretExists(t *testing.T) {
 		if secErr != nil {
 			return secErr
 		}
-		// If we still find and STS we will return an error.
+		// If we still find and Secret we will return an error.
 		return errors.New("found Secret, but wanted the sts to be deleted")
 	})
 	require.NoError(t, err)

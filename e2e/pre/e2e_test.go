@@ -1,13 +1,12 @@
 //go:build e2e
 // +build e2e
 
-package e2e_test
+package pre_test
 
 import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 	"time"
@@ -18,24 +17,20 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/fixtures"
 )
 
-// Consts for retries; the retry and the retryGet functions.
+// Constants for retries.
 const (
 	interval = 2 * time.Second
 	attempts = 60
 )
-
-// kubeConfig will not only be needed to set up the clientSet and the k8sClient, but also to forward the ports of Pods.
-var kubeConfig *rest.Config //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
 // clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
 var clientSet *kubernetes.Clientset //nolint:gochecknoglobals // This will only be accessible in e2e tests.
@@ -48,43 +43,14 @@ var logger *zap.Logger
 // TestMain runs before all the other test functions. It sets up all the resources that are shared between the different
 // test functions. It will then run the tests and finally shuts everything down.
 func TestMain(m *testing.M) {
-	l, err := SetupLogger()
-	if err != nil {
-		panic(err)
-	}
-
-	logger = l
-
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-	kubeConfigPath := filepath.Join(userHomeDir, ".kube", "config")
-
-	kubeConfig, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	var err error
+	logger, err = SetupLogger()
 	if err != nil {
 		logger.Error(err.Error())
 		panic(err)
 	}
 
-	// Set up the clientSet that is used to access regular K8s objects.
-	clientSet, err = kubernetes.NewForConfig(kubeConfig)
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-
-	// We need to add the NATS CRD to the scheme, so we can create a client that can access NATS objects.
-	err = natsv1alpha1.AddToScheme(scheme.Scheme)
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-
-	// Set up the k8s client, so we can access NATS CR-objects.
-	// +kubebuilder:scaffold:scheme
-	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: scheme.Scheme})
+	clientSet, k8sClient, err = GetK8sClients()
 	if err != nil {
 		logger.Error(err.Error())
 		panic(err)
@@ -121,7 +87,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// Test_CR checks if the CR in the cluster is equal to what we created.
+// Test_CR checks if the CR in the cluster is equal to what we defined.
 func Test_CR(t *testing.T) {
 	want := NATSCR()
 
@@ -138,9 +104,9 @@ func Test_CR(t *testing.T) {
 	)
 }
 
-// Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
-// that .
-func Test_Pods(t *testing.T) {
+// Test_PodsResources checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
+// that are defined in the CRD.
+func Test_PodsResources(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
@@ -195,8 +161,8 @@ func Test_Pods(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// Test_Pods checks if the number of Pods is the same as defined in the NATS CR and that all Pods are ready.
-func Test_PodsHealth(t *testing.T) {
+// Test_PodsReady checks if the number of Pods is the same as defined in the NATS CR and that all Pods are ready.
+func Test_PodsReady(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
@@ -253,9 +219,8 @@ func Test_PodsHealth(t *testing.T) {
 func Test_PVCs(t *testing.T) {
 	t.Parallel()
 
-	// RetryGet the NATS CR. It will tell us how many PVCs we should expect and what their size should be.
+	// Get the PersistentVolumeClaims --PVCs-- and test them.
 	ctx := context.TODO()
-	// RetryGet the PersistentVolumeClaims, PVCs, and test them.
 	var pvcs *v1.PersistentVolumeClaimList
 	err := Retry(attempts, interval, logger, func() error {
 		// RetryGet PVCs via a label.
@@ -284,6 +249,21 @@ func Test_PVCs(t *testing.T) {
 		size := pvc.Spec.Resources.Requests[v1.ResourceStorage]
 		require.True(t, size.Equal(NATSCR().Spec.FileStorage.Size))
 	}
+}
+
+// Test_Secret tests if the Secret was created.
+func Test_Secret(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.TODO()
+	err := Retry(attempts, interval, logger, func() error {
+		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, metav1.GetOptions{})
+		if secErr != nil {
+			return secErr
+		}
+		return nil
+	})
+	require.NoError(t, err)
 }
 
 func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
