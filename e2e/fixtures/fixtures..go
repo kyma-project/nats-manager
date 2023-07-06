@@ -15,13 +15,14 @@ const (
 	ContainerName = "nats"
 	PVCLabel      = "app.kubernetes.io/name=nats"
 	PodLabel      = "nats_cluster=eventing-nats"
+	ClusterSize   = 3
 )
 
 func NATSCR() *natsv1alpha1.NATS {
 	return testutils.NewNATSCR(
 		testutils.WithNATSCRName(CRName),
 		testutils.WithNATSCRNamespace(NamespaceName),
-		testutils.WithNATSClusterSize(3),
+		testutils.WithNATSClusterSize(ClusterSize),
 		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
 			StorageClassName: "default",
 			Size:             resource.MustParse("1Gi"),
