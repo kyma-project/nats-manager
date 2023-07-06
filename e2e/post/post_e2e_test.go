@@ -1,6 +1,3 @@
-//go:build poste2e
-// +build poste2e
-
 package post
 
 import (
@@ -92,10 +89,13 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Create the NATS CR used for testing.
+	// Delete the NATS CR.
 	ctx := context.TODO()
 	err = retry.Do(attempts, interval, logger, func() error {
 		errDel := k8sClient.Delete(ctx, NATSCR())
+		if k8serrors.IsNotFound(errDel) {
+			return nil
+		}
 		return errDel
 	})
 	if err != nil {
@@ -153,9 +153,9 @@ func Test_NoSTSExists(t *testing.T) {
 	ctx := context.TODO()
 	err := retry.Do(attempts, interval, logger, func() error {
 		// Try, if we still can get the STS.
-		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
+		_, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
 		// This is what we want here.
-		if k8serrors.IsNotFound(stsErr) && sts == nil {
+		if k8serrors.IsNotFound(stsErr) {
 			return nil
 		}
 		// All other errors are unexpected here.
@@ -173,18 +173,17 @@ func Test_NoNATSSecretExists(t *testing.T) {
 
 	ctx := context.TODO()
 	err := retry.Do(attempts, interval, logger, func() error {
-		sec, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, v1.GetOptions{})
-
+		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, v1.GetOptions{})
 		// This is what we want here.
-		if k8serrors.IsNotFound(secErr) && sec == nil {
+		if k8serrors.IsNotFound(secErr) {
 			return nil
 		}
 		// All other errors are unexpected here.
 		if secErr != nil {
 			return secErr
 		}
-		// If we still find Secret we will return an error.
-		return errors.New("found Secret, but wanted the Secret to be deleted")
+		// If we still find and STS we will return an error.
+		return errors.New("found Secret, but wanted the sts to be deleted")
 	})
 	require.NoError(t, err)
 }
@@ -194,9 +193,9 @@ func Test_NoNATSCRExists(t *testing.T) {
 
 	ctx := context.TODO()
 	err := retry.Do(attempts, interval, logger, func() error {
-		cr, crErr := getNATSCR(ctx, CRName, NamespaceName)
+		_, crErr := getNATSCR(ctx, CRName, NamespaceName)
 		// This is what we want here.
-		if k8serrors.IsNotFound(crErr) && cr == nil {
+		if k8serrors.IsNotFound(crErr) {
 			return nil
 		}
 		// All other errors are unexpected here.
