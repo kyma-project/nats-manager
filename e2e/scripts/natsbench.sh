@@ -1,7 +1,7 @@
 #!/bin/bash
 
 kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
-PID=$!
+E2EPID=$!
 sleep 1
 
 # The following will run `bench` with the subject 'testsubject', 5 publishers 5 subscribers,
@@ -13,4 +13,4 @@ nats stream purge benchstream -f
 nats stream rm benchstream -f
 
 # Kill the port-forwarding
-kill $PID
+kill $E2EPID
