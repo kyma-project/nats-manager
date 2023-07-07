@@ -62,15 +62,35 @@ jobs:
         name: Post E2E Test
         run: |
           make e2e-post
+
+      - name: List CRDs
+        if: always()
+        run: |
+          kubectl get crd
       -
-        name: List namespaces, statefulSets, CRDs and Pods
+        name: List Namespaces
         if: always()
         run: |
           kubectl get namespaces
+      -
+        name: List StatefulSets
+        if: always()
+        run: |
           kubectl get sts --all-namespaces
-          kubectl get secret --all-namespaces
-          kubectl get pvc --all-namespaces
-          kubectl get crd --all-namespaces
+      -
+        name: List Pods
+        if: always()
+        run: |
           kubectl get po --all-namespaces
+      -
+        name: List PVCs
+        if: always()
+        run: |
+          kubectl get pvc --all-namespaces
+      -
+        name: List NATS CR
+        if: always()
+        run: |
+          kubectl get nats --all-namespaces
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
