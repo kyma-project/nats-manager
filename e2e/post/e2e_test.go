@@ -22,7 +22,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
-	. "github.com/kyma-project/nats-manager/e2e/fixtures"
+	. "github.com/kyma-project/nats-manager/e2e/common/fixtures"
 )
 
 // Constants for retries.
