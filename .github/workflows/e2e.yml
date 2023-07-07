@@ -48,13 +48,7 @@ jobs:
           kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
           go install github.com/nats-io/natscli/nats@latest
           export PATH=$HOME/go/bin:$PATH
-          # The following will run `bench` with the subject 'testsubject', 5 publishers 5 subscribers, 
-          # 16 byte size per message, 1000 messages using JetStream.
-          nats bench testsubject --pub 5 --sub 5 --size 16 --msgs 1000 --js --replicas=3
-          # Forcefully purge the stream.
-          nats stream purge benchstream -f
-          # Forcefully delete the stream.
-          nats stream rm benchstream -f
+          make e2e-bench
       -
         name: Test NATS-server
         run: |
@@ -63,8 +57,8 @@ jobs:
         name: Cleanup NATS CR
         run: |
           make e2e-cleanup
-
-      - name: List CRDs
+      -
+        name: List CRDs
         if: always()
         run: |
           kubectl get crd
