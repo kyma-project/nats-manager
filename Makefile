@@ -183,3 +183,34 @@ fmt-local: ## Reformat files using `go fmt`
 
 imports-local: ## Optimize imports
 	goimports -w -l $$($(FILES_TO_CHECK))
+
+## e2e
+e2e-pre:
+	go test ./e2e/pre/e2e_test.go --tags=e2e
+
+e2e-bench:
+ 	kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
+	sleep 1
+	# The following will run `bench` with the subject 'testsubject', 5 publishers 5 subscribers,
+    # 16 byte size per message, 1000 messages using JetStream.
+	nats bench testsubject --pub 5 --sub 5 --size 16 --msgs 1000 --js --replicas=3
+    # Forcefully purge the stream.
+	nats stream purge benchstream -f
+    # Forcefully delete the stream.
+	nats stream rm benchstream -f
+
+e2e-test:
+	kubectl -n kyma-system port-forward eventing-nats-0 8222:8222 &
+	kubectl -n kyma-system port-forward eventing-nats-1 8223:8222 &
+	kubectl -n kyma-system port-forward eventing-nats-2 8224:8222 &
+	kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
+	go test ./e2e/test/e2e_test.go --tags=e2e
+
+e2e-post:
+	go test ./e2e/post/e2e_test.go --tags=e2e
+
+.PHONY: e2e-only
+e2e-only: e2e-pre e2e-bench e2e-test e2e-post
+
+.PHONY: e2e
+e2e: install docker-build docker-push deploy e2e-pre e2e-bench e2e-test e2e-post

@@ -41,33 +41,22 @@ jobs:
       -
         name: Pre E2E Tests
         run: |
-          go test ./e2e/pre/e2e_test.go --tags=e2e
+          make e2e-pre
       -
         name: run NATS bench
         run: |
-          go install github.com/nats-io/natscli/nats@latest
           kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
-          sleep 1
-          # The following will run `bench` with the subject 'testsubject', 5 publishers 5 subscribers, 
-          # 16 byte size per message, 1000 messages using JetStream.
-          $HOME/go/bin/nats bench testsubject --pub 5 --sub 5 --size 16 --msgs 1000 --js --replicas=3
-          # Forcefully purge the stream.
-          $HOME/go/bin/nats stream purge benchstream -f
-          # Forcefully delete the stream.
-          $HOME/go/bin/nats stream rm benchstream -f
+          go install github.com/nats-io/natscli/nats@latest
+          alias nats="$HOME/go/bin/nats"
+          make bench
       -
         name: E2E Test
         run: |
-          # forwarding of the health pods
-          kubectl -n kyma-system port-forward eventing-nats-0 8222:8222 &
-          kubectl -n kyma-system port-forward eventing-nats-1 8223:8222 &
-          kubectl -n kyma-system port-forward eventing-nats-2 8224:8222 &
-          kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
-          go test ./e2e/test/e2e_test.go --tags=e2e
+          make e2e-test
       -
         name: Post E2E Test
         run: |
-          go test ./e2e/post/e2e_test.go --tags=e2e
+          make e2e-post
       -
         name: List namespaces, statefulSets, CRDs and Pods
         if: always()
