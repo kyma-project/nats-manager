@@ -47,6 +47,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		logger.Error(err.Error())
 		panic(err)
+
 	}
 
 	clientSet, k8sClient, err = GetK8sClients()

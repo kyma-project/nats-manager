@@ -43,12 +43,11 @@ var logger *zap.Logger
 // test functions. It will then run the tests and finally shuts everything down.
 func TestMain(m *testing.M) {
 	var err error
-	l, err := SetupLogger()
+	logger, err = SetupLogger()
 	if err != nil {
 		logger.Error(err.Error())
 		panic(err)
 	}
-	logger = l
 
 	clientSet, k8sClient, err = GetK8sClients()
 	if err != nil {

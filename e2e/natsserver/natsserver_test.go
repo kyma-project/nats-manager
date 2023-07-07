@@ -1,6 +1,3 @@
-//go:build e2e
-// +build e2e
-
 package natsserver_test
 
 import (
@@ -9,10 +6,11 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
+	"github.com/dustin/go-humanize"
+	"github.com/nats-io/nats-server/v2/server"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
@@ -55,26 +53,31 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func Test_NATSHealz(t *testing.T) {
+func Test_NATSHealth(t *testing.T) {
 	ports := [3]int{8222, 8223, 8224}
 	err := Retry(attempts, interval, logger, func() error {
+		// For all Pods, lets get the status from the `/healthz` endpoint end check if it is `{"status":"ok"}`.
 		for _, port := range ports {
-			checkErr := checkPodHealth(port)
+			actual, checkErr := getHealthz(port)
 			if checkErr != nil {
 				return checkErr
 			}
+			if want := "ok"; actual != want {
+				return fmt.Errorf("health `status` schould be `%s`, but is `%s`", want, actual)
+			}
+			return nil
 		}
 		return nil
 	})
 	require.NoError(t, err)
 }
 
-func checkPodHealth(port int) error {
-	url := fmt.Sprintf("http://localhost:%v", port)
+func getHealthz(port int) (string, error) {
+	url := fmt.Sprintf("http://localhost:%v/healthz", port)
 	resp, err := http.Get(url)
 	logger.Debug(fmt.Sprintf("trying to connect to %s", url))
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	defer resp.Body.Close()
@@ -82,18 +85,47 @@ func checkPodHealth(port int) error {
 	var body []byte
 	body, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	var result map[string]string
-	jsonErr := json.Unmarshal(body, &result)
+	// The `/healthz` endpoint will return a very simple json that looks like `{"status":"ok"}`, so we will only pass
+	// the value.
+	var actual map[string]string
+	jsonErr := json.Unmarshal(body, &actual)
 	if jsonErr != nil {
-		return err
+		return "", err
+	}
+	return actual["status"], nil
+}
+
+func Test_MemSize(t *testing.T) {
+	varz, err := getVarz(8222)
+	require.NoError(t, err)
+
+	logger.Debug(fmt.Sprintf("pure %v", varz.JetStream.Config.MaxMemory))
+	logger.Debug(fmt.Sprintf("Humanize + uint64 %v", humanize.IBytes(uint64(varz.JetStream.Config.MaxMemory))))
+	t.Fail()
+}
+
+func getVarz(port int) (*server.Varz, error) {
+	url := fmt.Sprintf("http://localhost:%v/varz", port)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
 	}
 
-	want := `{"status":"ok"}`
-	if strings.Contains(string(body), want) {
-		return nil
+	defer resp.Body.Close()
+
+	var body []byte
+	body, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
 	}
-	return fmt.Errorf("body did not contain %s, but %s", want, string(body))
+
+	var varz server.Varz
+	jsonErr := json.Unmarshal(body, &varz)
+	if jsonErr != nil {
+		return nil, err
+	}
+	return &varz, nil
 }

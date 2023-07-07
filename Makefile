@@ -184,16 +184,20 @@ fmt-local: ## Reformat files using `go fmt`
 imports-local: ## Optimize imports
 	goimports -w -l $$($(FILES_TO_CHECK))
 
-## e2e
+# e2e test is done here
+.PHONY: e2e-setup
 e2e-setup:
 	go test ./e2e/setup/setup_test.go --tags=e2e
 
+.PHONY: e2e-bench
 e2e-bench:
 	./e2e/scripts/natsbench.sh
 
+.PHONY: e2e-nats-server
 e2e-nats-server:
 	./e2e/scripts/natsserver.sh
 
+.PHONY: e2e-cleanup
 e2e-cleanup:
 	go test ./e2e/cleanup/cleanup_test.go --tags=e2e
 

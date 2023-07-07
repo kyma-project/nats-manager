@@ -43,7 +43,7 @@ jobs:
         run: |
           make e2e-setup
       -
-        name: run NATS bench
+        name: Run NATS bench
         run: |
           go install github.com/nats-io/natscli/nats@latest
           export PATH=$HOME/go/bin:$PATH
