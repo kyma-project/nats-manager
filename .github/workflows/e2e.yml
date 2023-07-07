@@ -45,7 +45,6 @@ jobs:
       -
         name: run NATS bench
         run: |
-          kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
           go install github.com/nats-io/natscli/nats@latest
           export PATH=$HOME/go/bin:$PATH
           make e2e-bench
