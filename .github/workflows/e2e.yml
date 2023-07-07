@@ -39,7 +39,7 @@ jobs:
         run: |
           make deploy IMG=$DOCKER_IMAGE
       -
-        name: E2E Tests
+        name: Pre E2E Tests
         run: |
           go test ./e2e/pre/e2e_test.go --tags=e2e
       -
@@ -56,7 +56,14 @@ jobs:
           # Forcefully delete the stream.
           $HOME/go/bin/nats stream rm benchstream -f
       -
-        name: Post E2E
+        name: E2E Test
+        run: |
+          kubectl -n kyma-system port-forward eventing-nats-0 4222:4222 &
+          kubectl -n kyma-system port-forward eventing-nats-1 4223:4222 &
+          kubectl -n kyma-system port-forward eventing-nats-2 4224:4222 &
+          go test ./e2e/post/e2e_test.go --tags=e2e
+      -
+        name: Post E2E Test
         run: |
           go test ./e2e/post/e2e_test.go --tags=e2e
       -
