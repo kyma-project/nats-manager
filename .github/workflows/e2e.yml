@@ -58,9 +58,11 @@ jobs:
       -
         name: E2E Test
         run: |
+          # forwarding of the health pods
           kubectl -n kyma-system port-forward eventing-nats-0 8222:8222 &
           kubectl -n kyma-system port-forward eventing-nats-1 8223:8222 &
           kubectl -n kyma-system port-forward eventing-nats-2 8224:8222 &
+          kubectl -n kyma-system port-forward svc/eventing-nats 4222:4222 &
           go test ./e2e/test/e2e_test.go --tags=e2e
       -
         name: Post E2E Test

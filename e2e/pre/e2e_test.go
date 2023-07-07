@@ -254,7 +254,6 @@ func Test_PVCs(t *testing.T) {
 // Test_Secret tests if the Secret was created.
 func Test_Secret(t *testing.T) {
 	t.Parallel()
-
 	ctx := context.TODO()
 	err := Retry(attempts, interval, logger, func() error {
 		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, metav1.GetOptions{})

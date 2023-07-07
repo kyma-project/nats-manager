@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -56,9 +57,16 @@ func TestMain(m *testing.M) {
 
 func Test_NATSHealz(t *testing.T) {
 	ports := [3]int{8222, 8223, 8224}
-	for _, port := range ports {
-		checkPodHealth(port)
-	}
+	err := Retry(attempts, interval, logger, func() error {
+		for _, port := range ports {
+			checkErr := checkPodHealth(port)
+			if checkErr != nil {
+				return checkErr
+			}
+		}
+		return nil
+	})
+	require.NoError(t, err)
 }
 
 func checkPodHealth(port int) error {
