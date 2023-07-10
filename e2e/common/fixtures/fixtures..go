@@ -10,15 +10,19 @@ import (
 )
 
 const (
-	NamespaceName = "kyma-system"
-	CRName        = "eventing-nats"
-	STSName       = CRName
-	ContainerName = "nats"
-	pvcLabel      = "app.kubernetes.io/name=nats"
-	secLabel      = "app.kubernetes.io/name=nats"
-	podLabel      = "nats_cluster=eventing-nats"
-	ClusterSize   = 3
-	SecretName    = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
+	NamespaceName   = "kyma-system"
+	CRName          = "eventing-nats"
+	STSName         = CRName
+	ContainerName   = "nats"
+	pvcLabel        = "app.kubernetes.io/name=nats"
+	secLabel        = "app.kubernetes.io/name=nats"
+	podLabel        = "nats_cluster=eventing-nats"
+	ClusterSize     = 3
+	SecretName      = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
+	CMName          = "eventing-nats-config"
+	FileStorageSize = "1Gi"
+	MemStorageSize  = "20Mi"
+	True            = "true"
 )
 
 func NATSCR() *natsv1alpha1.NATS {
@@ -28,11 +32,11 @@ func NATSCR() *natsv1alpha1.NATS {
 		testutils.WithNATSClusterSize(ClusterSize),
 		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
 			StorageClassName: "default",
-			Size:             resource.MustParse("1Gi"),
+			Size:             resource.MustParse(FileStorageSize),
 		}),
 		testutils.WithNATSMemStorage(natsv1alpha1.MemStorage{
-			Enabled: false,
-			Size:    resource.MustParse("20Mi"),
+			Enabled: true,
+			Size:    resource.MustParse(MemStorageSize),
 		}),
 		testutils.WithNATSResources(corev1.ResourceRequirements{
 			Limits: corev1.ResourceList{

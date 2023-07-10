@@ -18,6 +18,7 @@ import (
 	"go.uber.org/zap"
 
 	. "github.com/kyma-project/nats-manager/e2e/common"
+	. "github.com/kyma-project/nats-manager/e2e/common/fixtures"
 )
 
 const (
@@ -50,6 +51,7 @@ func Test_NATSHealth(t *testing.T) {
 		for _, port := range ports {
 			actual, checkErr := getHealthz(port)
 			if checkErr != nil {
+				logger.Warn("error while requesting healthz; is port-forwarding operational?")
 				return checkErr
 			}
 			if want := "ok"; actual != want {
@@ -62,15 +64,30 @@ func Test_NATSHealth(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func Test_MemSize(t *testing.T) {
+func Test_Varz(t *testing.T) {
 	// Let's get the config of NATS from the `/varz` endpoint.
-	varz, err := getVarz(8222)
-	require.NoError(t, err)
+	err := Retry(attempts, interval, logger, func() error {
+		varz, varzErr := getVarz(8222)
+		if varzErr != nil {
+			logger.Warn("error while requesting varz; is port-forwarding operational?")
+			return varzErr
+		}
 
-	logger.Debug(fmt.Sprintf("pure %v", varz.JetStream.Config.MaxMemory))
-	logger.Debug(fmt.Sprintf("Humanize IBytes + uint64 %v", humanize.IBytes(uint64(varz.JetStream.Config.MaxMemory))))
-	logger.Debug(fmt.Sprintf("Humanize Bytes + uint64 %v", humanize.Bytes(uint64(varz.JetStream.Config.MaxMemory))))
-	t.Fail()
+		wantMaxMemory := MemStorageSize
+		actualMaxMemory := humanize.IBytes(uint64(varz.JetStream.Config.MaxMemory))
+		if wantMaxMemory != actualMaxMemory {
+			return fmt.Errorf("wanted MaxMemory to be '%s' but was '%s'", wantMaxMemory, actualMaxMemory)
+		}
+
+		wantMaxStore := FileStorageSize
+		actualMaxStore := humanize.IBytes(uint64(varz.JetStream.Config.MaxStore))
+		if wantMaxStore != actualMaxStore {
+			return fmt.Errorf("wanted MaxStory to be '%s' but was '%s'", wantMaxMemory, actualMaxMemory)
+		}
+
+		return nil
+	})
+	require.NoError(t, err)
 }
 
 func getHealthz(port int) (string, error) {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -103,6 +104,51 @@ func Test_CR(t *testing.T) {
 		reflect.DeepEqual(want.Spec, actual.Spec),
 		fmt.Sprintf("wanted spec.cluster to be \n\t%v\n but got \n\t%v", want.Spec, actual.Spec),
 	)
+}
+
+func Test_ConfigMap(t *testing.T) {
+	ctx := context.TODO()
+
+	err := Retry(attempts, interval, logger, func() error {
+		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, metav1.GetOptions{})
+		if cmErr != nil {
+			return cmErr
+		}
+
+		cmm := cmToMap(cm.Data["nats.conf"])
+
+		if err := checkValueInCMMap(cmm, "max_file", FileStorageSize); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmm, "max_mem", FileStorageSize); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmm, "debug", True); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmm, "trace", True); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	require.NoError(t, err)
+}
+
+func checkValueInCMMap(cmm map[string]string, key, expectedValue string) error {
+	val, ok := cmm[key]
+	if !ok {
+		return fmt.Errorf("could net get '%s' from Configmap", key)
+	}
+	if val != expectedValue {
+		return fmt.Errorf("expected value for '%s' to be '%s' but was '%s'", key, expectedValue, val)
+	}
+
+	return nil
 }
 
 // Test_PodsResources checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
@@ -273,4 +319,23 @@ func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS,
 		Namespace: namespace,
 	}, &natsCR)
 	return &natsCR, err
+}
+
+func cmToMap(cm string) map[string]string {
+	lines := strings.Split(cm, "\n")
+
+	cmMap := make(map[string]string)
+	for _, line := range lines {
+		if strings.Contains(line, ": ") {
+			l := strings.Split(line, ": ")
+			if len(l) < 2 {
+				continue
+			}
+			key := strings.TrimSpace(l[0])
+			val := strings.TrimSpace(l[1])
+			cmMap[key] = val
+		}
+	}
+
+	return cmMap
 }
