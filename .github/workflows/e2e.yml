@@ -94,6 +94,5 @@ jobs:
         run: |
           kubectl get nats --all-namespaces
 
-
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
