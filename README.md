@@ -224,7 +224,7 @@ For the E2E tests, provide a Kubernetes cluster and run:
 make e2e IMG=<container-registry>/nats-manager:<tag>
 ```
 
-If you already have deployed the NATS-Manager on your cluster you can simply run:
+If you already have deployed the NATS-Manager on your cluster, you can simply run:
 ```shell
 make e2e-only
 ```
