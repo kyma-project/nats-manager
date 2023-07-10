@@ -27,7 +27,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 ### Running locally
 1. Download Go packages:
    ```sh
-   $ go mod vendor && go mod tidy
+   go mod vendor && go mod tidy
    ```
 2. Install the CRDs into the cluster:
     ```sh
@@ -91,7 +91,7 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
 
 1. Download Go packages:
    ```sh
-   $ go mod vendor && go mod tidy
+   go mod vendor && go mod tidy
    ```
 
 2. Install the CRDs to the cluster:
@@ -216,6 +216,43 @@ kubectl get pods -n nats-manager-system
 ```shell
 kubectl get -n kyma-system nats
 ```
+
+## E2E tests
+For the E2E tests provide a Kubernetes cluster and run
+
+```shell
+make e2e IMG=<container-registry>/nats-manager:<tag>
+```
+
+If you already have deployed the NATS-Manager on your cluster you can simply run:
+```shell
+make e2e-only
+```
+
+The e2e test consist of four consecutive steps that can also be run individually.
+
+To set up a NATS CR and check that it and all correlated resources like Pods, Services and PVCs are set up as expected run:
+```shell
+make e2e-setup
+```
+
+To execute a [bench test](https://docs.nats.io/using-nats/nats-tools/nats_cli/natsbench) on the NATS-Server run:
+```shell
+make e2e-bench
+```
+This will rely on the setup from `make e2e-setup`. Be aware that running this on slow hardware like CI systems or k3d clusters will obviously result in poor performance, however, it is  still a great tool to simply show that NATS JetStream is in an operational configuration.
+
+To check that the internals of the NATS-Server are healthy and configured as expected run:
+```shell
+make e2e-nats-server
+```
+This will rely on the setup from `make e2e-setup`.
+
+To clean up the test environment and to check that all resources correlated to the NATS CR are removed run:
+```shell
+make e2e-cleanup
+```
+
 
 ## License
 
