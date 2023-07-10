@@ -218,7 +218,7 @@ kubectl get -n kyma-system nats
 ```
 
 ## E2E tests
-For the E2E tests provide a Kubernetes cluster and run
+For the E2E tests, provide a Kubernetes cluster and run:
 
 ```shell
 make e2e IMG=<container-registry>/nats-manager:<tag>
