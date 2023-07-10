@@ -14,6 +14,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            $(HOME)/go/pkg
+          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/lockfiles') }}
+
       - name: Setup a k3d cluster
         uses: nolar/setup-k3d-k3s@v1
         with:
