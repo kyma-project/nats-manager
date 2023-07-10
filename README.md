@@ -237,26 +237,29 @@ export E2E_LOG_LEVEL="error"
 
 The e2e test consist of four consecutive steps that can also be run individually.
 
-1. To set up a NATS CR and check that it and all correlated resources like Pods, Services and PVCs are set up as expected run:
+1. To set up a NATS CR and check that it and all correlated resources like Pods, Services and PVCs are set up as 
+expected, run:
    ```shell
    make e2e-setup
    ```
 
-2. To execute a [bench test](https://docs.nats.io/using-nats/nats-tools/nats_cli/natsbench) on the NATS-Server run:
+2. To execute a [bench test](https://docs.nats.io/using-nats/nats-tools/nats_cli/natsbench) on the NATS-Server, run:
    ```shell
    make e2e-bench
    ```
-   This will rely on the setup from `make e2e-setup`. Be aware that running this on slow hardware like CI systems or k3d clusters will obviously result in poor performance, however, it is  still a great tool to simply show that NATS JetStream is in an operational configuration.
+   This relies on the setup from `make e2e-setup`.
 
+   > **NOTE:** Running this on slow hardware like CI systems or k3d clusters results in poor performance. However, this 
+   > is still a great tool to simply show that NATS JetStream is in an operational configuration.
 
-3. To check that the internals of the NATS-Server are healthy and configured as expected run:
+3. To check that the internals of the NATS-Server are healthy and configured as expected, run:
    ```shell
    make e2e-nats-server
    ```
    This will rely on the setup from `make e2e-setup`.
 
 
-4. To clean up the test environment and to check that all resources correlated to the NATS CR are removed run:
+4. To clean up the test environment and to check that all resources correlated to the NATS CR are removed, run:
    ```shell
    make e2e-cleanup
    ```
