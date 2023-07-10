@@ -21,7 +21,7 @@ const (
 	SecretName      = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
 	CMName          = "eventing-nats-config"
 	FileStorageSize = "1Gi"
-	MemStorageSize  = "500Mi"
+	MemStorageSize  = "250Mi"
 	True            = "true"
 )
 
@@ -41,11 +41,11 @@ func NATSCR() *natsv1alpha1.NATS {
 		testutils.WithNATSResources(corev1.ResourceRequirements{
 			Limits: corev1.ResourceList{
 				"cpu":    resource.MustParse("20m"),
-				"memory": resource.MustParse("64Mi"),
+				"memory": resource.MustParse("500Mi"),
 			},
 			Requests: corev1.ResourceList{
 				"cpu":    resource.MustParse("5m"),
-				"memory": resource.MustParse("64Mi"),
+				"memory": resource.MustParse("500Mi"),
 			},
 		}),
 		testutils.WithNATSLogging(
