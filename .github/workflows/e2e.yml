@@ -11,21 +11,20 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Setup a k3d cluster
+
+      - name: Setup a k3d cluster
         uses: nolar/setup-k3d-k3s@v1
         with:
           # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
           version: v1.26.5
-      -
-        name: Install the NATS CRD on the cluster
+
+      - name: Install the NATS CRD on the cluster
         run: |
           make install
-      -
-        name: Wait for the 'pull-nats-manager-build' job to succeed
+
+      - name: Wait for the 'pull-nats-manager-build' job to succeed
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
@@ -34,57 +33,58 @@ jobs:
           wait-interval: 10
           allowed-conclusions: success
           verbose: false # change for debugging
-      -
-        name: Deploy the controller to the cluster
+
+      - name: Deploy the controller to the cluster
         run: |
           make deploy IMG=$DOCKER_IMAGE
-      -
-        name: Setup and test NATS CR
+
+      - name: Setup and test NATS CR
         run: |
           make e2e-setup
-      -
-        name: Run NATS bench
+
+      - name: Run NATS bench
         run: |
           go install github.com/nats-io/natscli/nats@latest
           export PATH=$HOME/go/bin:$PATH
           make e2e-bench
-      -
-        name: Test NATS-server
+
+      - name: Test NATS-server
         run: |
           make e2e-nats-server
-      -
-        name: Cleanup NATS CR
+
+      - name: Cleanup NATS CR
         run: |
           make e2e-cleanup
-      -
-        name: List CRDs
+
+      - name: List CRDs
         if: always()
         run: |
           kubectl get crd
-      -
-        name: List Namespaces
+
+      - name: List Namespaces
         if: always()
         run: |
           kubectl get namespaces
-      -
-        name: List StatefulSets
+
+      - name: List StatefulSets
         if: always()
         run: |
           kubectl get sts --all-namespaces
-      -
-        name: List Pods
+
+      - name: List Pods
         if: always()
         run: |
           kubectl get po --all-namespaces
-      -
-        name: List PVCs
+
+      - name: List PVCs
         if: always()
         run: |
           kubectl get pvc --all-namespaces
-      -
-        name: List NATS CR
+
+      - name: List NATS CR
         if: always()
         run: |
           kubectl get nats --all-namespaces
+
 # references:
 # wait for other gh checks to finish: https://github.com/marketplace/actions/wait-for-check
