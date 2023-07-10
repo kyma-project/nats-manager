@@ -21,7 +21,7 @@ const (
 	SecretName      = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
 	CMName          = "eventing-nats-config"
 	FileStorageSize = "1Gi"
-	MemStorageSize  = "20Mi"
+	MemStorageSize  = "500Mi"
 	True            = "true"
 )
 
