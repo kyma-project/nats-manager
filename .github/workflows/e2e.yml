@@ -2,6 +2,7 @@ name: e2e
 
 env:
   DOCKER_IMAGE: europe-docker.pkg.dev/kyma-project/dev/nats-manager:PR-${{ github.event.number }}
+  E2E_LOG_LEVEL: debug
 
 on:
   pull_request:

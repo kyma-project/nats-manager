@@ -15,7 +15,6 @@ const (
 	STSName         = CRName
 	ContainerName   = "nats"
 	pvcLabel        = "app.kubernetes.io/name=nats"
-	secLabel        = "app.kubernetes.io/name=nats"
 	podLabel        = "nats_cluster=eventing-nats"
 	ClusterSize     = 3
 	SecretName      = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
@@ -69,8 +68,4 @@ func PodListOpts() metav1.ListOptions {
 
 func PVCListOpts() metav1.ListOptions {
 	return metav1.ListOptions{LabelSelector: pvcLabel}
-}
-
-func SecretListOpts() metav1.ListOptions {
-	return metav1.ListOptions{LabelSelector: secLabel}
 }
