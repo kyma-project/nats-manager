@@ -145,9 +145,10 @@ func Test_NATSHealth(t *testing.T) {
 }
 
 func Test_Varz(t *testing.T) {
+	// To make the wanted MemStorageSize and FileStorageSize comparable to what we will find on the NATS-Server, we need
+	// to transform it to the same unit; bytes.
 	wm := resource.MustParse(MemStorageSize)
 	wantMem := wm.Value()
-
 	wf := resource.MustParse(FileStorageSize)
 	wantStore := wf.Value()
 
