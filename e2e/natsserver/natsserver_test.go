@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/nats-io/nats-server/v2/server"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -22,7 +23,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/common/fixtures"
 )
@@ -56,31 +56,31 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Update the NATS CR, so we can test some test cases.
-	ctx := context.TODO()
-	err = Retry(attempts, interval, logger, func() error {
-		// First, get the CR from the cluster.
-		cr := &v1alpha1.NATS{}
-		key := client.ObjectKey{
-			Namespace: NATSCR().GetNamespace(),
-			Name:      NATSCR().GetName(),
-		}
-		natsErr := k8sClient.Get(ctx, key, cr)
-		if natsErr != nil {
-			return natsErr
-		}
-
-		// MemStorage was disabled for earlier test. Now we activate it, so we can test against the /varz endpoint
-		// and against the configmap.
-		cr.Spec.JetStream.MemStorage.Enabled = true
-		cr.Spec.JetStream.MemStorage.Size = resource.MustParse(MemStorageSize)
-		natsErr = k8sClient.Update(ctx, cr)
-		return natsErr
-	})
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
+	// // Update the NATS CR, so we can test some test cases.
+	// ctx := context.TODO()
+	// err = Retry(attempts, interval, logger, func() error {
+	// 	// First, get the CR from the cluster.
+	// 	cr := &v1alpha1.NATS{}
+	// 	key := client.ObjectKey{
+	// 		Namespace: NATSCR().GetNamespace(),
+	// 		Name:      NATSCR().GetName(),
+	// 	}
+	// 	natsErr := k8sClient.Get(ctx, key, cr)
+	// 	if natsErr != nil {
+	// 		return natsErr
+	// 	}
+	//
+	// 	// MemStorage was disabled for earlier test. Now we activate it, so we can test against the /varz endpoint
+	// 	// and against the configmap.
+	// 	cr.Spec.JetStream.MemStorage.Enabled = true
+	// 	cr.Spec.JetStream.MemStorage.Size = resource.MustParse(MemStorageSize)
+	// 	natsErr = k8sClient.Update(ctx, cr)
+	// 	return natsErr
+	// })
+	// if err != nil {
+	// 	logger.Error(err.Error())
+	// 	panic(err)
+	// }
 
 	// Run the tests and exit.
 	code := m.Run()
@@ -162,12 +162,20 @@ func Test_Varz(t *testing.T) {
 
 		actualStore := varz.JetStream.Config.MaxStore
 		if wantStore != actualStore {
-			return fmt.Errorf("wanted 'MaxStore' to be '%v' but was '%v'", wantStore, actualStore)
+			return fmt.Errorf(
+				"wanted 'MaxStore' to be '%s' but was '%s'",
+				humanize.IBytes(uint64(wantStore)),
+				humanize.IBytes(uint64(actualStore)),
+			)
 		}
 
 		actualMem := varz.JetStream.Config.MaxMemory
 		if wantMem != actualMem {
-			return fmt.Errorf("wanted 'MaxMemory' to be '%v' but was '%v'", wantMem, actualMem)
+			return fmt.Errorf(
+				"wanted 'MaxMemory' to be '%s' but was '%s'",
+				humanize.IBytes(uint64(wantMem)),
+				humanize.IBytes(uint64(actualMem)),
+			)
 		}
 
 		return nil
