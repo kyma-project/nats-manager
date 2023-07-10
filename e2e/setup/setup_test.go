@@ -121,7 +121,7 @@ func Test_ConfigMap(t *testing.T) {
 			return err
 		}
 
-		if err := checkValueInCMMap(cmm, "max_mem", FileStorageSize); err != nil {
+		if err := checkValueInCMMap(cmm, "max_mem", MemStorageSize); err != nil {
 			return err
 		}
 
