@@ -20,7 +20,7 @@ trap cleanup ERR
 CLUSTER_SIZE=$(kubectl get nats -n kyma-system eventing-nats -ojsonpath='{.spec.cluster.size}')
 # The following will run `bench` with the subject 'testsubject', 5 publishers 5 subscribers,
 # 16 byte size per message, 1000 messages using JetStream.
-nats bench testsubject --js --replicas=${CLUSTER_SIZE} --pub 5 --sub 5 --size 10 --msgs 5 --no-progress
+nats bench testsubject --js --replicas=${CLUSTER_SIZE} --pub 5 --sub 5 --size 16 --msgs 100 --no-progress
 
 # Kill the port-forwarding.
 cleanup
