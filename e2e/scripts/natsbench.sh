@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 kubectl port-forward -n kyma-system svc/eventing-nats 4222:4222 &
 PID=$!

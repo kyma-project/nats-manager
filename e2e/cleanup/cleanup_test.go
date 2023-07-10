@@ -87,10 +87,10 @@ func Test_NoPodsExists(t *testing.T) {
 			return podErr
 		}
 		// We want them all to be gone, otherwise we return an error.
-		if l := len(pods.Items); l > 0 {
-			return fmt.Errorf("expected to not find any pods but found %v", l)
+		if ln := len(pods.Items); ln > 0 {
+			return fmt.Errorf("expected to not find any Pods, but found %v", ln)
 		}
-
+		// No Pod, no problem.
 		return nil
 	})
 	require.NoError(t, err)
@@ -108,8 +108,8 @@ func Test_NoPVCsExists(t *testing.T) {
 			return pvcErr
 		}
 		// We want them all to be gone, otherwise we return an error.
-		if l := len(pvcs.Items); l > 0 {
-			return fmt.Errorf("expected to not find any PVCs but found %v", l)
+		if ln := len(pvcs.Items); ln > 0 {
+			return fmt.Errorf("expected to not find any PVCs, but found %v", ln)
 		}
 
 		return nil
@@ -134,7 +134,7 @@ func Test_NoSTSExists(t *testing.T) {
 			return stsErr
 		}
 		// If we still find and STS we will return an error.
-		return errors.New("found sts, but wanted the sts to be deleted")
+		return errors.New("found StatefulSet, but wanted the StatefulSet to be deleted")
 	})
 	require.NoError(t, err)
 }
@@ -154,7 +154,7 @@ func Test_NoNATSSecretExists(t *testing.T) {
 			return secErr
 		}
 		// If we still find and Secret we will return an error.
-		return errors.New("found Secret, but wanted the sts to be deleted")
+		return errors.New("found Secret, but wanted the Secret to be deleted")
 	})
 	require.NoError(t, err)
 }
