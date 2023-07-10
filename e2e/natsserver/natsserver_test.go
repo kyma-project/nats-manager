@@ -150,16 +150,16 @@ func Test_Varz(t *testing.T) {
 			return varzErr
 		}
 
-		wantMaxMemory := MemStorageSize
-		actualMaxMemory := humanize.IBytes(uint64(varz.JetStream.Config.MaxMemory))
-		if wantMaxMemory != actualMaxMemory {
-			return fmt.Errorf("wanted MaxMemory to be '%s' but was '%s'", wantMaxMemory, actualMaxMemory)
+		wantMem := MemStorageSize
+		actualMem := humanize.IBytes(uint64(varz.JetStream.Config.MaxMemory))
+		if wantMem != actualMem {
+			return fmt.Errorf("wanted 'MaxMemory' to be '%s' but was '%s'", wantMem, actualMem)
 		}
 
-		wantMaxStore := FileStorageSize
-		actualMaxStore := humanize.IBytes(uint64(varz.JetStream.Config.MaxStore))
-		if wantMaxStore != actualMaxStore {
-			return fmt.Errorf("wanted MaxStory to be '%s' but was '%s'", wantMaxMemory, actualMaxMemory)
+		wantStore := FileStorageSize
+		actualStore := humanize.IBytes(uint64(varz.JetStream.Config.MaxStore))
+		if wantStore != actualStore {
+			return fmt.Errorf("wanted 'MaxStore' to be '%s' but was '%s'", wantStore, actualMem)
 		}
 
 		return nil
