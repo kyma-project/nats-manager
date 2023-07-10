@@ -1,6 +1,27 @@
+include .env
+
+# Module Name used for bundling the OCI Image and later on for referencing in the Kyma Modules
+MODULE_NAME ?= nats
+
+# Operating system architecture
+OS_ARCH ?= $(shell uname -m)
+
+# Operating system type
+OS_TYPE ?= $(shell uname)
+
+# Module Registry used for pushing the image
+MODULE_REGISTRY_PORT ?= 8888
+MODULE_REGISTRY ?= op-kcp-registry.localhost:$(MODULE_REGISTRY_PORT)/unsigned
+# Desired Channel of the Generated Module Template
+MODULE_CHANNEL ?= fast
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG_REGISTRY_PORT ?= $(MODULE_REGISTRY_PORT)
+IMG_REGISTRY ?= op-skr-registry.localhost:$(IMG_REGISTRY_PORT)/unsigned/manager-images
+IMG ?= $(IMG_REGISTRY)/$(MODULE_NAME)-manager:$(MODULE_VERSION)
+
+## Image URL to use all building/pushing image targets
+#IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.27.1
 
@@ -19,6 +40,21 @@ ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
 else
 GOBIN=$(shell go env GOBIN)
+endif
+
+# Credentials used for authenticating into the module registry
+# see `kyma alpha mod create --help for more info`
+
+# This will change the flags of the `kyma alpha module create` command in case we spot credentials
+# Otherwise we will assume http-based local registries without authentication (e.g. for k3d)
+ifneq (,$(PROW_JOB_ID))
+GCP_ACCESS_TOKEN=$(shell gcloud auth application-default print-access-token)
+MODULE_CREATION_FLAGS=--registry $(MODULE_REGISTRY) --module-archive-version-overwrite -c oauth2accesstoken:$(GCP_ACCESS_TOKEN)
+else ifeq (,$(MODULE_CREDENTIALS))
+# when built locally we should not include security content.
+MODULE_CREATION_FLAGS=--registry $(MODULE_REGISTRY) --module-archive-version-overwrite --insecure --sec-scanners-config=sec-scanners-config-local.yaml
+else
+MODULE_CREATION_FLAGS=--registry $(MODULE_REGISTRY) --module-archive-version-overwrite -c $(MODULE_CREDENTIALS)
 endif
 
 # Setting SHELL to bash allows bash commands to be executed by recipes.
@@ -142,6 +178,25 @@ LOCALBIN ?= $(shell pwd)/bin
 $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 
+##@ Module
+
+.PHONY: module-image
+module-image: docker-build docker-push ## Build the Module Image and push it to a registry defined in IMG_REGISTRY
+	echo "built and pushed module image $(IMG)"
+
+DEFAULT_CR ?= $(shell pwd)/config/samples/default.yaml
+.PHONY: module-build
+module-build: kyma kustomize ## Build the Module and push it to a registry defined in MODULE_REGISTRY
+	#################################################################
+	## Building module with:
+	# - image: ${IMG}
+	# - channel: ${MODULE_CHANNEL}
+	# - name: kyma-project.io/module/$(MODULE_NAME)
+	# - version: $(MODULE_VERSION)
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	@$(KYMA) --ci alpha create module --channel=${MODULE_CHANNEL} --name kyma-project.io/module/$(MODULE_NAME) --version $(MODULE_VERSION) --path . $(MODULE_CREATION_FLAGS) --output=template.yaml --default-cr=$(DEFAULT_CR)
+
+
 ## Tool Binaries
 KUSTOMIZE ?= $(LOCALBIN)/kustomize
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
@@ -183,3 +238,23 @@ fmt-local: ## Reformat files using `go fmt`
 
 imports-local: ## Optimize imports
 	goimports -w -l $$($(FILES_TO_CHECK))
+
+########## Kyma CLI ###########
+KYMA_STABILITY ?= unstable
+
+# $(call os_error, os-type, os-architecture)
+define os_error
+$(error Error: unsuported platform OS_TYPE:$1, OS_ARCH:$2; to mitigate this problem set variable KYMA with absolute path to kyma-cli binary compatible with your operating system and architecture)
+endef
+
+KYMA_FILE_NAME ?= $(shell ./hack/get_kyma_file_name.sh ${OS_TYPE} ${OS_ARCH})
+KYMA ?= $(LOCALBIN)/kyma-$(KYMA_STABILITY)
+
+.PHONY: kyma
+kyma: $(LOCALBIN) $(KYMA) ## Download kyma CLI locally if necessary.
+$(KYMA):
+	#################################################################
+	$(if $(KYMA_FILE_NAME),,$(call os_error, ${OS_TYPE}, ${OS_ARCH}))
+	## Downloading Kyma CLI: https://storage.googleapis.com/kyma-cli-$(KYMA_STABILITY)/$(KYMA_FILE_NAME)
+	test -f $@ || curl -s -Lo $(KYMA) https://storage.googleapis.com/kyma-cli-$(KYMA_STABILITY)/$(KYMA_FILE_NAME)
+	chmod 0100 $(KYMA)
