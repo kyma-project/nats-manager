@@ -14,10 +14,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dustin/go-humanize"
 	"github.com/nats-io/nats-server/v2/server"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -56,9 +56,10 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// Update the NATS CR, so we can test some testcases.
+	// Update the NATS CR, so we can test some test cases.
 	ctx := context.TODO()
 	err = Retry(attempts, interval, logger, func() error {
+		// First, get the CR from the cluster.
 		cr := &v1alpha1.NATS{}
 		key := client.ObjectKey{
 			Namespace: NATSCR().GetNamespace(),
@@ -69,10 +70,10 @@ func TestMain(m *testing.M) {
 			return natsErr
 		}
 
-		// This was disabled for earlier test. Now we activate it, so we can test against the varz-endpoint and against
-		// the configmap.
+		// MemStorage was disabled for earlier test. Now we activate it, so we can test against the /varz endpoint
+		// and against the configmap.
 		cr.Spec.JetStream.MemStorage.Enabled = true
-
+		cr.Spec.JetStream.MemStorage.Size = resource.MustParse(MemStorageSize)
 		natsErr = k8sClient.Update(ctx, cr)
 		return natsErr
 	})
@@ -96,21 +97,21 @@ func Test_ConfigMap(t *testing.T) {
 			return cmErr
 		}
 
-		cmm := cmToMap(cm.Data["nats.conf"])
+		cmMap := cmToMap(cm.Data["nats.conf"])
 
-		if err := checkValueInCMMap(cmm, "max_file", FileStorageSize); err != nil {
+		if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
 			return err
 		}
 
-		if err := checkValueInCMMap(cmm, "max_mem", MemStorageSize); err != nil {
+		if err := checkValueInCMMap(cmMap, "max_mem", MemStorageSize); err != nil {
 			return err
 		}
 
-		if err := checkValueInCMMap(cmm, "debug", True); err != nil {
+		if err := checkValueInCMMap(cmMap, "debug", True); err != nil {
 			return err
 		}
 
-		if err := checkValueInCMMap(cmm, "trace", True); err != nil {
+		if err := checkValueInCMMap(cmMap, "trace", True); err != nil {
 			return err
 		}
 
@@ -121,18 +122,20 @@ func Test_ConfigMap(t *testing.T) {
 }
 
 func Test_NATSHealth(t *testing.T) {
+	wantStatus := "ok"
+
 	ports := [3]int{8222, 8223, 8224}
 	err := Retry(attempts, interval, logger, func() error {
 		// For all Pods, let's get the status from the `/healthz` endpoint and check
 		// if the response is `{"status":"ok"}`.
 		for _, port := range ports {
-			actual, checkErr := getHealthz(port)
+			actualStatus, checkErr := getHealthz(port)
 			if checkErr != nil {
 				logger.Warn("error while requesting healthz; is port-forwarding operational?")
 				return checkErr
 			}
-			if want := "ok"; actual != want {
-				return fmt.Errorf("health `status` schould be `%s`, but is `%s`", want, actual)
+			if actualStatus != wantStatus {
+				return fmt.Errorf("health `status` schould be `%s`, but is `%s`", wantStatus, actualStatus)
 			}
 			return nil
 		}
@@ -142,6 +145,12 @@ func Test_NATSHealth(t *testing.T) {
 }
 
 func Test_Varz(t *testing.T) {
+	wm := resource.MustParse(MemStorageSize)
+	wantMem := wm.Value()
+
+	wf := resource.MustParse(FileStorageSize)
+	wantStore := wf.Value()
+
 	// Let's get the config of NATS from the `/varz` endpoint.
 	err := Retry(attempts, interval, logger, func() error {
 		varz, varzErr := getVarz(8222)
@@ -150,16 +159,14 @@ func Test_Varz(t *testing.T) {
 			return varzErr
 		}
 
-		wantMem := MemStorageSize
-		actualMem := humanize.IBytes(uint64(varz.JetStream.Config.MaxMemory))
-		if wantMem != actualMem {
-			return fmt.Errorf("wanted 'MaxMemory' to be '%s' but was '%s'", wantMem, actualMem)
+		actualStore := varz.JetStream.Config.MaxStore
+		if wantStore != actualStore {
+			return fmt.Errorf("wanted 'MaxStore' to be '%v' but was '%v'", wantStore, actualStore)
 		}
 
-		wantStore := FileStorageSize
-		actualStore := humanize.IBytes(uint64(varz.JetStream.Config.MaxStore))
-		if wantStore != actualStore {
-			return fmt.Errorf("wanted 'MaxStore' to be '%s' but was '%s'", wantStore, actualMem)
+		actualMem := varz.JetStream.Config.MaxMemory
+		if wantMem != actualMem {
+			return fmt.Errorf("wanted 'MaxMemory' to be '%v' but was '%v'", wantMem, actualMem)
 		}
 
 		return nil
@@ -221,6 +228,7 @@ func checkValueInCMMap(cmm map[string]string, key, expectedValue string) error {
 	if !ok {
 		return fmt.Errorf("could net get '%s' from Configmap", key)
 	}
+
 	if val != expectedValue {
 		return fmt.Errorf("expected value for '%s' to be '%s' but was '%s'", key, expectedValue, val)
 	}
