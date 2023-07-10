@@ -32,16 +32,16 @@ func NATSCR() *natsv1alpha1.NATS {
 		}),
 		testutils.WithNATSMemStorage(natsv1alpha1.MemStorage{
 			Enabled: false,
-			Size:    resource.MustParse("20M"),
+			Size:    resource.MustParse("20Mi"),
 		}),
 		testutils.WithNATSResources(corev1.ResourceRequirements{
 			Limits: corev1.ResourceList{
 				"cpu":    resource.MustParse("20m"),
-				"memory": resource.MustParse("64M"),
+				"memory": resource.MustParse("64Mi"),
 			},
 			Requests: corev1.ResourceList{
 				"cpu":    resource.MustParse("5m"),
-				"memory": resource.MustParse("64M"),
+				"memory": resource.MustParse("64Mi"),
 			},
 		}),
 		testutils.WithNATSLogging(
