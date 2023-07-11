@@ -56,32 +56,6 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	// // Update the NATS CR, so we can test some test cases.
-	// ctx := context.TODO()
-	// err = Retry(attempts, interval, logger, func() error {
-	// 	// First, get the CR from the cluster.
-	// 	cr := &v1alpha1.NATS{}
-	// 	key := client.ObjectKey{
-	// 		Namespace: NATSCR().GetNamespace(),
-	// 		Name:      NATSCR().GetName(),
-	// 	}
-	// 	natsErr := k8sClient.Get(ctx, key, cr)
-	// 	if natsErr != nil {
-	// 		return natsErr
-	// 	}
-	//
-	// 	// MemStorage was disabled for earlier test. Now we activate it, so we can test against the /varz endpoint
-	// 	// and against the configmap.
-	// 	cr.Spec.JetStream.MemStorage.Enabled = true
-	// 	cr.Spec.JetStream.MemStorage.Size = resource.MustParse(MemStorageSize)
-	// 	natsErr = k8sClient.Update(ctx, cr)
-	// 	return natsErr
-	// })
-	// if err != nil {
-	// 	logger.Error(err.Error())
-	// 	panic(err)
-	// }
-
 	// Run the tests and exit.
 	code := m.Run()
 	os.Exit(code)
