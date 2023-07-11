@@ -64,33 +64,41 @@ jobs:
         run: |
           make e2e-cleanup
 
+
+# the following steps only run on failure to help finding the cause of the failure
+
+      - name: Get NATS CR
+        if:  failure()
+        run: |
+          kubectl get nats eventing nats -n kyma-system -o yaml
+
       - name: List CRDs
-        if: always()
+        if:  failure()
         run: |
           kubectl get crd
 
       - name: List Namespaces
-        if: always()
+        if:  failure()
         run: |
           kubectl get namespaces
 
       - name: List StatefulSets
-        if: always()
+        if:  failure()
         run: |
           kubectl get sts --all-namespaces
 
       - name: List Pods
-        if: always()
+        if:  failure()
         run: |
           kubectl get po --all-namespaces
 
       - name: List PVCs
-        if: always()
+        if:  failure()
         run: |
           kubectl get pvc --all-namespaces
 
       - name: List NATS CR
-        if: always()
+        if:  failure()
         run: |
           kubectl get nats --all-namespaces
 
