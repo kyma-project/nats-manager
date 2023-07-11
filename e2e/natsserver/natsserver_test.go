@@ -4,13 +4,11 @@
 package natsserver_test
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -19,9 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/common/fixtures"
@@ -31,12 +26,6 @@ const (
 	interval = 2 * time.Second
 	attempts = 60
 )
-
-// clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
-var clientSet *kubernetes.Clientset //nolint:gochecknoglobals // This will only be accessible in e2e tests.
-
-// k8sClient is what is used to access the NATS CR.
-var k8sClient client.Client //nolint:gochecknoglobals // This will only be accessible in e2e tests.
 
 var logger *zap.Logger
 
@@ -50,49 +39,9 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	clientSet, k8sClient, err = GetK8sClients()
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-
 	// Run the tests and exit.
 	code := m.Run()
 	os.Exit(code)
-}
-
-// Test_ConfigMap tests the ConfigMap that the NATS-Manger creates when we define a CR.
-func Test_ConfigMap(t *testing.T) {
-	ctx := context.TODO()
-
-	err := Retry(attempts, interval, logger, func() error {
-		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, metav1.GetOptions{})
-		if cmErr != nil {
-			return cmErr
-		}
-
-		cmMap := cmToMap(cm.Data["nats.conf"])
-
-		if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
-			return err
-		}
-
-		if err := checkValueInCMMap(cmMap, "max_mem", MemStorageSize); err != nil {
-			return err
-		}
-
-		if err := checkValueInCMMap(cmMap, "debug", True); err != nil {
-			return err
-		}
-
-		if err := checkValueInCMMap(cmMap, "trace", True); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	require.NoError(t, err)
 }
 
 func Test_NATSHealth(t *testing.T) {
@@ -204,36 +153,4 @@ func getVarz(port int) (*server.Varz, error) {
 		return nil, err
 	}
 	return &varz, nil
-}
-
-func checkValueInCMMap(cmm map[string]string, key, expectedValue string) error {
-	val, ok := cmm[key]
-	if !ok {
-		return fmt.Errorf("could net get '%s' from Configmap", key)
-	}
-
-	if val != expectedValue {
-		return fmt.Errorf("expected value for '%s' to be '%s' but was '%s'", key, expectedValue, val)
-	}
-
-	return nil
-}
-
-func cmToMap(cm string) map[string]string {
-	lines := strings.Split(cm, "\n")
-
-	cmMap := make(map[string]string)
-	for _, line := range lines {
-		if strings.Contains(line, ": ") {
-			l := strings.Split(line, ": ")
-			if len(l) < 2 {
-				continue
-			}
-			key := strings.TrimSpace(l[0])
-			val := strings.TrimSpace(l[1])
-			cmMap[key] = val
-		}
-	}
-
-	return cmMap
 }

@@ -1,13 +1,14 @@
 //go:build e2e
 // +build e2e
 
-package cleanup_test
+package setup_test
 
 import (
 	"context"
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -105,6 +106,40 @@ func Test_CR(t *testing.T) {
 	)
 }
 
+// Test_ConfigMap tests the ConfigMap that the NATS-Manger creates when we define a CR.
+func Test_ConfigMap(t *testing.T) {
+	ctx := context.TODO()
+
+	err := Retry(attempts, interval, logger, func() error {
+		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, metav1.GetOptions{})
+		if cmErr != nil {
+			return cmErr
+		}
+
+		cmMap := cmToMap(cm.Data["nats.conf"])
+
+		if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmMap, "max_mem", MemStorageSize); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmMap, "debug", True); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmMap, "trace", True); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	require.NoError(t, err)
+}
+
 // Test_PodsResources checks if the number of Pods is the same as defined in the NATS CR and that all Pods have the resources,
 // that are defined in the CRD.
 func Test_PodsResources(t *testing.T) {
@@ -200,7 +235,7 @@ func Test_PodsReady(t *testing.T) {
 				foundReadyCondition = true
 				if cond.Status != "True" {
 					return fmt.Errorf(
-						"Pod %s has 'Ready' conditon '%s' but wanted 'True'.", pod.GetName(), cond.Status,
+						"Pod %s has 'Ready' conditon '%s' but wanted 'True'", pod.GetName(), cond.Status,
 					)
 				}
 			}
@@ -273,4 +308,36 @@ func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS,
 		Namespace: namespace,
 	}, &natsCR)
 	return &natsCR, err
+}
+
+func cmToMap(cm string) map[string]string {
+	lines := strings.Split(cm, "\n")
+
+	cmMap := make(map[string]string)
+	for _, line := range lines {
+		if strings.Contains(line, ": ") {
+			l := strings.Split(line, ": ")
+			if len(l) < 2 {
+				continue
+			}
+			key := strings.TrimSpace(l[0])
+			val := strings.TrimSpace(l[1])
+			cmMap[key] = val
+		}
+	}
+
+	return cmMap
+}
+
+func checkValueInCMMap(cmm map[string]string, key, expectedValue string) error {
+	val, ok := cmm[key]
+	if !ok {
+		return fmt.Errorf("could net get '%s' from Configmap", key)
+	}
+
+	if val != expectedValue {
+		return fmt.Errorf("expected value for '%s' to be '%s' but was '%s'", key, expectedValue, val)
+	}
+
+	return nil
 }
