@@ -2,6 +2,7 @@ package nats
 
 import (
 	"context"
+	"errors"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
@@ -23,7 +24,8 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 	nats.Status.SetStateError()
 	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse, natsv1alpha1.ConditionReasonProcessingError, err.Error())
 
-	return r.syncNATSStatus(ctx, nats, log)
+	// return the original error so the controller triggers another reconciliation.
+	return errors.Join(err, r.syncNATSStatus(ctx, nats, log))
 }
 
 // syncNATSStatus syncs NATS status.
