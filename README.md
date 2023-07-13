@@ -236,7 +236,7 @@ export E2E_LOG_LEVEL="error"
 
 The e2e test consist of four consecutive steps. You can run them individually as well.
 
-1. To set up a NATS CR and check that it and all correlated resources like Pods, Services and PVCs are set up as 
+1. To set up a NATS CR and check that it and all correlated resources like Pods, Services and PVCs are set up as expected, run:
 expected, run:
    ```shell
    make e2e-setup
