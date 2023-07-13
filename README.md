@@ -230,7 +230,6 @@ make e2e-only
 ```
 
 To adjust the log-level, use the environment variable `E2E_LOG_LEVEL`. It accepts the values `debug`, `info`, `warn` and `error`. The default value is `debug`. To set the level, enter:
-`warn` and `error`. The default value is `debug`. To set the level, enter:
 ```shell
 export E2E_LOG_LEVEL="error"
 ```
