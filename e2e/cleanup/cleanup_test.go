@@ -57,7 +57,7 @@ func TestMain(m *testing.M) {
 
 	// Delete the NATS CR.
 	ctx := context.TODO()
-	err = Retry(attempts, interval, logger, func() error {
+	err = Retry(attempts, interval, func() error {
 		errDel := k8sClient.Delete(ctx, NATSCR())
 		// If it is gone already, that's fine too.
 		if k8serrors.IsNotFound(errDel) {
@@ -80,7 +80,7 @@ func Test_NoPodsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		// Try to get the Pods.
 		pods, podErr := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if podErr != nil {
@@ -101,7 +101,7 @@ func Test_NoPVCsExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		// Try to get the PVCs.
 		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		if pvcErr != nil {
@@ -122,7 +122,7 @@ func Test_NoSTSExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		// Try to get the STS.
 		_, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
 		// This is what we want here.
@@ -143,7 +143,7 @@ func Test_NoNATSSecretExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, v1.GetOptions{})
 		// This is what we want here.
 		if k8serrors.IsNotFound(secErr) {
@@ -163,7 +163,7 @@ func Test_NoNATSCRExists(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.TODO()
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		_, crErr := getNATSCR(ctx, CRName, NamespaceName)
 		// This is what we want here.
 		if k8serrors.IsNotFound(crErr) {

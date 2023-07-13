@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 
 	ctx := context.TODO()
 	// Create the Namespace used for testing.
-	err = Retry(attempts, interval, logger, func() error {
+	err = Retry(attempts, interval, func() error {
 		// It's fine if the Namespace already exists.
 		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, Namespace()))
 	})
@@ -69,7 +69,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// Create the NATS CR used for testing.
-	err = Retry(attempts, interval, logger, func() error {
+	err = Retry(attempts, interval, func() error {
 		errNATS := k8sClient.Create(ctx, NATSCR())
 		if k8serrors.IsAlreadyExists(errNATS) {
 			logger.Warn(
@@ -95,7 +95,7 @@ func Test_CR(t *testing.T) {
 
 	ctx := context.TODO()
 	// Get the NATS CR from the cluster.
-	actual, err := RetryGet(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
+	actual, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, want.Name, want.Namespace)
 	})
 	require.NoError(t, err)
@@ -110,7 +110,7 @@ func Test_CR(t *testing.T) {
 func Test_ConfigMap(t *testing.T) {
 	ctx := context.TODO()
 
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, metav1.GetOptions{})
 		if cmErr != nil {
 			return cmErr
@@ -147,7 +147,7 @@ func Test_PodsResources(t *testing.T) {
 
 	ctx := context.TODO()
 	// RetryGet the NATS Pods and test them.
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		// RetryGet the NATS Pods via labels.
 		pods, err := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if err != nil {
@@ -203,13 +203,13 @@ func Test_PodsReady(t *testing.T) {
 
 	ctx := context.TODO()
 	// RetryGet the NATS CR. It will tell us how many Pods we should expect.
-	natsCR, err := RetryGet(attempts, interval, logger, func() (*natsv1alpha1.NATS, error) {
+	natsCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
 		return getNATSCR(ctx, CRName, NamespaceName)
 	})
 	require.NoError(t, err)
 
 	// RetryGet the NATS Pods and test them.
-	err = Retry(attempts, interval, logger, func() error {
+	err = Retry(attempts, interval, func() error {
 		var pods *v1.PodList
 		// RetryGet the NATS Pods via labels.
 		pods, err = clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
@@ -258,10 +258,10 @@ func Test_PVCs(t *testing.T) {
 	// Get the PersistentVolumeClaims --PVCs-- and test them.
 	ctx := context.TODO()
 	var pvcs *v1.PersistentVolumeClaimList
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		// RetryGet PVCs via a label.
 		var err error
-		pvcs, err = RetryGet(attempts, interval, logger, func() (*v1.PersistentVolumeClaimList, error) {
+		pvcs, err = RetryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
 			return clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		})
 		if err != nil {
@@ -291,7 +291,7 @@ func Test_PVCs(t *testing.T) {
 func Test_Secret(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, metav1.GetOptions{})
 		if secErr != nil {
 			return secErr

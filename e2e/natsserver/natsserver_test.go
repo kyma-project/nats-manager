@@ -48,7 +48,7 @@ func Test_NATSHealth(t *testing.T) {
 	wantStatus := "ok"
 
 	ports := [3]int{8222, 8223, 8224}
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		// For all Pods, let's get the status from the `/healthz` endpoint and check
 		// if the response is `{"status":"ok"}`.
 		for _, port := range ports {
@@ -76,7 +76,7 @@ func Test_Varz(t *testing.T) {
 	wantStore := wf.Value()
 
 	// Let's get the config of NATS from the `/varz` endpoint.
-	err := Retry(attempts, interval, logger, func() error {
+	err := Retry(attempts, interval, func() error {
 		varz, varzErr := getVarz(8222)
 		if varzErr != nil {
 			logger.Warn("error while requesting varz; is port-forwarding operational?")
