@@ -234,7 +234,7 @@ To adjust the log-level, use the environment variable `E2E_LOG_LEVEL`. It accept
 export E2E_LOG_LEVEL="error"
 ```
 
-The e2e test consist of four consecutive steps that can also be run individually.
+The e2e test consist of four consecutive steps. You can run them individually as well.
 
 1. To set up a NATS CR and check that it and all correlated resources like Pods, Services and PVCs are set up as 
 expected, run:
