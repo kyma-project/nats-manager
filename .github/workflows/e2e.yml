@@ -30,7 +30,7 @@ jobs:
 
       - name: Install the NATS CRD on the cluster
         run: |
-          make install
+          make install IMG=$DOCKER_IMAGE
 
       - name: Wait for the 'pull-nats-manager-build' job to succeed
         uses: lewagon/wait-on-check-action@v1.3.1
