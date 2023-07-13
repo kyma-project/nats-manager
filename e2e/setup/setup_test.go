@@ -1,6 +1,10 @@
 //go:build e2e
 // +build e2e
 
+// Package setup_test is part of the end-to-end-tests. This package contains tests that evaluate the creation of a
+// NATS-server CR and the creation of all correlated Kubernetes resources.
+// To run the tests a Kubernetes cluster and a NATS-CR need to be available and configured. For this reason, the tests
+// are seperated via the `e2e` buildtags. For more information please consult the `readme.md`.
 package setup_test
 
 import (

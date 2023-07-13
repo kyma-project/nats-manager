@@ -1,6 +1,10 @@
 //go:build e2e
 // +build e2e
 
+// Package cleanup-test is part of the end-to-end-tests. This package contains tests that evaluate the deletion of NATS
+// CRs and the cascading deletion of all correlated Kubernetes resources.
+// To run the tests a k8s cluster and a NATS-CR need to be available and configured. For this reason, the tests are
+// seperated via the 'e2e' buildtags. For more information please consult the readme.
 package cleanup_test
 
 import (

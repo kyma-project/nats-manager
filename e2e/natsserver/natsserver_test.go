@@ -1,6 +1,11 @@
 //go:build e2e
 // +build e2e
 
+// Package natsserver_test is part of the end-to-end-tests. This package contains tests that check the
+// internal of the nats servers.
+// To run the tests a Kubernetes cluster and a nats-cr need to be available and configured. Further, the ports of the
+// NATS-server Pods need to be forwarded. For this reason, the tests are seperated via the `e2e` buildtags. For more
+// information please consult the `readme.md`.
 package natsserver_test
 
 import (
