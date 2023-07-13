@@ -138,7 +138,10 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 			err := reconciler.syncNATSStatusWithErr(testEnv.Context, newNATS, tc.givenError, testEnv.Logger)
 
 			// then
-			require.NoError(t, err)
+			// the original error should have being returned.
+			require.Error(t, err)
+			require.Equal(t, tc.givenError.Error(), err.Error())
+			// now check if the error is refelcted in the CR status.
 			gotNats, err := testEnv.GetNATS(tc.givenNATS.GetName(), tc.givenNATS.GetNamespace())
 			require.NoError(t, err)
 			require.True(t, gotNats.Status.IsEqual(tc.wantNATSStatus))

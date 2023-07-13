@@ -270,7 +270,14 @@ func Test_handleNATSReconcile(t *testing.T) {
 			_, err := reconciler.handleNATSReconcile(testEnv.Context, nats, testEnv.Logger)
 
 			// then
-			require.NoError(t, err)
+			if tc.givenDeployError != nil {
+				// the original error should have being returned, so another reconciliation is triggered.
+				require.Error(t, err)
+				require.Equal(t, tc.givenDeployError.Error(), err.Error())
+			} else {
+				require.NoError(t, err)
+			}
+
 			require.Equal(t, tc.wantDestinationRuleWatchStarted, reconciler.destinationRuleWatchStarted)
 			gotNATS, err := testEnv.GetNATS(tc.givenNATS.Name, tc.givenNATS.Namespace)
 			require.NoError(t, err)
