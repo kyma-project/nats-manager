@@ -261,7 +261,6 @@ The e2e test consist of four consecutive steps. You can run them individually as
    make e2e-cleanup
    ```
 > **NOTE:** Because the e2e-tests need a Kubernetes Cluster to run on, they are separated from the remaining tests and will only be executed if the `e2e` build tags are passed.
-> will only be executed if the `e2e` build tags are passed.
 
 ## License
 
