@@ -263,6 +263,8 @@ expected, run:
    ```shell
    make e2e-cleanup
    ```
+> **NOTE:** Because the e2e-tests need a Kubernetes Cluster to run on, they are seperated from the remaining tests and
+> will only be executed if the `e2e` build tags are passed.
 
 ## License
 
