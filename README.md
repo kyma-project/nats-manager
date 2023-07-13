@@ -248,7 +248,6 @@ The e2e test consist of four consecutive steps. You can run them individually as
    This relies on the setup from `make e2e-setup`.
 
    > **NOTE:** Running this on slow hardware like CI systems or k3d clusters results in poor performance. However, this 
-   > is still a great tool to simply show that NATS JetStream is in an operational configuration.
 
 3. To check that the internals of the NATS-Server are healthy and configured as expected, run:
    ```shell
