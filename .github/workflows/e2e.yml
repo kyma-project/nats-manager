@@ -67,11 +67,6 @@ jobs:
 
 # the following steps only run on failure to help finding the cause of the failure
 
-      - name: Get NATS CR
-        if:  failure()
-        run: |
-          kubectl get nats eventing nats -n kyma-system -o yaml
-
       - name: List CRDs
         if:  failure()
         run: |

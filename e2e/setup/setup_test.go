@@ -319,15 +319,13 @@ func cmToMap(cm string) map[string]string {
 
 	cmMap := make(map[string]string)
 	for _, line := range lines {
-		if strings.Contains(line, ": ") {
-			l := strings.Split(line, ": ")
-			if len(l) < 2 {
-				continue
-			}
-			key := strings.TrimSpace(l[0])
-			val := strings.TrimSpace(l[1])
-			cmMap[key] = val
+		l := strings.Split(line, ": ")
+		if len(l) < 2 {
+			continue
 		}
+		key := strings.TrimSpace(l[0])
+		val := strings.TrimSpace(l[1])
+		cmMap[key] = val
 	}
 
 	return cmMap
