@@ -27,7 +27,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 ### Running locally
 1. Download Go packages:
    ```sh
-   $ go mod vendor && go mod tidy
+   go mod vendor && go mod tidy
    ```
 2. Install the CRDs into the cluster:
     ```sh
@@ -91,7 +91,7 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
 
 1. Download Go packages:
    ```sh
-   $ go mod vendor && go mod tidy
+   go mod vendor && go mod tidy
    ```
 
 2. Install the CRDs to the cluster:
@@ -216,6 +216,51 @@ kubectl get pods -n nats-manager-system
 ```shell
 kubectl get -n kyma-system nats
 ```
+
+## E2E tests
+For the E2E tests, provide a Kubernetes cluster and run:
+
+```shell
+make e2e IMG=<container-registry>/nats-manager:<tag>
+```
+
+If you already have deployed the NATS-Manager on your cluster, you can simply run:
+```shell
+make e2e-only
+```
+
+To adjust the log-level, use the environment variable `E2E_LOG_LEVEL`. It accepts the values `debug`, `info`, `warn` and `error`. The default value is `debug`. To set the level, enter:
+```shell
+export E2E_LOG_LEVEL="error"
+```
+
+The e2e test consist of four consecutive steps. You can run them individually as well.
+
+1. To set up a NATS CR and check that it and all correlated resources like Pods, Services and PVCs are set up as expected, run:
+   ```shell
+   make e2e-setup
+   ```
+
+2. To execute a [bench test](https://docs.nats.io/using-nats/nats-tools/nats_cli/natsbench) on the NATS-Server, run:
+   ```shell
+   make e2e-bench
+   ```
+   This relies on the setup from `make e2e-setup`.
+
+   > **NOTE:** Running this on slow hardware like CI systems or k3d clusters results in poor performance. However, this is still a great tool to simply show that NATS JetStream is in an operational configuration.
+
+3. To check that the internals of the NATS-Server are healthy and configured as expected, run:
+   ```shell
+   make e2e-nats-server
+   ```
+   This will rely on the setup from `make e2e-setup`.
+
+
+4. To clean up the test environment and to check that all resources correlated to the NATS CR are removed, run:
+   ```shell
+   make e2e-cleanup
+   ```
+> **NOTE:** Because the e2e-tests need a Kubernetes Cluster to run on, they are separated from the remaining tests and will only be executed if the `e2e` build tags are passed.
 
 ## License
 
