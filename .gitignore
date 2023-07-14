@@ -37,3 +37,5 @@ bin/*
 
 # Vendor
 vendor/
+
+module-template.yaml
