@@ -42,6 +42,10 @@ jobs:
           allowed-conclusions: success
           verbose: false # change for debugging
 
+      - name: Create kyma-system namespace
+        run: |
+          kubectl create namespace kyma-system
+
       - name: Deploy the controller to the cluster
         run: |
           make deploy IMG=$DOCKER_IMAGE
