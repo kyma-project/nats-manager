@@ -13,6 +13,7 @@ func Retry(attempts int, interval time.Duration, fn func() error) error {
 			attempts--
 			err = fn()
 			if err == nil || attempts == 0 {
+				ticker.Stop()
 				return err
 			}
 		}
@@ -29,6 +30,7 @@ func RetryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 			attempts--
 			obj, err = fn()
 			if err == nil || attempts == 0 {
+				ticker.Stop()
 				return obj, err
 			}
 		}
