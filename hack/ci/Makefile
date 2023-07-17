@@ -11,8 +11,10 @@ module-build: ## Build the Module, push it to a registry and print it based on t
 	@make -C ${PROJECT_ROOT} module-build \
 		IMG=${IMG} \
 		MODULE_REGISTRY=${MODULE_REGISTRY} \
-		MODULE_VERSION=${MODULE_VERSION}-${MODULE_SHA} \
-
+		MODULE_VERSION=${MODULE_VERSION}-${MODULE_SHA}
+	cp -f ${PROJECT_ROOT}/template.yaml ${ARTIFACTS}/module-template.yaml
+	@echo "Added template to job artifacts: ${ARTIFACTS}/module-template.yaml"
 	@echo "\n~~~~~~~~~~~~BEGINNING OF MODULE TEMPLATE~~~~~~~~~~~~~~"
-	@cat ${PROJECT_ROOT}/template.yaml
+	@cat ${ARTIFACTS}/module-template.yaml
 	@echo "\n~~~~~~~~~~~~~~~END OF MODULE TEMPLATE~~~~~~~~~~~~~~~~"
+
