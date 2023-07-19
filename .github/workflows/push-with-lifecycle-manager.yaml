@@ -1,0 +1,92 @@
+name: push-with-lifecycle-manager
+
+env:
+  E2E_LOG_LEVEL: debug
+  KYMA_STABILITY: "unstable"
+  KYMA: "./hack/kyma"
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install k3d tools
+        uses: nolar/setup-k3d-k3s@v1
+        with:
+          # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
+          version: v1.26.5
+          skip-creation: true
+
+      - name: Install Kyma CLI & setup k3d cluster using kyma CLI
+        run: |
+          make kyma
+          make -C hack/ci/ create-k3d
+          kubectl version
+          kubectl cluster-info
+
+      - name: Deploy lifecycle-manager
+        run: |
+          make -C hack/ci/ install-lifecycle-manager
+
+      - name: Wait for the 'post-nats-manager-build' job to succeed
+        uses: mfaizanse/wait-for-git-commit-status-action@v1.0.6
+        with:
+          context: "post-nats-manager-build"
+          commit_ref: "${{ github.sha }}"
+          timeout: 600000 # 10 minutes in milliseconds
+          # The check interval is kept long otherwise it will exhaust the GitHub rate limit (More info: https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limiting)
+          check_interval: 60000 # 1 minute in milliseconds
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_OWNER: "${{ github.repository_owner }}"
+          GITHUB_REPO: "nats-manager"
+
+      - name: Wait for the 'post-nats-module-build' job to succeed
+        id: wait-nats-module-build
+        uses: mfaizanse/wait-for-git-commit-status-action@v1.0.6
+        with:
+          context: "post-nats-module-build"
+          commit_ref: "${{ github.sha }}"
+          timeout: 600000 # 10 minutes in milliseconds
+          # The check interval is kept long otherwise it will exhaust the GitHub rate limit (More info: https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limiting)
+          check_interval: 60000 # 1 minute in milliseconds
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_OWNER: "${{ github.repository_owner }}"
+          GITHUB_REPO: "nats-manager"
+
+      - name: Download & validate NATS module template
+        env:
+          COMMIT_STATUS_JSON: "${{ steps.wait-nats-module-build.outputs.json }}"
+        run: |
+          make -C hack/ci/ download-module-template
+          kubectl apply -f module-template.yaml --dry-run=client
+
+      - name: Install & enabled NATS module template
+        run: |
+          make -C hack/ci/ install-module-template
+          make -C hack/ci/ enable-module-without-default-cr
+
+      - name: Setup and test NATS CR
+        run: |
+          make e2e-setup
+
+      - name: Run NATS bench
+        run: |
+          go install github.com/nats-io/natscli/nats@latest
+          export PATH=$HOME/go/bin:$PATH
+          make e2e-bench
+
+      - name: Test NATS-server
+        run: |
+          make e2e-nats-server
+
+      - name: Cleanup NATS CR
+        run: |
+          make e2e-cleanup
