@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ## This script requires the following env variables:
-# PR_NUMBER (e.g. 82)
-# COMMIT_STATUS_JSON
-# PROJECT_ROOT (e.g. "../")
+# PR_NUMBER (optional, int, If not set then will run for main branch. e.g. 82)
+# COMMIT_STATUS_JSON (required, json)
+# PROJECT_ROOT (required, string, e.g. "../")
 
 # Example of `COMMIT_STATUS_JSON`
 # {
@@ -19,12 +19,30 @@
 # "updated_at": "2023-07-18T11:39:23Z"
 # }
 
+## check if required ENVs are provided.
+if [[ -z "${COMMIT_STATUS_JSON}" ]]; then
+  echo "ERROR: COMMIT_STATUS_JSON is not set!"
+  exit 1
+fi
+
+if [[ -z "${PROJECT_ROOT}" ]]; then
+  echo "ERROR: PROJECT_ROOT is not set!"
+  exit 1
+fi
+
 ## define variables
 MODULE_TEMPLATE_FILE="${PROJECT_ROOT}/module-template.yaml"
+
+# set links for artifacts of pull requests.
 ARTIFACTS_BASE_URL="https://gcsweb.build.kyma-project.io/gcs/kyma-prow-logs/pr-logs/pull/kyma-project_nats-manager"
 TEMPLATE_FILE_BASE_URL="${ARTIFACTS_BASE_URL}/${PR_NUMBER}/pull-nats-module-build"
+# if PR_NUMBER is not set, then set links for artifacts of main branch.
+if [[ -z "${PR_NUMBER}" ]]; then
+  ARTIFACTS_BASE_URL="https://gcsweb.build.kyma-project.io/gcs/kyma-prow-logs/logs/post-nats-module-build"
+  TEMPLATE_FILE_BASE_URL="${ARTIFACTS_BASE_URL}"
+fi
 
-### Extract the prow job ID.
+## Extract the prow job ID.
 echo "Extracting prow job Id from: ${COMMIT_STATUS_JSON}"
 TARGET_URL=$(echo ${COMMIT_STATUS_JSON} | jq -r '.target_url')
 PROW_JOB_ID=$(echo ${TARGET_URL##*/})
