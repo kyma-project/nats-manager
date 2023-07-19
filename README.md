@@ -140,17 +140,17 @@ kyma alpha deploy
 
 **NOTE**: For single-cluster mode edit the lifecycle manager role to give access to all resources with `kubectl edit clusterrole lifecycle-manager-manager-role` and have the following under `rules`:
 ```shell
-- apiGroups:                                                                                                                                                  
-  - "*"                                                                                                                                                       
-  resources:                                                                                                                                                  
-  - "*"                                                                                                                                                       
-  verbs:                                                                                                                                                      
+- apiGroups:
+  - "*"
+  resources:
+  - "*"
+  verbs:
   - "*"
 ```
 
 2. Prepare OCI container registry:
 
-It can be Github, DockerHub, GCP or local registry. 
+It can be Github, DockerHub, GCP or local registry.
 The following resources worth having a look to set up a container registry unless you have one:
 * Lifecycle manager [provision-cluster-and-registry](https://github.com/kyma-project/lifecycle-manager/blob/main/docs/developer/provision-cluster-and-registry.md) documentation
 * [Github container registry documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry). Change the visibility of a GH package to public if you don't provide a registry secret.
