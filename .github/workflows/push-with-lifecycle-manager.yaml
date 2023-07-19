@@ -6,6 +6,8 @@ env:
   KYMA: "./hack/kyma"
 
 on:
+  pull_request:
+    branches: [ "main" ]
   push:
     branches: [ "main" ]
 
@@ -38,7 +40,7 @@ jobs:
         uses: mfaizanse/wait-for-git-commit-status-action@v1.0.6
         with:
           context: "post-nats-manager-build"
-          commit_ref: "${{ github.sha }}"
+          commit_ref: "9241d3b926bd16da195988aeeeac54ec9d8e23d5"
           timeout: 600000 # 10 minutes in milliseconds
           # The check interval is kept long otherwise it will exhaust the GitHub rate limit (More info: https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limiting)
           check_interval: 60000 # 1 minute in milliseconds
@@ -52,7 +54,7 @@ jobs:
         uses: mfaizanse/wait-for-git-commit-status-action@v1.0.6
         with:
           context: "post-nats-module-build"
-          commit_ref: "${{ github.sha }}"
+          commit_ref: "9241d3b926bd16da195988aeeeac54ec9d8e23d5"
           timeout: 600000 # 10 minutes in milliseconds
           # The check interval is kept long otherwise it will exhaust the GitHub rate limit (More info: https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limiting)
           check_interval: 60000 # 1 minute in milliseconds
