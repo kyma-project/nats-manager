@@ -26,6 +26,10 @@ download-module-template: ## Downloads the module-template from the module-build
 	export PROJECT_ROOT="${PROJECT_ROOT}" \
 	&& ../get_module_template_from_build_job.sh
 
+.PHONY: install-latest-module-template-fast
+install-latest-module-template-fast: ## Downloads and applies the latest released module-template from fast channel.
+	kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/module-template.yaml
+
 .PHONY: create-kyma-system-ns
 create-kyma-system-ns: ## Create kyma-system namespace.
 	kubectl create ns kyma-system
@@ -47,3 +51,7 @@ install-lifecycle-manager: ## Deploys lifecycle-manager.
 .PHONY: create-k3d
 create-k3d: ## Create k3d with kyma CRDs.
 	"${KYMA_CLI}" provision k3d -p 8081:80@loadbalancer -p 8443:443@loadbalancer --registry-port ${REGISTRY_PORT} --name ${CLUSTER_NAME} --ci
+
+.PHONY: verify-kyma
+verify-kyma: ## Wait for Kyma CR to be in Ready state.
+	../verify_kyma_status.sh

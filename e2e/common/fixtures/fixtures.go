@@ -10,18 +10,19 @@ import (
 )
 
 const (
-	NamespaceName   = "kyma-system"
-	CRName          = "eventing-nats"
-	STSName         = CRName
-	ContainerName   = "nats"
-	pvcLabel        = "app.kubernetes.io/name=nats"
-	podLabel        = "nats_cluster=eventing-nats"
-	ClusterSize     = 3
-	SecretName      = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
-	CMName          = "eventing-nats-config"
-	FileStorageSize = "1Gi"
-	MemStorageSize  = "1Gi"
-	True            = "true"
+	NamespaceName         = "kyma-system"
+	ManagerDeploymentName = "nats-manager"
+	CRName                = "eventing-nats"
+	STSName               = CRName
+	ContainerName         = "nats"
+	pvcLabel              = "app.kubernetes.io/name=nats"
+	podLabel              = "nats_cluster=eventing-nats"
+	ClusterSize           = 3
+	SecretName            = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
+	CMName                = "eventing-nats-config"
+	FileStorageSize       = "1Gi"
+	MemStorageSize        = "1Gi"
+	True                  = "true"
 )
 
 func NATSCR() *natsv1alpha1.NATS {

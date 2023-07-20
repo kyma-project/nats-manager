@@ -263,7 +263,7 @@ $(KYMA):
 # e2e testing is done here
 .PHONY: e2e-setup
 e2e-setup:
-	go test ./e2e/setup/setup_test.go --tags=e2e
+	go test -v ./e2e/setup/setup_test.go --tags=e2e
 
 .PHONY: e2e-bench
 e2e-bench:
@@ -275,7 +275,7 @@ e2e-nats-server:
 
 .PHONY: e2e-cleanup
 e2e-cleanup:
-	go test ./e2e/cleanup/cleanup_test.go --tags=e2e
+	go test -v ./e2e/cleanup/cleanup_test.go --tags=e2e
 
 .PHONY: e2e-only
 e2e-only: e2e-setup e2e-bench e2e-nats-server e2e-cleanup
