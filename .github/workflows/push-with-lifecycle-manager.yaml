@@ -167,7 +167,7 @@ jobs:
         env:
           COMMIT_SHA: "${{ github.sha }}"
         run: |
-          export DOCKER_TAG="$(shell date +v%Y%m%d)-$(shell echo ${COMMIT_SHA} | head -c 8)"
+          export DOCKER_TAG="$(date +v%Y%m%d)-$(echo ${COMMIT_SHA} | head -c 8)"
           export MANAGER_IMAGE="${DOCKER_IMAGE}:${DOCKER_TAG}"
           make e2e-setup
 
