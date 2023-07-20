@@ -10,7 +10,8 @@ on:
     paths-ignore:
       - "**.md"
       - "LICENSE"
-      - "docs"
+      - "docs/**"
+      - "**.yml"
 
 jobs:
   e2e:
