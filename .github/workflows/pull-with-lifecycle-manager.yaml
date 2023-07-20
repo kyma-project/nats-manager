@@ -13,7 +13,6 @@ on:
       - "**.md"
       - "LICENSE"
       - "docs/**"
-      - ".github/**"
 
 jobs:
   e2e:
