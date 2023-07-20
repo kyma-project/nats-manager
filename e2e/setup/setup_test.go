@@ -18,6 +18,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -72,6 +73,21 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
+	// Wait for NATS-manager deployment to get ready.
+	managerImage := ""
+	if _, ok := os.LookupEnv("MANAGER_IMAGE"); ok {
+		managerImage = os.Getenv("MANAGER_IMAGE")
+	} else {
+		logger.Warn(
+			"ENV `MANAGER_IMAGE` is not set. Test will not verify if the " +
+				"manager deployment image is correct or not.",
+		)
+	}
+	if err := waitForNATSManagerDeploymentReady(managerImage); err != nil {
+		logger.Error(err.Error())
+		panic(err)
+	}
+
 	// Create the NATS CR used for testing.
 	err = Retry(attempts, interval, func() error {
 		errNATS := k8sClient.Create(ctx, NATSCR())
@@ -84,6 +100,15 @@ func TestMain(m *testing.M) {
 		return errNATS
 	})
 	if err != nil {
+		logger.Error(err.Error())
+		panic(err)
+	}
+
+	// wait for an interval for reconciliation to update status.
+	time.Sleep(interval)
+
+	// Wait for NATS CR to get ready.
+	if err := waitForNATSCRReady(); err != nil {
 		logger.Error(err.Error())
 		panic(err)
 	}
@@ -314,6 +339,10 @@ func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS,
 	return &natsCR, err
 }
 
+func getDeployment(ctx context.Context, name, namespace string) (*appsv1.Deployment, error) {
+	return clientSet.AppsV1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
 func cmToMap(cm string) map[string]string {
 	lines := strings.Split(cm, "\n")
 
@@ -342,4 +371,72 @@ func checkValueInCMMap(cmm map[string]string, key, expectedValue string) error {
 	}
 
 	return nil
+}
+
+// Wait for NATS CR to get ready.
+func waitForNATSCRReady() error {
+	// RetryGet the NATS CR and test status.
+	return Retry(attempts, interval, func() error {
+		want := NATSCR()
+		logger.Debug(fmt.Sprintf("waiting for NATS CR to get ready. "+
+			"CR name: %s, namespace: %s", want.Name, want.Namespace))
+
+		ctx := context.TODO()
+		// Get the NATS CR from the cluster.
+		gotNATSCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+			return getNATSCR(ctx, want.Name, want.Namespace)
+		})
+		if err != nil {
+			return err
+		}
+
+		if gotNATSCR.Status.State != natsv1alpha1.StateReady {
+			err := fmt.Errorf("waiting for NATS CR to get ready state")
+			logger.Debug(err.Error())
+			return err
+		}
+
+		// Everything is fine.
+		logger.Debug(fmt.Sprintf("NATS CR is ready. "+
+			"CR name: %s, namespace: %s", want.Name, want.Namespace))
+		return nil
+	})
+}
+
+// Wait for NATS-manager deployment to get ready with correct image.
+func waitForNATSManagerDeploymentReady(image string) error {
+	// RetryGet the NATS Manager and test status.
+	return Retry(attempts, interval, func() error {
+		logger.Debug(fmt.Sprintf("waiting for nats-manager deployment to get ready with image: %s", image))
+		ctx := context.TODO()
+		// Get the NATS-manager deployment from the cluster.
+		gotDeployment, err := RetryGet(attempts, interval, func() (*appsv1.Deployment, error) {
+			return getDeployment(ctx, ManagerDeploymentName, NamespaceName)
+		})
+		if err != nil {
+			return err
+		}
+
+		// if image is provided, then check if the deployment has correct image.
+		if image != "" && gotDeployment.Spec.Template.Spec.Containers[0].Image != image {
+			err := fmt.Errorf("expected NATS-manager image to be: %s, but found: %s", image,
+				gotDeployment.Spec.Template.Spec.Containers[0].Image,
+			)
+			logger.Debug(err.Error())
+			return err
+		}
+
+		// check if the deployment is ready.
+		if *gotDeployment.Spec.Replicas != gotDeployment.Status.UpdatedReplicas ||
+			*gotDeployment.Spec.Replicas != gotDeployment.Status.ReadyReplicas ||
+			*gotDeployment.Spec.Replicas != gotDeployment.Status.AvailableReplicas {
+			err := fmt.Errorf("waiting for NATS-manager deployment to get ready")
+			logger.Debug(err.Error())
+			return err
+		}
+
+		// Everything is fine.
+		logger.Debug(fmt.Sprintf("nats-manager deployment is ready with image: %s", image))
+		return nil
+	})
 }

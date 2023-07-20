@@ -19,6 +19,6 @@ function kill_port_forward() {
 # This kills the port-forwards even if the test fails.
 trap kill_port_forward ERR
 
-go test ./e2e/natsserver/natsserver_test.go --tags=e2e
+go test -v ./e2e/natsserver/natsserver_test.go --tags=e2e
 
 kill_port_forward
