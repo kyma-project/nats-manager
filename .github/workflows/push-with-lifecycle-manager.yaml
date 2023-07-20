@@ -163,7 +163,7 @@ jobs:
           make -C hack/ci/ verify-kyma
 
       - name: Wait for new changes to be reflected
-        description: Waits for NATS-manager image to be updated and NATS CR readiness.
+        # Waits for NATS-manager image to be updated and NATS CR readiness.
         env:
           COMMIT_SHA: "${{ github.sha }}"
         run: |
