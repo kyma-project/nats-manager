@@ -107,11 +107,15 @@ jobs:
           skip-creation: true
 
       - name: Install Kyma CLI & setup k3d cluster using kyma CLI
+        env:
+          COMMIT_SHA: "${{ github.sha }}"
         run: |
-          make kyma
-          make -C hack/ci/ create-k3d
-          kubectl version
-          kubectl cluster-info
+          export DOCKER_TAG="$(date +v%Y%m%d)-$(echo ${COMMIT_SHA} | head -c 8)"
+          echo "${DOCKER_TAG}"
+#          make kyma
+#          make -C hack/ci/ create-k3d
+#          kubectl version
+#          kubectl cluster-info
 
       - name: Deploy lifecycle-manager
         run: |
