@@ -7,6 +7,10 @@ env:
 on:
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - "docs"
 
 jobs:
   e2e:
