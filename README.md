@@ -21,7 +21,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 - [Go](https://go.dev/)
 - [Docker](https://www.docker.com/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
-- [kubebuilder](https://book.kubebuilder.io/)
+- [Kubebuilder](https://book.kubebuilder.io/)
 - [kustomize](https://kustomize.io/)
 - Access to Kubernetes cluster ([k3d](https://k3d.io/) / Kubernetes)
 
@@ -80,7 +80,7 @@ make manifests
 
 > **NOTE:** Run `make --help` for more information on all potential `make` targets.
 
-For more information, see the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html).
+For more information, see the [Kubebuilder documentation](https://book.kubebuilder.io/introduction.html).
 
 ### Build container images
 
@@ -173,7 +173,7 @@ make uninstall
 
 3. Prepare the OCI container registry.
 
-   It can be Github, DockerHub, GCP or a local registry.
+   It can be GitHub, DockerHub, GCP or a local registry.
    If you haven't set up a container registry yet, refer to the following documentation:
 
    - Lifecycle Manager: [Provision a cluster and OCI registry](https://github.com/kyma-project/lifecycle-manager/blob/main/docs/developer-tutorials/provision-cluster-and-registry.md)
