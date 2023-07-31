@@ -1,21 +1,23 @@
 # NATS Manager Module
 
-- Overview what NATS is and what the NATS manager does
-- small drawing :) for funz
+This module ships the NATS Manager, which is responsible for managing the lifecycle of a [NATS JetStream](https://docs.nats.io/nats-concepts/jetstream) deployment.
+It observes the state of the NATS JetStream deployment and reconciles is state according to the desired state.
 
-## Features
+NATS is an infrastructure that enables the exchange of data in form of messages. JetStream is a distributed persistence system providing more functionalities
+and higher qualities of service on top of 'Core NATS'.
+For further information about NATS and NATS JetStream, consult the [Official NATS Documentation](https://docs.nats.io/).
 
-- what does the module provide you with?
-- provide links
+Within Kyma, NATS is needed for Eventing to process events and send them to subscribers.
 
-## Scope
+## Documentation Overview
 
-- what's in scope?
-- only necessary if there are not obivous things that are out of scope I guess
+   - [General information about the NATS Manager](./01-manager.md)
+   - [Details how to configure the NATS module](./02-configuration.md)
 
-## Components
+There is further documentation including more technical details aimed at possible contributors:
 
-- nice drawing of components
-- info of what each component does
-
-## API / Custom Resource Definitions
+   - [General information about the setup](../contributor/development.md)
+   - [Guide to the project governance](../contributor/governance.md)
+   - [Installation guide](../contributor/installation.md)
+   - [Information about the test coverage](../contributor/testing.md)
+   - [Troubleshooting](../contributor/troubleshooting.md)
