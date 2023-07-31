@@ -25,9 +25,9 @@ Further information about integration tests can be found in the [Kubebuilder boo
 
 As E2E tests need a Kubernetes cluster to run on, they are separate from the remaining tests.
 
-1. Ensure you have the Kubecontext pointing to an existing Kubernetes cluster
+1. Ensure you have the Kubecontext pointing to an existing Kubernetes cluster.
 
-2. Execute the E2E test
+2. Execute the E2E test.
 
    If NATS Manager has not yet been deployed on the cluster, run:
 
@@ -54,13 +54,13 @@ The E2E test consists of four consecutive steps. If desired, these can also be r
 
 1. Ensure you have the Kubecontext pointing on an existing cluster and NATS Manager is deployed.
 
-2. Set up the NATS SR and ensure all related resources (Pods, Services, PVCs) are set up
+2. Set up the NATS CR and ensure all related resources (Pods, Services, PVCs) are set up.
 
    ```sh
    make e2e-setup
    ```
 
-3. Execute a [bench test](https://docs.nats.io/using-nats/nats-tools/nats_cli/natsbench) on the NATS Server
+3. Execute a [bench test](https://docs.nats.io/using-nats/nats-tools/nats_cli/natsbench) on the NATS Server.
 
    ```sh
    make e2e-bench

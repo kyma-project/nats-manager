@@ -7,7 +7,7 @@ visit [Governance](./governance.md) for a detailed guide to the development flow
 
 ## Run the manager on a (k3d) cluster using a Docker image
 
-1. Ensure you have a k3d cluster ready
+1. Ensure you have a k3d cluster ready.
 
    ```sh
    k3d create cluster <clusterName>
@@ -15,32 +15,32 @@ visit [Governance](./governance.md) for a detailed guide to the development flow
 
    > **NOTE:** Alternatively to a k3d cluster, you can have the Kubecontext point to any existing Kubernetes cluster.
    
-2. Install the CRD of the NATS Manager
+2. Install the CRD of the NATS Manager.
 
    ```sh
    make install
    ```
    
-3. Export the target registry
+3. Export the target registry.
    
    If you are using Docker, `<container-registry>` is your username.
    ```sh
    export IMG=<container-registry>/<image>:<tag>
    ```
 
-4. Build and push your image to the registry
+4. Build and push your image to the registry.
 
    ```sh
    make docker-build docker-push IMG=$IMG
    ```
 
    > **NOTE:** Run the following for MacBook M1 devices:
-
-   ```sh
-   make docker-buildx IMG=$IMG
-   ```
+   >
+   >   ```sh
+   >   make docker-buildx IMG=$IMG
+   >   ```
    
-5. Deploy the controller to the k3d cluster
+5. Deploy the controller to the k3d cluster.
 
    ```sh
    make deploy IMG=$IMG
@@ -52,25 +52,25 @@ visit [Governance](./governance.md) for a detailed guide to the development flow
    k apply -f config/samples/eventing-nats-eval.yaml
    ```
 
-   > **Note:** It may be necessary to previously create the required namespace
+   > **Note:** It may be necessary to previously create the required namespace.
+   >
+   >   ```sh
+   >   k create ns <namespace>
+   >   ```
    
-   ```sh
-   k create ns <namespace>
-   ```
-   
-7. Check the `status` section to see if deployment was successful
+7. Check the `status` section to see if deployment was successful.
    
    ```shell
    k get <resourceName> -n <namespace> -o yaml
    ```
 
    > **Note:** Usually, the default values are as follows:
+   >
+   >   ```shell
+   >   k get nats.operator.kyma-project.io -n kyma-system -o yaml
+   >   ```
 
-   ```shell
-   k get nats.operator.kyma-project.io -n kyma-system -o yaml
-   ```
-
-8. Troubleshooting: It may be necessary to install Istio
+8. Troubleshooting: It may be necessary to install Istio.
 
    ```sh
    k apply -f config/crd/external/destinationrules.networking.istio.io.yaml
@@ -84,13 +84,13 @@ visit [Governance](./governance.md) for a detailed guide to the development flow
    k get statefulset eventing-nats -n kyma-system -o yaml
    ```
 
-9. Remove the controller
+9. Remove the controller.
 
    ```sh
    make undeploy
    ```
 
-10. Remove the resources
+10. Remove the resources.
 
    ```sh
    make uninstall
@@ -98,23 +98,23 @@ visit [Governance](./governance.md) for a detailed guide to the development flow
 
 ## Run the manager on a cluster using the Go runtime environment
 
-1. Ensure you have the Kubecontext pointing to an existing Kubernetes cluster
+1. Ensure you have the Kubecontext pointing to an existing Kubernetes cluster.
 
-2. Clone the NATS Manager project
+2. Clone the NATS Manager project.
 
-3. Download Go packages
+3. Download Go packages.
 
    ```sh
    go mod vendor && go mod tidy
    ```
 
-4. Install the CRD of the NATS Manager
+4. Install the CRD of the NATS Manager.
 
    ```sh
    make install
    ```
 
-5. Run the NATS Manager locally
+5. Run the NATS Manager locally.
 
    ```sh
    make run
