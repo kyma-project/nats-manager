@@ -5,7 +5,7 @@ This document guides you through the development flow.
 
 ## Modifying the API definitions
 
-This project makes use of the [controller-gen](https://book.kubebuilder.io/reference/controller-gen.html) tool provided by [Kubebuilder](https://book.kubebuilder.io/).
+This project uses the [controller-gen](https://book.kubebuilder.io/reference/controller-gen.html) tool provided by [Kubebuilder](https://book.kubebuilder.io/).
 In order to modify the API definitions it is necessary to adapt the ["marker comments"](https://book.kubebuilder.io/reference/markers.html) in the
 Go code.
 
