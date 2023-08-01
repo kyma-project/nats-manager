@@ -50,7 +50,7 @@ The accepted values are `debug`, `info`, `warn`, and `error`.
    export E2E_LOG_LEVEL="<loglevel>"
    ```
    
-The E2E test consists of four consecutive steps. If desired, these can also be run individually.
+The E2E test consists of four consecutive steps. If desired, you can run them individually.
 
 1. Ensure you have the Kubecontext pointing on an existing cluster and NATS Manager is deployed.
 
