@@ -3,7 +3,6 @@
 There are several ways to install the NATS Manager.
 For development, you must run some make targets beforehand.
 For information about the prerequisites, refer to [Development](./development.md) and for a detailed guide to the development flow, visit [Governance](./governance.md).
-visit [Governance](./governance.md) for a detailed guide to the development flow. 
 
 ## Run the manager on a (k3d) cluster using a Docker image
 
