@@ -1,7 +1,7 @@
 # Governance
 
 Some quality aspects are covered by automated verification, so you must locally execute tooling before a commitment.
-This document aims to guide through the development flow.
+This document guides you through the development flow.
 
 ## Modifying the API definitions
 
