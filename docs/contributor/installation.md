@@ -45,7 +45,10 @@ For information about the prerequisites, refer to [Development](./development.md
    make deploy IMG=$IMG
    ```
    
-6. In order to start the reconciliation process, the NATS Custom Resource needs to be applied.
+6. If you haven't done so earlier, create the required Namespace.
+
+    ```sh
+    k create ns <namespace>
 
    ```sh
    k apply -f config/samples/eventing-nats-eval.yaml
