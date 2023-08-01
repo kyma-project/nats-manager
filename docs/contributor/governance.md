@@ -18,7 +18,7 @@ After the modifications, run the following command to generate the new manifests
    make manifests
    ```
 
-If changes to the `runtime.Object` interface were made, the `DeepCopy` functions need to be updated as well.
+If changes to the `runtime.Object` interface were made, the `DeepCopy` functions must be updated as well.
 The generation is controlled by [Kubebuilder markers](https://book.kubebuilder.io/reference/markers/object.html?highlight=deep#objectdeepcopy).
    ```sh
    make generate
