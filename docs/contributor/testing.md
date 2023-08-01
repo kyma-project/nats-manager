@@ -40,16 +40,16 @@ As E2E tests need a Kubernetes cluster to run on, they are separate from the rem
    ```sh
    make e2e-only
    ```
-   
-3. The log level can be adjusted using the environment variable `E2E_LOG_LEVEL`.
-The accepted values are `debug`, `info`, `warn`, and `error`.
+
+3. To adjust the log level, use the environment variable `E2E_LOG_LEVEL`.
+   The accepted values are `debug`, `info`, `warn`, and `error`.
 
    To set the level, enter:
 
    ```sh
    export E2E_LOG_LEVEL="<loglevel>"
    ```
-   
+
 The E2E test consists of four consecutive steps. If desired, these can also be run individually.
 
 1. Ensure you have the Kubecontext pointing on an existing cluster and NATS Manager is deployed.
@@ -74,7 +74,7 @@ The E2E test consists of four consecutive steps. If desired, these can also be r
    ```sh
    make e2e-nats-server
    ```
-   
+
 5. Clean up the test environment and check that all resources related to the NATS CR are removed.
 
    ```sh

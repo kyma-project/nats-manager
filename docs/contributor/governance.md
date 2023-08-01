@@ -36,7 +36,7 @@ To fix common lint issues, run the following command:
    make fmt-local
    ```
 
-To run thorough lint checking, execute the followng command:
+To run thorough lint checking, execute the following command:
 
    ```sh
    make lint-thoroughly
