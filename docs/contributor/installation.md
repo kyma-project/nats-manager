@@ -1,7 +1,7 @@
 # Installation
 
 There are several ways to install the NATS Manager.
-For development it is necessary to run some make targets beforehand.
+For development, you must run some make targets beforehand.
 Please, refer back to [Development](./development.md) for information about the prerequisites and
 visit [Governance](./governance.md) for a detailed guide to the development flow. 
 
