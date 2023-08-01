@@ -41,7 +41,7 @@ To run thorough lint checking, execute the followng command:
    make lint-thoroughly
    ```
 
-If necessary, lint warnings can be ignored. However, if this is desired a comment explaining the reason must be provided,
+If necessary, lint warnings can be ignored. However, if this is desired you must provide a a comment explaining the reason. Use the following format:
 according to the following format:
 
 `//no-lint:<LINTER> // <REASON>`
