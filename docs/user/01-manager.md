@@ -1,23 +1,23 @@
 # NATS Manager
 
-This module ships the NATS Manager. 
+This module ships the NATS Manager.
 
 ## Module Lifecycle
 
 ### Starting NATS Manager
 
-Upon starting the NATS Manager, the controller (following the [Kubebuilder concept](https://book.kubebuilder.io/architecture.html)) 
+Upon starting the NATS Manager, the controller (following the [Kubebuilder concept](https://book.kubebuilder.io/architecture.html))
 creates, watches and reconciles the following resources:
-   
+
    - ConfigMap (cm)
    - Secret (sc)
    - Service (sv)
-   - Stateful Set (sfs)
-   - DestinationRule (dr)
+   - Stateful Set (sts)
+   - DestinationRule (dr, [Istio](https://istio.io))
 
    ```mermaid
     graph LR
-     A(Start NATS manager) -->|Controller| D(Creates, watches & reconciles resources: cm, sc, sv, sfs, dr)
+     A(Start NATS manager) -->|Controller| D(Creates, watches & reconciles resources: cm, sc, sv, sts, dr)
    ```
 
 ### Reacting to NATS CR changes
@@ -33,7 +33,7 @@ For details how to configure NATS using the CR, visit the [Configuration documen
 ### Reacting to resource changes
 
 When resources are changed or deleted, the controller reacts by restoring the defaults according to the NATS CR.
-Thus, changes cannot be made directly to the resources, but the NATS CR needs to be edited.
+Thus, changes cannot be made directly to the resources, but via editing the NATS CR.
 
    ```mermaid
    graph LR

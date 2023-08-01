@@ -13,11 +13,11 @@ detailed descriptions for each field.
 The NATS CR is used to configure the settings of NATS JetStream. The settings can be edited with the following command:
 
    ```shell
-   k edit -n kyma-system nats.operator.kyma-project.io
+   kubectl edit -n kyma-system nats.operator.kyma-project.io <NATS CR Name>
    ```
 
 The CRD is equipped with validation rules and defaulting. The CR is automatically filled with sensible defaults
-that can be overridden and validation rules provide guidance when editing the CR.
+that can be overridden. The validation rules provide guidance when editing the CR.
 
 ## Examples
 
@@ -26,4 +26,3 @@ This project contains several sample CRs to provide some guidance. Each can be a
 - [Default CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/default.yaml#L1)
 - [Minimal CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/minimal.yaml#L1)
 - [Full spec CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/nats-full-spec.yaml#L1)
-

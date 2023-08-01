@@ -1,7 +1,7 @@
 # NATS Manager Module
 
 This module ships the NATS Manager, which is responsible for managing the lifecycle of a [NATS JetStream](https://docs.nats.io/nats-concepts/jetstream) deployment.
-It observes the state of the NATS JetStream deployment and reconciles its state according to the desired state.
+It observes the state of the NATS JetStream resources and reconciles it's state according to the desired state.
 
 NATS is an infrastructure that enables the exchange of data in form of messages. JetStream is a distributed persistence system providing more functionalities
 and higher qualities of service on top of 'Core NATS'.
