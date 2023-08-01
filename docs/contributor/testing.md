@@ -35,7 +35,7 @@ Because E2E tests need a Kubernetes cluster to run on, they are separate from th
    make e2e IMG=<container-registry>/nats-manager:<tag>
    ```
 
-   Else, simply run:
+   Otherwise, simply run:
 
    ```sh
    make e2e-only
