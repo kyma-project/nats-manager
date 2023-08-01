@@ -23,7 +23,7 @@ Further information about integration tests can be found in the [Kubebuilder boo
 
 ### E2E tests
 
-As E2E tests need a Kubernetes cluster to run on, they are separate from the remaining tests.
+Because E2E tests need a Kubernetes cluster to run on, they are separate from the remaining tests.
 
 1. Ensure you have the Kubecontext pointing to an existing Kubernetes cluster.
 
