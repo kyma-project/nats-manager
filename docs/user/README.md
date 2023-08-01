@@ -1,13 +1,13 @@
 # NATS Manager Module
 
 This module ships the NATS Manager, which is responsible for managing the lifecycle of a [NATS JetStream](https://docs.nats.io/nats-concepts/jetstream) deployment.
-It observes the state of the NATS JetStream deployment and reconciles is state according to the desired state.
+It observes the state of the NATS JetStream deployment and reconciles its state according to the desired state.
 
 NATS is an infrastructure that enables the exchange of data in form of messages. JetStream is a distributed persistence system providing more functionalities
 and higher qualities of service on top of 'Core NATS'.
 For further information about NATS and NATS JetStream, consult the [Official NATS Documentation](https://docs.nats.io/).
 
-Within Kyma, NATS is needed for Eventing to process events and send them to subscribers.
+Within Kyma, NATS is the backend needed for Eventing to process events and send them to subscribers.
 
 ## Documentation Overview
 
