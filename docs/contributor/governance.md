@@ -6,7 +6,7 @@ This document guides you through the development flow.
 ## Modifying the API definitions
 
 This project uses the [controller-gen](https://book.kubebuilder.io/reference/controller-gen.html) tool provided by [Kubebuilder](https://book.kubebuilder.io/).
-In order to modify the API definitions it is necessary to adapt the ["marker comments"](https://book.kubebuilder.io/reference/markers.html) in the
+To modify the API definitions, you must adapt the ["marker comments"](https://book.kubebuilder.io/reference/markers.html) in the Go code.
 Go code.
 
 Additionally, this project uses [validation markers](https://book.kubebuilder.io/reference/markers/crd-validation.html) to provide CRD validation and defaulting via [OpenAPI v3 schemas](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md#schemaObject).
