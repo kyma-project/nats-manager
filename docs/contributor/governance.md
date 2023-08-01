@@ -13,7 +13,7 @@ Additionally, this project uses [validation markers](https://book.kubebuilder.io
 The rules are written using the [Common Expression Language](https://github.com/google/cel-spec).
 For further information and examples, look to the [Kubernetes documentation](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation) of validation rules and the CEL [language definition](https://github.com/google/cel-spec/blob/v0.10.0/doc/langdef.md).
 
-After the modifications run the following command to generate the new manifests such as CRs and CRDs:
+After the modifications, run the following command to generate the new manifests such as CRs and CRDs:
    ```sh
    make manifests
    ```
