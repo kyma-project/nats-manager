@@ -23,7 +23,7 @@ Further information about integration tests can be found in the [Kubebuilder boo
 
 ### E2E tests
 
-As E2E tests need a Kubernetes cluster to run on, they are separate from the remaining tests.
+Because E2E tests need a Kubernetes cluster to run on, they are separate from the remaining tests.
 
 1. Ensure you have the Kubecontext pointing to an existing Kubernetes cluster.
 
@@ -35,7 +35,7 @@ As E2E tests need a Kubernetes cluster to run on, they are separate from the rem
    make e2e IMG=<container-registry>/nats-manager:<tag>
    ```
 
-   Else, simply run:
+   Otherwise, simply run:
 
    ```sh
    make e2e-only
@@ -50,7 +50,7 @@ As E2E tests need a Kubernetes cluster to run on, they are separate from the rem
    export E2E_LOG_LEVEL="<loglevel>"
    ```
 
-The E2E test consists of four consecutive steps. If desired, these can also be run individually.
+The E2E test consists of four consecutive steps. If desired, you can run them individually.
 
 1. Ensure you have the Kubecontext pointing on an existing cluster and NATS Manager is deployed.
 

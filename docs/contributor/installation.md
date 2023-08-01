@@ -1,9 +1,8 @@
 # Installation and Deinstallation
 
 There are several ways to install the NATS Manager.
-For development, it is necessary to run some make targets beforehand.
-Please, refer back to [Development](./development.md) for information about the prerequisites and
-visit [Governance](./governance.md) for a detailed guide to the development flow.
+For development, you must run some make targets beforehand.
+For information about the prerequisites, refer to [Development](./development.md) and for a detailed guide to the development flow, visit [Governance](./governance.md).
 
 ## Run the manager on a (k3d) cluster using a Docker image
 
@@ -37,7 +36,7 @@ visit [Governance](./governance.md) for a detailed guide to the development flow
    make docker-build docker-push IMG=$IMG
    ```
 
-   > **NOTE:** Run the following for MacBook M1 devices:
+   > **NOTE:** For MacBook M1 devices, run:
    >
    >   ```sh
    >   make docker-buildx IMG=$IMG
@@ -120,4 +119,3 @@ Remove the resources.
 [Kyma's Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main) helps manage the lifecycle of each module in the cluster and can be used to install the NATS Manager.
 
 To run the NATS Manager, follow the steps detailed in the [Lifecycle Manager documentation](ADD_LINK_TO_THAT_DOC).
-and can be used to install the NATS Manager. Follow the steps detailed in the Lifecycle Manager documentation
