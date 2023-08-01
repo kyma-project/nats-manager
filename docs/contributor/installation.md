@@ -33,7 +33,7 @@ For information about the prerequisites, refer to [Development](./development.md
    make docker-build docker-push IMG=$IMG
    ```
 
-   > **NOTE:** Run the following for MacBook M1 devices:
+   > **NOTE:** For MacBook M1 devices, run:
    >
    >   ```sh
    >   make docker-buildx IMG=$IMG
