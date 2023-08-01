@@ -11,7 +11,7 @@ Go code.
 
 Additionally, this project uses [validation markers](https://book.kubebuilder.io/reference/markers/crd-validation.html) to provide CRD validation and defaulting via [OpenAPI v3 schemas](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md#schemaObject).
 The rules are written using the [Common Expression Language](https://github.com/google/cel-spec).
-For further information and examples look to the [Kubernetes documentation](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation) of validation rules
+For further information and examples, look to the [Kubernetes documentation](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation) of validation rules and the CEL [language definition](https://github.com/google/cel-spec/blob/v0.10.0/doc/langdef.md).
 and the CEL [language definition](https://github.com/google/cel-spec/blob/v0.10.0/doc/langdef.md).
 
 After the modifications run the following command to generate the new manifests such as CRs and CRDs:
