@@ -4,11 +4,11 @@ This document provides an overview of the testing activities used in this projec
 
 ## Testing Levels
 
-| Test suite | Testing level | Purpose                                                                                                                                                                                       |
-|------------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Unit       | Unit          | This test suite tests the units in isolation. It assesses the implementation correctness of the units of business logic.                                                                      |
+| Test suite | Testing level | Purpose                                                                                                                                                                                    |
+|------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Unit       | Unit          | This test suite tests the units in isolation. It assesses the implementation correctness of the units business logic.                                                                      |
 | Env-tests  | Integration   | This test suite tests the behaviour of the NATS Manager in integration with a Kubernetes API server replaced with a test double. It assesses the integration correctness of the NATS Manager. |
-| E2E        | Acceptance    | This test suite tests the usability scenarios of the NATS Manager in a cluster. It assesses the functional correctness of the NATS Manager.                                                   |
+| E2E        | Acceptance    | This test suite tests the usability scenarios of the NATS Manager in a cluster. It assesses the functional correctness of the NATS Manager.                                                |
 
 > **NOTE:** The validation and defaulting rules are tested within the integration tests.
 

@@ -116,6 +116,6 @@ Remove the resources.
 
 ## Run the NATS Manager using Kyma's Lifecycle Manager
 
-[Kyma's Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main) helps manage the lifecycle of each module in the cluster and can be used to install the NATS Manager.
+[Kyma's Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager) helps manage the lifecycle of each module in the cluster and can be used to install the NATS Manager.
 
-To run the NATS Manager, follow the steps detailed in the [Lifecycle Manager documentation](ADD_LINK_TO_THAT_DOC).
+To run the NATS Manager, follow the steps detailed in the [Lifecycle Manager documentation](https://github.com/kyma-project/lifecycle-manager/tree/main/docs).

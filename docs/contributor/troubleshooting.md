@@ -18,7 +18,7 @@ Error message: `Error from server (NotFound): error when creating "STDIN": names
    kubectl create ns kyma-system
    ```
 
-### Error during XXX / STH does not turn ready
+### NATS instance is not initialized after NATS CR was applied
 
 **Symptom:** The NATS CR has an error status and a Stateful Set for NATS was not created.
 
