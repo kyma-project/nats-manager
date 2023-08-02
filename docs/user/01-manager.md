@@ -6,8 +6,7 @@ This module ships the NATS Manager.
 
 ### Starting NATS Manager
 
-Upon starting the NATS Manager, the controller (following the [Kubebuilder concept](https://book.kubebuilder.io/architecture.html))
-creates, watches and reconciles the following resources:
+Upon starting the NATS Manager, the controller (following the [Kubebuilder concept](https://book.kubebuilder.io/architecture.html)) creates, watches and reconciles the following resources:
 
    - ConfigMap (cm)
    - Secret (sc)
@@ -33,7 +32,7 @@ For details how to configure NATS using the CR, visit the [Configuration documen
 ### Reacting to resource changes
 
 When resources are changed or deleted, the controller reacts by restoring the defaults according to the NATS CR.
-Thus, changes cannot be made directly to the resources, but via editing the NATS CR.
+Thus, if you want to change the resources, you must edit the NATS CR; you cannot change the resources directly.
 
    ```mermaid
    graph LR
