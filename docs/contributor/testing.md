@@ -85,7 +85,7 @@ The E2E test consists of four consecutive steps. If desired, you can run them in
 ## CI/CD
 
 This project uses [Prow](https://docs.prow.k8s.io/docs/) and [GitHub Actions](https://docs.github.com/en/actions) as part of the development cycle.
-Their aim is to verify the functional correctness of the NATS Manager.
+The aim is to verify the functional correctness of the NATS Manager.
 
 ### Prow jobs that run on PRs
 

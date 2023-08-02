@@ -1,4 +1,4 @@
-# Installation and Deinstallation
+# Installation and Uninstallation
 
 There are several ways to install the NATS Manager.
 For development, you must run some make targets beforehand.
@@ -66,7 +66,7 @@ For information about the prerequisites, refer to [Development](./development.md
    >   kubectl get nats.operator.kyma-project.io -n kyma-system -o yaml
    >   ```
 
-### Deinstallation
+### Uninstallation
 
 1. Remove the controller.
 
@@ -106,7 +106,7 @@ For information about the prerequisites, refer to [Development](./development.md
    make run
    ```
 
-### Deinstallation
+### Uninstallation
 
 Remove the resources.
 

@@ -1,6 +1,6 @@
 # Governance
 
-Some quality aspects are covered by automated verification, so you must locally execute tooling before a commitment.
+Some quality aspects are covered by automated verification, so you must locally execute tooling before a commit.
 This document guides you through the development flow.
 
 ## Modifying the API definitions

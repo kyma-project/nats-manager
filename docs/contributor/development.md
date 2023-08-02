@@ -2,7 +2,7 @@
 
 The NATS Manager follows the [Kubernetes operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/) and is scaffolded using [Kubebuilder](https://book.kubebuilder.io/).
 
-Projects created by Kubebuilder contain a Makefile with tooling that must be locally executed before a commitment. Refer to [Governance](./governance.md) for further details.
+Projects created by Kubebuilder contain a Makefile with tooling that must be locally executed before pushing (i.e. `git push`) to the repository. Refer to [Governance](./governance.md) for further details.
 
 ## Prerequisites
 

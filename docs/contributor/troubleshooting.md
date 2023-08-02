@@ -18,25 +18,6 @@ Error message: `Error from server (NotFound): error when creating "STDIN": names
    kubectl create ns kyma-system
    ```
 
-### NATS instance is not initialized after NATS CR was applied
-
-**Symptom:** The NATS CR has an error status and a Stateful Set for NATS was not created.
-
-**Cause:** [Istio](https://istio.io) is the service mesh needed to connect the services. Without Istio installed, the NATS instance is not initialized.
-
-**Remedy:** Install Istio.
-
-   ```sh
-   kubectl apply -f config/crd/external/destinationrules.networking.istio.io.yaml
-   ```
-
-Without Istio installed the NATS instance is not initialized.
-
-   ```sh
-   kubectl get statefulset eventing-nats -n kyma-system -o yaml
-   ```
-
-
 ## Reach out to us
 
 If you encounter an issue or want to report a bug, please create a [GitHub issue](https://github.com/kyma-project/nats-manager/issues) with background information and
