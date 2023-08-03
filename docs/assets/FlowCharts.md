@@ -1,4 +1,4 @@
-# NATS Manager
+# Summary: NATS Manager Flow Charts
 
 ## NATS Manager is started
 ```mermaid
