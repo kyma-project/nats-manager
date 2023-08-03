@@ -6,13 +6,13 @@ This document contains tips and tricks to common problems with the NATS Manager 
 
 ### Error while deploying the NATS Manager
 
-**Symptom:** `make deploy` step fails due to namespace not found
+**Symptom:** The `make deploy` step fails with the following error message:
 
-Error message: `Error from server (NotFound): error when creating "STDIN": namespaces kyma-system not found`
+`Error from server (NotFound): error when creating "STDIN": namespaces kyma-system not found`
 
-**Cause:** The namespace of the deployment does not exist yet.
+**Cause:** The Namespace of the Deployment does not exist yet.
 
-**Remedy:** Create the namespace.
+**Remedy:** Create the Namespace.
 
    ```sh
    kubectl create ns kyma-system

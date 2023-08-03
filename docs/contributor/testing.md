@@ -92,13 +92,12 @@ The aim is to verify the functional correctness of the NATS Manager.
 The Prow jobs that cover code of this repository reside in [their own repository](https://github.com/kyma-project/test-infra/tree/main/prow/jobs/nats-manager).
 Presubmit jobs run on PRs and are marked with the prefix `pull`. Postsubmit jobs run on main after a PR was merged and carry the prefix `post`.
 
-For more information of each job, refer to their `description` field and the `command` and `args` field to gain insight to their execution details.
-This information can also be accessed from your PR by inspecting the details to the job and viewing the Prow job YAML.
+For more information on execution details of each job, refer to their `description` field and the `command` and `args` fields.
+Alternatively, you can access this information from your PR by inspecting the details to the job and viewing the Prow job `.yaml` file.
 
 ### GitHub Actions
 
 GitHub Actions reside [within this module repository](https://github.com/kyma-project/nats-manager/tree/main/.github/workflows).
 Pre- and postsubmit actions follow the same naming conventions as Prow jobs.
 
-The [Actions overview](https://github.com/kyma-project/nats-manager/actions/) allows you to see all the existing workflows and their execution details.
-A re-run of an action can be triggered here as well.
+The [Actions overview](https://github.com/kyma-project/nats-manager/actions/), shows all the existing workflows and their execution details. Here, you can also trigger a re-run of an action.
