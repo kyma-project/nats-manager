@@ -179,20 +179,6 @@ jobs:
           export MANAGER_IMAGE=${DOCKER_IMAGE}
           make e2e-setup
 
-      - name: Debug logs
-        # Waits for NATS-manager image to be updated and NATS CR readiness.
-        run: |
-          echo "kubectl get nats -n kyma-system eventing-nats -o yaml"
-          kubectl get nats -n kyma-system eventing-nats -o yaml
-          echo "kubectl get deploy -n kyma-system nats-manager -o yaml"
-          kubectl get deploy -n kyma-system nats-manager -o yaml
-          echo "kubectl get po -n kyma-system"
-          kubectl get po -n kyma-system
-          echo "kubectl get kyma -n kyma-system default-kyma -o yaml"
-          kubectl get kyma -n kyma-system default-kyma -o yaml
-          echo "stern -n kcp-system lifecycle-manager"
-          stern -n kcp-system lifecycle-manager
-
       - name: Run NATS bench
         run: |
           go install github.com/nats-io/natscli/nats@latest
