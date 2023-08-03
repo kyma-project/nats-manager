@@ -179,6 +179,8 @@ jobs:
           kubectl get deploy -n kyma-system nats-manager -o yaml
           echo "kubectl get po -n kyma-system"
           kubectl get po -n kyma-system
+          echo "stern -n kcp-system lifecycle-manager"
+          stern -n kcp-system lifecycle-manager
 
       - name: Run NATS bench
         run: |
