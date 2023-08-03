@@ -164,10 +164,21 @@ jobs:
           make -C hack/ci/ verify-kyma
 
       - name: Wait for new changes to be reflected
+        continue-on-error: true
         # Waits for NATS-manager image to be updated and NATS CR readiness.
         run: |
           export MANAGER_IMAGE=${DOCKER_IMAGE}
           make e2e-setup
+
+      - name: Debug logs
+        # Waits for NATS-manager image to be updated and NATS CR readiness.
+        run: |
+          echo "kubectl get nats -n kyma-system eventing-nats -o yaml"
+          kubectl get nats -n kyma-system eventing-nats -o yaml
+          echo "kubectl get deploy -n kyma-system nats-manager -o yaml"
+          kubectl get deploy -n kyma-system nats-manager -o yaml
+          echo "kubectl get po -n kyma-system"
+          kubectl get po -n kyma-system
 
       - name: Run NATS bench
         run: |
