@@ -87,19 +87,18 @@ The E2E test consists of four consecutive steps. If desired, you can run them in
 This project uses [Prow](https://docs.prow.k8s.io/docs/) and [GitHub Actions](https://docs.github.com/en/actions) as part of the development cycle.
 The aim is to verify the functional correctness of the NATS Manager.
 
-### Prow jobs that run on PRs
+### Prow jobs
 
-| Name                                                                                                                                       | Required | Description                                                                                                                                                                            |
-|--------------------------------------------------------------------------------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`pull-nats-manager-build`](https://github.com/kyma-project/test-infra/blob/main/prow/jobs/nats-manager/nats-manager-generic.yaml#L6)      | false    | Builds NATS managers's image and pushes it to the `dev` registry.                                                                                                                      |
-| [`pull-nats-module-build`](https://github.com/kyma-project/test-infra/blob/main/prow/jobs/nats-manager/nats-manager-generic.yaml#L83)      | true     | Builds module's OCI image and pushes it to the `dev` artifact registry. Renders ModuleTemplate for the NATS module that allows for manual integration tests against Lifecycle Manager. |
-| [`pull-nats-manager-unit-test`](https://github.com/kyma-project/test-infra/blob/main/prow/jobs/nats-manager/nats-manager-generic.yaml#L53) | true     | Executes unit and integration tests of NATS Manager.                                                                                                                                   |
+The Prow jobs that cover code of this repository reside in [their own repository](https://github.com/kyma-project/test-infra/tree/main/prow/jobs/nats-manager).
+Presubmit jobs run on PRs and are marked with the prefix `pull`. Postsubmit jobs run on main after a PR was merged and carry the prefix `post`.
 
-### GitHub Actions that run on PRs
+For more information of each job, refer to their `description` field and the `command` and `args` field to gain insight to their execution details.
+This information can also be accessed from your PR by inspecting the details to the job and viewing the Prow job YAML.
 
-| Name                                                                                                                                          | Required | Description                                                   |
-|-----------------------------------------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------|
-| [`e2e`](https://github.com/kyma-project/nats-manager/blob/main/.github/workflows/e2e.yml#L1)                                                  | false    | Executes E2E tests of NATS Manager.                           |
-| [`golangci-lint`](https://github.com/kyma-project/nats-manager/blob/main/.github/workflows/lint.yml#L1)                                       | false    | Executes the linter and static code analysis.                 |
-| [`pull-with-lifecycle-manager`](https://github.com/kyma-project/nats-manager/blob/main/.github/workflows/pull-with-lifecycle-manager.yaml#L1) | false    | Verifies the module on a k3d cluster using Lifecycle Manager. |
-| [`validate crd`](https://github.com/kyma-project/nats-manager/blob/main/.github/workflows/validatecrd.yml#L1)                                 | false    | Applies the CRD to a k3d cluster to verify its correctness.   |
+### GitHub Actions
+
+GitHub Actions reside [within this module repository](https://github.com/kyma-project/nats-manager/tree/main/.github/workflows).
+Pre- and postsubmit actions follow the same naming conventions as Prow jobs.
+
+The [Actions overview](https://github.com/kyma-project/nats-manager/actions/) allows you to see all the existing workflows and their execution details.
+A re-run of an action can be triggered here as well.
