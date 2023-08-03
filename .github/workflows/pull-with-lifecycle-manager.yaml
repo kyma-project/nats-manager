@@ -99,6 +99,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install stern
+        # Waits for NATS-manager image to be updated and NATS CR readiness.
+        run: |
+          curl -s -L -o stern-bin.tar.gz https://github.com/stern/stern/releases/download/v1.25.0/stern_1.25.0_linux_amd64.tar.gz
+          tar -xf stern-bin.tar.gz -C /usr/local/bin
+          chmod +x /usr/local/bin/stern
+          rm stern-bin.tar.gz
+
       - name: Install k3d tools
         uses: nolar/setup-k3d-k3s@v1
         with:
@@ -161,6 +169,7 @@ jobs:
         run: |
           make -C hack/ci/ download-module-template
           make -C hack/ci/ install-module-template
+          sleep 10
           make -C hack/ci/ verify-kyma
 
       - name: Wait for new changes to be reflected
@@ -179,6 +188,8 @@ jobs:
           kubectl get deploy -n kyma-system nats-manager -o yaml
           echo "kubectl get po -n kyma-system"
           kubectl get po -n kyma-system
+          echo "kubectl get kyma -n kyma-system default-kyma -o yaml"
+          kubectl get kyma -n kyma-system default-kyma -o yaml
           echo "stern -n kcp-system lifecycle-manager"
           stern -n kcp-system lifecycle-manager
 
