@@ -10,6 +10,8 @@ import (
 	"testing"
 	"time"
 
+	policyv1 "k8s.io/api/policy/v1"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
@@ -261,6 +263,13 @@ func (env TestEnvironment) EnsureK8sSecretExists(t *testing.T, name, namespace s
 		result, err := env.GetSecretFromK8s(name, namespace)
 		return err == nil && result != nil
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of Secret")
+}
+
+func (env TestEnvironment) EnsureK8sPodDisruptionBudgetExists(t *testing.T, name, namespace string) {
+	require.Eventually(t, func() bool {
+		result, err := env.GetPodDisruptionBudgetFromK8s(name, namespace)
+		return err == nil && result != nil
+	}, SmallTimeOut, SmallPollingInterval, "failed to ensure existence of PodDisruptionBudget")
 }
 
 func (env TestEnvironment) EnsureK8sServiceExists(t *testing.T, name, namespace string) {
@@ -600,6 +609,19 @@ func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Se
 	return result, nil
 }
 
+func (env TestEnvironment) GetPodDisruptionBudgetFromK8s(name,
+	namespace string) (*policyv1.PodDisruptionBudget, error) {
+	nn := k8stypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}
+	result := &policyv1.PodDisruptionBudget{}
+	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*unstructured.Unstructured, error) {
 	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
 		namespace).Get(env.Context, name, metav1.GetOptions{})
@@ -616,6 +638,15 @@ func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) erro
 
 func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+	})
+}
+
+func (env TestEnvironment) DeletePodDisruptionBudgetFromK8s(name, namespace string) error {
+	return env.k8sClient.Delete(env.Context, &policyv1.PodDisruptionBudget{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,

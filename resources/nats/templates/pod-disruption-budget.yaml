@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "nats.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "nats.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: 33%
+  selector:
+    matchLabels:
+      {{- include "nats.selectorLabels" . | nindent 6 }}
