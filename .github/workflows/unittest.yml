@@ -1,5 +1,11 @@
 name: Codequality
-on: [pull_request]
+on: 
+  push:
+    branches: [ "main" ]
+    tags: [ '*.*.*' ]
+  pull_request:
+    branches: [ "main" ]
+
 permissions:
   contents: read
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
@@ -31,3 +37,40 @@ jobs:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
           version: v1.52
           args: --timeout=5m
+  build:
+    permissions: write-all
+    name: build
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    # Login against a Docker registry except on PR
+    # https://github.com/docker/login-action
+    - name: Log into registry ${{ env.REGISTRY }}
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=sha
+          type=semver,pattern={{version}},event=tag
+
+    - name: Build Docker image
+      id: build-and-push
+      uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a
+      with:
+        context: .
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        load: ${{ github.event_name == 'pull_request' }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
