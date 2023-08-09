@@ -20,7 +20,6 @@ const (
 	ClusterSize           = 3
 	SecretName            = "eventing-nats-secret" //nolint:gosec // This is used for test purposes only.
 	CMName                = "eventing-nats-config"
-	PDBName               = "eventing-nats"
 	FileStorageSize       = "1Gi"
 	MemStorageSize        = "1Gi"
 	True                  = "true"

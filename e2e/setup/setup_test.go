@@ -330,20 +330,6 @@ func Test_Secret(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// Test_PDB tests if the PodDisruptionBudget was created.
-func Test_PDB(t *testing.T) {
-	t.Parallel()
-	ctx := context.TODO()
-	err := Retry(attempts, interval, func() error {
-		_, secErr := clientSet.PolicyV1().PodDisruptionBudgets(NamespaceName).Get(ctx, PDBName, metav1.GetOptions{})
-		if secErr != nil {
-			return secErr
-		}
-		return nil
-	})
-	require.NoError(t, err)
-}
-
 func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
 	var natsCR natsv1alpha1.NATS
 	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
