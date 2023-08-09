@@ -39,6 +39,7 @@ jobs:
           args: --timeout=5m
   build:
     permissions: write-all
+    runs-on: ubuntu-latest
     name: build
     steps:
     - name: Set up Docker Buildx
