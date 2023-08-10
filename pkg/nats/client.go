@@ -16,7 +16,7 @@ type Client interface {
 	Close()
 }
 
-//go:generate mockery --name=Client --outpkg=mocks --case=underscore
+//go:generate go run github.com/vektra/mockery/v2 --name=Client --outpkg=mocks --case=underscore
 
 type Config struct {
 	URL     string

@@ -22,10 +22,6 @@ import (
 
 	"github.com/kyma-project/nats-manager/pkg/nats"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -36,6 +32,11 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+
+	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const (
@@ -47,8 +48,8 @@ const (
 
 // Reconciler reconciles a Nats object.
 //
-//go:generate mockery --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
-//go:generate mockery --name=Manager --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/manager --outpkg=mocks --case=underscore
+//go:generate go run github.com/vektra/mockery/v2 --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
+//go:generate go run github.com/vektra/mockery/v2 --name=Manager --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/manager --outpkg=mocks --case=underscore
 type Reconciler struct {
 	client.Client
 	controller                  controller.Controller
