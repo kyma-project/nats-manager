@@ -1,0 +1,9 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: nats-manager
+Upstream-Contact: SAP Kyma <kyma@sap.com>
+Source: https://github.com/kyma-project/nats-manager
+
+Files: *
+Copyright: 2023 SAP SE or an SAP affiliate company and nats-manager contributors.
+License: Apache-2.0
+
