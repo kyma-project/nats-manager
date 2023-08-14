@@ -1,3 +1,5 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/kyma-project/nats-manager)](https://api.reuse.software/info/github.com/kyma-project/nats-manager)
+
 # NATS Manager
 
 Manages the lifecycle of a NATS JetStream deployment.
