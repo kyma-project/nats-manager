@@ -2,8 +2,9 @@ package nats
 
 import (
 	"context"
-	"github.com/kyma-project/nats-manager/pkg/events"
 	"time"
+
+	"github.com/kyma-project/nats-manager/pkg/events"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"

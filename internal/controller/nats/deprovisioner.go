@@ -3,6 +3,7 @@ package nats
 import (
 	"context"
 	"fmt"
+
 	"github.com/kyma-project/nats-manager/pkg/events"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
