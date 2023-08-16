@@ -25,13 +25,14 @@ const (
 	charset       = "abcdefghijklmnopqrstuvwxyz0123456789"
 	randomNameLen = 5
 
-	NameFormat                = "name-%s"
-	NamespaceFormat           = "namespace-%s"
-	StatefulSetNameFormat     = "%s-nats"
-	ConfigMapNameFormat       = "%s-nats-config"
-	SecretNameFormat          = "%s-nats-secret" //nolint:gosec // only for test purpose
-	ServiceNameFormat         = "%s-nats"
-	DestinationRuleNameFormat = "%s-nats"
+	NameFormat                    = "name-%s"
+	NamespaceFormat               = "namespace-%s"
+	StatefulSetNameFormat         = "%s-nats"
+	ConfigMapNameFormat           = "%s-nats-config"
+	SecretNameFormat              = "%s-nats-secret" //nolint:gosec // only for test purpose
+	ServiceNameFormat             = "%s-nats"
+	PodDisruptionBudgetNameFormat = "%s-nats"
+	DestinationRuleNameFormat     = "%s-nats"
 )
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec,gochecknoglobals // used in tests
@@ -189,6 +190,10 @@ func GetSecretName(nats v1alpha1.NATS) string {
 
 func GetServiceName(nats v1alpha1.NATS) string {
 	return fmt.Sprintf(ServiceNameFormat, nats.Name)
+}
+
+func GetPodDisruptionBudgetName(nats v1alpha1.NATS) string {
+	return fmt.Sprintf(PodDisruptionBudgetNameFormat, nats.Name)
 }
 
 func GetDestinationRuleName(nats v1alpha1.NATS) string {

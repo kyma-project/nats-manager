@@ -139,6 +139,8 @@ func Test_CreateNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sPodDisruptionBudgetExists(t,
+				testutils.GetPodDisruptionBudgetName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 
@@ -393,6 +395,15 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			},
 		},
 		{
+			name: "should recreate PodDisruptionBudget",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+			),
+			wantResourceDeletion: []deletionFunc{
+				deletePodDisruptionBudgetFromK8s,
+			},
+		},
+		{
 			name: "should recreate all objects",
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
@@ -425,6 +436,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sPodDisruptionBudgetExists(t, testutils.GetPodDisruptionBudgetName(*tc.givenNATS),
+				givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 
@@ -437,6 +450,8 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 			testEnvironment.EnsureK8sConfigMapExists(t, testutils.GetConfigMapName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sSecretExists(t, testutils.GetSecretName(*tc.givenNATS), givenNamespace)
 			testEnvironment.EnsureK8sServiceExists(t, testutils.GetServiceName(*tc.givenNATS), givenNamespace)
+			testEnvironment.EnsureK8sPodDisruptionBudgetExists(t, testutils.GetPodDisruptionBudgetName(*tc.givenNATS),
+				givenNamespace)
 			testEnvironment.EnsureK8sDestinationRuleExists(t,
 				testutils.GetDestinationRuleName(*tc.givenNATS), givenNamespace)
 		})
@@ -615,4 +630,9 @@ func deleteSecretFromK8s(env integration.TestEnvironment, natsName, namespace st
 func deleteDestinationRuleFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
 	destName := fmt.Sprintf(testutils.DestinationRuleNameFormat, natsName)
 	return env.DeleteDestinationRuleFromK8s(destName, namespace)
+}
+
+func deletePodDisruptionBudgetFromK8s(env integration.TestEnvironment, natsName, namespace string) error {
+	destName := fmt.Sprintf(testutils.PodDisruptionBudgetNameFormat, natsName)
+	return env.DeletePodDisruptionBudgetFromK8s(destName, namespace)
 }
