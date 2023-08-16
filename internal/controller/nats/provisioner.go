@@ -70,7 +70,8 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NAT
 	if err != nil {
 		nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonSyncFailError, err.Error())
-		events.Warn(r.recorder, nats, events.ReasonFailedToSyncResources, "Failed to sync the resources. StatefulSet is not ready.")
+		events.Warn(r.recorder, nats, events.ReasonFailedToSyncResources,
+			"Failed to sync the resources. StatefulSet is not ready.")
 		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
@@ -79,7 +80,8 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NAT
 		events.Normal(r.recorder, nats, events.ReasonDeployed, "StatefulSet is ready and NATS is deployed.")
 	} else {
 		nats.Status.SetWaitingStateForStatefulSet()
-		events.Normal(r.recorder, nats, events.ReasonDeploying, "NATS is being deployed, waiting for StatefulSet to get ready.")
+		events.Normal(r.recorder, nats, events.ReasonDeploying,
+			"NATS is being deployed, waiting for StatefulSet to get ready.")
 		r.logger.Info("Reconciliation successful: waiting for STS to get ready...")
 		return ctrl.Result{RequeueAfter: RequeueTimeForStatusCheck * time.Second}, r.syncNATSStatus(ctx, nats, log)
 	}
