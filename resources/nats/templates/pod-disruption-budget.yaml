@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "nats.labels" . | nindent 4 }}
 spec:
-  maxUnavailable: 33%
+  maxUnavailable: 1
   selector:
     matchLabels:
       {{- include "nats.selectorLabels" . | nindent 6 }}
