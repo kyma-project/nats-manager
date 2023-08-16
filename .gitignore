@@ -39,3 +39,5 @@ bin/*
 vendor/
 
 module-template.yaml
+
+.env.dev

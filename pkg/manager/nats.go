@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/zap"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"go.uber.org/zap"
 )
 
 type NatsConfig struct {
@@ -17,7 +18,7 @@ type NatsConfig struct {
 // Perform a compile time check.
 var _ Manager = &NATSManager{}
 
-//go:generate mockery --name=Manager --outpkg=mocks --case=underscore
+//go:generate go run github.com/vektra/mockery/v2 --name=Manager --outpkg=mocks --case=underscore
 type Manager interface {
 	GenerateNATSResources(*chart.ReleaseInstance, ...Option) (*chart.ManifestResources, error)
 	DeployInstance(context.Context, *chart.ReleaseInstance) error

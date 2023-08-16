@@ -22,13 +22,10 @@ import (
 
 	"github.com/kyma-project/nats-manager/pkg/nats"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
+	policyv1 "k8s.io/api/policy/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -36,6 +33,11 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+
+	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const (
@@ -47,8 +49,8 @@ const (
 
 // Reconciler reconciles a Nats object.
 //
-//go:generate mockery --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
-//go:generate mockery --name=Manager --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/manager --outpkg=mocks --case=underscore
+//go:generate go run github.com/vektra/mockery/v2 --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
+//go:generate go run github.com/vektra/mockery/v2 --name=Manager --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/manager --outpkg=mocks --case=underscore
 type Reconciler struct {
 	client.Client
 	controller                  controller.Controller
@@ -96,6 +98,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resourceNames=eventing-nats-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="apps",resourceNames=eventing-nats,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="networking.istio.io",resourceNames=eventing-nats,resources=destinationrules,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="policy",resourceNames=eventing-nats,resources=poddisruptionbudgets,verbs=get;list;watch;update;patch;create;delete
 
 // RBAC permissions by resource
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch
@@ -104,6 +107,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=list;delete;watch
 //+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
 //+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
+//+kubebuilder:rbac:groups="policy",resources=poddisruptionbudgets,verbs=list;watch
 
 //nolint:lll
 //+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch;create;update;patch;delete
@@ -221,10 +225,11 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	var err error
 	r.controller, err = ctrl.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.NATS{}).
-		Owns(&appsv1.StatefulSet{}). // watch for StatefulSets.
-		Owns(&apiv1.Service{}).      // watch for Services.
-		Owns(&apiv1.ConfigMap{}).    // watch for ConfigMaps.
-		Owns(&apiv1.Secret{}).       // watch for Secrets.
+		Owns(&appsv1.StatefulSet{}).           // watch for StatefulSets.
+		Owns(&apiv1.Service{}).                // watch for Services.
+		Owns(&apiv1.ConfigMap{}).              // watch for ConfigMaps.
+		Owns(&apiv1.Secret{}).                 // watch for Secrets.
+		Owns(&policyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
 		Build(r)
 
 	return err

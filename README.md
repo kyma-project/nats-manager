@@ -1,3 +1,5 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/kyma-project/nats-manager)](https://api.reuse.software/info/github.com/kyma-project/nats-manager)
+
 # NATS Manager
 
 Manages the lifecycle of a NATS JetStream deployment.
@@ -52,7 +54,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 Run the unit and integration tests:
 
 ```sh
-make test-only
+make generate-and-test
 ```
 
 ### Linting
@@ -60,14 +62,14 @@ make test-only
 1. Fix common lint issues:
 
    ```sh
-   make imports-local
-   make fmt-local
+   make imports
+   make fmt
    ```
 
 2. Run lint check:
 
    ```sh
-   make lint-thoroughly
+   make lint
    ```
 
 ### Modify the API definitions
