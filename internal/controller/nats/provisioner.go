@@ -31,21 +31,24 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 	// init a release instance (NATS resources to deploy)
 	instance, err := r.initNATSInstance(ctx, nats, log)
 	if err != nil {
-		events.Warn(r.recorder, nats, events.ReasonFailedProcessing, "Error while NATS resources were being initialized: %s", err)
+		events.Warn(r.recorder, nats, events.ReasonFailedProcessing,
+			"Error while NATS resources were being initialized: %s", err)
 		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
 	log.Info("deploying NATS resources...")
 	// deploy NATS resources
 	if err = r.natsManager.DeployInstance(ctx, instance); err != nil {
-		events.Warn(r.recorder, nats, events.ReasonFailedProcessing, "Error while NATS resources were deployed: %s", err)
+		events.Warn(r.recorder, nats, events.ReasonFailedProcessing,
+			"Error while NATS resources were deployed: %s", err)
 		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
 	// watchers for dynamic resources managed by controller.
 	if instance.IstioEnabled && !r.destinationRuleWatchStarted {
 		if err = r.watchDestinationRule(log); err != nil {
-			events.Warn(r.recorder, nats, events.ReasonFailedProcessing, "Error while NATS resources were watched: %s", err)
+			events.Warn(r.recorder, nats, events.ReasonFailedProcessing,
+				"Error while NATS resources were watched: %s", err)
 			return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 		}
 		// update flag to keep track if watcher is started.
