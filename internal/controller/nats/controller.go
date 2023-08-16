@@ -19,7 +19,7 @@ package nats
 import (
 	"context"
 	"fmt"
-
+	"github.com/kyma-project/nats-manager/pkg/events"
 	"github.com/kyma-project/nats-manager/pkg/nats"
 
 	"go.uber.org/zap"
@@ -160,6 +160,7 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 		"is allowed to be created in a Kyma cluster.", r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
 	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, errorMessage)
+	events.Warn(r.recorder, nats, events.ReasonForbidden, errorMessage)
 
 	return false, r.syncNATSStatus(ctx, nats, log)
 }
