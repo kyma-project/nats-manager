@@ -99,12 +99,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-#      - name: Install k3d tools
-#        uses: nolar/setup-k3d-k3s@v1
-#        with:
-#          # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
-#          version: v1.26.5
-#          skip-creation: true
+      - name: Install k3d CLI
+        env:
+          K3D_VERSION: v1.26.5
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash
 
       - name: Install Kyma CLI & setup k3d cluster using kyma CLI
         run: |
