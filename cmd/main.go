@@ -61,7 +61,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		os.Exit(1)
 	}
 
-	// get configs from command-line args
+	// get configs from command-line args.
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
