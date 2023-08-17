@@ -1,0 +1,50 @@
+name: 'Wait for commit status to succeed'
+description: 'Waits for a commit status to succeed and also returns the JSON of the commit status.'
+author: 'Muhammad Faizan'
+branding:
+  icon: 'git-commit'
+  color: 'blue'
+inputs:
+  context:
+    description: 'The context field of the commit status.'
+    required: true
+  commit_ref:
+    description: 'The commit reference (i.e. SHA).'
+    required: true
+  timeout:
+    description: 'Timeout (in milliseconds) for waiting for commit status to succeed.'
+    required: false
+    default: 180000
+  check_interval:
+    description: 'Time (in milliseconds) to wait before checking the commit status again.'
+    required: false
+    default: 60000
+outputs:
+  state:
+    description: 'The state of the commit status.'
+    value: ${{ steps.run-action.outputs.state }}
+  json:
+    description: 'The stringified JSON of the commit status.'
+    value: ${{ steps.run-action.outputs.json }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Pass Inputs as ENVs
+      run: |
+        echo "ACTION_PATH=${{ github.action_path }}" >> $GITHUB_ENV
+        echo "CONTEXT=${{ inputs.context }}" >> $GITHUB_ENV
+        echo "COMMIT_REF=${{ inputs.commit_ref }}" >> $GITHUB_ENV
+        echo "TIMEOUT=${{ inputs.timeout }}" >> $GITHUB_ENV
+        echo "CHECK_INTERVAL=${{ inputs.check_interval }}" >> $GITHUB_ENV
+      shell: bash
+    - name: Install Dependencies
+      run: pip install -r ${ACTION_PATH}/requirements.txt
+      shell: bash
+    - name: Run action
+      id: run-action
+      run: python ${ACTION_PATH}/src/main.py
+      shell: bash
