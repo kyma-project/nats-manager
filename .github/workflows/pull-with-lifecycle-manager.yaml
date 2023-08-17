@@ -101,9 +101,9 @@ jobs:
 
       - name: Install k3d CLI
         env:
-          K3D_VERSION: v1.26.5
+          K3D_VERSION: "v1.26.5"
         run: |
-          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG="${K3D_VERSION}" bash
 
       - name: Install Kyma CLI & setup k3d cluster using kyma CLI
         run: |
