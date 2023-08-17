@@ -104,6 +104,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resources=services,verbs=list;watch
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch
 //+kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=list;delete;watch
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 //+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
 //+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
 
