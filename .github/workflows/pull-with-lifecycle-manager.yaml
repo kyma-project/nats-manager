@@ -99,11 +99,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install k3d CLI
+      - name: Install k3d tools
         env:
-          K3D_VERSION: "v1.26.5"
+          K3D_VERSION: "v5.5.2"
         run: |
-          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.5.2 bash
+          make -C hack/ci/ install-k3d-tools
 
       - name: Install Kyma CLI & setup k3d cluster using kyma CLI
         run: |
