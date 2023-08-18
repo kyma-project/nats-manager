@@ -659,6 +659,17 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	}, BigTimeOut, SmallPollingInterval)
 }
 
+func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
+	eventList := corev1.EventList{}
+	return g.Eventually(func() corev1.EventList {
+		err := env.k8sClient.List(env.Context, &eventList, client.InNamespace(nats.Namespace))
+		if err != nil {
+			return corev1.EventList{}
+		}
+		return eventList
+	}, BigTimeOut, SmallPollingInterval)
+}
+
 func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.Environment, *rest.Config, error) {
 	// Reference: https://book.kubebuilder.io/reference/envtest.html
 	useExistingCluster := useExistingCluster
