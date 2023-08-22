@@ -25,6 +25,7 @@ func Test_handleNATSState(t *testing.T) {
 		givenNATS             *natsv1alpha1.NATS
 		wantState             string
 		wantConditions        []metav1.Condition
+		wantK8sEvents         []string
 	}{
 		{
 			name:                  "should set correct status when StatefulSet is not ready",
@@ -50,6 +51,9 @@ func Test_handleNATSState(t *testing.T) {
 					Message:            "",
 				},
 			},
+			wantK8sEvents: []string{
+				"Normal Deploying NATS is being deployed, waiting for StatefulSet to get ready.",
+			},
 		},
 		{
 			name:                  "should set correct status when StatefulSet is ready",
@@ -74,6 +78,9 @@ func Test_handleNATSState(t *testing.T) {
 					Reason:             string(natsv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
 				},
+			},
+			wantK8sEvents: []string{
+				"Normal Deployed StatefulSet is ready and NATS is deployed.",
 			},
 		},
 	}
@@ -106,6 +113,11 @@ func Test_handleNATSState(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, tc.wantState, gotNATS.Status.State)
 			require.True(t, natsv1alpha1.ConditionsEquals(tc.wantConditions, gotNATS.Status.Conditions))
+
+			// check k8s events
+			gotEvents := testEnv.GetK8sEvents()
+			require.Equal(t, gotEvents, tc.wantK8sEvents)
+
 			// mocked methods should have being called.
 			testEnv.natsManager.AssertExpectations(t)
 		})
@@ -124,6 +136,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 		wantFinalizerCheckOnly          bool
 		wantState                       string
 		wantConditions                  []metav1.Condition
+		wantK8sEvents                   []string
 		wantDestinationRuleWatchStarted bool
 	}{
 		{
@@ -135,6 +148,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 			),
 			wantState:              natsv1alpha1.StateProcessing,
 			wantFinalizerCheckOnly: true,
+			wantK8sEvents:          []string{"Normal Processing NATS resources are being initialized."},
 		},
 		{
 			name:                  "should set correct status when deployment fails",
@@ -162,6 +176,10 @@ func Test_handleNATSReconcile(t *testing.T) {
 					Message:            "deploy error",
 				},
 			},
+			wantK8sEvents: []string{
+				"Normal Processing NATS resources are being initialized.",
+				"Warning FailedProcessing Error while NATS resources were deployed: deploy error",
+			},
 		},
 		{
 			name:                  "should set correct status when deployment is successful",
@@ -188,6 +206,10 @@ func Test_handleNATSReconcile(t *testing.T) {
 					Reason:             string(natsv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
 				},
+			},
+			wantK8sEvents: []string{
+				"Normal Processing NATS resources are being initialized.",
+				"Normal Deployed StatefulSet is ready and NATS is deployed.",
 			},
 		},
 		{
@@ -217,6 +239,10 @@ func Test_handleNATSReconcile(t *testing.T) {
 				},
 			},
 			wantDestinationRuleWatchStarted: true,
+			wantK8sEvents: []string{
+				"Normal Processing NATS resources are being initialized.",
+				"Normal Deployed StatefulSet is ready and NATS is deployed.",
+			},
 		},
 	}
 
@@ -282,6 +308,11 @@ func Test_handleNATSReconcile(t *testing.T) {
 			gotNATS, err := testEnv.GetNATS(tc.givenNATS.Name, tc.givenNATS.Namespace)
 			require.NoError(t, err)
 			require.Equal(t, tc.wantState, gotNATS.Status.State)
+
+			// check k8s events
+			gotEvents := testEnv.GetK8sEvents()
+			require.Equal(t, gotEvents, tc.wantK8sEvents)
+
 			if tc.wantFinalizerCheckOnly {
 				require.True(t, reconciler.containsFinalizer(&gotNATS))
 				return

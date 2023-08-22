@@ -11,28 +11,20 @@ type reason string
 
 const (
 	// TODO: check all the descriptions
-	// ReasonAvailable is used when an object is available.
-	ReasonAvailable reason = "Available"
-	// ReasonStatefulSet is used when ????.
-	ReasonStatefulSet reason = "StatefulSet"
-	// ReasonDeleted is used when an object is deleted? marked for deletion?
-	ReasonDeleted reason = "Deleted"
+	// ReasonDeleting is used when an object is being deleted.
+	ReasonDeleting reason = "Deleting"
 	// ReasonProcessing is used when an object is being processed.
 	ReasonProcessing reason = "Processing"
 	// ReasonDeploying is used when an object is in the process of being deployed.
 	ReasonDeploying reason = "Deploying"
 	// ReasonDeployed is used when an object is successfully deployed.
 	ReasonDeployed reason = "Deployed"
-	// ReasonFailedProcessing is used when an object failed being processed ???
+	// ReasonFailedProcessing is used when a processing step of an object fails.
 	ReasonFailedProcessing reason = "FailedProcessing"
-	// ReasonForbidden is used when ????
+	// ReasonForbidden is used when a forbidden action is performed on an object.
 	ReasonForbidden reason = "Forbidden"
-	// ReasonStatefulSetPending is used when ?????
-	ReasonStatefulSetPending reason = "Pending"
-	// ReasonFailedToSyncResources is used when syncing an objects resources failed.
+	// ReasonFailedToSyncResources is used when syncing objects resources fail.
 	ReasonFailedToSyncResources reason = "FailedToSyncResources"
-	// ReasonInvalidManifests is used when an objects manifest is invalid.
-	ReasonInvalidManifests reason = "InvalidManifests"
 	// ReasonDeletionError is used when an object could not be deleted due to an error.
 	ReasonDeletionError reason = "DeletionError"
 )

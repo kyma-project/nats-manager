@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	corev1 "k8s.io/api/core/v1"
+
 	ctrlmocks "github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -47,9 +49,11 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	newScheme := runtime.NewScheme()
 	err = natsv1alpha1.AddToScheme(newScheme)
 	require.NoError(t, err)
+	err = corev1.AddToScheme(newScheme)
+	require.NoError(t, err)
 	fakeClientBuilder := fake.NewClientBuilder().WithScheme(newScheme)
 	fakeClient := fakeClientBuilder.WithObjects(objs...).WithStatusSubresource(objs...).Build()
-	recorder := &record.FakeRecorder{}
+	recorder := record.NewFakeRecorder(3)
 
 	// setup custom mocks
 	chartRenderer := new(chartmocks.Renderer)
@@ -93,4 +97,14 @@ func (testEnv *MockedUnitTestEnvironment) GetNATS(name, namespace string) (natsv
 		Namespace: namespace,
 	}, &nats)
 	return nats, err
+}
+
+func (testEnv *MockedUnitTestEnvironment) GetK8sEvents() []string {
+	eventList := make([]string, 0)
+	i := len(testEnv.Recorder.Events)
+	for j := 0; j < i; j++ {
+		event := <-testEnv.Recorder.Events
+		eventList = append(eventList, event)
+	}
+	return eventList
 }

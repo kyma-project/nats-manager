@@ -37,6 +37,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		wantCondition          *metav1.Condition
 		wantNATSStatusState    string
 		wantFinalizerExists    bool
+		wantK8sEvents          []string
 		wantResult             ctrl.Result
 	}{
 		{
@@ -44,6 +45,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			givenWithNATSCreated:   false,
 			natsCrWithoutFinalizer: true,
 			wantNATSStatusState:    natsv1alpha1.StateReady,
+			wantK8sEvents:          []string{},
 			wantResult:             ctrl.Result{},
 		},
 		{
@@ -56,6 +58,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				return natsClient
 			},
 			wantNATSStatusState: natsv1alpha1.StateDeleting,
+			wantK8sEvents:       []string{"Normal Deleting Deleting the NATS cluster."},
 			wantResult:          ctrl.Result{},
 		},
 		{
@@ -69,7 +72,8 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient.On("Close").Return()
 				return natsClient
 			},
-			wantResult: ctrl.Result{},
+			wantK8sEvents: []string{"Normal Deleting Deleting the NATS cluster."},
+			wantResult:    ctrl.Result{},
 		},
 		{
 			name:                 "should add deleted condition with error when stream exists",
@@ -89,7 +93,11 @@ func Test_handleNATSDeletion(t *testing.T) {
 				return natsClient
 			},
 			wantFinalizerExists: true,
-			wantResult:          ctrl.Result{Requeue: true},
+			wantK8sEvents: []string{
+				"Normal Deleting Deleting the NATS cluster.",
+				"Warning DeletionError Cannot delete NATS cluster as stream exists",
+			},
+			wantResult: ctrl.Result{Requeue: true},
 		},
 		{
 			name:                 "should delete resources if stream does not exist",
@@ -102,7 +110,10 @@ func Test_handleNATSDeletion(t *testing.T) {
 				return natsClient
 			},
 			wantNATSStatusState: natsv1alpha1.StateDeleting,
-			wantResult:          ctrl.Result{},
+			wantK8sEvents: []string{
+				"Normal Deleting Deleting the NATS cluster.",
+			},
+			wantResult: ctrl.Result{},
 		},
 	}
 
@@ -179,6 +190,10 @@ func Test_handleNATSDeletion(t *testing.T) {
 				require.NotNil(t, gotCondition)
 				require.True(t, natsv1alpha1.ConditionEquals(*gotCondition, *tc.wantCondition))
 			}
+
+			// check k8s events
+			gotEvents := testEnv.GetK8sEvents()
+			require.Equal(t, gotEvents, tc.wantK8sEvents)
 
 			require.Equal(t, tc.wantFinalizerExists, controllerutil.ContainsFinalizer(nats, NATSFinalizerName))
 		})

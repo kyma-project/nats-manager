@@ -30,6 +30,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 
 	r.logger.Info("Deleting the NATS")
 	nats.Status.SetStateDeleting()
+	events.Normal(r.recorder, nats, events.ReasonDeleting, "Deleting the NATS cluster.")
 
 	// create a new NATS client instance
 	if err := r.createAndConnectNatsClient(nats); err != nil {
