@@ -21,7 +21,7 @@ Further information about integration tests can be found in the [Kubebuilder boo
    make test
    ```
 
-If changes to the source code were made, or this is your first time to execute the test,
+If changes to the source code were made, or this is your first time to execute the tests,
 the following command ensures that all necessary tooling is executed before running the unit and integration tests.
 
    ```sh
