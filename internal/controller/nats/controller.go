@@ -162,7 +162,7 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 		"is allowed to be created in a Kyma cluster.", r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
 	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, errorMessage)
-	events.Warn(r.recorder, nats, events.ReasonForbidden, errorMessage)
+	events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonForbidden, errorMessage)
 
 	return false, r.syncNATSStatus(ctx, nats, log)
 }
