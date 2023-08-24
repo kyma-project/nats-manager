@@ -218,7 +218,7 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 				}
 				require.True(t, natsv1alpha1.ConditionsEquals(wantConditions, gotNATS.Status.Conditions))
 
-				wantEvent := []string{
+				wantK8sEvent := []string{
 					fmt.Sprintf("Warning Forbidden Only a single NATS CR with name: %s and namespace: %s "+
 						"is allowed to be created in a Kyma cluster.", givenAllowedNATS.Name,
 						givenAllowedNATS.Namespace),
@@ -226,7 +226,7 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 
 				// check k8s events
 				gotEvents := testEnv.GetK8sEvents()
-				require.Equal(t, gotEvents, wantEvent)
+				require.Equal(t, wantK8sEvent, gotEvents)
 			}
 		})
 	}

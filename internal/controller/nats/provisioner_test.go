@@ -116,7 +116,7 @@ func Test_handleNATSState(t *testing.T) {
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()
-			require.Equal(t, gotEvents, tc.wantK8sEvents)
+			require.Equal(t, tc.wantK8sEvents, gotEvents)
 
 			// mocked methods should have being called.
 			testEnv.natsManager.AssertExpectations(t)
@@ -311,7 +311,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()
-			require.Equal(t, gotEvents, tc.wantK8sEvents)
+			require.Equal(t, tc.wantK8sEvents, gotEvents)
 
 			if tc.wantFinalizerCheckOnly {
 				require.True(t, reconciler.containsFinalizer(&gotNATS))

@@ -193,7 +193,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()
-			require.Equal(t, gotEvents, tc.wantK8sEvents)
+			require.Equal(t, tc.wantK8sEvents, gotEvents)
 
 			require.Equal(t, tc.wantFinalizerExists, controllerutil.ContainsFinalizer(nats, NATSFinalizerName))
 		})
