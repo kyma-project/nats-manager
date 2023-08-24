@@ -4,11 +4,11 @@ This document provides an overview of the testing activities used in this projec
 
 ## Testing Levels
 
-| Test suite | Testing level | Purpose                                                                                                                                                                                    |
-|------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Unit       | Unit          | This test suite tests the units in isolation. It assesses the implementation correctness of the units business logic.                                                                      |
+| Test suite | Testing level | Purpose                                                                                                                                                                                       |
+|------------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Unit       | Unit          | This test suite tests the units in isolation. It assesses the implementation correctness of the unit's business logic.                                                                         |
 | Env-tests  | Integration   | This test suite tests the behaviour of the NATS Manager in integration with a Kubernetes API server replaced with a test double. It assesses the integration correctness of the NATS Manager. |
-| E2E        | Acceptance    | This test suite tests the usability scenarios of the NATS Manager in a cluster. It assesses the functional correctness of the NATS Manager.                                                |
+| E2E        | Acceptance    | This test suite tests the usability scenarios of the NATS Manager in a cluster. It assesses the functional correctness of the NATS Manager.                                                   |
 
 > **NOTE:** The validation and defaulting rules are tested within the integration tests.
 
@@ -18,7 +18,13 @@ To run the unit and integration tests, the following command needs to be execute
 Further information about integration tests can be found in the [Kubebuilder book](https://book.kubebuilder.io/reference/envtest.html).
 
    ```sh
-   make test-only
+   make test
+   ```
+
+If changes to the source code were made, or if this is your first time to execute the tests, the following command ensures that all necessary tooling is executed before running the unit and integration tests:
+
+   ```sh
+   make generate-and-test
    ```
 
 ### E2E tests

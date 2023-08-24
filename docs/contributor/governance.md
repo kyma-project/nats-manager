@@ -30,14 +30,14 @@ The quality of this project is ensured by source code linting using [golangci-li
 To fix common lint issues, run the following command:
 
    ```sh
-   make imports-local
-   make fmt-local
+   make imports
+   make fmt
    ```
 
 To run thorough lint checking, execute the following command:
 
    ```sh
-   make lint-thoroughly
+   make lint
    ```
 
 If necessary, lint warnings can be ignored. However, if this is desired you must provide a a comment explaining the reason. Use the following format:
