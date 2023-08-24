@@ -55,3 +55,7 @@ create-k3d: ## Create k3d with kyma CRDs.
 .PHONY: verify-kyma
 verify-kyma: ## Wait for Kyma CR to be in Ready state.
 	../verify_kyma_status.sh
+
+.PHONY: install-k3d-tools
+install-k3d-tools: ## Create k3d with kyma CRDs.
+	curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=${K3D_VERSION} bash

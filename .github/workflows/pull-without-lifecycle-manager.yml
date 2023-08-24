@@ -1,8 +1,10 @@
-name: e2e
+name: pull-without-lifecycle-manager
 
 env:
   DOCKER_IMAGE: europe-docker.pkg.dev/kyma-project/dev/nats-manager:PR-${{ github.event.number }}
   E2E_LOG_LEVEL: debug
+  KYMA_STABILITY: "unstable"
+  KYMA: "./hack/kyma"
 
 on:
   pull_request:
@@ -22,18 +24,23 @@ jobs:
           check-latest: true
           cache-dependency-path: './go.sum'
 
-      - name: Setup a k3d cluster
-        uses: nolar/setup-k3d-k3s@v1
-        with:
-          # This is the Kubernetes version used by k3d. See https://kubernetes.io/releases/
-          version: v1.26.5
+      - name: Install k3d tools
+        run: |
+          make -C hack/ci/ install-k3d-tools
+
+      - name: Install Kyma CLI & setup k3d cluster using kyma CLI
+        run: |
+          make kyma
+          make -C hack/ci/ create-k3d
+          kubectl version
+          kubectl cluster-info
 
       - name: Install the NATS CRD on the cluster
         run: |
           make install IMG=$DOCKER_IMAGE
 
       - name: Wait for the 'pull-nats-manager-build' job to succeed
-        uses: mfaizanse/wait-for-git-commit-status-action@v1.0.6
+        uses: kyma-project/wait-for-commit-status-action@2b3ffe09af8b6f40e1213d5fb7f91a7bd41ffb20
         with:
           context: "pull-nats-manager-build"
           commit_ref: "${{ github.event.pull_request.head.sha }}" # Note: 'github.event.pull_request.head.sha' is not same as 'github.sha' on pull requests.
