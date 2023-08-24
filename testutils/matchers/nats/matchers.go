@@ -164,7 +164,7 @@ func HaveDeployingEvent() gomegatypes.GomegaMatcher {
 func HaveProcessingEvent() gomegatypes.GomegaMatcher {
 	return HaveEvent(corev1.Event{
 		Reason:  string(v1alpha1.ConditionReasonProcessing),
-		Message: "NATS resources are being initialized.",
+		Message: "Initializing NATS resource.",
 		Type:    corev1.EventTypeNormal,
 	})
 }

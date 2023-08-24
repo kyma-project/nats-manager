@@ -661,12 +661,13 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 
 func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
 	eventList := corev1.EventList{}
-	return g.Eventually(func() corev1.EventList {
+	return g.Eventually(func() (corev1.EventList, error) {
 		err := env.k8sClient.List(env.Context, &eventList, client.InNamespace(nats.Namespace))
 		if err != nil {
-			return corev1.EventList{}
+			log.Printf("fetch kubernetes events in ns:%s failed: %v", nats.Namespace, err)
+			return corev1.EventList{}, err
 		}
-		return eventList
+		return eventList, err
 	}, BigTimeOut, SmallPollingInterval)
 }
 

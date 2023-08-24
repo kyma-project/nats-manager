@@ -148,7 +148,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 			),
 			wantState:              natsv1alpha1.StateProcessing,
 			wantFinalizerCheckOnly: true,
-			wantK8sEvents:          []string{"Normal Processing NATS resources are being initialized."},
+			wantK8sEvents:          []string{"Normal Processing Initializing NATS resource."},
 		},
 		{
 			name:                  "should set correct status when deployment fails",
@@ -177,7 +177,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 				},
 			},
 			wantK8sEvents: []string{
-				"Normal Processing NATS resources are being initialized.",
+				"Normal Processing Initializing NATS resource.",
 				"Warning FailedProcessing Error while NATS resources were deployed: deploy error",
 			},
 		},
@@ -208,7 +208,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 				},
 			},
 			wantK8sEvents: []string{
-				"Normal Processing NATS resources are being initialized.",
+				"Normal Processing Initializing NATS resource.",
 				"Normal Deployed StatefulSet is ready and NATS is deployed.",
 			},
 		},
@@ -240,7 +240,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 			},
 			wantDestinationRuleWatchStarted: true,
 			wantK8sEvents: []string{
-				"Normal Processing NATS resources are being initialized.",
+				"Normal Processing Initializing NATS resource.",
 				"Normal Deployed StatefulSet is ready and NATS is deployed.",
 			},
 		},

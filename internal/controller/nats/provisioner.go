@@ -21,7 +21,7 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 
 	// set status to processing
 	nats.Status.Initialize()
-	events.Normal(r.recorder, nats, events.ReasonProcessing, "NATS resources are being initialized.")
+	events.Normal(r.recorder, nats, events.ReasonProcessing, "Initializing NATS resource.")
 
 	// make sure the finalizer exists.
 	if !r.containsFinalizer(nats) {
@@ -86,8 +86,6 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NAT
 		r.logger.Info("Reconciliation successful: waiting for STS to get ready...")
 		return ctrl.Result{RequeueAfter: RequeueTimeForStatusCheck * time.Second}, r.syncNATSStatus(ctx, nats, log)
 	}
-
-	// @TODO: emit events for any change in conditions
 
 	r.logger.Info("Reconciliation successful")
 	return ctrl.Result{}, r.syncNATSStatus(ctx, nats, log)
