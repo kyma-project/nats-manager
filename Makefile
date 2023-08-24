@@ -191,7 +191,7 @@ module-build: kyma kustomize ## Build the Module and push it to a registry defin
 	# - name: kyma-project.io/module/$(MODULE_NAME)
 	# - version: $(MODULE_VERSION)
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	@$(KYMA) --ci alpha create module --channel=${MODULE_CHANNEL} --name kyma-project.io/module/$(MODULE_NAME) --version $(MODULE_VERSION) --path . $(MODULE_CREATION_FLAGS) --output=template.yaml --default-cr=$(DEFAULT_CR)
+	@$(KYMA) alpha create module --kubebuilder-project --channel=${MODULE_CHANNEL} --name kyma-project.io/module/$(MODULE_NAME) --version $(MODULE_VERSION) --path . $(MODULE_CREATION_FLAGS) --output=template.yaml --default-cr=$(DEFAULT_CR)
 
 
 ## Tool Binaries
