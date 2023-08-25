@@ -100,10 +100,10 @@ func (testEnv *MockedUnitTestEnvironment) GetNATS(name, namespace string) (natsv
 }
 
 func (testEnv *MockedUnitTestEnvironment) GetK8sEvents() []string {
-	eventList := make([]string, 0)
-	i := len(testEnv.Recorder.Events)
-	for j := 0; j < i; j++ {
-		event := <-testEnv.Recorder.Events
+	eventList := make([]string, 0, cap(testEnv.Recorder.Events))
+	close(testEnv.Recorder.Events)
+
+	for event := range testEnv.Recorder.Events {
 		eventList = append(eventList, event)
 	}
 	return eventList
