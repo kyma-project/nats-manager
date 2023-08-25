@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/kyma-project/nats-manager/pkg/events"
+
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natspkg "github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
@@ -28,6 +30,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 
 	r.logger.Info("Deleting the NATS")
 	nats.Status.SetStateDeleting()
+	events.Normal(r.recorder, nats, natsv1alpha1.ConditionReasonDeleting, "Deleting the NATS cluster.")
 
 	// create a new NATS client instance
 	if err := r.createAndConnectNatsClient(nats); err != nil {
@@ -44,6 +47,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 		// if a stream exists, do not delete the NATS cluster
 		nats.Status.UpdateConditionDeletion(metav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
+		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
 		return ctrl.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
 	}
 

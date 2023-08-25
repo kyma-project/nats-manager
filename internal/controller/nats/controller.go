@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/kyma-project/nats-manager/pkg/events"
 	"github.com/kyma-project/nats-manager/pkg/nats"
 
 	"go.uber.org/zap"
@@ -105,6 +106,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resources=services,verbs=list;watch
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch
 //+kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=list;delete;watch
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
 //+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
 //+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
 //+kubebuilder:rbac:groups="policy",resources=poddisruptionbudgets,verbs=list;watch
@@ -163,6 +165,7 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 		"is allowed to be created in a Kyma cluster.", r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
 	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, errorMessage)
+	events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonForbidden, errorMessage)
 
 	return false, r.syncNATSStatus(ctx, nats, log)
 }

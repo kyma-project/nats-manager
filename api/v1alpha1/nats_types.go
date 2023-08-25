@@ -42,6 +42,7 @@ const (
 	ConditionReasonProcessing           ConditionReason = "Processing"
 	ConditionReasonDeploying            ConditionReason = "Deploying"
 	ConditionReasonDeployed             ConditionReason = "Deployed"
+	ConditionReasonDeleting             ConditionReason = "Deleting"
 	ConditionReasonProcessingError      ConditionReason = "FailedProcessing"
 	ConditionReasonForbidden            ConditionReason = "Forbidden"
 	ConditionReasonStatefulSetAvailable ConditionReason = "Available"

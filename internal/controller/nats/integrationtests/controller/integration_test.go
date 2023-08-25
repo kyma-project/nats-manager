@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	v1 "k8s.io/api/events/v1"
+
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
@@ -52,8 +54,10 @@ func Test_CreateNATSCR(t *testing.T) {
 	testCases := []struct {
 		name                  string
 		givenNATS             *v1alpha1.NATS
+		givenK8sEvents        v1.EventList
 		givenStatefulSetReady bool
 		wantMatches           gomegatypes.GomegaMatcher
+		wantEventMatches      gomegatypes.GomegaMatcher
 		wantEnsureK8sObjects  bool
 	}{
 		{
@@ -67,6 +71,9 @@ func Test_CreateNATSCR(t *testing.T) {
 				natsmatchers.HavePendingConditionStatefulSet(),
 				natsmatchers.HaveDeployingConditionAvailable(),
 			),
+			wantEventMatches: gomega.And(
+				natsmatchers.HaveProcessingEvent(),
+			),
 		},
 		{
 			name: "NATS CR should have ready status when StatefulSet is ready",
@@ -78,6 +85,10 @@ func Test_CreateNATSCR(t *testing.T) {
 				natsmatchers.HaveStatusReady(),
 				natsmatchers.HaveReadyConditionStatefulSet(),
 				natsmatchers.HaveReadyConditionAvailable(),
+			),
+			wantEventMatches: gomega.And(
+				natsmatchers.HaveProcessingEvent(),
+				natsmatchers.HaveDeployingEvent(),
 			),
 		},
 		{
@@ -117,6 +128,10 @@ func Test_CreateNATSCR(t *testing.T) {
 				natsmatchers.HaveReadyConditionAvailable(),
 			),
 			wantEnsureK8sObjects: true,
+			wantEventMatches: gomega.And(
+				natsmatchers.HaveProcessingEvent(),
+				natsmatchers.HaveDeployingEvent(),
+			),
 		},
 	}
 
@@ -151,6 +166,9 @@ func Test_CreateNATSCR(t *testing.T) {
 
 			// check NATS CR status.
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
+
+			// check kubernetes events.
+			testEnvironment.GetK8sEventsAssert(g, tc.givenNATS).Should(tc.wantEventMatches)
 
 			if tc.wantEnsureK8sObjects {
 				testEnvironment.EnsureNATSSpecClusterSizeReflected(t, *tc.givenNATS)

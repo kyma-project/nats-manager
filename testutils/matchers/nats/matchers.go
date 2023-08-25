@@ -134,6 +134,41 @@ func HaveCondition(condition metav1.Condition) gomegatypes.GomegaMatcher {
 		})))
 }
 
+func HaveEvent(event corev1.Event) gomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(l corev1.EventList) []corev1.Event {
+			return l.Items
+		}, gomega.ContainElement(gstruct.MatchFields(gstruct.IgnoreExtras|gstruct.IgnoreMissing, gstruct.Fields{
+			"Reason":  gomega.Equal(event.Reason),
+			"Message": gomega.Equal(event.Message),
+			"Type":    gomega.Equal(event.Type),
+		})))
+}
+
+func HaveDeployedEvent() gomegatypes.GomegaMatcher {
+	return HaveEvent(corev1.Event{
+		Reason:  string(v1alpha1.ConditionReasonDeployed),
+		Message: "StatefulSet is ready and NATS is deployed.",
+		Type:    corev1.EventTypeNormal,
+	})
+}
+
+func HaveDeployingEvent() gomegatypes.GomegaMatcher {
+	return HaveEvent(corev1.Event{
+		Reason:  string(v1alpha1.ConditionReasonDeploying),
+		Message: "NATS is being deployed, waiting for StatefulSet to get ready.",
+		Type:    corev1.EventTypeNormal,
+	})
+}
+
+func HaveProcessingEvent() gomegatypes.GomegaMatcher {
+	return HaveEvent(corev1.Event{
+		Reason:  string(v1alpha1.ConditionReasonProcessing),
+		Message: "Initializing NATS resource.",
+		Type:    corev1.EventTypeNormal,
+	})
+}
+
 func HaveReadyConditionStatefulSet() gomegatypes.GomegaMatcher {
 	return HaveCondition(metav1.Condition{
 		Type:    string(v1alpha1.ConditionStatefulSet),
