@@ -171,16 +171,10 @@ make uninstall
 3. Enable the NATS module:
 
    ```sh
-   kyma alpha enable module nats -c fast -n kyma-system -p Ignore
+   kyma alpha enable module nats -c fast -n kyma-system
    ```
-
-4. Optionally, install NATS Custom Resource:
-
-    ```sh
-    kubectl apply -f config/samples/eventing-nats-eval.yaml
-    ```
-
-5. If you want to verify whether your NATS module is deployed properly, perform the following checks:
+   
+4. If you want to verify whether your NATS module is deployed properly, perform the following checks:
 
    - Check if the NATS resource has the ready state:
   
