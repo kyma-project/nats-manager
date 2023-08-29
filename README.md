@@ -152,77 +152,35 @@ To delete the CRDs from the cluster:
 make uninstall
 ```
 
-### Deploy NATS Manager with [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
+### Deploy NATS Manager module with [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
 
-1. Deploy the Lifecycle Manager and Module Manager to the Control Plane cluster:
+1. Deploy the Lifecycle Manager to the Kubernetes cluster:
 
    ```shell
    kyma alpha deploy
    ```
 
-2. For single-cluster mode:
-   1. Edit the Lifecycle Manager role to give access to all resources: `kubectl edit clusterrole lifecycle-manager-manager-role`
-   2. Put the following sequence under `rules`:
+2. Apply the NATS module template to the Kubernetes cluster:
 
-      ```shell
-      - apiGroups:                                                                                                                                                  
-        - "*"                                                                                                                                                       
-        resources:                                                                                                                                                  
-        - "*"                                                                                                                                                       
-        verbs:                                                                                                                                                      
-        - "*"
-      ```
-
-3. Prepare the OCI container registry.
-
-   It can be GitHub, DockerHub, GCP or a local registry.
-   If you haven't set up a container registry yet, refer to the following documentation:
-
-   - Lifecycle Manager: [Provision a cluster and OCI registry](https://github.com/kyma-project/lifecycle-manager/blob/main/docs/developer-tutorials/provision-cluster-and-registry.md)
-  
-   - GitHub: [Working with the Container registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry). If you don't provide a registry Secret, change the visibility of a GitHub package to `public`.
-
-4. Generate the module template and push the container image. In the project root directory, run:
+   > **NOTE:** You can get the latest released module template from [here](https://github.com/kyma-project/nats-manager/releases/latest/download/module-template.yaml), or you can use module template from the artifacts of `nats-module-build` job from `main` branch or from your pull request.
 
    ```sh
-   kyma alpha create module -n kyma-project.io/module/nats --version 0.0.1 --registry ghcr.io/{GH_USERNAME}/nats-manager -c {REGISTRY_USER_NAME}:{REGISTRY_AUTH_TOKEN} -w
+   kubectl apply -f module-template.yaml
    ```
 
-   Replace the placeholders GH_USERNAME=REGISTRY_USER_NAME and REGISTRY_AUTH_TOKEN with the GitHub username and token/password respectively.
-
-   In the project directory, now there is a ModuleTemplate `template.yaml` file.
-
-5. For single-cluster mode, change the `template.yaml` content with `spec.target=remote` to `spec.target=control-plane` as follows:
-
-   ```yaml
-   spec:
-     target: control-plane
-     channel: regular
-   ```
-
-6. Apply the module template to the Kubernetes cluster:
+3. Enable the NATS module:
 
    ```sh
-   kubectl apply -f template.yaml
+   kyma alpha enable module nats -c fast -n kyma-system -p Ignore
    ```
 
-7. Deploy the `nats` module by adding it to `kyma` custom resource `spec.modules`:
+4. [Optional] Install NATS Custom Resource:
 
-   ```sh
-   kubectl edit -n kyma-system kyma default-kyma
-   ```
+    ```sh
+    kubectl apply -f config/samples/eventing-nats-eval.yaml
+    ```
 
-   Now, the **spec** section should show the following:
-
-   ```yaml
-   ...
-   spec:
-     modules:
-     - name: nats
-   ...
-   ```
-
-8. Check whether your NATS module is deployed properly:
+5. [Optional] Check whether your NATS module is deployed properly:
 
    - Check if the NATS resource has the ready state:
   
@@ -236,21 +194,40 @@ make uninstall
      kubectl get -n kyma-system kyma
      ```
 
-   > **TIP:** If they don't have ready state, check the Pods under `nats-manager-system` Namespace where the module is installed:
-   >
-   > ```shell
-   > kubectl get pods -n nats-manager-system
-   > ```
+### Uninstall NATS Manager module with [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
 
-### Uninstall the controller with [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
+1. Delete NATS Custom Resource (CR) from the Kubernetes cluster (if exists):
 
-1. Delete NATS from `kyma` resource `spec.modules` `kubectl edit -n kyma-system kyma default-kyma`:
+    ```sh
+    kubectl delete -n kyma-system nats eventing-nats
+    ```
 
-2. Chec whether the `nats` resource and module Namespace are deleted:
+2. Disable the NATS module:
 
-   ```shell
-   kubectl get -n kyma-system nats
+   ```sh
+   kyma alpha disable module nats
    ```
+
+3. Delete the NATS module template:
+
+   ```sh
+   kubectl get moduletemplates -A
+   kubectl delete moduletemplate -n <NAMESPACE> <NAME>
+   ```
+
+4. Check whether your NATS module is uninstalled properly:
+
+   - Make sure that the NATS Custom Resource (CR) does not exist. If it exists, then check the status of NATS CR:
+
+     ```shell
+     kubectl get -n kyma-system nats eventing-nats -o yaml
+     ```
+
+   - Check if the Kyma resource has the ready state:
+
+     ```shell
+     kubectl get -n kyma-system kyma
+     ```
 
 ## E2E tests
 
