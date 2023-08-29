@@ -162,7 +162,7 @@ make uninstall
 
 2. Apply the NATS module template to the Kubernetes cluster:
 
-   > **NOTE:** You can get the latest released module template from [here](https://github.com/kyma-project/nats-manager/releases/latest/download/module-template.yaml), or you can use module template from the artifacts of `nats-module-build` job from `main` branch or from your pull request.
+   > **NOTE:** You can get the latest released [module template](https://github.com/kyma-project/nats-manager/releases/latest/download/module-template.yaml), or you can use the module template from the artifacts of `nats-module-build` job either from the `main` branch or from your pull request.
 
    ```sh
    kubectl apply -f module-template.yaml
@@ -174,13 +174,13 @@ make uninstall
    kyma alpha enable module nats -c fast -n kyma-system -p Ignore
    ```
 
-4. [Optional] Install NATS Custom Resource:
+4. Optionally, install NATS Custom Resource:
 
     ```sh
     kubectl apply -f config/samples/eventing-nats-eval.yaml
     ```
 
-5. [Optional] Check whether your NATS module is deployed properly:
+5. If you want to verify whether your NATS module is deployed properly, perform the following checks:
 
    - Check if the NATS resource has the ready state:
   
