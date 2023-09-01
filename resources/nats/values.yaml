@@ -14,7 +14,7 @@ global:
       directory: prod/external
     nats_config_reloader:
       name: natsio/nats-server-config-reloader
-      version: 0.10.1
+      version: 0.12.0
       directory: prod/external
     prometheus_nats_exporter:
       name: natsio/prometheus-nats-exporter
