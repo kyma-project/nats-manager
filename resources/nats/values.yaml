@@ -303,7 +303,7 @@ serviceAnnotations:
 cluster:
   enabled: false
   name: eventing-nats
-  replicas: 1
+  replicas: 3
   noAdvertise: false
 
 appProtocol:
@@ -324,3 +324,11 @@ exporter:
   enabled: true
   pullPolicy: IfNotPresent
   resources: {}
+  # Prometheus operator ServiceMonitor support. Exporter has to be enabled
+  serviceMonitor:
+    enabled: true
+    labels: {}
+    annotations: {}
+    path: /metrics
+    # interval:
+    # scrapeTimeout:
