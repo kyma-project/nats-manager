@@ -166,7 +166,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		mgrCtx, cancelCtx = context.WithCancel(ctrl.SetupSignalHandler())
 		err = ctrlMgr.Start(mgrCtx)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}()
 
@@ -235,12 +235,12 @@ func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Obj
 func (env TestEnvironment) UpdatedNATSInK8s(nats *natsv1alpha1.NATS, options ...testutils.NATSOption) error {
 	natsOnK8s, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	for _, o := range options {
 		if er := o(&natsOnK8s); er != nil {
-			panic(er)
+			log.Fatal(err)
 		}
 	}
 

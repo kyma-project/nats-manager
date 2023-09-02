@@ -2,6 +2,7 @@ package testutils
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -95,7 +96,7 @@ func NewNATSStatefulSetUnStruct(opts ...Option) *unstructured.Unstructured {
 
 	for _, opt := range opts {
 		if err := opt(obj); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 	return obj
@@ -115,7 +116,7 @@ func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 
 	for _, opt := range opts {
 		if err := opt(obj); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 	return obj
@@ -126,7 +127,7 @@ func NewSecret(opts ...Option) *apiv1.Secret {
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(
 		NewSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return &sampleSecret
 }
@@ -150,7 +151,7 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 
 	for _, opt := range opts {
 		if err := opt(nats); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 

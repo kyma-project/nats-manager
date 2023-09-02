@@ -40,8 +40,7 @@ func TestMain(m *testing.M) {
 	var err error
 	logger, err = SetupLogger()
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	// Run the tests and exit.

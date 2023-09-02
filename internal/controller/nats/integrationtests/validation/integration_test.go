@@ -1,6 +1,7 @@
 package validation_test
 
 import (
+	"log"
 	"os"
 	"testing"
 
@@ -52,7 +53,7 @@ func TestMain(m *testing.M) {
 	var err error
 	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, true, nil)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// run tests
@@ -60,7 +61,7 @@ func TestMain(m *testing.M) {
 
 	// tear down test env
 	if err = testEnvironment.TearDown(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	os.Exit(code)
