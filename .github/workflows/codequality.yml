@@ -1,5 +1,5 @@
 name: Code Quality
-on: 
+on:
   pull_request:
     branches:
       - main
@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.21'
           cache: false
       - uses: actions/checkout@v3
       - name: golangci-lint
@@ -37,8 +37,7 @@ jobs:
       - name: Cache Go dependencies
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.21'
 
       - name: Execute unit test
         run: make test
-
