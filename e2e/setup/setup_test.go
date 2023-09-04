@@ -51,15 +51,12 @@ func TestMain(m *testing.M) {
 	var err error
 	logger, err = SetupLogger()
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-
+		logger.Fatal(err.Error())
 	}
 
 	clientSet, k8sClient, err = GetK8sClients()
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	ctx := context.TODO()
@@ -69,8 +66,7 @@ func TestMain(m *testing.M) {
 		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, Namespace()))
 	})
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	// Wait for NATS-manager deployment to get ready.
@@ -84,8 +80,7 @@ func TestMain(m *testing.M) {
 		)
 	}
 	if err := waitForNATSManagerDeploymentReady(managerImage); err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	// Create the NATS CR used for testing.
@@ -100,8 +95,7 @@ func TestMain(m *testing.M) {
 		return errNATS
 	})
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	// wait for an interval for reconciliation to update status.
@@ -109,8 +103,7 @@ func TestMain(m *testing.M) {
 
 	// Wait for NATS CR to get ready.
 	if err := waitForNATSCRReady(); err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	// Run the tests and exit.

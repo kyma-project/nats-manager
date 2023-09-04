@@ -49,14 +49,12 @@ func TestMain(m *testing.M) {
 	var err error
 	logger, err = SetupLogger()
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	clientSet, k8sClient, err = GetK8sClients()
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	// Delete the NATS CR.
@@ -70,8 +68,7 @@ func TestMain(m *testing.M) {
 		return errDel
 	})
 	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 
 	// Run the tests and exit.
