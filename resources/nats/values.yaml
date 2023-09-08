@@ -10,15 +10,15 @@ global:
   images:
     nats:
       name: nats
-      version: v20230418-2.9.16-alpine3.17
+      version: v20230620-2.9.18-alpine3.18
       directory: prod/external
     nats_config_reloader:
       name: natsio/nats-server-config-reloader
-      version: 0.10.1
+      version: 0.12.0
       directory: prod/external
     prometheus_nats_exporter:
       name: natsio/prometheus-nats-exporter
-      version: 0.11.0
+      version: 0.12.0
       directory: prod/external
 
   jetstream:
@@ -158,11 +158,11 @@ nats:
 
   resources:
     limits:
-      cpu: 20m
-      memory: 64Mi
+      cpu: 500m
+      memory: 1Gi
     requests:
-      cpu: 5m
-      memory: 16Mi
+      cpu: 40m
+      memory: 64Mi
 
   # Server settings.
   limits:
@@ -190,8 +190,8 @@ nats:
   terminationGracePeriodSeconds: 150
 
   logging:
-    debug: true
-    trace: true
+    debug: false
+    trace: false
     logtime:
     connectErrorReports:
     reconnectErrorReports:
@@ -301,9 +301,9 @@ serviceAnnotations:
   prometheus.io/port: "7777"
 
 cluster:
-  enabled: false
+  enabled: true
   name: eventing-nats
-  replicas: 1
+  replicas: 3
   noAdvertise: false
 
 appProtocol:
