@@ -81,7 +81,7 @@ type NATS struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}}
+	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"1Gi",enabled:true}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"500m",memory:"1Gi"}, requests:{cpu:"40m",memory:"64Mi"}}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -99,7 +99,7 @@ type NATSSpec struct {
 	Cluster `json:"cluster,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
-	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"20Mi",enabled:false}}
+	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"1Gi",enabled:true}}
 	// +kubebuilder:validation:XValidation:rule="self.fileStorage == oldSelf.fileStorage",message="fileStorage is immutable once it was set"
 	JetStream `json:"jetStream,omitempty"`
 
@@ -108,7 +108,7 @@ type NATSSpec struct {
 	Logging `json:"logging,omitempty"`
 
 	// Resources defines resources for NATS.
-	// +kubebuilder:default:={limits:{cpu:"20m",memory:"64Mi"}, requests:{cpu:"5m",memory:"16Mi"}}
+	// +kubebuilder:default:={limits:{cpu:"500m",memory:"1Gi"}, requests:{cpu:"40m",memory:"64Mi"}}
 	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Annotations allows to add annotations to NATS.
@@ -130,7 +130,7 @@ type Cluster struct {
 // JetStream defines configurations that are specific to NATS JetStream.
 type JetStream struct {
 	// MemStorage defines configurations to memory storage in NATS JetStream.
-	// +kubebuilder:default:={size:"20Mi",enabled:false}
+	// +kubebuilder:default:={size:"1Gi",enabled:true}
 	// +kubebuilder:validation:XValidation:rule="!self.enabled || self.size != 0", message="can only be enabled if size is not 0"
 	MemStorage `json:"memStorage,omitempty"`
 
@@ -143,11 +143,11 @@ type JetStream struct {
 // MemStorage defines configurations to memory storage in NATS JetStream.
 type MemStorage struct {
 	// Enabled allows the enablement of memory storage.
-	// +kubebuilder:default:=false
+	// +kubebuilder:default:=true
 	Enabled bool `json:"enabled,omitempty"`
 
 	// Size defines the mem.
-	// +kubebuilder:default:="20Mi"
+	// +kubebuilder:default:="1Gi"
 	Size resource.Quantity `json:"size,omitempty"`
 }
 

@@ -12,15 +12,15 @@ spec:
       size: "1Gi"
       storageClassName: "default"
     memStorage:
-      enabled: false
-      size: "20Mi"
+      enabled: true
+      size: "1Gi"
   logging:
     debug: false
     trace: false
   resources:
     limits:
-      cpu: 20m
-      memory: 64Mi
+      cpu: 500m
+      memory: 1Gi
     requests:
-      cpu: 5m
-      memory: 16Mi
+      cpu: 40m
+      memory: 64Mi
