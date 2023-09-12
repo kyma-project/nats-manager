@@ -279,7 +279,9 @@ The E2E test consists of four consecutive steps. You can run them individually a
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+Check the contribution guidelines [here](CONTRIBUTING.md).
+
+The [contributor](./docs/contributor) folder includes all the necessary information on how to extend the module with new features. You can learn more about the project structure, make targets, CI/CD jobs that are part of the developing cycle, and different installation options.
 
 ## Code of Conduct
 
