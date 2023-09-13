@@ -3,7 +3,9 @@ KYMA_CLI ?= "${PROJECT_ROOT}/${KYMA}"
 CLUSTER_NAME ?= kyma
 REGISTRY_PORT ?= 5001
 
-include ${PROJECT_ROOT}/.env
+ifndef MODULE_VERSION
+	include ${PROJECT_ROOT}/.version
+endif
 
 ifndef MODULE_SHA
     MODULE_SHA = ${shell git rev-parse --short HEAD}
