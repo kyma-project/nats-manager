@@ -72,7 +72,7 @@ jobs:
 
   publish-release:
     name: Publish release
-    needs: [verify-head-status, create-draft, run-unit-tests]
+    needs: [verify-head-status, create-draft]
     runs-on: ubuntu-latest
 
     steps:
