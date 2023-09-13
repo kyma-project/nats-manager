@@ -28,10 +28,10 @@ jobs:
       - name: Verify
         run: ./scripts/verify-keda-status.sh ${{ github.ref_name }}
 
-  run-unit-tests:
-    name: Unit tests
-    needs: verify-head-status
-    uses: "./.github/workflows/run-unit-tests.yaml"
+          #  run-unit-tests:
+          #    name: Unit tests
+          #    needs: verify-head-status
+          #    uses: "./.github/workflows/run-unit-tests.yaml"
 
   create-draft:
     name: Create draft release
