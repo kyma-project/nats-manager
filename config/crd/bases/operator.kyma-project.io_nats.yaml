@@ -50,18 +50,18 @@ spec:
                   size: 1Gi
                   storageClassName: default
                 memStorage:
-                  enabled: false
-                  size: 20Mi
+                  enabled: true
+                  size: 1Gi
               logging:
                 debug: false
                 trace: false
               resources:
                 limits:
-                  cpu: 20m
-                  memory: 64Mi
+                  cpu: 500m
+                  memory: 1Gi
                 requests:
-                  cpu: 5m
-                  memory: 16Mi
+                  cpu: 40m
+                  memory: 64Mi
             description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
@@ -90,8 +90,8 @@ spec:
                     size: 1Gi
                     storageClassName: default
                   memStorage:
-                    enabled: false
-                    size: 20Mi
+                    enabled: true
+                    size: 1Gi
                 description: JetStream defines configurations that are specific to
                   NATS JetStream.
                 properties:
@@ -127,20 +127,20 @@ spec:
                       rule: self == oldSelf
                   memStorage:
                     default:
-                      enabled: false
-                      size: 20Mi
+                      enabled: true
+                      size: 1Gi
                     description: MemStorage defines configurations to memory storage
                       in NATS JetStream.
                     properties:
                       enabled:
-                        default: false
+                        default: true
                         description: Enabled allows the enablement of memory storage.
                         type: boolean
                       size:
                         anyOf:
                         - type: integer
                         - type: string
-                        default: 20Mi
+                        default: 1Gi
                         description: Size defines the mem.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
@@ -176,11 +176,11 @@ spec:
               resources:
                 default:
                   limits:
-                    cpu: 20m
-                    memory: 64Mi
+                    cpu: 500m
+                    memory: 1Gi
                   requests:
-                    cpu: 5m
-                    memory: 16Mi
+                    cpu: 40m
+                    memory: 64Mi
                 description: Resources defines resources for NATS.
                 properties:
                   claims:

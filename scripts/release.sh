@@ -37,9 +37,10 @@ echo "Generated nats-manager.yaml:"
 cat nats-manager.yaml
 
 MODULE_VERSION=${PULL_BASE_REF} make module-build
+mv template.yaml module-template.yaml
 
 echo "Generated moduletemplate.yaml:"
-cat moduletemplate.yaml
+cat module-template.yaml
 
 echo "Updating github release with nats-manager.yaml"
 
@@ -65,5 +66,5 @@ fi
 UPLOAD_URL="https://uploads.github.com/repos/kyma-project/nats-manager/releases/${RELEASE_ID}/assets"
 
 uploadFile "nats-manager.yaml" "${UPLOAD_URL}?name=nats-manager.yaml"
-uploadFile "moduletemplate.yaml" "${UPLOAD_URL}?name=moduletemplate.yaml"
+uploadFile "module-template.yaml" "${UPLOAD_URL}?name=module-template.yaml"
 uploadFile "config/samples/nats_default_cr.yaml" "${UPLOAD_URL}?name=nats_default_cr.yaml"
