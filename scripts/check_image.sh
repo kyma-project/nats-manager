@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 REF_NAME="${1:-"main"}"
-RAW_EXPECTED_SHA=$(git log "${REF_NAME}" --max-count 1 --skip 1 --format=format:%H)
-SHORT_EXPECTED_SHA=${RAW_EXPECTED_SHA:0:8}
-DATE="v$(git log "${REF_NAME}" --max-count 1 --skip 1 --format=format:%ad --date=format:'%Y%m%d')"
+SHORT_EXPECTED_SHA=$(git rev-parse --short=8 "${REF_NAME}~")
+DATE="v$(git show ${SHORT_EXPECTED_SHA} --date=format:'%Y%m%d' --format=%ad -q)"
 EXPECTED_TAG="${DATE}-${SHORT_EXPECTED_SHA}"
 
 IMAGE_TO_CHECK="${2:-europe-docker.pkg.dev/kyma-project/prod/nats-manager}"
