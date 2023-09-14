@@ -67,4 +67,4 @@ UPLOAD_URL="https://uploads.github.com/repos/kyma-project/nats-manager/releases/
 
 uploadFile "nats-manager.yaml" "${UPLOAD_URL}?name=nats-manager.yaml"
 uploadFile "module-template.yaml" "${UPLOAD_URL}?name=module-template.yaml"
-uploadFile "config/samples/nats_default_cr.yaml" "${UPLOAD_URL}?name=nats_default_cr.yaml"
+uploadFile "config/samples/default.yaml" "${UPLOAD_URL}?name=nats_default_cr.yaml"
