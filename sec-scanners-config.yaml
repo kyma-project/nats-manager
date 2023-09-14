@@ -1,4 +1,4 @@
-module-name: nats-manager
+module-name: nats
 protecode:
   - europe-docker.pkg.dev/kyma-project/prod/nats-manager:v20230914-8292cd02
   - europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.12.0
