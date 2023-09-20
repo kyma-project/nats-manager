@@ -9,13 +9,14 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
 
-	"github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/pkg/nats/mocks"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	k8smocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
+	natssdk "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -62,13 +63,13 @@ func Test_handleNATSDeletion(t *testing.T) {
 			wantResult:          ctrl.Result{},
 		},
 		{
-			name:                 "should delete resources if natsClients StreamExists returns error",
+			name:                 "should delete resources if natsClients GetStreams returns unexpected error",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  natsv1alpha1.StateDeleting,
 			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("StreamExists").Return(false, errors.New("unexpected error"))
+				natsClient.On("GetStreams").Return(nil, errors.New("unexpected error"))
 				natsClient.On("Close").Return()
 				return natsClient
 			},
@@ -76,9 +77,30 @@ func Test_handleNATSDeletion(t *testing.T) {
 			wantResult:    ctrl.Result{},
 		},
 		{
-			name:                 "should add deleted condition with error when stream exists",
+			name:                 "should delete resources if natsClients ConsumersExist returns unexpected error",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  natsv1alpha1.StateDeleting,
+			mockNatsClientFunc: func() nats.Client {
+				natsClient := new(mocks.Client)
+				natsClient.On("Init").Return(nil)
+				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+					{
+						Config: natssdk.StreamConfig{
+							Name: "sap",
+						},
+					},
+				}, nil)
+				natsClient.On("ConsumersExist", mock.Anything).Return(false, errors.New("unexpected error"))
+				natsClient.On("Close").Return()
+				return natsClient
+			},
+			wantK8sEvents: []string{"Normal Deleting Deleting the NATS cluster."},
+			wantResult:    ctrl.Result{},
+		},
+		{
+			name:                 "should block deletion if non 'sap' stream exists",
+			givenWithNATSCreated: true,
+			wantNATSStatusState:  natsv1alpha1.StateWarning,
 			wantCondition: &metav1.Condition{
 				Type:               string(natsv1alpha1.ConditionDeleted),
 				Status:             metav1.ConditionFalse,
@@ -89,27 +111,73 @@ func Test_handleNATSDeletion(t *testing.T) {
 			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("StreamExists").Return(true, nil)
+				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+					{
+						Config: natssdk.StreamConfig{
+							Name: "non-sap",
+						},
+					},
+				}, nil)
+				natsClient.On("Close").Return()
 				return natsClient
 			},
 			wantFinalizerExists: true,
 			wantK8sEvents: []string{
 				"Normal Deleting Deleting the NATS cluster.",
-				"Warning DeletionError Cannot delete NATS cluster as stream exists",
+				"Warning DeletionError " + StreamExistsErrorMsg,
 			},
 			wantResult: ctrl.Result{Requeue: true},
 		},
 		{
-			name:                 "should delete resources if stream does not exist",
+			name:                 "should block deletion if 'sap' stream consumer exists",
 			givenWithNATSCreated: true,
+			wantNATSStatusState:  natsv1alpha1.StateWarning,
+			wantCondition: &metav1.Condition{
+				Type:               string(natsv1alpha1.ConditionDeleted),
+				Status:             metav1.ConditionFalse,
+				LastTransitionTime: metav1.Now(),
+				Reason:             string(natsv1alpha1.ConditionReasonDeletionError),
+				Message:            ConsumerExistsErrorMsg,
+			},
 			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("StreamExists").Return(false, nil)
+				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+					{
+						Config: natssdk.StreamConfig{
+							Name: "sap",
+						},
+					},
+				}, nil)
+				natsClient.On("ConsumersExist", mock.Anything).Return(true, nil)
 				natsClient.On("Close").Return()
 				return natsClient
 			},
-			wantNATSStatusState: natsv1alpha1.StateDeleting,
+			wantFinalizerExists: true,
+			wantK8sEvents: []string{
+				"Normal Deleting Deleting the NATS cluster.",
+				"Warning DeletionError " + ConsumerExistsErrorMsg,
+			},
+			wantResult: ctrl.Result{Requeue: true},
+		},
+		{
+			name:                 "should delete resources if neither consumer stream nor 'sap' stream exists",
+			givenWithNATSCreated: true,
+			wantNATSStatusState:  natsv1alpha1.StateDeleting,
+			mockNatsClientFunc: func() nats.Client {
+				natsClient := new(mocks.Client)
+				natsClient.On("Init").Return(nil)
+				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+					{
+						Config: natssdk.StreamConfig{
+							Name: "sap",
+						},
+					},
+				}, nil)
+				natsClient.On("ConsumersExist", mock.Anything).Return(false, nil)
+				natsClient.On("Close").Return()
+				return natsClient
+			},
 			wantK8sEvents: []string{
 				"Normal Deleting Deleting the NATS cluster.",
 			},

@@ -34,6 +34,7 @@ const (
 	StateError      string = "Error"
 	StateProcessing string = "Processing"
 	StateDeleting   string = "Deleting"
+	StateWarning    string = "Warning"
 
 	ConditionAvailable   ConditionType = "Available"
 	ConditionStatefulSet ConditionType = "StatefulSet"
