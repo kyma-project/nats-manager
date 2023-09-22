@@ -7,16 +7,19 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
+//go:generate go run github.com/vektra/mockery/v2 --name=Client --outpkg=mocks --case=underscore
 type Client interface {
 	// initialize NATS connection
 	Init() error
 	// check if any stream exists in NATS JetStream
 	StreamExists() (bool, error)
+	// GetStreams returns all the streams in NATS JetStream
+	GetStreams() ([]*nats.StreamInfo, error)
+	// ConsumersExist checks if any consumer exists for the given stream
+	ConsumersExist(streamName string) (bool, error)
 	// close NATS connection
 	Close()
 }
-
-//go:generate go run github.com/vektra/mockery/v2 --name=Client --outpkg=mocks --case=underscore
 
 type Config struct {
 	URL     string
@@ -57,6 +60,43 @@ func (c *natsClient) StreamExists() (bool, error) {
 	streams := jetStreamCtx.Streams()
 	// if it has no streams, it will return false
 	_, ok := <-streams
+	if !ok {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (c *natsClient) GetStreams() ([]*nats.StreamInfo, error) {
+	// get JetStream context
+	jetStreamCtx, err := c.conn.JetStream()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get JetStream: %w", err)
+	}
+	// read all the streams from the channel
+	var streams []*nats.StreamInfo
+	for stream := range jetStreamCtx.Streams() {
+		streams = append(streams, stream)
+	}
+
+	// if it has no streams, return nil
+	if len(streams) == 0 {
+		return nil, nil
+	}
+
+	return streams, nil
+}
+
+func (c *natsClient) ConsumersExist(streamName string) (bool, error) {
+	// get JetStream context
+	jetStreamCtx, err := c.conn.JetStream()
+	if err != nil {
+		return false, fmt.Errorf("failed to get JetStream: %w", err)
+	}
+	// get all consumers and check if any exists
+	consumers := jetStreamCtx.Consumers(streamName)
+	// if it has no consumers, it will return false
+	_, ok := <-consumers
 	if !ok {
 		return false, nil
 	}

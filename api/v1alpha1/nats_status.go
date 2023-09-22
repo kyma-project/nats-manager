@@ -63,6 +63,10 @@ func (ns *NATSStatus) SetStateProcessing() {
 	ns.State = StateProcessing
 }
 
+func (ns *NATSStatus) SetStateWarning() {
+	ns.State = StateWarning
+}
+
 func (ns *NATSStatus) SetWaitingStateForStatefulSet() {
 	ns.SetStateProcessing()
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse,
