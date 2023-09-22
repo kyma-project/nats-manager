@@ -86,7 +86,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
 					{
 						Config: natssdk.StreamConfig{
-							Name: "sap",
+							Name: SapStreamName,
 						},
 					},
 				}, nil)
@@ -145,7 +145,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
 					{
 						Config: natssdk.StreamConfig{
-							Name: "sap",
+							Name: SapStreamName,
 						},
 					},
 				}, nil)
@@ -170,7 +170,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
 					{
 						Config: natssdk.StreamConfig{
-							Name: "sap",
+							Name: SapStreamName,
 						},
 					},
 				}, nil)
