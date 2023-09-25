@@ -30,6 +30,8 @@ global:
     # when replacing pods on nodes, or when scaling down.
     podManagementPolicy: Parallel
 
+  priorityClassName: "eventing-priority-class"
+
 ####################################
 #                                  #
 #  Security Context Configuration  #
