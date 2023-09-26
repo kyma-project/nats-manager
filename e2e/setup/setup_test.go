@@ -137,12 +137,12 @@ func Test_PriorityClass(t *testing.T) {
 			return stsErr
 		}
 
-		pcName := sts.Spec["priorityClassName"]
-		if pcName == "" {
+		pcName := sts.Spec.Template.Spec.PriorityClassName
+		if len(pcName) < 1 {
 			return fmt.Errorf(".spec.priorityClassName of sts %s is not supposed to be empty", sts.Name)
 		}
 
-		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(PriorityClassName, metav1.GetOptions{})
+		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, PriorityClassName, metav1.GetOptions{})
 		return pcErr
 	})
 
