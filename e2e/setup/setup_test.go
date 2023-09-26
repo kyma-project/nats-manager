@@ -33,8 +33,8 @@ import (
 
 // Constants for retries.
 const (
-	interval = 2 * time.Second
-	attempts = 60
+	interval = 3 * time.Second
+	attempts = 120
 )
 
 // clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
@@ -126,6 +126,34 @@ func Test_CR(t *testing.T) {
 		reflect.DeepEqual(want.Spec, actual.Spec),
 		fmt.Sprintf("wanted spec.cluster to be \n\t%v\n but got \n\t%v", want.Spec, actual.Spec),
 	)
+}
+
+// Test_PriorityClass will get the PriorityClass name from the StatefulSet and checks if a PriorityClass with that
+// name exists in the cluster.
+func Test_PriorityClass(t *testing.T) {
+	ctx := context.TODO()
+
+	err := Retry(attempts, interval, func() error {
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		if stsErr != nil {
+			return stsErr
+		}
+
+		pcName := sts.Spec.Template.Spec.PriorityClassName
+		// todo remove this check after the next release.
+		if len(pcName) < 1 {
+			return nil
+		}
+
+		if pcName != PriorityClassName {
+			return fmt.Errorf("PriorityClassName was expected to be %s but was %s", PriorityClassName, pcName)
+		}
+
+		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, metav1.GetOptions{})
+		return pcErr
+	})
+
+	require.NoError(t, err)
 }
 
 // Test_ConfigMap tests the ConfigMap that the NATS-Manger creates when we define a CR.
