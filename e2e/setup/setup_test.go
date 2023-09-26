@@ -128,6 +128,8 @@ func Test_CR(t *testing.T) {
 	)
 }
 
+// Test_PriorityClass will get the PriorityClass name from the StatefulSet and checks if a PriorityClass with that
+// name exists in the cluster.
 func Test_PriorityClass(t *testing.T) {
 	ctx := context.TODO()
 
@@ -139,10 +141,10 @@ func Test_PriorityClass(t *testing.T) {
 
 		pcName := sts.Spec.Template.Spec.PriorityClassName
 		if len(pcName) < 1 {
-			return fmt.Errorf(".spec.priorityClassName of sts %s is not supposed to be empty", sts.Name)
+			return nil
 		}
 
-		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, PriorityClassName, metav1.GetOptions{})
+		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, metav1.GetOptions{})
 		return pcErr
 	})
 

@@ -23,7 +23,6 @@ const (
 	FileStorageSize       = "1Gi"
 	MemStorageSize        = "1Gi"
 	True                  = "true"
-	PriorityClassName     = "nats-manager-priority-class"
 )
 
 func NATSCR() *natsv1alpha1.NATS {
