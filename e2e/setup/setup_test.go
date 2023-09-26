@@ -140,8 +140,13 @@ func Test_PriorityClass(t *testing.T) {
 		}
 
 		pcName := sts.Spec.Template.Spec.PriorityClassName
+		// todo remove this check after the next release.
 		if len(pcName) < 1 {
 			return nil
+		}
+
+		if pcName != PriorityClassName {
+			return fmt.Errorf("PriorityClassName was expected to be %s but was %s", PriorityClassName, pcName)
 		}
 
 		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, metav1.GetOptions{})
