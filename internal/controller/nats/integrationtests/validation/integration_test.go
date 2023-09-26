@@ -456,20 +456,20 @@ func Test_NATS_Defaulting(t *testing.T) {
 func defaultResources() corev1.ResourceRequirements {
 	return corev1.ResourceRequirements{
 		Limits: corev1.ResourceList{
-			"cpu":    resource.MustParse("20m"),
-			"memory": resource.MustParse("64Mi"),
+			"cpu":    resource.MustParse("500m"),
+			"memory": resource.MustParse("1Gi"),
 		},
 		Requests: corev1.ResourceList{
-			"cpu":    resource.MustParse("5m"),
-			"memory": resource.MustParse("16Mi"),
+			"cpu":    resource.MustParse("40m"),
+			"memory": resource.MustParse("64Mi"),
 		},
 	}
 }
 
 func defaultMemStorage() v1alpha1.MemStorage {
 	return v1alpha1.MemStorage{
-		Enabled: false,
-		Size:    resource.MustParse("20Mi"),
+		Enabled: true,
+		Size:    resource.MustParse("1Gi"),
 	}
 }
 
