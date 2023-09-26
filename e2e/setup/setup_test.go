@@ -128,6 +128,27 @@ func Test_CR(t *testing.T) {
 	)
 }
 
+func Test_PriorityClass(t *testing.T) {
+	ctx := context.TODO()
+
+	err := Retry(attempts, interval, func() error {
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		if stsErr != nil {
+			return stsErr
+		}
+
+		pcName := sts.Spec["priorityClassName"]
+		if pcName == "" {
+			return fmt.Errorf(".spec.priorityClassName of sts %s is not supposed to be empty", sts.Name)
+		}
+
+		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(PriorityClassName, metav1.GetOptions{})
+		return pcErr
+	})
+
+	require.NoError(t, err)
+}
+
 // Test_ConfigMap tests the ConfigMap that the NATS-Manger creates when we define a CR.
 func Test_ConfigMap(t *testing.T) {
 	ctx := context.TODO()
