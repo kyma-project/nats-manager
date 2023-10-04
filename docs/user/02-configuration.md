@@ -24,3 +24,55 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 - [Default CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/default.yaml#L1)
 - [Minimal CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/minimal.yaml#L1)
 - [Full spec CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/nats-full-spec.yaml#L1)
+
+## Reference
+
+<!-- The table below was generated automatically -->
+<!-- Some special tags (html comments) are at the end of lines due to markdown requirements. -->
+<!-- The content between "TABLE-START" and "TABLE-END" will be replaced -->
+
+<!-- TABLE-START -->
+### NATS.operator.kyma-project.io/v1alpha1
+
+**Spec:**
+
+| Parameter | Type | Description |
+| ---- | ----------- | ---- |
+| **annotations**  | map\[string\]string | Annotations allows to add annotations to NATS. |
+| **cluster**  | object | Cluster defines configurations that are specific to NATS clusters. |
+| **cluster.&#x200b;size**  | integer | Size of a NATS cluster, i.e. number of NATS nodes. |
+| **jetStream**  | object | JetStream defines configurations that are specific to NATS JetStream. |
+| **jetStream.&#x200b;fileStorage**  | object | FileStorage defines configurations to file storage in NATS JetStream. |
+| **jetStream.&#x200b;fileStorage.&#x200b;size**  | \{integer or string\} | Size defines the file storage size. |
+| **jetStream.&#x200b;fileStorage.&#x200b;storageClassName**  | string | StorageClassName defines the file storage class name. |
+| **jetStream.&#x200b;memStorage**  | object | MemStorage defines configurations to memory storage in NATS JetStream. |
+| **jetStream.&#x200b;memStorage.&#x200b;enabled**  | boolean | Enabled allows the enablement of memory storage. |
+| **jetStream.&#x200b;memStorage.&#x200b;size**  | \{integer or string\} | Size defines the mem. |
+| **labels**  | map\[string\]string | Labels allows to add Labels to NATS. |
+| **logging**  | object | JetStream defines configurations that are specific to NATS logging in NATS. |
+| **logging.&#x200b;debug**  | boolean | Debug allows debug logging. |
+| **logging.&#x200b;trace**  | boolean | Trace allows trace logging. |
+| **resources**  | object | Resources defines resources for NATS. |
+| **resources.&#x200b;claims**  | \[\]object | Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container. 
+ This is an alpha field and requires enabling the DynamicResourceAllocation feature gate. 
+ This field is immutable. It can only be set for containers. |
+| **resources.&#x200b;claims.&#x200b;name** (required) | string | Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container. |
+| **resources.&#x200b;limits**  | map\[string\]\{integer or string\} | Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| **resources.&#x200b;requests**  | map\[string\]\{integer or string\} | Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+
+**Status:**
+
+| Parameter | Type | Description |
+| ---- | ----------- | ---- |
+| **conditions**  | \[\]object | Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, 
+ type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: "Available", "Progressing", and "Degraded" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"` 
+ // other fields } |
+| **conditions.&#x200b;lastTransitionTime** (required) | string | lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable. |
+| **conditions.&#x200b;message** (required) | string | message is a human readable message indicating details about the transition. This may be an empty string. |
+| **conditions.&#x200b;observedGeneration**  | integer | observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance. |
+| **conditions.&#x200b;reason** (required) | string | reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty. |
+| **conditions.&#x200b;status** (required) | string | status of the condition, one of True, False, Unknown. |
+| **conditions.&#x200b;type** (required) | string | type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt) |
+| **state** (required) | string |  |
+
+<!-- TABLE-END -->
