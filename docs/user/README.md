@@ -6,7 +6,7 @@ It observes the state of the NATS JetStream resources and reconciles its state a
 NATS is an infrastructure that enables the exchange of data in form of messages. JetStream is a distributed persistence system providing more functionalities and higher qualities of service on top of 'Core NATS'.
 For further information about NATS and NATS JetStream, consult the [Official NATS Documentation](https://docs.nats.io/).
 
-Within Kyma, NATS is the backend needed for Eventing to process events and send them to subscribers.
+Within Kyma, NATS can be used as an backend for Eventing to process events and send them to subscribers.
 
 ## Documentation Overview
 
