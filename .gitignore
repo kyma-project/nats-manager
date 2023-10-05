@@ -39,5 +39,7 @@ bin/*
 vendor/
 
 module-template.yaml
+nats-manager.yaml
+module-config.yaml
 
 .env.dev

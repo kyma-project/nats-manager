@@ -1,0 +1,9 @@
+name: {{.Name}}
+channel: {{.Channel}}
+version: {{.Version}}
+defaultCR: config/samples/default.yaml
+manifest: nats-manager.yaml
+security: sec-scanners-config.yaml
+annotations:
+  "operator.kyma-project.io/doc-url": "https://kyma-project.io/#/nats-manager/user/README"
+moduleRepo: https://github.com/kyma-project/nats-manager.git

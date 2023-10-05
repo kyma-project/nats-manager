@@ -37,7 +37,6 @@ echo "Generated nats-manager.yaml:"
 cat nats-manager.yaml
 
 MODULE_VERSION=${PULL_BASE_REF} make module-build
-mv template.yaml module-template.yaml
 
 echo "Generated moduletemplate.yaml:"
 cat module-template.yaml
