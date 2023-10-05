@@ -1,3 +1,4 @@
-- [NATS Manager](/docs/user/README.md)
-- [Module Lifecycle](/docs/user/01-manager.md)
-- [Module Configuration](/docs/user/02-configuration.md)
+- [Home](/)
+- [NATS Manager](README.md)
+- [Module Lifecycle](01-manager.md)
+- [Module Configuration](02-configuration.md)
