@@ -153,6 +153,13 @@ func WithNATSStateProcessing() NATSOption {
 	}
 }
 
+func WithNATSStateError() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Status.State = v1alpha1.StateError
+		return nil
+	}
+}
+
 func WithNATSCRName(name string) NATSOption {
 	return func(nats *v1alpha1.NATS) error {
 		nats.Name = name
