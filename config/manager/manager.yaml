@@ -43,6 +43,7 @@ spec:
       #             operator: In
       #             values:
       #               - linux
+      priorityClassName: "nats-manager-priority-class"
       securityContext:
         fsGroup: 10001
         runAsGroup: 10001
