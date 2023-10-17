@@ -9,7 +9,7 @@ env:
 on:
   push:
     branches: [ "main" ]
-    paths:
+    paths-ignore:
       - 'docs/**'
       - '**.md'
 
