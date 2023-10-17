@@ -9,6 +9,9 @@ env:
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'docs/**'
+      - '**.md'
 
 jobs:
   e2e:

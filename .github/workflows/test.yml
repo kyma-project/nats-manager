@@ -1,4 +1,4 @@
-name: Code Quality
+name: Test
 on:
   pull_request:
     branches:
@@ -19,18 +19,17 @@ permissions:
   pull-requests: read
 
 jobs:
-  lint:
-    name: lint
+  unit-test:
+    name: Unit Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Go dependencies
+        uses: actions/setup-go@v4
         with:
           go-version: '1.21'
-          cache: false
-      - uses: actions/checkout@v4
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: v1.52
-          args: --timeout=5m
+
+      - name: Execute unit test
+        run: make test
