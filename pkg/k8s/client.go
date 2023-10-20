@@ -13,7 +13,7 @@ import (
 	k8sclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8stypes "k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -47,7 +47,7 @@ func NewKubeClient(client client.Client, clientset k8sclientset.Interface, field
 
 func (c *KubeClient) PatchApply(ctx context.Context, object *unstructured.Unstructured) error {
 	return c.client.Patch(ctx, object, client.Apply, &client.PatchOptions{
-		Force:        pointer.Bool(true),
+		Force:        ptr.To(true),
 		FieldManager: c.fieldManager,
 	})
 }
