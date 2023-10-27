@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/avast/retry-go/v3 v3.1.1
 	github.com/dustin/go-humanize v1.0.1
-	github.com/go-logr/logr v1.2.4
+	github.com/go-logr/logr v1.3.0
 	github.com/imdario/mergo v0.3.16
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/nats-io/nats-server/v2 v2.10.3
