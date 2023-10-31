@@ -16,6 +16,20 @@ It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controlle
 
 This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and all the Kubebuilder [`makefile` helpers](https://book.kubebuilder.io/reference/makefile-helpers.html) can be used.
 
+## Install
+
+1. To install the latest version of the NATS manager on your cluster, run:
+
+   ```bash
+   kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
+   ```
+
+2. To install the latest version of the default NATS CR on your cluster, run:
+
+   ```bash
+   kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats_default_cr.yaml
+   ```
+
 ## Development
 
 ### Prerequisites
