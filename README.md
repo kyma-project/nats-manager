@@ -24,7 +24,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
 ```
 
-Run the following command to install the latest version of the default NATS CR on your cluster:
+2. To install the latest version of the default NATS CR on your cluster, run:
 
 ```bash
 kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats_default_cr.yaml
