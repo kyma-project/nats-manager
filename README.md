@@ -18,7 +18,7 @@ This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and
 
 ## Install
 
-Run the following command to install the latest version of the NATS manager on your cluster:
+1. To install the latest version of the NATS manager on your cluster, run:
 
 ```bash
 kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
