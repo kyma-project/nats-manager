@@ -39,6 +39,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 
@@ -110,11 +112,11 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	// setup ctrl manager
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   metricsPort,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       leaderElectionID,
+		Metrics:                server.Options{BindAddress: metricsAddr},
+		WebhookServer:          webhook.NewServer(webhook.Options{Port: metricsPort}),
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly

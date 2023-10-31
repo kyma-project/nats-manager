@@ -33,6 +33,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
+	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
@@ -118,10 +120,10 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 
 	ctrlMgr, err := ctrl.NewManager(envTestKubeCfg, ctrl.Options{
 		Scheme:                 scheme.Scheme,
-		Port:                   metricsPort,
-		MetricsBindAddress:     "0", // disable
-		HealthProbeBindAddress: "0", // disable
-		PprofBindAddress:       "0", // disable
+		HealthProbeBindAddress: "0",                              // disable
+		PprofBindAddress:       "0",                              // disable
+		Metrics:                server.Options{BindAddress: "0"}, // disable
+		WebhookServer:          webhook.NewServer(webhook.Options{Port: metricsPort}),
 	})
 	if err != nil {
 		return nil, err

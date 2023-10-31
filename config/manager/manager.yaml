@@ -43,6 +43,7 @@ spec:
       #             operator: In
       #             values:
       #               - linux
+      priorityClassName: "nats-manager-priority-class"
       securityContext:
         fsGroup: 10001
         runAsGroup: 10001
@@ -87,7 +88,7 @@ spec:
         resources:
           limits:
             cpu: 500m
-            memory: 128Mi
+            memory: 384Mi
           requests:
             cpu: 10m
             memory: 64Mi
