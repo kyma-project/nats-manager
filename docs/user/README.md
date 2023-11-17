@@ -1,4 +1,4 @@
-# NATS Manager Module
+# NATS module
 
 This module ships the NATS Manager, which is responsible for managing the lifecycle of a [NATS JetStream](https://docs.nats.io/nats-concepts/jetstream) deployment.
 It observes the state of the NATS cluster and reconciles its state according to the desired state.
