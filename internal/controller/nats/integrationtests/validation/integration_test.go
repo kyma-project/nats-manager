@@ -268,7 +268,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 			wantErrMsg: "fileStorage is immutable once it was set",
 		},
 		{
-			name: `validation of cluster fails, if cluster.size>1 gets set to 1'`,
+			name: `validation of cluster fails, if cluster.size was set to a value >1 and now gets reduced to 1'`,
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCluster(defaultCluster()),
 			),
@@ -283,7 +283,8 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 			wantErrMsg: "size cannot be reduced to 1 once it was >1",
 		},
 		{
-			name: `validation of cluster passes, if cluster.size>1 gets set to >1'`,
+			name: `validation of cluster passes, if cluster.size was set to a value >1
+			and now gets set to another value >1'`,
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCluster(defaultCluster()),
 			),
