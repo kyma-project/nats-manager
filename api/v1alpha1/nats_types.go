@@ -125,7 +125,7 @@ type Cluster struct {
 	// +kubebuilder:default:=3
 	// +kubebuilder:validation:Minimum:=1
 	// +kubebuilder:validation:XValidation:rule="(self%2) != 0", message="size only accepts odd numbers"
-	// +kubebuilder:validation:XValidation:rule="!(oldSelf > 1 && self == 1)", message="size cannot be reduced to 1 once it was >1"
+	// +kubebuilder:validation:XValidation:rule="!(oldSelf > 1 && self == 1)", message="cannot be set to 1 if size was greater than 1"
 	Size int `json:"size,omitempty"`
 }
 

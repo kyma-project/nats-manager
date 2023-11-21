@@ -280,7 +280,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 					Size: 1,
 				}),
 			},
-			wantErrMsg: "size cannot be reduced to 1 once it was >1",
+			wantErrMsg: "cannot be set to 1 if size was greater than 1",
 		},
 		{
 			name: `validation of cluster passes, if cluster.size was set to a value >1
