@@ -83,6 +83,8 @@ spec:
                     x-kubernetes-validations:
                     - message: size only accepts odd numbers
                       rule: (self%2) != 0
+                    - message: cannot be set to 1 if size was greater than 1
+                      rule: '!(oldSelf > 1 && self == 1)'
                 type: object
               jetStream:
                 default:

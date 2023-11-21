@@ -210,6 +210,13 @@ func WithNATSFileStorage(fileStorage v1alpha1.FileStorage) NATSOption {
 	}
 }
 
+func WithNATSCluster(cluster v1alpha1.Cluster) NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Spec.Cluster = cluster
+		return nil
+	}
+}
+
 func WithNATSLabels(labels map[string]string) NATSOption {
 	return func(nats *v1alpha1.NATS) error {
 		nats.Spec.Labels = labels

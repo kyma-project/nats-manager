@@ -267,6 +267,37 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 			},
 			wantErrMsg: "fileStorage is immutable once it was set",
 		},
+		{
+			name: `validation of cluster fails, if cluster.size was set to a value >1 and now gets reduced to 1'`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCluster(defaultCluster()),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecCluster(defaultCluster()),
+			),
+			givenUpdates: []testutils.NATSOption{
+				testutils.WithNATSCluster(v1alpha1.Cluster{
+					Size: 1,
+				}),
+			},
+			wantErrMsg: "cannot be set to 1 if size was greater than 1",
+		},
+		{
+			name: `validation of cluster passes, if cluster.size was set to a value >1
+			and now gets set to another value >1'`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCluster(defaultCluster()),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecCluster(defaultCluster()),
+			),
+			givenUpdates: []testutils.NATSOption{
+				testutils.WithNATSCluster(v1alpha1.Cluster{
+					Size: 5,
+				}),
+			},
+			wantErrMsg: noError,
+		},
 	}
 
 	for _, tc := range testCases {
