@@ -282,6 +282,21 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 			},
 			wantErrMsg: "size cannot be reduced to 1 once it was >1",
 		},
+		{
+			name: `validation of cluster passes, if cluster.size>1 gets set to >1'`,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCluster(defaultCluster()),
+			),
+			wantMatches: gomega.And(
+				natsmatchers.HaveSpecCluster(defaultCluster()),
+			),
+			givenUpdates: []testutils.NATSOption{
+				testutils.WithNATSCluster(v1alpha1.Cluster{
+					Size: 5,
+				}),
+			},
+			wantErrMsg: noError,
+		},
 	}
 
 	for _, tc := range testCases {
