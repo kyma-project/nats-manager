@@ -83,7 +83,12 @@ spec:
                     x-kubernetes-validations:
                     - message: size only accepts odd numbers
                       rule: (self%2) != 0
+                    - message: size cannot be reduced to 1 once it was >1
+                      rule: '!(oldSelf > 1 && self == 1)'
                 type: object
+                x-kubernetes-validations:
+                - message: size cannot be reduced to 1 once it was >1
+                  rule: '!(oldSelf.size > 1 && self.size == 1)'
               jetStream:
                 default:
                   fileStorage:

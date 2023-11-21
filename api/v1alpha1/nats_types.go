@@ -97,6 +97,7 @@ type NATSStatus struct {
 type NATSSpec struct {
 	// Cluster defines configurations that are specific to NATS clusters.
 	// +kubebuilder:default:={size:3}
+	// +kubebuilder:validation:XValidation:rule="!(oldSelf.size > 1 && self.size == 1)", message="size cannot be reduced to 1 once it was >1"
 	Cluster `json:"cluster,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
@@ -125,6 +126,7 @@ type Cluster struct {
 	// +kubebuilder:default:=3
 	// +kubebuilder:validation:Minimum:=1
 	// +kubebuilder:validation:XValidation:rule="(self%2) != 0", message="size only accepts odd numbers"
+	// +kubebuilder:validation:XValidation:rule="!(oldSelf > 1 && self == 1)", message="size cannot be reduced to 1 once it was >1"
 	Size int `json:"size,omitempty"`
 }
 
