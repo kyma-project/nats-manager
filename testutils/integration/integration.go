@@ -710,7 +710,6 @@ func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.En
 	testEnv := &envtest.Environment{
 		CRDDirectoryPaths: []string{
 			filepath.Join(projectRootDir, "config", "crd", "bases"),
-			filepath.Join(projectRootDir, "config", "crd", "external"),
 		},
 		ErrorIfCRDPathMissing:    true,
 		AttachControlPlaneOutput: attachControlPlaneOutput,
