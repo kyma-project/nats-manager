@@ -146,6 +146,13 @@ func WithNATSStateReady() NATSOption {
 	}
 }
 
+func WithNATSStateWarning() NATSOption {
+	return func(nats *v1alpha1.NATS) error {
+		nats.Status.State = v1alpha1.StateWarning
+		return nil
+	}
+}
+
 func WithNATSStateProcessing() NATSOption {
 	return func(nats *v1alpha1.NATS) error {
 		nats.Status.State = v1alpha1.StateProcessing
