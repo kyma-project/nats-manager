@@ -226,8 +226,6 @@ func Test_Validate_CreateNATS(t *testing.T) {
 // object in the K8s cluster, then tries to modify it with givenUpdates, and test the error that was caused by this
 // update, against a wantErrMsg.
 func Test_Validate_UpdateNATS(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name         string
 		givenNATS    *v1alpha1.NATS
@@ -303,7 +301,6 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := gomega.NewGomegaWithT(t)
 
 			// given
