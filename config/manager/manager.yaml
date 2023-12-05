@@ -3,14 +3,7 @@ kind: Deployment
 metadata:
   name: manager
   namespace: system
-  labels:
-    control-plane: manager
-    app.kubernetes.io/name: deployment
-    app.kubernetes.io/instance: manager
-    app.kubernetes.io/component: manager
-    app.kubernetes.io/created-by: nats-manager
-    app.kubernetes.io/part-of: nats-manager
-    app.kubernetes.io/managed-by: kustomize
+  labels: {}
 spec:
   selector:
     matchLabels:

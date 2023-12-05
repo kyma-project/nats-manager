@@ -146,8 +146,14 @@ func Test_Overrides_Keys(t *testing.T) {
 		ResourceRequestsMemKey: "64Mi",
 		ResourceLimitsCPUKey:   "500m",
 		ResourceLimitsMemKey:   "1Gi",
-		CommonLabelsKey:        map[string]interface{}{},
-		CommonAnnotationsKey:   map[string]interface{}{},
+		CommonLabelsKey: map[string]interface{}{
+			"app.kubernetes.io/component":  "nats-manager",
+			"app.kubernetes.io/created-by": "nats-manager",
+			"app.kubernetes.io/managed-by": "nats-manager",
+			"app.kubernetes.io/part-of":    "nats-manager",
+			"control-plane":                "nats-manager",
+		},
+		CommonAnnotationsKey: map[string]interface{}{},
 	}
 
 	// run test cases

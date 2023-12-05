@@ -316,7 +316,12 @@ appProtocol:
 k8sClusterDomain: cluster.local
 
 # Add labels to all the deployed resources
-commonLabels: {}
+commonLabels:
+  app.kubernetes.io/component: nats-manager
+  app.kubernetes.io/created-by: nats-manager
+  app.kubernetes.io/managed-by: nats-manager
+  app.kubernetes.io/part-of: nats-manager
+  control-plane: nats-manager
 
 # Add annotations to all the deployed resources
 commonAnnotations: {}
