@@ -182,6 +182,23 @@ func Test_CreateNATSCR(t *testing.T) {
 				testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenNATS)
 				testEnvironment.EnsureNATSSpecFileStorageReflected(t, *tc.givenNATS)
 			}
+
+			// check url in the NATS CR status
+			natsCR, err := testEnvironment.GetNATSFromK8s(tc.givenNATS.Name, givenNamespace)
+			require.NoError(t, err)
+			require.NotNil(t, natsCR)
+			switch natsCR.Status.State {
+			case v1alpha1.StateReady:
+				{
+					wantURL := fmt.Sprintf("nats://%s.%s.svc.cluster.local:4222", natsCR.Name, natsCR.Namespace)
+					require.Equal(t, wantURL, natsCR.Status.URL)
+				}
+			default:
+				{
+					const wantURL = ""
+					require.Equal(t, wantURL, natsCR.Status.URL)
+				}
+			}
 		})
 	}
 }
@@ -264,6 +281,23 @@ func Test_UpdateNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, testutils.GetStatefulSetName(*tc.givenNATS),
 				givenNamespace, tc.givenUpdateNATS.Spec.Annotations)
 			testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenUpdateNATS)
+
+			// check url in the NATS CR status
+			natsCR, err := testEnvironment.GetNATSFromK8s(tc.givenNATS.Name, givenNamespace)
+			require.NoError(t, err)
+			require.NotNil(t, natsCR)
+			switch natsCR.Status.State {
+			case v1alpha1.StateReady:
+				{
+					wantURL := fmt.Sprintf("nats://%s.%s.svc.cluster.local:4222", natsCR.Name, natsCR.Namespace)
+					require.Equal(t, wantURL, natsCR.Status.URL)
+				}
+			default:
+				{
+					const wantURL = ""
+					require.Equal(t, wantURL, natsCR.Status.URL)
+				}
+			}
 		})
 	}
 }
@@ -590,6 +624,23 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 
 			// check NATS CR status again.
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatchers)
+
+			// check url in the NATS CR status
+			natsCR, err := testEnvironment.GetNATSFromK8s(tc.givenNATS.Name, givenNamespace)
+			require.NoError(t, err)
+			require.NotNil(t, natsCR)
+			switch natsCR.Status.State {
+			case v1alpha1.StateReady:
+				{
+					wantURL := fmt.Sprintf("nats://%s.%s.svc.cluster.local:4222", natsCR.Name, natsCR.Namespace)
+					require.Equal(t, wantURL, natsCR.Status.URL)
+				}
+			default:
+				{
+					const wantURL = ""
+					require.Equal(t, wantURL, natsCR.Status.URL)
+				}
+			}
 		})
 	}
 }

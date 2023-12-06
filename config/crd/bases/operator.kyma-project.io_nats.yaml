@@ -305,6 +305,8 @@ spec:
                 type: array
               state:
                 type: string
+              url:
+                type: string
             required:
             - state
             type: object

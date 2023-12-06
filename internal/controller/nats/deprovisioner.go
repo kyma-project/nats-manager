@@ -4,20 +4,20 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kyma-project/nats-manager/pkg/events"
-
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	natspkg "github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	natsurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
+	"github.com/kyma-project/nats-manager/pkg/events"
+	natspkg "github.com/kyma-project/nats-manager/pkg/nats"
 )
 
 const (
 	StreamExistsErrorMsg   = "Cannot delete NATS cluster as customer stream exists"
 	ConsumerExistsErrorMsg = "Cannot delete NATS cluster as stream consumer exists"
-	natsClientPort         = 4222
 	InstanceLabelKey       = "app.kubernetes.io/instance"
 	SapStreamName          = "sap"
 )
@@ -109,7 +109,7 @@ func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 	// create a new instance if it does not exist.
 	if r.getNatsClient(nats) == nil {
 		r.setNatsClient(nats, natspkg.NewNatsClient(&natspkg.Config{
-			URL: fmt.Sprintf("nats://%s.%s.svc.cluster.local:%d", nats.Name, nats.Namespace, natsClientPort),
+			URL: natsurl.Format(nats.Name, nats.Namespace),
 		}))
 	}
 	return r.getNatsClient(nats).Init()

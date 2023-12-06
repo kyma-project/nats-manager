@@ -101,3 +101,13 @@ func (ns *NATSStatus) Initialize() {
 	ns.UpdateConditionStatefulSet(metav1.ConditionFalse, ConditionReasonProcessing, "")
 	ns.UpdateConditionAvailable(metav1.ConditionFalse, ConditionReasonProcessing, "")
 }
+
+// ClearURL clears the url.
+func (ns *NATSStatus) ClearURL() {
+	ns.URL = ""
+}
+
+// SetURL sets the url.
+func (ns *NATSStatus) SetURL(url string) {
+	ns.URL = url
+}

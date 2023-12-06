@@ -4,13 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/kyma-project/nats-manager/pkg/events"
-
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
+
+	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	natsurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
+	"github.com/kyma-project/nats-manager/pkg/events"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 )
 
 const RequeueTimeForStatusCheck = 10
@@ -66,6 +67,9 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 // It also syncs the NATS CR status.
 func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance,
 	log *zap.SugaredLogger) (ctrl.Result, error) {
+	// Clear the url until the StatefulSet is ready.
+	nats.Status.ClearURL()
+
 	// checking if statefulSet is ready.
 	isSTSReady, err := r.natsManager.IsNATSStatefulSetReady(ctx, instance)
 	if err != nil {
@@ -78,6 +82,7 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NAT
 
 	if isSTSReady {
 		nats.Status.SetStateReady()
+		nats.Status.SetURL(natsurl.Format(nats.Name, nats.Namespace))
 		events.Normal(r.recorder, nats, natsv1alpha1.ConditionReasonDeployed, "StatefulSet is ready and NATS is deployed.")
 	} else {
 		nats.Status.SetWaitingStateForStatefulSet()
