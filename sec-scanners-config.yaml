@@ -1,8 +1,8 @@
 module-name: nats
 protecode:
   - europe-docker.pkg.dev/kyma-project/prod/nats-manager:v20231023-67159afa
-  - europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.12.0
-  - europe-docker.pkg.dev/kyma-project/prod/external/natsio/nats-server-config-reloader:0.12.0
+  - europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.13.0
+  - europe-docker.pkg.dev/kyma-project/prod/external/natsio/nats-server-config-reloader:0.14.0
   - europe-docker.pkg.dev/kyma-project/prod/external/nats:v20230620-2.9.18-alpine3.18
 whitesource:
   language: golang-mod
