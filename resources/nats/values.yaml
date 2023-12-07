@@ -14,11 +14,11 @@ global:
       directory: prod/external
     nats_config_reloader:
       name: natsio/nats-server-config-reloader
-      version: 0.12.0
+      version: 0.14.0
       directory: prod/external
     prometheus_nats_exporter:
       name: natsio/prometheus-nats-exporter
-      version: 0.12.0
+      version: 0.13.0
       directory: prod/external
 
   jetstream:
