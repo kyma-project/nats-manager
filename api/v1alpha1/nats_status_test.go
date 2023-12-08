@@ -373,3 +373,42 @@ func Test_Initialize(t *testing.T) {
 		require.Equal(t, expectedAvailableCondition, availableCondition)
 	})
 }
+
+func Test_ClearURL(t *testing.T) {
+	t.Parallel()
+	t.Run("should clear the url", func(t *testing.T) {
+		t.Parallel()
+
+		// given
+		const givenURL = "some.url"
+		natsStatus := &NATSStatus{URL: givenURL}
+
+		// when
+		natsStatus.ClearURL()
+
+		// then
+		const wantURL = ""
+
+		require.NotEqual(t, wantURL, givenURL)
+		require.Equal(t, wantURL, natsStatus.URL)
+	})
+}
+
+func Test_SetURL(t *testing.T) {
+	t.Parallel()
+	t.Run("should set the url", func(t *testing.T) {
+		t.Parallel()
+
+		// given
+		const givenURL = ""
+		natsStatus := &NATSStatus{URL: givenURL}
+
+		// when
+		const wantURL = "some.url"
+		natsStatus.SetURL(wantURL)
+
+		// then
+		require.NotEqual(t, wantURL, givenURL)
+		require.Equal(t, wantURL, natsStatus.URL)
+	})
+}

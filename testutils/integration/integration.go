@@ -533,6 +533,25 @@ func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats 
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.jetStream.memStorage")
 }
 
+func (env TestEnvironment) EnsureURLInNATSStatus(t *testing.T, name, namespace string) {
+	natsCR, err := env.GetNATSFromK8s(name, namespace)
+	require.NoError(t, err)
+	require.NotNil(t, natsCR)
+
+	switch natsCR.Status.State {
+	case natsv1alpha1.StateReady:
+		{
+			wantURL := fmt.Sprintf("nats://%s.%s.svc.cluster.local:4222", natsCR.Name, natsCR.Namespace)
+			require.Equal(t, wantURL, natsCR.Status.URL)
+		}
+	default:
+		{
+			const wantURL = ""
+			require.Equal(t, wantURL, natsCR.Status.URL)
+		}
+	}
+}
+
 func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
 	err := env.k8sClient.Get(env.Context, k8stypes.NamespacedName{

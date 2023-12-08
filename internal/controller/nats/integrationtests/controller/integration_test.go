@@ -182,6 +182,9 @@ func Test_CreateNATSCR(t *testing.T) {
 				testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenNATS)
 				testEnvironment.EnsureNATSSpecFileStorageReflected(t, *tc.givenNATS)
 			}
+
+			// check the url in the NATS CR status
+			testEnvironment.EnsureURLInNATSStatus(t, tc.givenNATS.Name, givenNamespace)
 		})
 	}
 }
@@ -264,6 +267,9 @@ func Test_UpdateNATSCR(t *testing.T) {
 			testEnvironment.EnsureK8sStatefulSetHasAnnotations(t, testutils.GetStatefulSetName(*tc.givenNATS),
 				givenNamespace, tc.givenUpdateNATS.Spec.Annotations)
 			testEnvironment.EnsureNATSSpecMemStorageReflected(t, *tc.givenUpdateNATS)
+
+			// check the url in the NATS CR status
+			testEnvironment.EnsureURLInNATSStatus(t, tc.givenNATS.Name, givenNamespace)
 		})
 	}
 }
@@ -590,6 +596,9 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 
 			// check NATS CR status again.
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatchers)
+
+			// check the url in the NATS CR status
+			testEnvironment.EnsureURLInNATSStatus(t, tc.givenNATS.Name, givenNamespace)
 		})
 	}
 }

@@ -90,6 +90,7 @@ type NATS struct {
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
 	State      string             `json:"state"`
+	URL        string             `json:"url,omitempty"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
