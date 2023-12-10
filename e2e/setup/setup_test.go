@@ -98,7 +98,7 @@ func TestMain(m *testing.M) {
 		logger.Fatal(err.Error())
 	}
 
-	// wait for an interval for reconciliation to update status.
+	// Wait for an interval for reconciliation to update status.
 	time.Sleep(interval)
 
 	// Wait for NATS CR to get ready.
@@ -438,7 +438,7 @@ func waitForNATSManagerDeploymentReady(image string) error {
 			return err
 		}
 
-		// if image is provided, then check if the deployment has correct image.
+		// If the image is provided, then check if the deployment has the correct image.
 		if image != "" && gotDeployment.Spec.Template.Spec.Containers[0].Image != image {
 			err := fmt.Errorf("expected NATS-manager image to be: %s, but found: %s", image,
 				gotDeployment.Spec.Template.Spec.Containers[0].Image,
@@ -447,7 +447,7 @@ func waitForNATSManagerDeploymentReady(image string) error {
 			return err
 		}
 
-		// check if the deployment is ready.
+		// Check if the deployment is ready.
 		if *gotDeployment.Spec.Replicas != gotDeployment.Status.UpdatedReplicas ||
 			*gotDeployment.Spec.Replicas != gotDeployment.Status.ReadyReplicas ||
 			*gotDeployment.Spec.Replicas != gotDeployment.Status.AvailableReplicas {
