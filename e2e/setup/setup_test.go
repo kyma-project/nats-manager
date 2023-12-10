@@ -199,10 +199,10 @@ func Test_PodsResources(t *testing.T) {
 
 		// The number of Pods must be equal NATS.spec.cluster.size. We check this in the retry, because it may take
 		// some time for all Pods to be there.
-		if len(pods.Items) != NATSCR().Spec.Cluster.Size {
+		if len(pods.Items) != NATSCR().Spec.Size {
 			return fmt.Errorf(
 				"error while fetching Pods; wanted %v Pods but got %v",
-				NATSCR().Spec.Cluster.Size,
+				NATSCR().Spec.Size,
 				pods.Items,
 			)
 		}
@@ -212,7 +212,7 @@ func Test_PodsResources(t *testing.T) {
 		foundContainers := 0
 		for _, pod := range pods.Items {
 			for _, container := range pod.Spec.Containers {
-				if !(container.Name == ContainerName) {
+				if container.Name != ContainerName {
 					continue
 				}
 				foundContainers += 1
@@ -226,10 +226,10 @@ func Test_PodsResources(t *testing.T) {
 				}
 			}
 		}
-		if foundContainers != NATSCR().Spec.Cluster.Size {
+		if foundContainers != NATSCR().Spec.Size {
 			return fmt.Errorf(
 				"error while fethching 'natsCR' Containers: expected %v but found %v",
-				NATSCR().Spec.Cluster.Size,
+				NATSCR().Spec.Size,
 				foundContainers,
 			)
 		}
@@ -261,9 +261,9 @@ func Test_PodsReady(t *testing.T) {
 
 		// The number of Pods must be equal NATS.spec.cluster.size. We check this in the retry, because it may take
 		// some time for all Pods to be there.
-		if len(pods.Items) != natsCR.Spec.Cluster.Size {
+		if len(pods.Items) != natsCR.Spec.Size {
 			return fmt.Errorf(
-				"Error while fetching pods; wanted %v Pods but got %v", natsCR.Spec.Cluster.Size, pods.Items,
+				"Error while fetching pods; wanted %v Pods but got %v", natsCR.Spec.Size, pods.Items,
 			)
 		}
 
@@ -311,7 +311,7 @@ func Test_PVCs(t *testing.T) {
 
 		// Check if the amount of PVCs is equal to the spec.cluster.size in the NATS CR. We do this in the retry,
 		// because it may take some time for all PVCs to be there.
-		want, actual := NATSCR().Spec.Cluster.Size, len(pvcs.Items)
+		want, actual := NATSCR().Spec.Size, len(pvcs.Items)
 		if want != actual {
 			return fmt.Errorf("error while fetching PVSs; wanted %v PVCs but got %v", want, actual)
 		}
