@@ -59,11 +59,10 @@ func TestMain(m *testing.M) {
 		logger.Fatal(err.Error())
 	}
 
-	ctx := context.TODO()
 	// Create the Namespace used for testing.
 	err = Retry(attempts, interval, func() error {
 		// It's fine if the Namespace already exists.
-		return client.IgnoreAlreadyExists(k8sClient.Create(ctx, Namespace()))
+		return client.IgnoreAlreadyExists(k8sClient.Create(context.TODO(), Namespace()))
 	})
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -85,7 +84,7 @@ func TestMain(m *testing.M) {
 
 	// Create the NATS CR used for testing.
 	err = Retry(attempts, interval, func() error {
-		errNATS := k8sClient.Create(ctx, NATSCR())
+		errNATS := k8sClient.Create(context.TODO(), NATSCR())
 		if k8serrors.IsAlreadyExists(errNATS) {
 			logger.Warn(
 				"error while creating NATS CR, resource already exist; test will continue with existing NATS CR",
@@ -115,10 +114,9 @@ func TestMain(m *testing.M) {
 func Test_CR(t *testing.T) {
 	want := NATSCR()
 
-	ctx := context.TODO()
 	// Get the NATS CR from the cluster.
 	actual, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATSCR(ctx, want.Name, want.Namespace)
+		return getNATSCR(context.TODO(), want.Name, want.Namespace)
 	})
 	require.NoError(t, err)
 
@@ -131,10 +129,8 @@ func Test_CR(t *testing.T) {
 // Test_PriorityClass will get the PriorityClass name from the StatefulSet and checks if a PriorityClass with that
 // name exists in the cluster.
 func Test_PriorityClass(t *testing.T) {
-	ctx := context.TODO()
-
 	err := Retry(attempts, interval, func() error {
-		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(context.TODO(), STSName, metav1.GetOptions{})
 		if stsErr != nil {
 			return stsErr
 		}
@@ -149,7 +145,7 @@ func Test_PriorityClass(t *testing.T) {
 			return fmt.Errorf("PriorityClassName was expected to be %s but was %s", PriorityClassName, pcName)
 		}
 
-		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, metav1.GetOptions{})
+		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(context.TODO(), pcName, metav1.GetOptions{})
 		return pcErr
 	})
 
@@ -158,10 +154,8 @@ func Test_PriorityClass(t *testing.T) {
 
 // Test_ConfigMap tests the ConfigMap that the NATS-Manger creates when we define a CR.
 func Test_ConfigMap(t *testing.T) {
-	ctx := context.TODO()
-
 	err := Retry(attempts, interval, func() error {
-		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, metav1.GetOptions{})
+		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(context.TODO(), CMName, metav1.GetOptions{})
 		if cmErr != nil {
 			return cmErr
 		}
@@ -195,11 +189,10 @@ func Test_ConfigMap(t *testing.T) {
 func Test_PodsResources(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
 	// RetryGet the NATS Pods and test them.
 	err := Retry(attempts, interval, func() error {
 		// RetryGet the NATS Pods via labels.
-		pods, err := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
+		pods, err := clientSet.CoreV1().Pods(NamespaceName).List(context.TODO(), PodListOpts())
 		if err != nil {
 			return err
 		}
@@ -251,10 +244,9 @@ func Test_PodsResources(t *testing.T) {
 func Test_PodsReady(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
 	// RetryGet the NATS CR. It will tell us how many Pods we should expect.
 	natsCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-		return getNATSCR(ctx, CRName, NamespaceName)
+		return getNATSCR(context.TODO(), CRName, NamespaceName)
 	})
 	require.NoError(t, err)
 
@@ -262,7 +254,7 @@ func Test_PodsReady(t *testing.T) {
 	err = Retry(attempts, interval, func() error {
 		var pods *v1.PodList
 		// RetryGet the NATS Pods via labels.
-		pods, err = clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
+		pods, err = clientSet.CoreV1().Pods(NamespaceName).List(context.TODO(), PodListOpts())
 		if err != nil {
 			return err
 		}
@@ -306,13 +298,12 @@ func Test_PVCs(t *testing.T) {
 	t.Parallel()
 
 	// Get the PersistentVolumeClaims --PVCs-- and test them.
-	ctx := context.TODO()
 	var pvcs *v1.PersistentVolumeClaimList
 	err := Retry(attempts, interval, func() error {
 		// RetryGet PVCs via a label.
 		var err error
 		pvcs, err = RetryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
-			return clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
+			return clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(context.TODO(), PVCListOpts())
 		})
 		if err != nil {
 			return err
@@ -340,9 +331,9 @@ func Test_PVCs(t *testing.T) {
 // Test_Secret tests if the Secret was created.
 func Test_Secret(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
+
 	err := Retry(attempts, interval, func() error {
-		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, metav1.GetOptions{})
+		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(context.TODO(), SecretName, metav1.GetOptions{})
 		if secErr != nil {
 			return secErr
 		}
@@ -402,10 +393,9 @@ func waitForNATSCRReady() error {
 		logger.Debug(fmt.Sprintf("waiting for NATS CR to get ready. "+
 			"CR name: %s, namespace: %s", want.Name, want.Namespace))
 
-		ctx := context.TODO()
 		// Get the NATS CR from the cluster.
 		gotNATSCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
-			return getNATSCR(ctx, want.Name, want.Namespace)
+			return getNATSCR(context.TODO(), want.Name, want.Namespace)
 		})
 		if err != nil {
 			return err
@@ -429,10 +419,10 @@ func waitForNATSManagerDeploymentReady(image string) error {
 	// RetryGet the NATS Manager and test status.
 	return Retry(attempts, interval, func() error {
 		logger.Debug(fmt.Sprintf("waiting for nats-manager deployment to get ready with image: %s", image))
-		ctx := context.TODO()
+
 		// Get the NATS-manager deployment from the cluster.
 		gotDeployment, err := RetryGet(attempts, interval, func() (*appsv1.Deployment, error) {
-			return getDeployment(ctx, ManagerDeploymentName, NamespaceName)
+			return getDeployment(context.TODO(), ManagerDeploymentName, NamespaceName)
 		})
 		if err != nil {
 			return err
