@@ -8,12 +8,12 @@ sleep 1
 # This will will all the port-forwarding and delete the stream. We need this to be in a function so we can even call it,
 # if our tests fails since `set -e` would stop the script in case of an failing test.
 function cleanup() {
-  # Forcefully purge the stream.
-  nats stream purge benchstream -f
-  # Forcefully delete the stream.
-  nats stream rm benchstream -f
-  
-  kill ${PID}
+	# Forcefully purge the stream.
+	nats stream purge benchstream -f
+	# Forcefully delete the stream.
+	nats stream rm benchstream -f
+
+	kill ${PID}
 }
 
 # This kills the port-forwards even if the test fails.
