@@ -58,9 +58,8 @@ func TestMain(m *testing.M) {
 	}
 
 	// Delete the NATS CR.
-	ctx := context.TODO()
 	err = Retry(attempts, interval, func() error {
-		errDel := k8sClient.Delete(ctx, NATSCR())
+		errDel := k8sClient.Delete(context.TODO(), NATSCR())
 		// If it is gone already, that's fine too.
 		if k8serrors.IsNotFound(errDel) {
 			return nil
@@ -80,10 +79,9 @@ func TestMain(m *testing.M) {
 func Test_NoPodsExists(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
 	err := Retry(attempts, interval, func() error {
 		// Try to get the Pods.
-		pods, podErr := clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
+		pods, podErr := clientSet.CoreV1().Pods(NamespaceName).List(context.TODO(), PodListOpts())
 		if podErr != nil {
 			return podErr
 		}
@@ -101,10 +99,9 @@ func Test_NoPodsExists(t *testing.T) {
 func Test_NoPVCsExists(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
 	err := Retry(attempts, interval, func() error {
 		// Try to get the PVCs.
-		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
+		pvcs, pvcErr := clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(context.TODO(), PVCListOpts())
 		if pvcErr != nil {
 			return pvcErr
 		}
@@ -122,10 +119,9 @@ func Test_NoPVCsExists(t *testing.T) {
 func Test_NoSTSExists(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
 	err := Retry(attempts, interval, func() error {
 		// Try to get the STS.
-		_, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, v1.GetOptions{})
+		_, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(context.TODO(), STSName, v1.GetOptions{})
 		// This is what we want here.
 		if k8serrors.IsNotFound(stsErr) {
 			return nil
@@ -143,9 +139,8 @@ func Test_NoSTSExists(t *testing.T) {
 func Test_NoNATSSecretExists(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
 	err := Retry(attempts, interval, func() error {
-		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, v1.GetOptions{})
+		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(context.TODO(), SecretName, v1.GetOptions{})
 		// This is what we want here.
 		if k8serrors.IsNotFound(secErr) {
 			return nil
@@ -163,9 +158,8 @@ func Test_NoNATSSecretExists(t *testing.T) {
 func Test_NoNATSCRExists(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
 	err := Retry(attempts, interval, func() error {
-		_, crErr := getNATSCR(ctx, CRName, NamespaceName)
+		_, crErr := getNATSCR(context.TODO(), CRName, NamespaceName)
 		// This is what we want here.
 		if k8serrors.IsNotFound(crErr) {
 			return nil
