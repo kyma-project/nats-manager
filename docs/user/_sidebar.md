@@ -2,4 +2,4 @@
 - [NATS Manager](README.md)
 - [Module Lifecycle](01-manager.md)
 - [Module Configuration](02-configuration.md)
-- [Acquiring NATS server system account credentials](10-nats-server-system-events.md)
+- [Acquiring NATS Server System Account Credentials](10-nats-server-system-events.md)

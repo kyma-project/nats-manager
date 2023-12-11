@@ -87,7 +87,6 @@ The E2E test consists of four consecutive steps. If desired, you can run them in
    make e2e-cleanup
    ```
 
-
 ## CI/CD
 
 This project uses [Prow](https://docs.prow.k8s.io/docs/) and [GitHub Actions](https://docs.github.com/en/actions) as part of the development cycle.
