@@ -1,4 +1,4 @@
-- [Home](/)
+- [Back to Kyma Home](/)
 - [NATS Manager](README.md)
 - [Module Lifecycle](01-manager.md)
 - [Module Configuration](02-configuration.md)
