@@ -2,9 +2,9 @@
 
 There are several ways to install the NATS Manager.
 For development, you must run some make targets beforehand.
-For information about the prerequisites, refer to [Development](./development.md) and for a detailed guide to the development flow, visit [Governance](./governance.md).
+For information about the prerequisites, refer to [Development](./development.md), and for a detailed guide to the development flow, visit [Governance](./governance.md).
 
-## Run the manager on a (k3d) cluster using a Docker image
+## Run the NATS Manager on a (k3d) Cluster Using a Docker Image
 
 ### Installation
 
@@ -80,7 +80,7 @@ For information about the prerequisites, refer to [Development](./development.md
    make uninstall
    ```
 
-## Run the manager on a cluster using the Go runtime environment
+## Run the NATS Manager on a Cluster Using the Go Runtime Environment
 
 ### Installation
 
@@ -114,7 +114,7 @@ Remove the resources.
    make uninstall
    ```
 
-## Run the NATS Manager using Kyma's Lifecycle Manager
+## Run the NATS Manager Using Kyma’s Lifecycle Manager
 
 [Kyma's Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager) helps manage the lifecycle of each module in the cluster and can be used to install the NATS Manager.
 

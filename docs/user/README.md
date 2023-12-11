@@ -1,4 +1,4 @@
-# NATS module
+# NATS Module
 
 This module ships the NATS Manager, which is responsible for managing the lifecycle of a [NATS JetStream](https://docs.nats.io/nats-concepts/jetstream) deployment.
 It observes the state of the NATS cluster and reconciles its state according to the desired state.
@@ -10,13 +10,13 @@ Kyma Eventing can use NATS as a backend to process events and send them to subsc
 
 ## Documentation Overview
 
-   - [General information about the NATS Manager](./01-manager.md)
-   - [Details how to configure the NATS module](./02-configuration.md)
+- [General information about the NATS Manager](./01-manager.md)
+- [Details how to configure the NATS module](./02-configuration.md)
 
 There is further documentation including more technical details aimed at possible contributors:
 
-   - [General information about the setup](../contributor/development.md)
-   - [Guide to the project governance](../contributor/governance.md)
-   - [Installation guide](../contributor/installation.md)
-   - [Information about the test coverage](../contributor/testing.md)
-   - [Troubleshooting](../contributor/troubleshooting.md)
+- [General information about the setup](../contributor/development.md)
+- [Guide to the project governance](../contributor/governance.md)
+- [Installation guide](../contributor/installation.md)
+- [Information about the test coverage](../contributor/testing.md)
+- [Troubleshooting](../contributor/troubleshooting.md)

@@ -14,12 +14,10 @@ Projects created by Kubebuilder contain a Makefile with tooling that must be loc
 - [golangci-lint](https://golangci-lint.run/)
 
 ## Available Commands
+
 Commands are available for easier development and installation of the NATS Manager.
 To find out which commands are available and for some more details about each command, run:
 
 ```bash
 make help
 ```
-
-
-
