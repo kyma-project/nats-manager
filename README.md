@@ -8,7 +8,7 @@ Manages the lifecycle of a NATS JetStream deployment.
 
 NATS Manager is a standard Kubernetes operator that observes the state of NATS JetStream deployment and reconciles its state according to the desired state.
 
-### How it works
+### How It Works
 
 This project aims to follow the [Kubernetes Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
 
@@ -16,7 +16,7 @@ It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controlle
 
 This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and all the Kubebuilder [`makefile` helpers](https://book.kubebuilder.io/reference/makefile-helpers.html) can be used.
 
-## Install
+## Installation
 
 1. To install the latest version of the NATS manager on your cluster, run:
 
@@ -118,7 +118,7 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
 
 > **NOTE:** Your NATS Manager automatically uses the current context in your kubeconfig file, that is, whatever cluster `kubectl cluster-info` shows.
 
-### Deploy on the cluster
+### Deploy on the Cluster
 
 1. Download Go packages:
 
@@ -166,7 +166,7 @@ To delete the CRDs from the cluster:
 make uninstall
 ```
 
-### Deploy NATS Manager module with [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
+### Deploy NATS Manager Module With [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
 
 1. Deploy the Lifecycle Manager to the Kubernetes cluster:
 
@@ -202,7 +202,7 @@ make uninstall
      kubectl get -n kyma-system kyma
      ```
 
-### Uninstall NATS Manager module with [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
+### Uninstall NATS Manager Module With [Kyma Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager/tree/main)
 
 1. Delete NATS Custom Resource (CR) from the Kubernetes cluster (if exists):
 
@@ -237,7 +237,7 @@ make uninstall
      kubectl get -n kyma-system kyma
      ```
 
-## E2E tests
+## E2E Tests
 
 > **NOTE:** Because the E2E tests need a Kubernetes cluster to run on, they are separated from the remaining tests and are only executed if the `e2e` build tags are passed.
 
