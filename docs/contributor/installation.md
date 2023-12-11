@@ -114,7 +114,7 @@ Remove the resources.
    make uninstall
    ```
 
-## Run the Nats Manager Using Kyma’s Lifecycle Manager
+## Run the NATS Manager Using Kyma’s Lifecycle Manager
 
 [Kyma's Lifecycle Manager](https://github.com/kyma-project/lifecycle-manager) helps manage the lifecycle of each module in the cluster and can be used to install the NATS Manager.
 
