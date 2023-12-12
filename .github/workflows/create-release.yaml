@@ -59,6 +59,10 @@ jobs:
           git tag ${{ github.event.inputs.name }}
           git push origin ${{ github.event.inputs.name }}
 
+      - name: Check if the release image was build and can be found in image registery
+        run: |
+          ./scripts/image_exists.sh
+
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
 
