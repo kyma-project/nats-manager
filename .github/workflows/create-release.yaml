@@ -62,7 +62,7 @@ jobs:
           RELEASE_ID=$(./scripts/create_draft_release.sh ${{ github.event.inputs.name }})
           echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
-      # This will trigger the prow release jobs.
+      # This will trigger the prow release jobs. The value for github.event.inputs_name will be awailable as the env var PULL_BASE_REF.
       - name: Create lightweight tag
         run: |
           git tag ${{ github.event.inputs.name }}
