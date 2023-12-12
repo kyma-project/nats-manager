@@ -55,7 +55,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(natsv1alpha1.AddToScheme(scheme))
 
-	// get configs from ENV
+	// Get configs from ENV.
 	envConfigs, err := env.GetConfig()
 	if err != nil {
 		setupLog.Error(err, "unable to get configs from env")
