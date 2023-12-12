@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       name:
-        description: "Release name"
+        description: "Release name, eg '1.0.1'"
         default: ""
         required: true
 

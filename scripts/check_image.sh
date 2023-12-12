@@ -2,9 +2,9 @@
 
 # This script will check if the tag for the nats-manager image is the one we define as the semantinc release version.
 
-EXPECTED_TAG="${1:-"0.0.0"}"
+EXPECTED_TAG=${1:-latest}
 
-IMAGE_TO_CHECK="${2:-europe-docker.pkg.dev/kyma-project/prod/nats-manager}"
+IMAGE_TO_CHECK=${2:-europe-docker.pkg.dev/kyma-project/prod/nats-manager}
 BUMPED_IMAGE_TAG=$(cat sec-scanners-config.yaml | grep "${IMAGE_TO_CHECK}" | cut -d : -f 2)
 
 if [[ "$BUMPED_IMAGE_TAG" != "$EXPECTED_TAG" ]]; then
