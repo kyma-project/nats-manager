@@ -19,8 +19,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check image
-        run: ./scripts/check_image.sh ${{ github.ref_name }}
+      - name: Check that the image tag defined in the sec-scanner-config is the same as the release version (${{ github.event.inputs.name }}).
+        run: ./scripts/check_image.sh ${{ github.event.inputs.name }}
 
   create-draft:
     name: Create draft release
