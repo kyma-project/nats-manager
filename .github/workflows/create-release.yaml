@@ -14,7 +14,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Verify, that an image with the target release version as a tag, does not exis.
+      - name: Verify that the current branch has a name that starts with 'release-'
+        run: |
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [[ "$CURRENT_BRANCH" == version-* ]]; then
+            echo "Branch name starts with 'version-'."
+          else
+            echo "Branch name does not start with 'version-'."
+            exit 1
+          fi
+
+      - name: Verify, that an image with the target release version as a tag, does not exis
         run: ./scripts/no_image_exists ${{ github.event.inputs.name }}
 
       - name: Checkout code
@@ -23,11 +33,10 @@ jobs:
       - name: Check that the image tag defined in the sec-scanner-config is the same as the release version (${{ github.event.inputs.name }})
         run: ./scripts/check_image.sh ${{ github.event.inputs.name }}
 
-      - name: Unit test
+      - name: Run unit tests
         run: make test
 
-      - name: make build
-        run: make build
+      - run: make build
 
   create-draft:
     name: Create draft release
