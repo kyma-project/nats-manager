@@ -33,6 +33,7 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -41,8 +42,6 @@ import (
 	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
-
-	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
