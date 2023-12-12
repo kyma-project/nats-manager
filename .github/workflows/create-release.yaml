@@ -14,13 +14,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Verify, that an image with the target release version as a tag, does not exis.
+        run: ./scripts/no_image_exists ${{ github.event.inputs.name }}
+
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Check that the image tag defined in the sec-scanner-config is the same as the release version (${{ github.event.inputs.name }}).
+      - name: Check that the image tag defined in the sec-scanner-config is the same as the release version (${{ github.event.inputs.name }})
         run: ./scripts/check_image.sh ${{ github.event.inputs.name }}
+
+      - name: Unit test
+        run: make test
+
+      - name: make build
+        run: make build
 
   create-draft:
     name: Create draft release
@@ -46,6 +53,7 @@ jobs:
           RELEASE_ID=$(./scripts/create_draft_release.sh ${{ github.event.inputs.name }})
           echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
+      # This will trigger the prow release jobs.
       - name: Create lightweight tag
         run: |
           git tag ${{ github.event.inputs.name }}
