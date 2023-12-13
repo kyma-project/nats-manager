@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script will verify that a defined image with a defined tag cannot be found.
+
 TAG=${1:-latest}
 IMAGE=${2:-europe-docker.pkg.dev/kyma-project/prod/nats-manager}
 

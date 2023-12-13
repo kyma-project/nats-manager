@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script checks with a timeout, if a defined image with a defined can be found.
+
 TIMEOUT=${1:-600}
 INTERVAL=${2:-20}
 TAG=${3:-latest}
