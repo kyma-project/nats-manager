@@ -15,7 +15,8 @@ TODAY_DATE=$(date '+%Y-%m-%d')
 
 # Retry function
 function retry {
-
+	# The want_status will determine, when this script succeeds
+	local want_status="${1-success}"
 	# Get status result
 	local statusresult=$(curl -L -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" ${STATUS_URL})
 
@@ -62,13 +63,17 @@ function retry {
 		echo "Invalid result: $result"
 		exit 1
 	fi
-
 }
 
-# Initial wait
-sleep 0
-# Call retry function
-retry
+# First, we want the status to change from 'success' to 'pending',
+# which means the release build job was triggered.
+retry "pending"
+while [ "$fullstatus" == "success" ]; do
+	retry "pending"
+done
+
+# Then we want the status to change from 'pending' to 'success',
+# which means the release build job was finished successfuly.
 while [ "$fullstatus" == "pending" ]; do
-	retry
+	retry "success"
 done
