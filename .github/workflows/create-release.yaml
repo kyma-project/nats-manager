@@ -32,9 +32,6 @@ jobs:
       - name: Check image Tag
         run: ./scripts/check_tag_info.sh ${{ github.event.inputs.name }}
 
-      - name: Verify
-        run: ./scripts/verify-status.sh ${{ github.ref_name }}
-
   create-draft:
     name: Create draft release
     needs: verify-head-status
@@ -63,6 +60,9 @@ jobs:
         run: |
           git tag ${{ github.event.inputs.name }}
           git push origin ${{ github.event.inputs.name }}
+
+      - name: Verify prow post jobs
+        run: ./scripts/verify-status.sh ${{ github.ref_name }}
 
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
