@@ -48,7 +48,7 @@ const (
 	ManagedByLabelValue = ControllerName
 )
 
-// Reconciler reconciles a Nats object.
+// Reconciler reconciles a NATS object.
 //
 //go:generate go run github.com/vektra/mockery/v2 --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
 //go:generate go run github.com/vektra/mockery/v2 --name=Manager --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/manager --outpkg=mocks --case=underscore
@@ -125,40 +125,41 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// copy the object, so we don't modify the source object
+	// Copy the object, so we don't modify the source object.
 	nats := currentNats.DeepCopy()
 
-	// logger with nats details
+	// Create a logger with NATS details.
 	log := r.loggerWithNATS(nats)
 
-	// check if nats is in deletion state
+	// Check if nats is in deletion state.
 	if nats.IsInDeletion() {
 		return r.handleNATSDeletion(ctx, nats, log)
 	}
 
-	// check if the NATS CR is allowed to be created.
+	// Check if the NATS CR is allowed to be created.
 	if r.allowedNATSCR != nil {
 		if result, err := r.handleNATSCRAllowedCheck(ctx, nats, log); !result || err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 
-	// handle reconciliation
+	// Handle reconciliation.
 	return r.handleNATSReconcile(ctx, nats, log)
 }
 
 // handleNATSCRAllowedCheck checks if NATS CR is allowed to be created or not.
 // returns true if the NATS CR is allowed.
 func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1alpha1.NATS,
-	log *zap.SugaredLogger) (bool, error) {
-	// if the name and namespace matches with allowed NATS CR then allow the CR to be reconciled.
+	log *zap.SugaredLogger,
+) (bool, error) {
+	// If the name and namespace matches with allowed NATS CR then allow the CR to be reconciled.
 	if nats.Name == r.allowedNATSCR.Name && nats.Namespace == r.allowedNATSCR.Namespace {
 		return true, nil
 	}
 
-	// set error state in status.
+	// Set error state in status.
 	nats.Status.SetStateError()
-	// update conditions in status.
+	// Update conditions in status.
 	nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, "")
 	errorMessage := fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s "+
@@ -173,7 +174,7 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 // generateNatsResources renders the NATS chart with provided overrides.
 // It puts results into ReleaseInstance.
 func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance) error {
-	// generate Nats resources from chart
+	// Generate Nats resources from chart.
 	natsResources, err := r.natsManager.GenerateNATSResources(
 		instance,
 		manager.WithOwnerReference(*nats), // add owner references to all resources
@@ -183,15 +184,16 @@ func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *ch
 		return err
 	}
 
-	// update manifests in instance
+	// Update manifests in instance.
 	instance.SetRenderedManifests(*natsResources)
 	return nil
 }
 
 // initNATSInstance initializes a new NATS release instance based on NATS CR.
 func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NATS,
-	log *zap.SugaredLogger) (*chart.ReleaseInstance, error) {
-	// Check if istio is enabled in cluster
+	log *zap.SugaredLogger,
+) (*chart.ReleaseInstance, error) {
+	// Check if istio is enabled in cluster.
 	istioExists, err := r.kubeClient.DestinationRuleCRDExists(ctx)
 	if err != nil {
 		return nil, err
@@ -208,11 +210,11 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 	}
 	log.Infof("NATS account secret (name: %s) exists: %t", accountSecretName, accountSecret != nil)
 
-	// generate overrides for helm chart
+	// Generate overrides for helm chart.
 	overrides := r.natsManager.GenerateOverrides(&nats.Spec, istioExists, accountSecret == nil)
 	log.Debugw("using overrides", "overrides", overrides)
 
-	// Init a release instance
+	// Init a release instance.
 	instance := chart.NewReleaseInstance(nats.Name, nats.Namespace, istioExists, overrides)
 
 	if err = r.generateNatsResources(nats, instance); err != nil {
