@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       name:
-        description: "Release name"
+        description: 'Release name ( e.g. "2.1.3" )'
         default: ""
         required: true
 
 jobs:
   verify-head-status:
-    name: Verify head
+    name: Verify release
     runs-on: ubuntu-latest
 
     steps:
