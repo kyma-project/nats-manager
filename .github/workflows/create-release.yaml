@@ -12,21 +12,23 @@ jobs:
   verify-head-status:
     name: Verify release
     runs-on: ubuntu-latest
-
     steps:
+      - name: Check version follows x.y.z pattern.
+        run: ./.github/scripts/check_version_format.sh ${{ github.event.inputs.name }}
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check tag
-        run: ./scripts/check_release_tag.sh ${{ github.event.inputs.name }}
+      - name: Verify that the current branch has a name that starts with 'release-'
+        run: ./.github/scripts/verify_is_on_release_branch.sh
 
-      - name: Check image
-        run: ./scripts/check_image.sh ${{ github.ref_name }}
+      - name: Check sec-scanner-config.yaml
+        run: ./.github/scripts/check_sec-scanner-info.sh
 
-      - name: Verify
-        run: ./scripts/verify-status.sh ${{ github.ref_name }}
+      - name: Verify that the tag does not exist
+        run: ./.github/scripts/check_tag_does_not_exist.sh ${{ github.event.inputs.name }}
 
   create-draft:
     name: Create draft release
