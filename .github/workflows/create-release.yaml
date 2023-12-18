@@ -54,10 +54,23 @@ jobs:
           RELEASE_ID=$(./scripts/create_draft_release.sh ${{ github.event.inputs.name }})
           echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
-      - name: Create lightweight tag
+      - name: Trigger 'release-nats-manager-build' prow job
         run: |
           git tag ${{ github.event.inputs.name }}
           git push origin ${{ github.event.inputs.name }}
+
+      - name: Wait for 'release-nats-manager-build'
+        run: ./scripts/verify-status.sh ${{ github.ref_name }} 600 10 30
+
+      - name: Create and upload nats-manager.yaml and nats-default-cr.yaml
+        env:
+          BASE_REF: ${{ github.event.inputs.name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMG: "europe-docker.pkg.dev/kyma-project/prod/nats-manager:${{ github.event.inputs.name }}"
+          MODULE_REGISTRY: "europe-docker.pkg.dev/kyma-project/prod/unsigned"
+          KUSTOMIZE_VERSION: "v4.5.6"
+        run: |
+          ./scripts/render_and_upload_manifests.sh
 
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
