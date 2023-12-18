@@ -25,7 +25,7 @@ jobs:
         run: ./.github/scripts/verify_is_on_release_branch.sh
 
       - name: Check sec-scanner-config.yaml
-        run: ./.github/scripts/check_sec-scanner-info.sh
+        run: ./.github/scripts/check_sec-scanner-config.sh
 
       - name: Verify that the tag does not exist
         run: ./.github/scripts/check_tag_does_not_exist.sh ${{ github.event.inputs.name }}
