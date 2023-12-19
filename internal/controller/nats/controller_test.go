@@ -211,16 +211,15 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 						Status:             metav1.ConditionFalse,
 						LastTransitionTime: metav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonForbidden),
-						Message: fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s "+
-							"is allowed to be created in a Kyma cluster.", givenAllowedNATS.Name,
+						Message: fmt.Sprintf(ErrSingleCRAllowedFormat, givenAllowedNATS.Name,
 							givenAllowedNATS.Namespace),
 					},
 				}
 				require.True(t, natsv1alpha1.ConditionsEquals(wantConditions, gotNATS.Status.Conditions))
 
 				wantK8sEvent := []string{
-					fmt.Sprintf("Warning Forbidden Only a single NATS CR with name: %s and namespace: %s "+
-						"is allowed to be created in a Kyma cluster.", givenAllowedNATS.Name,
+					fmt.Sprintf("Warning Forbidden Only a single NATS CR with name: %s and namespace: %s is"+
+						"allowed to be created in a Kyma cluster.", givenAllowedNATS.Name,
 						givenAllowedNATS.Namespace),
 				}
 
