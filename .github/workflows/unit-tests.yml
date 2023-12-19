@@ -34,5 +34,12 @@ jobs:
         with:
           go-version-file: "./go.mod"
 
+      - name: Cache Binaries
+        id: cache-binaries
+        uses: actions/cache@v3
+        with:
+          path: bin
+          key: ${{ runner.os }}-bin
+
       - name: Execute unit test
         run: make test
