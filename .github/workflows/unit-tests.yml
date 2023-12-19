@@ -4,17 +4,17 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'sec-scanners-config.yaml'
+      - "docs/**"
+      - "**.md"
+      - "sec-scanners-config.yaml"
 
   push:
     branches:
       - main
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'sec-scanners-config.yaml'
+      - "docs/**"
+      - "**.md"
+      - "sec-scanners-config.yaml"
 
 permissions:
   contents: read
@@ -32,7 +32,7 @@ jobs:
       - name: Cache Go dependencies
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version-file: "./go.mod"
 
       - name: Execute unit test
         run: make test
