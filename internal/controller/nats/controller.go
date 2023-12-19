@@ -42,10 +42,11 @@ import (
 )
 
 const (
-	NATSFinalizerName   = "nats.operator.kyma-project.io/finalizer"
-	ControllerName      = "nats-manager"
-	ManagedByLabelKey   = "app.kubernetes.io/managed-by"
-	ManagedByLabelValue = ControllerName
+	NATSFinalizerName     = "nats.operator.kyma-project.io/finalizer"
+	ControllerName        = "nats-manager"
+	ManagedByLabelKey     = "app.kubernetes.io/managed-by"
+	ManagedByLabelValue   = ControllerName
+	CreationNotAllowedMsg = "Only a single NATS CR with name: %s and namespace: %s is allowed to be created in a Kyma cluster."
 )
 
 // Reconciler reconciles a NATS object.
@@ -162,8 +163,7 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 	// Update conditions in status.
 	nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, "")
-	errorMessage := fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s "+
-		"is allowed to be created in a Kyma cluster.", r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
+	errorMessage := fmt.Sprintf(CreationNotAllowedMsg, r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
 	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, errorMessage)
 	events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonForbidden, errorMessage)
