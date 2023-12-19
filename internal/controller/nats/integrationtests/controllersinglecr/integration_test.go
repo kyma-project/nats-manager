@@ -53,8 +53,8 @@ func TestMain(m *testing.M) {
 func Test_PreventMultipleNATSCRs(t *testing.T) {
 	t.Parallel()
 
-	errMsg := fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s is allowed"+
-		"to be created in a Kyma cluster.", "eventing-nats",
+	errMsg := fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s "+
+		"is allowed to be created in a Kyma cluster.", "eventing-nats",
 		"kyma-system")
 
 	testCases := []struct {
