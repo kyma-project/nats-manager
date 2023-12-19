@@ -46,7 +46,8 @@ const (
 	ControllerName        = "nats-manager"
 	ManagedByLabelKey     = "app.kubernetes.io/managed-by"
 	ManagedByLabelValue   = ControllerName
-	CreationNotAllowedMsg = "Only a single NATS CR with name: %s and namespace: %s is allowed to be created in a Kyma cluster."
+	CreationNotAllowedMsg = "Only a single NATS CR with name: %s and namespace: " +
+		"%s is allowed to be created in a Kyma cluster."
 )
 
 // Reconciler reconciles a NATS object.
