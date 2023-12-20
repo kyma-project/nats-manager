@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# This script checks the state of the prow job "release-build-nats-manager"
+
+# Error handling.
+set -o nounset  # treat unset variables as an error and exit immediately.
+set -o errexit  # exit immediately when a command fails.
+set -E          # needs to be set if we want the ERR trap
+set -o pipefail # prevents errors in a pipeline from being masked
+
+echo "Checking status of POST Jobs for NATS-Manager"
+
+REF_NAME="${1:-"main"}"
+STATUS_URL="https://api.github.com/repos/kyma-project/nats-manager/commits/${REF_NAME}/status"
+fullstatus=$(curl -L -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" ${STATUS_URL} | head -n 2)
+
+sleep 10
+echo $fullstatus
+
+if [[ "$fullstatus" == *"success"* ]]; then
+	echo "All jobs succeeded"
+else
+	echo "Jobs failed or pending - Check Prow status"
+	exit 1
+fi
