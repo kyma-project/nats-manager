@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script will render the latest manifests and  it will uploaded them to the release on github.com.
+# This script will render the latest manifests and it will uploaded them to the release on github.com.
 
 # Error handling
 set -o nounset  # treat unset variables as an error and exit immediately.

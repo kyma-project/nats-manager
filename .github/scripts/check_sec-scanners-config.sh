@@ -11,7 +11,7 @@ set -o errexit  # exit immediately when a command fails.
 set -E          # needs to be set if we want the ERR trap
 set -o pipefail # prevents errors in a pipeline from being masked
 
-# Get release version
+# The desired tag is the release version.
 DESIRED_TAG="${1}"
 
 # Get nats-manager image tag from sec-scanners-config.yaml.
@@ -32,6 +32,6 @@ if [[ "$IMAGE_TAG" != "$DESIRED_TAG" ]] || [[ "$RC_TAG" != "$DESIRED_TAG" ]]; th
 	exit 1
 fi
 
-# OK: Everything is fine
+# OK; Everything is fine.
 echo "Tags are correct"
 exit 0

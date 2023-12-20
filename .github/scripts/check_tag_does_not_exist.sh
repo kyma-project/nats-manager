@@ -6,7 +6,7 @@ set -o errexit  # exit immediately when a command fails.
 set -E          # needs to be set if we want the ERR trap
 set -o pipefail # prevents errors in a pipeline from being masked
 
-# This script checks that the TAG arg does not exist, already.
+# This script checks that the tag does not exist in git.
 
 TAG="$1"
 
