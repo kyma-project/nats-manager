@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
-# standard bash error handling
+# This script will render the latest manifests and  it will uploaded them to the release on github.com.
+
+# Error handling
 set -o nounset  # treat unset variables as an error and exit immediately.
 set -o errexit  # exit immediately when a command fails.
 set -E          # needs to be set if we want the ERR trap
 set -o pipefail # prevents errors in a pipeline from being masked
 
-# Expected variables:
-#   BASE_REF - name of the tag
-#   GITHUB_TOKEN - github token used to upload the template yaml
+RELEASE_TAG=${1}
+GITHUB_TOKEN=${2}
 
+# uploadFile uploads the rendered assets to the github release.
 uploadFile() {
 	filePath=${1}
 	ghAsset=${2}
@@ -29,16 +31,15 @@ uploadFile() {
 	fi
 }
 
-echo "BASE_REF ${BASE_REF}"
-
-MODULE_VERSION=${BASE_REF} make render-manifest
-
+# Render the nats-manager.yaml.
+echo "RELEASE_TAG: ${RELEASE_TAG}"
+MODULE_VERSION=${RELEASE_TAG} make render-manifest
 echo "Generated nats-manager.yaml:"
 cat nats-manager.yaml
 
-echo "Updating github release with nats-manager.yaml"
-
-echo "Finding release id for: ${BASE_REF}"
+# Find the release on github.com via the release tag.
+echo -e "\n Updating github release with nats-manager.yaml"
+echo "Finding release id for: ${RELEASE_TAG}"
 CURL_RESPONSE=$(curl -w "%{http_code}" -sL \
 	-H "Accept: application/vnd.github+json" \
 	-H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -49,14 +50,16 @@ if [[ "${HTTP_CODE}" != "200" ]]; then
 	echo "${JSON_RESPONSE}" && exit 1
 fi
 
-RELEASE_ID=$(jq <<<${JSON_RESPONSE} --arg tag "${BASE_REF}" '.[] | select(.tag_name == $ARGS.named.tag) | .id')
-
+# Extract the release id out of the github.com response.
+RELEASE_ID=$(jq <<<${JSON_RESPONSE} --arg tag "${RELEASE_TAG}" '.[] | select(.tag_name == $ARGS.named.tag) | .id')
 if [ -z "${RELEASE_ID}" ]; then
-	echo "No release with tag = ${BASE_REF}"
+	echo "No release with tag = ${RELEASE_TAG}"
 	exit 1
 fi
 
+# With the id of the release we can build the URL to upload the assets.
 UPLOAD_URL="https://uploads.github.com/repos/kyma-project/nats-manager/releases/${RELEASE_ID}/assets"
 
+# Finally we will upload the nats-manager.yaml and the default.yaml.
 uploadFile "nats-manager.yaml" "${UPLOAD_URL}?name=nats-manager.yaml"
 uploadFile "config/samples/default.yaml" "${UPLOAD_URL}?name=nats_default_cr.yaml"
