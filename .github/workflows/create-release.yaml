@@ -3,7 +3,7 @@ name: "Create release"
 on:
   workflow_dispatch:
     inputs:
-      name:
+      version:
         description: 'Release version ( e.g. "2.1.3" )'
         default: ""
         required: true
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Verify version follows x.y.z pattern
-        run: ./.github/scripts/check_version_format.sh ${{ github.event.inputs.name }}
+        run: ./.github/scripts/check_version_format.sh ${{ github.event.inputs.version }}
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,10 +25,10 @@ jobs:
         run: ./.github/scripts/verify_is_on_release_branch.sh
 
       - name: Validate content of sec-scanners-config.yaml
-        run: ./.github/scripts/check_sec-scanners-config.sh ${{ github.event.inputs.name }}
+        run: ./.github/scripts/check_sec-scanners-config.sh ${{ github.event.inputs.version }}
 
-      - name: Verify that the tag ${{ github.event.inputs.name }} does not exist
-        run: ./.github/scripts/check_tag_does_not_exist.sh ${{ github.event.inputs.name }}
+      - name: Verify that the tag ${{ github.event.inputs.version }} does not exist
+        run: ./.github/scripts/check_tag_does_not_exist.sh ${{ github.event.inputs.version }}
 
   create-draft:
     name: Create a draft release
@@ -44,20 +44,20 @@ jobs:
       - name: Create changelog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./.github/scripts/create_changelog.sh ${{ github.event.inputs.name }} # changelog will be stored at the CHANGELOG.md
+        run: ./.github/scripts/create_changelog.sh ${{ github.event.inputs.version }} # changelog will be stored at the CHANGELOG.md
 
       - name: Create draft release
         id: create-draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_ID=$(./.github/scripts/create_draft_release.sh ${{ github.event.inputs.name }}) # this will use the CHANGELOG.md from the step 'Create changelog'
+          RELEASE_ID=$(./.github/scripts/create_draft_release.sh ${{ github.event.inputs.version }}) # this will use the CHANGELOG.md from the step 'Create changelog'
           echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
       - name: Trigger 'release-nats-manager-build' prow job
         run: |
-          git tag ${{ github.event.inputs.name }}
-          git push origin ${{ github.event.inputs.name }}
+          git tag ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }}
 
       - name: Wait for 'release-nats-manager-build'
         run: ./.github/scripts/check-prow-build-job.sh ${{ github.ref_name }} 600 10 30
@@ -66,14 +66,14 @@ jobs:
         env:
           KUSTOMIZE_VERSION: "v4.5.6"
         run: |
-          ./.github/scripts/render_and_upload_manifests.sh ${{ github.event.inputs.name }} ${{ secrets.GITHUB_TOKEN }}
+          ./.github/scripts/render_and_upload_manifests.sh ${{ github.event.inputs.version }} ${{ secrets.GITHUB_TOKEN }}
 
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
 
   publish-release:
     name: Publish release
-    needs: [verify-head-status, create-draft]
+    needs: [verify-release-status, create-draft]
     runs-on: ubuntu-latest
 
     steps:
