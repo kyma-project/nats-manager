@@ -13,13 +13,13 @@ jobs:
     name: Validate release
     runs-on: ubuntu-latest
     steps:
-      - name: Verify version follows x.y.z pattern
-        run: ./.github/scripts/check_version_format.sh ${{ github.event.inputs.version }}
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Verify version follows x.y.z pattern
+        run: ./.github/scripts/check_version_format.sh ${{ github.event.inputs.version }}
 
       - name: Verify that the current branch's name starts with 'release-'
         run: ./.github/scripts/verify_is_on_release_branch.sh
