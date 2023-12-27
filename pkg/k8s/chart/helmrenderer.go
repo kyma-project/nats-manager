@@ -3,7 +3,7 @@ package chart
 import (
 	"fmt"
 
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 	"github.com/kyma-project/nats-manager/pkg/file"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"

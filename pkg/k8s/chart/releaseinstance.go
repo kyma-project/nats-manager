@@ -6,11 +6,12 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 )
 
 func NewReleaseInstance(name, namespace string, istioEnabled bool,
-	configuration map[string]interface{}) *ReleaseInstance {
+	configuration map[string]interface{},
+) *ReleaseInstance {
 	return &ReleaseInstance{
 		Name:          name,
 		Namespace:     namespace,
