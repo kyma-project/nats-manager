@@ -14,13 +14,19 @@ const (
 	KeyPartOf    = "app.kubernetes.io/part-of"
 	KeyDashboard = "kyma-project.io/dashboard"
 
-	// Kubernetes label keys used by nats-manager.
+	// Kubernetes label values used by nats-manager.
 	ValueNATS        = "nats"
 	ValueNATSManager = "nats-manager"
 )
 
-// SelectorInstanceNATS returns a labelselector for instance ("app.kubernetes.io/instance") as usesd
+// SelectorInstanceNATS returns a labelselector for instance ("app.kubernetes.io/instance") as used
 // by the nats-manager.
 func SelectorInstanceNATS() labels.Selector {
 	return labels.SelectorFromSet(map[string]string{KeyInstance: ValueNATSManager})
+}
+
+// SelectorCreatedByNATS returns a labelselector for created-by ("app.kubernetes.io/created-by") as used
+// by the nats-manager.
+func SelectorCreatedByNATS() labels.Selector {
+	return labels.SelectorFromSet(map[string]string{KeyCreatedBy: ValueNATSManager})
 }

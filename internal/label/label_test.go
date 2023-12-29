@@ -21,3 +21,16 @@ func TestSelectorInstanceNATS(t *testing.T) {
 		t.Errorf("Expected %v, but got %v", wantedSelector, actualSelector)
 	}
 }
+
+func TestSelectorCreatedByNATS(t *testing.T) {
+	// arrange
+	wantedSelector := labels.SelectorFromSet(map[string]string{"app.kubernetes.io/created-by": "nats-manager"})
+
+	// act
+	actualSelector := label.SelectorCreatedByNATS()
+
+	// assert
+	if !reflect.DeepEqual(wantedSelector, actualSelector) {
+		t.Errorf("Expected %v, but got %v", wantedSelector, actualSelector)
+	}
+}
