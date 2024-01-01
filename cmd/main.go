@@ -38,6 +38,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	controllercache "github.com/kyma-project/nats-manager/internal/controller/cache"
+	controllerclient "github.com/kyma-project/nats-manager/internal/controller/client"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
@@ -112,8 +114,6 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       leaderElectionID,
-		Metrics:                server.Options{BindAddress: metricsAddr},
-		WebhookServer:          webhook.NewServer(webhook.Options{Port: metricsPort}),
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -125,6 +125,10 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		// if you are doing or is intended to do any operation such as perform cleanups
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
+		Metrics:       server.Options{BindAddress: metricsAddr},
+		WebhookServer: webhook.NewServer(webhook.Options{Port: metricsPort}),
+		NewCache:      controllercache.New,
+		NewClient:     controllerclient.New,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
