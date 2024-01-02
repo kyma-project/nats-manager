@@ -168,11 +168,11 @@ func Test_ConfigMap(t *testing.T) {
 
 		cmMap := cmToMap(cm.Data["nats.conf"])
 
-		if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
+		if err := checkValueInCMMap(cmMap, "max_file_store", FileStorageSize); err != nil {
 			return err
 		}
 
-		if err := checkValueInCMMap(cmMap, "max_mem", MemStorageSize); err != nil {
+		if err := checkValueInCMMap(cmMap, "max_memory_store", MemStorageSize); err != nil {
 			return err
 		}
 
