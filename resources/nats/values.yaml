@@ -10,11 +10,11 @@ global:
   images:
     nats:
       name: nats
-      version: v20230620-2.9.18-alpine3.18
+      version: v20240102-2.10.7-alpine3.18
       directory: prod/external
     nats_config_reloader:
       name: natsio/nats-server-config-reloader
-      version: 0.14.0
+      version: 0.14.1
       directory: prod/external
     prometheus_nats_exporter:
       name: natsio/prometheus-nats-exporter
@@ -139,7 +139,7 @@ nats:
       timeoutSeconds: 5
       periodSeconds: 10
       successThreshold: 1
-      failureThreshold: 30
+      failureThreshold: 90
 
   # Adds a hash of the ConfigMap as a pod annotation
   # This will cause the StatefulSet to roll when the ConfigMap is updated
@@ -330,4 +330,20 @@ commonAnnotations: {}
 exporter:
   enabled: true
   pullPolicy: IfNotPresent
-  resources: {}
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+
+# NATS config reloader sidecar.
+reloader:
+  resources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 10Mi
