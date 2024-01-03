@@ -39,7 +39,6 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	controllercache "github.com/kyma-project/nats-manager/internal/controller/cache"
-	controllerclient "github.com/kyma-project/nats-manager/internal/controller/client"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
@@ -128,7 +127,6 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		Metrics:       server.Options{BindAddress: metricsAddr},
 		WebhookServer: webhook.NewServer(webhook.Options{Port: metricsPort}),
 		NewCache:      controllercache.New,
-		NewClient:     controllerclient.New,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
