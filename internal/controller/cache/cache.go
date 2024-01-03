@@ -25,12 +25,12 @@ func applySelectors(options cache.Options) cache.Options {
 
 	// Apply the label selector to all relevant objects.
 	options.ByObject = map[client.Object]cache.ByObject{
-		&appsv1.Deployment{}:                     managedByNATS,
 		&autoscalingv1.HorizontalPodAutoscaler{}: managedByNATS,
+		&appsv1.Deployment{}:                     managedByNATS,
 		&corev1.ServiceAccount{}:                 managedByNATS,
+		&policyv1.PodDisruptionBudget{}:          managedByNATS,
 		&rbacv1.ClusterRole{}:                    managedByNATS,
 		&rbacv1.ClusterRoleBinding{}:             managedByNATS,
-		&policyv1.PodDisruptionBudget{}:          managedByNATS,
 	}
 	return options
 }
