@@ -45,6 +45,7 @@ func Test_applySelectors(t *testing.T) {
 			want: cache.Options{
 				ByObject: map[client.Object]cache.ByObject{
 					&appsv1.Deployment{}:                     selector,
+					&appsv1.StatefulSet{}:                    selector,
 					&corev1.ServiceAccount{}:                 selector,
 					&rbacv1.ClusterRole{}:                    selector,
 					&rbacv1.ClusterRoleBinding{}:             selector,
@@ -64,6 +65,7 @@ func Test_applySelectors(t *testing.T) {
 				SyncPeriod: &syncPeriod,
 				ByObject: map[client.Object]cache.ByObject{
 					&appsv1.Deployment{}:                     selector,
+					&appsv1.StatefulSet{}:                    selector,
 					&corev1.ServiceAccount{}:                 selector,
 					&rbacv1.ClusterRole{}:                    selector,
 					&rbacv1.ClusterRoleBinding{}:             selector,
