@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kyma-project/nats-manager/pkg/label"
+	natslabels "github.com/kyma-project/nats-manager/pkg/labels"
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
@@ -23,7 +23,7 @@ func Test_applySelectors(t *testing.T) {
 	selector := cache.ByObject{
 		Label: labels.SelectorFromSet(
 			map[string]string{
-				label.KeyCreatedBy: label.ValueNATSManager,
+				natslabels.KeyCreatedBy: natslabels.ValueNATSManager,
 			},
 		),
 	}

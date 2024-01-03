@@ -1,4 +1,4 @@
-package label
+package labels
 
 import (
 	"k8s.io/apimachinery/pkg/labels"
@@ -28,5 +28,11 @@ func SelectorInstanceNATS() labels.Selector {
 // SelectorCreatedByNATS returns a labelselector for created-by ("app.kubernetes.io/created-by") as used
 // by the nats-manager.
 func SelectorCreatedByNATS() labels.Selector {
+	return labels.SelectorFromSet(map[string]string{KeyCreatedBy: ValueNATSManager})
+}
+
+// SelectorCreatedByNATS returns a labelselector for created-by ("app.kubernetes.io/created-by") as used
+// by the nats-manager.
+func SelectorManagedByNATS() labels.Selector {
 	return labels.SelectorFromSet(map[string]string{KeyCreatedBy: ValueNATSManager})
 }
