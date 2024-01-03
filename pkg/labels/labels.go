@@ -19,7 +19,7 @@ const (
 	ValueNATSManager = "nats-manager"
 )
 
-// SelectorCreatedByNATS returns a labelselector for created-by ("app.kubernetes.io/created-by") as used
+// SelectorManagedByNATS returns a labelselector for managed-by ("app.kubernetes.io/managed-by") as used
 // by the nats-manager.
 func SelectorManagedByNATS() labels.Selector {
 	return labels.SelectorFromSet(map[string]string{KeyManagedBy: ValueNATSManager})
