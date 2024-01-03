@@ -6,7 +6,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/kyma-project/nats-manager/internal/label"
+	"github.com/kyma-project/nats-manager/pkg/label"
 )
 
 func TestSelectorInstanceNATS(t *testing.T) {

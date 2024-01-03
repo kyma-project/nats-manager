@@ -10,7 +10,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/kyma-project/nats-manager/internal/label"
+	"github.com/kyma-project/nats-manager/pkg/label"
 )
 
 // New returns a cache with the cache-options applied, generade form the rest-config.

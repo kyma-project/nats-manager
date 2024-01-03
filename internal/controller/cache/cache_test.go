@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kyma-project/nats-manager/internal/label"
+	"github.com/kyma-project/nats-manager/pkg/label"
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
