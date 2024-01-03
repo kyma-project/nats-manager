@@ -19,20 +19,8 @@ const (
 	ValueNATSManager = "nats-manager"
 )
 
-// SelectorInstanceNATS returns a labelselector for instance ("app.kubernetes.io/instance") as used
-// by the nats-manager.
-func SelectorInstanceNATS() labels.Selector {
-	return labels.SelectorFromSet(map[string]string{KeyInstance: ValueNATSManager})
-}
-
-// SelectorCreatedByNATS returns a labelselector for created-by ("app.kubernetes.io/created-by") as used
-// by the nats-manager.
-func SelectorCreatedByNATS() labels.Selector {
-	return labels.SelectorFromSet(map[string]string{KeyCreatedBy: ValueNATSManager})
-}
-
 // SelectorCreatedByNATS returns a labelselector for created-by ("app.kubernetes.io/created-by") as used
 // by the nats-manager.
 func SelectorManagedByNATS() labels.Selector {
-	return labels.SelectorFromSet(map[string]string{KeyCreatedBy: ValueNATSManager})
+	return labels.SelectorFromSet(map[string]string{KeyManagedBy: ValueNATSManager})
 }

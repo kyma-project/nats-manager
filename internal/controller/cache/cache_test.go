@@ -23,7 +23,7 @@ func Test_applySelectors(t *testing.T) {
 	selector := cache.ByObject{
 		Label: labels.SelectorFromSet(
 			map[string]string{
-				natslabels.KeyCreatedBy: natslabels.ValueNATSManager,
+				natslabels.KeyManagedBy: natslabels.ValueNATSManager,
 			},
 		),
 	}
