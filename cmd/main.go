@@ -20,19 +20,14 @@ import (
 	"flag"
 	"os"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"github.com/kyma-project/nats-manager/pkg/env"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
-
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -42,10 +37,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	controllercache "github.com/kyma-project/nats-manager/internal/controller/cache"
 	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	"github.com/kyma-project/nats-manager/pkg/env"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const defaultMetricsPort = 9443
@@ -115,8 +113,6 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       leaderElectionID,
-		Metrics:                server.Options{BindAddress: metricsAddr},
-		WebhookServer:          webhook.NewServer(webhook.Options{Port: metricsPort}),
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -128,6 +124,9 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		// if you are doing or is intended to do any operation such as perform cleanups
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
+		Metrics:       server.Options{BindAddress: metricsAddr},
+		WebhookServer: webhook.NewServer(webhook.Options{Port: metricsPort}),
+		NewCache:      controllercache.New,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
