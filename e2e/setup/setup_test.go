@@ -176,18 +176,25 @@ func Test_ConfigMap(t *testing.T) {
 			return err
 		}
 
-		// *********** To check configMap of NATS server 2.9.x.
-		// max_file is changed to max_file_store in NATS 2.10.x.
-		// max_mem is changed to max_memory_store in NATS 2.10.x.
-		// remove this section when NATS server 2.10.x is released.
-		gotDeployment, err := RetryGet(attempts, interval, func() (*appsv1.Deployment, error) {
-			return getDeployment(ctx, ManagerDeploymentName, NamespaceName)
-		})
-		if err != nil {
-			return err
+		// **********************
+		// TODO: remove this section when NATS server 2.10.x is released.
+		// `max_file` is changed to `max_file_store` in NATS 2.10.x.
+		// `max_mem` is changed to `max_memory_store` in NATS 2.10.x.
+		// To check the correct key in configMap,
+		// fetch the NATS statefulSet and get the NATS server version.
+		// And then based on the version, check the expected key.
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		if stsErr != nil {
+			return stsErr
 		}
 
-		if strings.Contains(gotDeployment.Spec.Template.Spec.Containers[0].Image, "2.9.") {
+		imageName := ""
+		for _, c := range sts.Spec.Template.Spec.Containers {
+			if c.Name == ContainerName {
+				imageName = c.Image
+			}
+		}
+		if strings.Contains(imageName, "2.9.") {
 			if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
 				return err
 			}

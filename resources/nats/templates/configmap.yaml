@@ -86,6 +86,7 @@ data:
       routes = [
         {{ include "nats.clusterRoutes" . }}
       ]
+      cluster_advertise: $CLUSTER_ADVERTISE
 
       {{- with .Values.cluster.noAdvertise }}
       no_advertise: {{ . }}
