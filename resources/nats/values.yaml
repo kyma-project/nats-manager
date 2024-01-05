@@ -306,7 +306,7 @@ cluster:
   enabled: true
   name: eventing-nats
   replicas: 3
-  noAdvertise: false
+  noAdvertise: true
 
 appProtocol:
   enabled: true

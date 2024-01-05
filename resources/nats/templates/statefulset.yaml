@@ -214,8 +214,6 @@ spec:
               fieldPath: metadata.namespace
         - name: SERVER_NAME
           value: $(POD_NAME)
-        - name: CLUSTER_ADVERTISE
-          value: {{ include "nats.clusterAdvertise" . }}
 
         {{- with .Values.nats.jetstream.encryption }}
         {{- with .secret }}
