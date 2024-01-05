@@ -52,6 +52,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	scheme := runtime.NewScheme()
 	setupLog := ctrl.Log.WithName("setup")
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+
 	utilruntime.Must(natsv1alpha1.AddToScheme(scheme))
 
 	// get configs from ENV
