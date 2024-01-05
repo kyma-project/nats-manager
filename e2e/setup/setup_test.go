@@ -168,19 +168,42 @@ func Test_ConfigMap(t *testing.T) {
 
 		cmMap := cmToMap(cm.Data["nats.conf"])
 
-		if err := checkValueInCMMap(cmMap, "max_file_store", FileStorageSize); err != nil {
-			return err
-		}
-
-		if err := checkValueInCMMap(cmMap, "max_memory_store", MemStorageSize); err != nil {
-			return err
-		}
-
 		if err := checkValueInCMMap(cmMap, "debug", True); err != nil {
 			return err
 		}
 
 		if err := checkValueInCMMap(cmMap, "trace", True); err != nil {
+			return err
+		}
+
+		// *********** To check configMap of NATS server 2.9.x.
+		// max_file is changed to max_file_store in NATS 2.10.x.
+		// max_mem is changed to max_memory_store in NATS 2.10.x.
+		// remove this section when NATS server 2.10.x is released.
+		gotDeployment, err := RetryGet(attempts, interval, func() (*appsv1.Deployment, error) {
+			return getDeployment(ctx, ManagerDeploymentName, NamespaceName)
+		})
+		if err != nil {
+			return err
+		}
+
+		if strings.Contains(gotDeployment.Spec.Template.Spec.Containers[0].Image, "2.9.") {
+			if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
+				return err
+			}
+
+			if err := checkValueInCMMap(cmMap, "max_mem", MemStorageSize); err != nil {
+				return err
+			}
+			return nil
+		}
+		// **********************
+
+		if err := checkValueInCMMap(cmMap, "max_file_store", FileStorageSize); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmMap, "max_memory_store", MemStorageSize); err != nil {
 			return err
 		}
 
