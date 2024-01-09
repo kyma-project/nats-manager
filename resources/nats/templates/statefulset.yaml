@@ -88,6 +88,7 @@ spec:
       {{- end }}
 
       # disable service environment variables
+      # service discovery uses DNS; don't need service env vars
       enableServiceLinks: false
       # Required to be able to HUP signal and apply config
       # reload to the server without restarting the pod.
