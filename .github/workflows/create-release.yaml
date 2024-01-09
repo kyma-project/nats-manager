@@ -7,6 +7,7 @@ on:
         description: 'Release version ( e.g. "2.1.3" )'
         default: ""
         required: true
+
 jobs:
   verify-release-status:
     name: Validate release
@@ -33,6 +34,7 @@ jobs:
     name: Create a draft release
     needs: verify-release-status
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
