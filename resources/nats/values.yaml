@@ -332,8 +332,8 @@ exporter:
   pullPolicy: IfNotPresent
   resources:
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 32Mi
     requests:
       cpu: 10m
       memory: 20Mi
@@ -342,8 +342,8 @@ exporter:
 reloader:
   resources:
     limits:
-      cpu: 100m
-      memory: 64Mi
+      cpu: 50m
+      memory: 32Mi
     requests:
       cpu: 10m
-      memory: 10Mi
+      memory: 20Mi
