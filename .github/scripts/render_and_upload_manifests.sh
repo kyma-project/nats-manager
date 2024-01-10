@@ -9,7 +9,8 @@ set -E          # needs to be set if we want the ERR trap
 set -o pipefail # prevents errors in a pipeline from being masked
 
 RELEASE_TAG=${1}
-GITHUB_TOKEN=${2}
+MODULE_NAME=${2}
+GITHUB_TOKEN=${3}
 
 # uploadFile uploads the rendered assets to the github release.
 uploadFile() {
@@ -33,17 +34,17 @@ uploadFile() {
 
 # Render the nats-manager.yaml.
 echo "RELEASE_TAG: ${RELEASE_TAG}"
-MODULE_VERSION=${RELEASE_TAG} make render-manifest
-echo "Generated nats-manager.yaml:"
-cat nats-manager.yaml
+IMG="europe-docker.pkg.dev/kyma-project/prod/${MODULE_NAME}-manager:${RELEASE_TAG}" make render-manifest
+echo "Generated ${MODULE_NAME}-manager.yaml:"
+cat ${MODULE_NAME}-manager.yaml
 
 # Find the release on github.com via the release tag.
-echo -e "\n Updating github release with nats-manager.yaml"
+echo -e "\n Updating github release with ${MODULE_NAME}-manager.yaml"
 echo "Finding release id for: ${RELEASE_TAG}"
 CURL_RESPONSE=$(curl -w "%{http_code}" -sL \
 	-H "Accept: application/vnd.github+json" \
 	-H "Authorization: Bearer $GITHUB_TOKEN" \
-	https://api.github.com/repos/kyma-project/nats-manager/releases)
+	https://api.github.com/repos/kyma-project/${MODULE_NAME}-manager/releases)
 JSON_RESPONSE=$(sed '$ d' <<<"${CURL_RESPONSE}")
 HTTP_CODE=$(tail -n1 <<<"${CURL_RESPONSE}")
 if [[ "${HTTP_CODE}" != "200" ]]; then
@@ -58,8 +59,8 @@ if [ -z "${RELEASE_ID}" ]; then
 fi
 
 # With the id of the release we can build the URL to upload the assets.
-UPLOAD_URL="https://uploads.github.com/repos/kyma-project/nats-manager/releases/${RELEASE_ID}/assets"
+UPLOAD_URL="https://uploads.github.com/repos/kyma-project/${MODULE_NAME}-manager/releases/${RELEASE_ID}/assets"
 
-# Finally we will upload the nats-manager.yaml and the default.yaml.
-uploadFile "nats-manager.yaml" "${UPLOAD_URL}?name=nats-manager.yaml"
-uploadFile "config/samples/default.yaml" "${UPLOAD_URL}?name=nats_default_cr.yaml"
+# Finally we will upload the manager.yaml and the default.yaml.
+uploadFile "nats-manager.yaml" "${UPLOAD_URL}?name=${MODULE_NAME}-manager.yaml"
+uploadFile "config/samples/default.yaml" "${UPLOAD_URL}?name=${MODULE_NAME}-default-cr.yaml"
