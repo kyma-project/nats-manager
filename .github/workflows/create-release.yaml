@@ -66,7 +66,7 @@ jobs:
         env:
           KUSTOMIZE_VERSION: "v4.5.6"
         run: |
-          ./.github/scripts/render_and_upload_manifests.sh ${{ github.event.inputs.version }} ${{ secrets.GITHUB_TOKEN }}
+          ./.github/scripts/render_and_upload_manifests.sh ${{ github.event.inputs.version }} nats ${{ secrets.GITHUB_TOKEN }}
 
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
