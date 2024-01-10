@@ -2,7 +2,7 @@
 
 # This script will render the latest manifests and it will uploaded them to the release on github.com.
 
-# Error handling
+# Error handling.
 set -o nounset  # treat unset variables as an error and exit immediately.
 set -o errexit  # exit immediately when a command fails.
 set -E          # needs to be set if we want the ERR trap
