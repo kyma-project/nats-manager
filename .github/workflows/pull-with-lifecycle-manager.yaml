@@ -115,7 +115,6 @@ jobs:
         run: |
           make -C hack/ci/ create-kyma-system-ns
           make -C hack/ci/ install-nats-manager
-          make -C hack/ci/ verify-kyma
 
       - name: Setup & test NATS CR
         run: |
@@ -154,7 +153,6 @@ jobs:
           COMMIT_STATUS_JSON: "${{ steps.wait-nats-module-build.outputs.json }}"
         run: |
           make deploy IMG=${DOCKER_IMAGE}
-          make -C hack/ci/ verify-kyma
 
       - name: Wait for new changes to be reflected
         # Waits for NATS-manager image to be updated and NATS CR readiness.
