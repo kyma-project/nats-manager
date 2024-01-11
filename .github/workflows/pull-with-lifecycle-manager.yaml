@@ -111,11 +111,7 @@ jobs:
           kubectl version
           kubectl cluster-info
 
-      - name: Deploy lifecycle-manager
-        run: |
-          make -C hack/ci/ install-lifecycle-manager
-
-      - name: Install latest released module template from fast channel & enable NATS module
+      - name: Install latest released nats-manager
         run: |
           make -C hack/ci/ install-nats-manager
           make -C hack/ci/ verify-kyma
@@ -151,13 +147,12 @@ jobs:
           GITHUB_OWNER: "${{ github.repository_owner }}"
           GITHUB_REPO: "nats-manager"
 
-      - name: Download & install the new NATS module template from current commit
+      - name: Download & install the new NATS manager from current commit
         env:
           PR_NUMBER: "${{ github.event.number }}"
           COMMIT_STATUS_JSON: "${{ steps.wait-nats-module-build.outputs.json }}"
         run: |
-          make -C hack/ci/ download-module-template
-          make -C hack/ci/ install-module-template
+          make deploy IMG=${DOCKER_IMAGE}
           make -C hack/ci/ verify-kyma
 
       - name: Wait for new changes to be reflected
