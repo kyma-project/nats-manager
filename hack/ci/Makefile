@@ -44,6 +44,10 @@ install-module-template: ## Apply NATS moduletemplate.
 enable-module-without-default-cr: ## Enable NATS module without creating default NATS CR.
 	"${KYMA_CLI}" alpha enable module nats -c fast -n kyma-system -p Ignore
 
+.PHONY: install-nats-manager
+install-nats-manager: ## Install nats-manager only.
+	kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
+
 .PHONY: install-lifecycle-manager
 install-lifecycle-manager: ## Deploys lifecycle-manager.
 	"${KYMA_CLI}" alpha deploy \

@@ -117,8 +117,7 @@ jobs:
 
       - name: Install latest released module template from fast channel & enable NATS module
         run: |
-          make -C hack/ci/ install-latest-module-template-fast
-          make -C hack/ci/ enable-module-without-default-cr
+          make -C hack/ci/ install-nats-manager
           make -C hack/ci/ verify-kyma
 
       - name: Setup & test NATS CR
