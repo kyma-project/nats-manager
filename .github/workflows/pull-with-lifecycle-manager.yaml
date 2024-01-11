@@ -113,6 +113,7 @@ jobs:
 
       - name: Install latest released nats-manager
         run: |
+          make -C hack/ci/ create-kyma-system-ns
           make -C hack/ci/ install-nats-manager
           make -C hack/ci/ verify-kyma
 
