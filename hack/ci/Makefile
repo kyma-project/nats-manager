@@ -28,6 +28,10 @@ download-module-template: ## Downloads the module-template from the module-build
 	export PROJECT_ROOT="${PROJECT_ROOT}" \
 	&& ../get_module_template_from_build_job.sh
 
+.PHONY: install-latest-release
+install-latest-release:
+	kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
+
 .PHONY: install-latest-module-template-fast
 install-latest-module-template-fast: ## Downloads and applies the latest released module-template from fast channel.
 	kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/module-template.yaml

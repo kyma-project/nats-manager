@@ -115,9 +115,9 @@ jobs:
         run: |
           make -C hack/ci/ install-lifecycle-manager
 
-      - name: Install latest released module template from fast channel & enable NATS module
+      - name: Install latest NATS release & enable NATS module
         run: |
-          make -C hack/ci/ install-latest-module-template-fast
+          make -C hack/ci/ install-latest-release
           make -C hack/ci/ enable-module-without-default-cr
           make -C hack/ci/ verify-kyma
 
