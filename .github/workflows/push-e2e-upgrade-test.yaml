@@ -1,4 +1,4 @@
-name: push-with-lifecycle-manager
+name: push-e2e-upgrade-test
 
 env:
   DOCKER_IMAGE: "europe-docker.pkg.dev/kyma-project/prod/nats-manager"
@@ -34,6 +34,7 @@ jobs:
 
       - name: Install the latest released NATS manager
         run: |
+          make -C hack/ci/ create-kyma-system-ns
           make -C hack/ci/ install-nats-manager
 
       - name: Setup & test NATS CR
