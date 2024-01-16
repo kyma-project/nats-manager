@@ -27,8 +27,8 @@ module-build: ## Build the Module, push it to a registry and print it based on t
 create-kyma-system-ns: ## Create kyma-system namespace.
 	kubectl create ns kyma-system
 
-.PHONY: install-nats-manager
-install-nats-manager: ## Install nats-manager only.
+.PHONY: install-latest-nats-manager-release
+install-latest-nats-manager-release: ## Install nats-manager only.
 	kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
 
 .PHONY: create-k3d

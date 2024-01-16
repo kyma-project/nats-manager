@@ -35,7 +35,7 @@ jobs:
       - name: Install the latest released NATS manager
         run: |
           make -C hack/ci/ create-kyma-system-ns
-          make -C hack/ci/ install-nats-manager
+          make -C hack/ci/ install-latest-nats-manager-release
 
       - name: Setup & test NATS CR
         run: |
