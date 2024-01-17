@@ -54,20 +54,6 @@ jobs:
           GITHUB_OWNER: "${{ github.repository_owner }}"
           GITHUB_REPO: "nats-manager"
 
-      - name: Wait for the 'pull-nats-module-build' job to succeed
-        id: wait-nats-module-build
-        uses: kyma-project/wait-for-commit-status-action@2b3ffe09af8b6f40e1213d5fb7f91a7bd41ffb20
-        with:
-          context: "pull-nats-module-build"
-          commit_ref: "${{ github.event.pull_request.head.sha }}" # Note: 'github.event.pull_request.head.sha' is not same as 'github.sha' on pull requests.
-          timeout: 600000 # 10 minutes in milliseconds
-          # The check interval is kept long otherwise it will exhaust the GitHub rate limit (More info: https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limiting)
-          check_interval: 60000 # 1 minute in milliseconds
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          GITHUB_OWNER: "${{ github.repository_owner }}"
-          GITHUB_REPO: "nats-manager"
-
       - name: Install the new NATS manager from current commit
         run: |
           make deploy IMG=${DOCKER_IMAGE}
