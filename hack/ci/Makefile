@@ -23,40 +23,17 @@ module-build: ## Build the Module, push it to a registry and print it based on t
 	@cat ${ARTIFACTS}/module-template.yaml
 	@echo "\n~~~~~~~~~~~~~~~END OF MODULE TEMPLATE~~~~~~~~~~~~~~~~"
 
-.PHONY: download-module-template
-download-module-template: ## Downloads the module-template from the module-build prow job.
-	export PROJECT_ROOT="${PROJECT_ROOT}" \
-	&& ../get_module_template_from_build_job.sh
-
-.PHONY: install-latest-module-template-fast
-install-latest-module-template-fast: ## Downloads and applies the latest released module-template from fast channel.
-	kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/module-template.yaml
-
 .PHONY: create-kyma-system-ns
 create-kyma-system-ns: ## Create kyma-system namespace.
 	kubectl create ns kyma-system
 
-.PHONY: install-module-template
-install-module-template: ## Apply NATS moduletemplate.
-	kubectl apply -f ${PROJECT_ROOT}/module-template.yaml
-
-.PHONY: enable-module-without-default-cr
-enable-module-without-default-cr: ## Enable NATS module without creating default NATS CR.
-	"${KYMA_CLI}" alpha enable module nats -c fast -n kyma-system -p Ignore
-
-.PHONY: install-lifecycle-manager
-install-lifecycle-manager: ## Deploys lifecycle-manager.
-	"${KYMA_CLI}" alpha deploy \
-		--ci \
-		--force-conflicts
+.PHONY: install-latest-nats-manager-release
+install-latest-nats-manager-release: ## Install nats-manager only.
+	kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
 
 .PHONY: create-k3d
 create-k3d: ## Create k3d with kyma CRDs.
 	"${KYMA_CLI}" provision k3d -p 8081:80@loadbalancer -p 8443:443@loadbalancer --registry-port ${REGISTRY_PORT} --name ${CLUSTER_NAME} --ci
-
-.PHONY: verify-kyma
-verify-kyma: ## Wait for Kyma CR to be in Ready state.
-	../verify_kyma_status.sh
 
 .PHONY: install-k3d-tools
 install-k3d-tools: ## Create k3d with kyma CRDs.
