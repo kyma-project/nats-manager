@@ -18,7 +18,7 @@ global:
       directory: prod/external
     prometheus_nats_exporter:
       name: natsio/prometheus-nats-exporter
-      version: 0.13.0
+      version: 0.14.0
       directory: prod/external
 
   jetstream:
