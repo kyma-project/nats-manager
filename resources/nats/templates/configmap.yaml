@@ -24,7 +24,8 @@ data:
     #             #
     ###############
     http: 8222
-    server_name: $POD_NAME
+    http_port: 8222,
+    server_name: $SERVER_NAME
 
     ###################################
     #                                 #
@@ -41,7 +42,7 @@ data:
       {{- end}}
 
       {{- if .Values.nats.jetstream.memStorage.enabled }}
-      max_mem: {{ .Values.nats.jetstream.memStorage.size }}
+      max_memory_store: {{ .Values.nats.jetstream.memStorage.size }}
       {{- end }}
 
       {{- if .Values.nats.jetstream.domain }}
@@ -52,9 +53,9 @@ data:
       store_dir: {{ .Values.nats.jetstream.fileStorage.storageDirectory }}
 
       {{- if .Values.nats.jetstream.fileStorage.existingClaim }}
-      max_file: {{ .Values.nats.jetstream.fileStorage.claimStorageSize }}
+      max_file_store: {{ .Values.nats.jetstream.fileStorage.claimStorageSize }}
       {{- else }}
-      max_file: {{ .Values.global.jetstream.fileStorage.size }}
+      max_file_store: {{ .Values.global.jetstream.fileStorage.size }}
       {{- end }}
       {{- end }}
 

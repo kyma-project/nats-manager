@@ -168,19 +168,49 @@ func Test_ConfigMap(t *testing.T) {
 
 		cmMap := cmToMap(cm.Data["nats.conf"])
 
-		if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
-			return err
-		}
-
-		if err := checkValueInCMMap(cmMap, "max_mem", MemStorageSize); err != nil {
-			return err
-		}
-
 		if err := checkValueInCMMap(cmMap, "debug", True); err != nil {
 			return err
 		}
 
 		if err := checkValueInCMMap(cmMap, "trace", True); err != nil {
+			return err
+		}
+
+		// **********************
+		// TODO: remove this section when NATS server 2.10.x is released.
+		// `max_file` is changed to `max_file_store` in NATS 2.10.x.
+		// `max_mem` is changed to `max_memory_store` in NATS 2.10.x.
+		// To check the correct key in configMap,
+		// fetch the NATS statefulSet and get the NATS server version.
+		// And then based on the version, check the expected key.
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		if stsErr != nil {
+			return stsErr
+		}
+
+		imageName := ""
+		for _, c := range sts.Spec.Template.Spec.Containers {
+			if c.Name == ContainerName {
+				imageName = c.Image
+			}
+		}
+		if strings.Contains(imageName, "2.9.") {
+			if err := checkValueInCMMap(cmMap, "max_file", FileStorageSize); err != nil {
+				return err
+			}
+
+			if err := checkValueInCMMap(cmMap, "max_mem", MemStorageSize); err != nil {
+				return err
+			}
+			return nil
+		}
+		// **********************
+
+		if err := checkValueInCMMap(cmMap, "max_file_store", FileStorageSize); err != nil {
+			return err
+		}
+
+		if err := checkValueInCMMap(cmMap, "max_memory_store", MemStorageSize); err != nil {
 			return err
 		}
 

@@ -87,6 +87,9 @@ spec:
           claimName: {{ .Values.nats.jetstream.fileStorage.existingClaim | quote }}
       {{- end }}
 
+      # disable service environment variables
+      # service discovery uses DNS; don't need service env vars
+      enableServiceLinks: false
       # Required to be able to HUP signal and apply config
       # reload to the server without restarting the pod.
       shareProcessNamespace: true
@@ -109,6 +112,8 @@ spec:
         {{- if .Values.containerSecurityContext }}
         securityContext: {{- toYaml .Values.containerSecurityContext | nindent 10 }}
         {{- end }}
+        resources:
+          {{- toYaml .Values.reloader.resources | nindent 10 }}
         command:
           - "nats-server-config-reloader"
           - "-pid"
@@ -140,6 +145,7 @@ spec:
         resources:
           {{- toYaml .Values.exporter.resources | nindent 10 }}
         args:
+        - -port=7777
         - -connz
         - -routez
         - -subz
@@ -209,6 +215,8 @@ spec:
               fieldPath: metadata.namespace
         - name: CLUSTER_ADVERTISE
           value: {{ include "nats.clusterAdvertise" . }}
+        - name: SERVER_NAME
+          value: $(POD_NAME)
 
         {{- with .Values.nats.jetstream.encryption }}
         {{- with .secret }}
