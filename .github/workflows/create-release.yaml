@@ -3,39 +3,36 @@ name: "Create release"
 on:
   workflow_dispatch:
     inputs:
-      name:
-        description: 'Release name'
+      version:
+        description: 'Release version ( e.g. "2.1.3" )'
         default: ""
         required: true
 
 jobs:
-  verify-head-status:
-    name: Verify head
+  verify-release-status:
+    name: Validate release
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check tag
-        run: ./scripts/check_release_tag.sh ${{ github.event.inputs.name }}
+      - name: Verify version follows x.y.z pattern
+        run: ./.github/scripts/check_version_format.sh ${{ github.event.inputs.version }}
 
-      - name: Check image
-        run: ./scripts/check_image.sh ${{ github.ref_name }}
+      - name: Verify that the current branch's name starts with 'release-'
+        run: ./.github/scripts/verify_is_on_release_branch.sh
 
-      - name: Verify
-        run: ./scripts/verify-status.sh ${{ github.ref_name }}
+      - name: Validate content of sec-scanners-config.yaml
+        run: ./.github/scripts/check_sec-scanners-config.sh ${{ github.event.inputs.version }}
 
-          #  run-unit-tests:
-          #    name: Unit tests
-          #    needs: verify-head-status
-          #    uses: "./.github/workflows/run-unit-tests.yaml"
+      - name: Verify that the tag ${{ github.event.inputs.version }} does not exist
+        run: ./.github/scripts/check_tag_does_not_exist.sh ${{ github.event.inputs.version }}
 
   create-draft:
-    name: Create draft release
-    needs: verify-head-status
+    name: Create a draft release
+    needs: verify-release-status
     runs-on: ubuntu-latest
 
     steps:
@@ -47,32 +44,36 @@ jobs:
       - name: Create changelog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./scripts/create_changelog.sh ${{ github.event.inputs.name }}
+        run: ./.github/scripts/create_changelog.sh ${{ github.event.inputs.version }} # changelog will be stored at the CHANGELOG.md
 
       - name: Create draft release
         id: create-draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_ID=$(./scripts/create_draft_release.sh ${{ github.event.inputs.name }})
+          RELEASE_ID=$(./.github/scripts/create_draft_release.sh ${{ github.event.inputs.version }}) # this will use the CHANGELOG.md from the step 'Create changelog'
           echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
-      - name: Create lightweight tag
+      - name: Trigger 'release-nats-manager-build' prow job
         run: |
-          git tag ${{ github.event.inputs.name }}
-          git push origin ${{ github.event.inputs.name }}
+          git tag ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }}
+
+      - name: Wait for 'release-nats-manager-build'
+        run: ./.github/scripts/check-prow-build-job.sh ${{ github.ref_name }} 600 10 30
+
+      - name: Create and upload nats-manager.yaml and nats-default-cr.yaml
+        env:
+          KUSTOMIZE_VERSION: "v4.5.6"
+        run: |
+          ./.github/scripts/render_and_upload_manifests.sh ${{ github.event.inputs.version }} nats ${{ secrets.GITHUB_TOKEN }}
 
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
 
-  # devOps-Insights:
-  #   name: DevOps Insights
-  #   needs: [verify-head-status, create-draft, run-unit-tests]
-  #   uses: "./.github/workflows/metrics.yaml"
-
   publish-release:
     name: Publish release
-    needs: [verify-head-status, create-draft]
+    needs: [verify-release-status, create-draft]
     runs-on: ubuntu-latest
 
     steps:
@@ -84,4 +85,4 @@ jobs:
       - name: Publish release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./scripts/publish_release.sh ${{ needs.create-draft.outputs.release_id }}
+        run: ./.github/scripts/publish_release.sh ${{ needs.create-draft.outputs.release_id }}

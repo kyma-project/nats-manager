@@ -1,4 +1,4 @@
-name: pull-without-lifecycle-manager
+name: pull-e2e-test
 
 env:
   DOCKER_IMAGE: europe-docker.pkg.dev/kyma-project/dev/nats-manager:PR-${{ github.event.number }}

@@ -15,9 +15,9 @@ GITHUB_URL=https://api.github.com/repos/${REPOSITORY}
 GITHUB_AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
 
 CURL_RESPONSE=$(curl -L \
-  -X POST \
-  -H "Accept: application/vnd.github+json" \
-  -H "${GITHUB_AUTH_HEADER}" \
-  -H "X-GitHub-Api-Version: 2022-11-28" \
-  ${GITHUB_URL}/releases/${RELEASE_ID} \
-  -d '{"draft":false}')
+	-X POST \
+	-H "Accept: application/vnd.github+json" \
+	-H "${GITHUB_AUTH_HEADER}" \
+	-H "X-GitHub-Api-Version: 2022-11-28" \
+	${GITHUB_URL}/releases/${RELEASE_ID} \
+	-d '{"draft":false}')
