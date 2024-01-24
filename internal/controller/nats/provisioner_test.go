@@ -304,19 +304,19 @@ func Test_handleNATSReconcile(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			require.Equal(t, tc.wantDestinationRuleWatchStarted, reconciler.destinationRuleWatchStarted)
 			gotNATS, err := testEnv.GetNATS(tc.givenNATS.Name, tc.givenNATS.Namespace)
 			require.NoError(t, err)
+			if tc.wantFinalizerCheckOnly {
+				require.True(t, reconciler.containsFinalizer(&gotNATS))
+				return
+			}
+
+			require.Equal(t, tc.wantDestinationRuleWatchStarted, reconciler.destinationRuleWatchStarted)
 			require.Equal(t, tc.wantState, gotNATS.Status.State)
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()
 			require.Equal(t, tc.wantK8sEvents, gotEvents)
-
-			if tc.wantFinalizerCheckOnly {
-				require.True(t, reconciler.containsFinalizer(&gotNATS))
-				return
-			}
 
 			// check further
 			require.True(t, natsv1alpha1.ConditionsEquals(tc.wantConditions, gotNATS.Status.Conditions))

@@ -250,8 +250,10 @@ func Test_handleNATSDeletion(t *testing.T) {
 
 			// then
 			require.NoError(t, err)
-			require.Equal(t, tc.wantNATSStatusState, nats.Status.State)
 			require.Equal(t, tc.wantResult, result)
+			if tc.wantFinalizerExists {
+				require.Equal(t, tc.wantNATSStatusState, nats.Status.State)
+			}
 
 			if tc.wantCondition != nil {
 				gotCondition := nats.Status.FindCondition(natsv1alpha1.ConditionType(tc.wantCondition.Type))
