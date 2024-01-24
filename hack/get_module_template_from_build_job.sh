@@ -13,8 +13,8 @@
 # "node_id": "SC_kwDOJBeAG123456789",
 # "state": "success",
 # "description": "Job succeeded.",
-# "target_url": "https://status.build.kyma-project.io/view/gs/kyma-prow-logs/pr-logs/pull/kyma-project_nats-manager/81/pull-nats-module-build/123456789",
-# "context": "pull-nats-module-build",
+# "target_url": "https://status.build.kyma-project.io/view/gs/kyma-prow-logs/post/kyma-project_nats-manager/81/post-nats-module-build/123456789",
+# "context": "post-nats-module-build",
 # "created_at": "2023-07-18T11:39:23Z",
 # "updated_at": "2023-07-18T11:39:23Z"
 # }
@@ -34,13 +34,8 @@ fi
 MODULE_TEMPLATE_FILE="${PROJECT_ROOT}/module-template.yaml"
 
 # set links for artifacts of pull requests.
-ARTIFACTS_BASE_URL="https://gcsweb.build.kyma-project.io/gcs/kyma-prow-logs/pr-logs/pull/kyma-project_nats-manager"
-TEMPLATE_FILE_BASE_URL="${ARTIFACTS_BASE_URL}/${PR_NUMBER}/pull-nats-module-build"
-# if PR_NUMBER is not set, then set links for artifacts of main branch.
-if [[ -z "${PR_NUMBER}" ]]; then
-  ARTIFACTS_BASE_URL="https://gcsweb.build.kyma-project.io/gcs/kyma-prow-logs/logs/post-nats-module-build"
-  TEMPLATE_FILE_BASE_URL="${ARTIFACTS_BASE_URL}"
-fi
+TEMPLATE_FILE_BASE_URL="https://gcsweb.build.kyma-project.io/gcs/kyma-prow-logs/pr-logs/pull/kyma-project_nats-manager"
+TEMPLATE_FILE_BASE_URL="https://gcsweb.build.kyma-project.io/gcs/kyma-prow-logs/logs/post-nats-module-build"
 
 ## Extract the prow job ID.
 echo "Extracting prow job Id from: ${COMMIT_STATUS_JSON}"
