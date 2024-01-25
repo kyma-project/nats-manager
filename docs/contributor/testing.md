@@ -94,7 +94,7 @@ The aim is to verify the functional correctness of the NATS Manager.
 
 ### Prow jobs
 
-The Prow jobs that cover code of this repository reside in [their own repository](https://github.com/kyma-project/test-infra/tree/main/prow/jobs/nats-manager).
+The Prow jobs that cover code of this repository reside in [their own repository](https://github.com/kyma-project/test-infra/tree/main/prow/jobs/kyma-project/nats-manager).
 Presubmit jobs run on PRs and are marked with the prefix `pull`. Postsubmit jobs run on main after a PR was merged and carry the prefix `post`.
 
 For more information on execution details of each job, refer to their `description` field and the `command` and `args` fields.
