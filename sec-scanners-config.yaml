@@ -1,4 +1,5 @@
 module-name: nats
+rc-tag: 1.1.0
 protecode:
   - europe-docker.pkg.dev/kyma-project/prod/nats-manager:main
   - europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.14.0
