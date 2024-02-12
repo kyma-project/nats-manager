@@ -13,7 +13,7 @@ require (
 	github.com/onsi/gomega v1.31.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4
-	github.com/vektra/mockery/v2 v2.40.2
+	github.com/vektra/mockery/v2 v2.40.3
 	go.uber.org/zap v1.26.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.14.0
