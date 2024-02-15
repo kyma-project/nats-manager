@@ -99,7 +99,7 @@ spec:
         securityContext:
           runAsUser: 0
         image: busybox
-        command: ["sh", "-c", "chown -R 1000:10001 /etc/nats-config"]
+        command: ["sh", "-c", "chown -R 1000:1000 /etc/nats-config"]
         volumeMounts:
         - name: config-volume
           mountPath: /etc/nats-config
@@ -107,7 +107,7 @@ spec:
         securityContext:
           runAsUser: 0
         image: busybox
-        command: ["sh", "-c", "chown -R 1000:10001 /var/run/nats"]
+        command: ["sh", "-c", "chown -R 1000:1000 /var/run/nats"]
         volumeMounts:
         - name: pid
           mountPath: /var/run/nats
@@ -115,7 +115,7 @@ spec:
         securityContext:
           runAsUser: 0
         image: busybox
-        command: ["sh", "-c", "chown -R 1000:10001 /etc/nats-config/accounts"]
+        command: ["sh", "-c", "chown -R 1000:1000 /etc/nats-config/accounts"]
         volumeMounts:
         - name: accounts-volume
           mountPath: /etc/nats-config/accounts
@@ -124,7 +124,7 @@ spec:
         securityContext:
           runAsUser: 0
         image: busybox
-        command: ["sh", "-c", "chown -R 1000:10001 {{ .Values.nats.jetstream.fileStorage.storageDirectory }}"]
+        command: ["sh", "-c", "chown -R 1000:1000 {{ .Values.nats.jetstream.fileStorage.storageDirectory }}"]
         volumeMounts:
           - name: {{ include "nats.fullname" . }}-js-pvc
             mountPath: {{ .Values.nats.jetstream.fileStorage.storageDirectory }}
