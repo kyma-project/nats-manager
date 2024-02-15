@@ -94,6 +94,26 @@ spec:
       # reload to the server without restarting the pod.
       shareProcessNamespace: true
 
+      initContainers:
+      - name: fix-permissions-config-volume
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:10001 /etc/nats-config"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nats-config
+      - name: fix-permissions-pid
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:10001 /var/run/nats"]
+        volumeMounts:
+        - name: pid
+          mountPath: /var/run/nats
+      - name: fix-permissions-accounts-volume
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:10001 /etc/nats-config/accounts"]
+        volumeMounts:
+        - name: accounts-volume
+          mountPath: /etc/nats-config/accounts
+
       #################
       #               #
       #  NATS Server  #
