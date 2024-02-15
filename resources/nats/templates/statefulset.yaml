@@ -113,7 +113,14 @@ spec:
         volumeMounts:
         - name: accounts-volume
           mountPath: /etc/nats-config/accounts
-
+      {{- if (eq .Values.global.jetstream.storage "file") }}
+      - name: fix-jetsream-storage
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:10001 {{ .Values.nats.jetstream.fileStorage.storageDirectory }}"]
+        volumeMounts:
+          - name: {{ include "nats.fullname" . }}-js-pvc
+            mountPath: {{ .Values.nats.jetstream.fileStorage.storageDirectory }}
+      {{- end }}
       #################
       #               #
       #  NATS Server  #
