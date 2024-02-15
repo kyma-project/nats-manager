@@ -95,31 +95,6 @@ spec:
       shareProcessNamespace: true
 
       initContainers:
-      - name: fix-permissions-config-volume
-        securityContext:
-          runAsUser: 0
-        image: busybox
-        command: ["sh", "-c", "chown -R 1000:1000 /etc/nats-config"]
-        volumeMounts:
-        - name: config-volume
-          mountPath: /etc/nats-config
-      - name: fix-permissions-pid
-        securityContext:
-          runAsUser: 0
-        image: busybox
-        command: ["sh", "-c", "chown -R 1000:1000 /var/run/nats"]
-        volumeMounts:
-        - name: pid
-          mountPath: /var/run/nats
-      - name: fix-permissions-accounts-volume
-        securityContext:
-          runAsUser: 0
-        image: busybox
-        command: ["sh", "-c", "chown -R 1000:1000 /etc/nats-config/accounts"]
-        volumeMounts:
-        - name: accounts-volume
-          mountPath: /etc/nats-config/accounts
-      {{- if (eq .Values.global.jetstream.storage "file") }}
       - name: fix-jetstream-storage
         securityContext:
           runAsUser: 0
@@ -128,7 +103,6 @@ spec:
         volumeMounts:
           - name: {{ include "nats.fullname" . }}-js-pvc
             mountPath: {{ .Values.nats.jetstream.fileStorage.storageDirectory }}
-      {{- end }}
       #################
       #               #
       #  NATS Server  #
