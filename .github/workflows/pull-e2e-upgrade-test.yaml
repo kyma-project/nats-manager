@@ -8,11 +8,11 @@ env:
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'sec-scanners-config.yaml'
+      - "docs/**"
+      - "**.md"
+      - "sec-scanners-config.yaml"
 
 jobs:
   e2e-upgrade: # This job tests the upgrade of NATS module from latest image of the main branch to the current commit.
@@ -73,6 +73,26 @@ jobs:
       - name: Test NATS-server
         run: |
           make e2e-nats-server
+
+      - name: Show all StatefulSets in Namespace kyma-system
+        if: ${{ always() }}
+        run: |
+          kubectl get sts -n kyma-system -o yaml
+
+      - name: Show all Deployments in Namespace kyma-system
+        if: ${{ always() }}
+        run: |
+          kubectl get deploy -n kyma-system -o yaml
+
+      - name: Show all Pods in Namespace kyma-system
+        if: ${{ always() }}
+        run: |
+          kubectl get po -n kyma-system -o yaml
+
+      - name: Show all ConfigMaps in Namespace kyma-system
+        if: ${{ always() }}
+        run: |
+          kubectl get cm -n kyma-system -o yaml
 
       - name: Cleanup NATS CR
         run: |
