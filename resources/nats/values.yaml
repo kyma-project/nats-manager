@@ -38,6 +38,7 @@ global:
 #                                  #
 ####################################
 podSecurityContext:
+  runAsUser: 1000
   fsGroup: 10001
   seccompProfile:
     type: RuntimeDefault
