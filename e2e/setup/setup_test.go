@@ -34,7 +34,7 @@ import (
 // Constants for retries.
 const (
 	interval = 3 * time.Second
-	attempts = 240
+	attempts = 120
 )
 
 // clientSet is what is used to access K8s build-in resources like Pods, Namespaces and so on.
