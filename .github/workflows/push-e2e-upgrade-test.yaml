@@ -8,11 +8,11 @@ env:
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'sec-scanners-config.yaml'
+      - "docs/**"
+      - "**.md"
+      - "sec-scanners-config.yaml"
 
 jobs:
   e2e-upgrade: # This job tests the upgrade of NATS module from latest release from fast channel to current commit.
@@ -20,6 +20,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cache Go dependencies
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "./go.mod"
+          check-latest: true
+          cache-dependency-path: "./go.sum"
+
+      - run: go version
 
       - name: Install k3d tools
         run: |
