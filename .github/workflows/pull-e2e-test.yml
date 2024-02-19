@@ -8,11 +8,11 @@ env:
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'sec-scanners-config.yaml'
+      - "docs/**"
+      - "**.md"
+      - "sec-scanners-config.yaml"
 
 jobs:
   e2e:
@@ -24,9 +24,11 @@ jobs:
       - name: Cache Go dependencies
         uses: actions/setup-go@v5
         with:
-          go-version-file: './go.mod'
+          go-version-file: "./go.mod"
           check-latest: true
-          cache-dependency-path: './go.sum'
+          cache-dependency-path: "./go.sum"
+
+      - run: go version
 
       - name: Install k3d tools
         run: |
@@ -82,36 +84,35 @@ jobs:
         run: |
           make e2e-cleanup
 
-
-# the following steps only run on failure to help finding the cause of the failure
+      # the following steps only run on failure to help finding the cause of the failure
 
       - name: List CRDs
-        if:  failure()
+        if: failure()
         run: |
           kubectl get crd
 
       - name: List Namespaces
-        if:  failure()
+        if: failure()
         run: |
           kubectl get namespaces
 
       - name: List StatefulSets
-        if:  failure()
+        if: failure()
         run: |
           kubectl get sts --all-namespaces
 
       - name: List Pods
-        if:  failure()
+        if: failure()
         run: |
           kubectl get po --all-namespaces
 
       - name: List PVCs
-        if:  failure()
+        if: failure()
         run: |
           kubectl get pvc --all-namespaces
 
       - name: List NATS CR
-        if:  failure()
+        if: failure()
         run: |
           kubectl get nats --all-namespaces
 
