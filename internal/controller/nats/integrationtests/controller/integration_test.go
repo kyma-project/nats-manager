@@ -607,7 +607,7 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		sts, err := testEnvironment.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
-			testEnvironment.Logger.Errorw("failed to get statefulSet", err)
+			testEnvironment.Logger.Errorw("failed to get statefulSet", "error", err)
 			return false
 		}
 
@@ -619,7 +619,7 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 
 		err = testEnvironment.UpdateStatefulSetStatusOnK8s(*sts)
 		if err != nil {
-			testEnvironment.Logger.Errorw("failed to update statefulSet status", err)
+			testEnvironment.Logger.Errorw("failed to update statefulSet status", "error", err)
 			return false
 		}
 		return true

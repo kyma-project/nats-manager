@@ -141,7 +141,7 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 			// the original error should have being returned.
 			require.Error(t, err)
 			require.Equal(t, tc.givenError.Error(), err.Error())
-			// now check if the error is refelcted in the CR status.
+			// now check if the error is reflected in the CR status.
 			gotNats, err := testEnv.GetNATS(tc.givenNATS.GetName(), tc.givenNATS.GetNamespace())
 			require.NoError(t, err)
 			require.True(t, gotNats.Status.IsEqual(tc.wantNATSStatus))
