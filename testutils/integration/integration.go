@@ -27,7 +27,7 @@ import (
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	k8stypes "k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes/scheme"
+	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -95,14 +95,14 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	}
 
 	// add to Scheme
-	err = natsv1alpha1.AddToScheme(scheme.Scheme)
+	err = natsv1alpha1.AddToScheme(kscheme.Scheme)
 	if err != nil {
 		return nil, err
 	}
 
 	// +kubebuilder:scaffold:scheme
 
-	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: scheme.Scheme})
+	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: kscheme.Scheme})
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	}
 
 	ctrlMgr, err := ctrl.NewManager(envTestKubeCfg, ctrl.Options{
-		Scheme:                 scheme.Scheme,
+		Scheme:                 kscheme.Scheme,
 		HealthProbeBindAddress: "0",                              // disable
 		PprofBindAddress:       "0",                              // disable
 		Metrics:                server.Options{BindAddress: "0"}, // disable

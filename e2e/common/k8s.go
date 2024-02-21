@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/scheme"
+	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -34,7 +34,7 @@ func GetK8sClients() (*kubernetes.Clientset, client.Client, error) {
 	}
 
 	// We need to add the NATS CRD to the scheme, so we can create a client that can access NATS objects.
-	err = natsv1alpha1.AddToScheme(scheme.Scheme)
+	err = natsv1alpha1.AddToScheme(kscheme.Scheme)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -42,7 +42,7 @@ func GetK8sClients() (*kubernetes.Clientset, client.Client, error) {
 	// Set up the k8s client, so we can access NATS CR-objects.
 	// +kubebuilder:scaffold:scheme
 	var k8sClient client.Client
-	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: scheme.Scheme})
+	k8sClient, err = client.New(kubeConfig, client.Options{Scheme: kscheme.Scheme})
 	if err != nil {
 		return nil, nil, err
 	}
