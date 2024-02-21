@@ -17,7 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/dynamic"
 
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 
 	"github.com/avast/retry-go/v3"
 	"github.com/onsi/gomega"
@@ -573,9 +573,9 @@ func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv
 	return result, nil
 }
 
-func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*corev1.PersistentVolumeClaim, error) {
+func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*kcorev1.PersistentVolumeClaim, error) {
 	// get PVCs.
-	pvcList := &corev1.PersistentVolumeClaimList{}
+	pvcList := &kcorev1.PersistentVolumeClaimList{}
 	if err := env.k8sClient.List(env.Context, pvcList, &client.ListOptions{
 		Namespace: namespace,
 		LabelSelector: labels.SelectorFromSet(map[string]string{
@@ -594,36 +594,36 @@ func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) 
 	return env.k8sClient.Status().Update(env.Context, &sts)
 }
 
-func (env TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*corev1.ConfigMap, error) {
+func (env TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*kcorev1.ConfigMap, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &corev1.ConfigMap{}
+	result := &kcorev1.ConfigMap{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (env TestEnvironment) GetSecretFromK8s(name, namespace string) (*corev1.Secret, error) {
+func (env TestEnvironment) GetSecretFromK8s(name, namespace string) (*kcorev1.Secret, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &corev1.Secret{}
+	result := &kcorev1.Secret{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Service, error) {
+func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*kcorev1.Service, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &corev1.Service{}
+	result := &kcorev1.Service{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
@@ -658,7 +658,7 @@ func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) erro
 }
 
 func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &corev1.Service{
+	return env.k8sClient.Delete(env.Context, &kcorev1.Service{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -676,7 +676,7 @@ func (env TestEnvironment) DeletePodDisruptionBudgetFromK8s(name, namespace stri
 }
 
 func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &corev1.ConfigMap{
+	return env.k8sClient.Delete(env.Context, &kcorev1.ConfigMap{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -685,7 +685,7 @@ func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error 
 }
 
 func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &corev1.Secret{
+	return env.k8sClient.Delete(env.Context, &kcorev1.Secret{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -712,12 +712,12 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 }
 
 func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
-	eventList := corev1.EventList{}
-	return g.Eventually(func() (corev1.EventList, error) {
+	eventList := kcorev1.EventList{}
+	return g.Eventually(func() (kcorev1.EventList, error) {
 		err := env.k8sClient.List(env.Context, &eventList, client.InNamespace(nats.Namespace))
 		if err != nil {
 			log.Printf("fetch kubernetes events in ns:%s failed: %v", nats.Namespace, err)
-			return corev1.EventList{}, err
+			return kcorev1.EventList{}, err
 		}
 		return eventList, err
 	}, BigTimeOut, SmallPollingInterval)

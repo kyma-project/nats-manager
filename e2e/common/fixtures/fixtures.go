@@ -1,7 +1,7 @@
 package fixtures
 
 import (
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -39,12 +39,12 @@ func NATSCR() *natsv1alpha1.NATS {
 			Enabled: true,
 			Size:    resource.MustParse(MemStorageSize),
 		}),
-		testutils.WithNATSResources(corev1.ResourceRequirements{
-			Limits: corev1.ResourceList{
+		testutils.WithNATSResources(kcorev1.ResourceRequirements{
+			Limits: kcorev1.ResourceList{
 				"cpu":    resource.MustParse("20m"),
 				"memory": resource.MustParse("2Gi"),
 			},
-			Requests: corev1.ResourceList{
+			Requests: kcorev1.ResourceList{
 				"cpu":    resource.MustParse("5m"),
 				"memory": resource.MustParse("2Gi"),
 			},
@@ -56,8 +56,8 @@ func NATSCR() *natsv1alpha1.NATS {
 	)
 }
 
-func Namespace() *corev1.Namespace {
-	return &corev1.Namespace{
+func Namespace() *kcorev1.Namespace {
+	return &kcorev1.Namespace{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name: NamespaceName,
 		},

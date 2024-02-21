@@ -6,7 +6,7 @@ import (
 
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
-	apiv1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	apiclientsetfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -342,7 +342,7 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 		mustHaveNamePrefix string
 		labelSelector      string
 		namespace          string
-		givenPVC           *apiv1.PersistentVolumeClaim
+		givenPVC           *kcorev1.PersistentVolumeClaim
 		wantNotFoundErr    bool
 	}{
 		{

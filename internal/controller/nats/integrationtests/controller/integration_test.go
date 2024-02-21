@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -97,12 +97,12 @@ func Test_CreateNATSCR(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},
@@ -210,12 +210,12 @@ func Test_UpdateNATSCR(t *testing.T) {
 				testutils.WithNATSCRName("name-stays-the-same-1"),
 				testutils.WithNATSCRNamespace("namespace-stays-the-same-1"),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},
@@ -292,12 +292,12 @@ func Test_DeleteNATSCR(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},
@@ -498,12 +498,12 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSCRName("test1"),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},

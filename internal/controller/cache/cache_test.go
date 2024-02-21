@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -46,10 +46,10 @@ func Test_applySelectors(t *testing.T) {
 				ByObject: map[client.Object]cache.ByObject{
 					&appsv1.Deployment{}:                     selector,
 					&appsv1.StatefulSet{}:                    selector,
-					&corev1.ServiceAccount{}:                 selector,
-					&corev1.Secret{}:                         selector,
-					&corev1.Service{}:                        selector,
-					&corev1.ConfigMap{}:                      selector,
+					&kcorev1.ServiceAccount{}:                selector,
+					&kcorev1.Secret{}:                        selector,
+					&kcorev1.Service{}:                       selector,
+					&kcorev1.ConfigMap{}:                     selector,
 					&rbacv1.ClusterRole{}:                    selector,
 					&rbacv1.ClusterRoleBinding{}:             selector,
 					&autoscalingv1.HorizontalPodAutoscaler{}: selector,
@@ -69,10 +69,10 @@ func Test_applySelectors(t *testing.T) {
 				ByObject: map[client.Object]cache.ByObject{
 					&appsv1.Deployment{}:                     selector,
 					&appsv1.StatefulSet{}:                    selector,
-					&corev1.ServiceAccount{}:                 selector,
-					&corev1.Secret{}:                         selector,
-					&corev1.Service{}:                        selector,
-					&corev1.ConfigMap{}:                      selector,
+					&kcorev1.ServiceAccount{}:                selector,
+					&kcorev1.Secret{}:                        selector,
+					&kcorev1.Service{}:                       selector,
+					&kcorev1.ConfigMap{}:                     selector,
 					&rbacv1.ClusterRole{}:                    selector,
 					&rbacv1.ClusterRoleBinding{}:             selector,
 					&autoscalingv1.HorizontalPodAutoscaler{}: selector,
@@ -118,7 +118,7 @@ func computeTypeMap(byObjectMap map[client.Object]cache.ByObject, typeMap map[st
 			key := keyOf(obj)
 			typeMap[key] = v
 		}
-		if obj, ok := k.(*corev1.ServiceAccount); ok {
+		if obj, ok := k.(*kcorev1.ServiceAccount); ok {
 			key := keyOf(obj)
 			typeMap[key] = v
 		}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 
 	ctrlmocks "github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 
@@ -49,7 +49,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	newScheme := runtime.NewScheme()
 	err = natsv1alpha1.AddToScheme(newScheme)
 	require.NoError(t, err)
-	err = corev1.AddToScheme(newScheme)
+	err = kcorev1.AddToScheme(newScheme)
 	require.NoError(t, err)
 	fakeClientBuilder := fake.NewClientBuilder().WithScheme(newScheme)
 	fakeClient := fakeClientBuilder.WithObjects(objs...).WithStatusSubresource(objs...).Build()

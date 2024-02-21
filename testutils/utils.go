@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -52,8 +52,8 @@ func GetRandK8sName(length int) string {
 	return fmt.Sprintf("name-%s", GetRandString(length))
 }
 
-func NewNamespace(name string) *apiv1.Namespace {
-	namespace := apiv1.Namespace{
+func NewNamespace(name string) *kcorev1.Namespace {
+	namespace := kcorev1.Namespace{
 		TypeMeta: kmetav1.TypeMeta{
 			Kind:       "Namespace",
 			APIVersion: "v1",
@@ -122,8 +122,8 @@ func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 	return obj
 }
 
-func NewSecret(opts ...Option) *apiv1.Secret {
-	sampleSecret := apiv1.Secret{}
+func NewSecret(opts ...Option) *kcorev1.Secret {
+	sampleSecret := kcorev1.Secret{}
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(
 		NewSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
 	if err != nil {
@@ -201,7 +201,7 @@ func GetDestinationRuleName(nats v1alpha1.NATS) string {
 	return fmt.Sprintf(DestinationRuleNameFormat, nats.Name)
 }
 
-func FindContainer(containers []apiv1.Container, name string) *apiv1.Container {
+func FindContainer(containers []kcorev1.Container, name string) *kcorev1.Container {
 	for _, container := range containers {
 		if container.Name == name {
 			return &container
@@ -219,18 +219,18 @@ func GetDestinationRuleGVR() schema.GroupVersionResource {
 }
 
 // NewPVC creates a new PVC object with the given name, namespace, and label.
-func NewPVC(name, namespace string, labels map[string]string) *apiv1.PersistentVolumeClaim {
-	return &apiv1.PersistentVolumeClaim{
+func NewPVC(name, namespace string, labels map[string]string) *kcorev1.PersistentVolumeClaim {
+	return &kcorev1.PersistentVolumeClaim{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Labels:    labels,
 		},
-		Spec: apiv1.PersistentVolumeClaimSpec{
-			AccessModes: []apiv1.PersistentVolumeAccessMode{apiv1.ReadWriteOnce},
-			Resources: apiv1.VolumeResourceRequirements{
-				Requests: apiv1.ResourceList{
-					apiv1.ResourceStorage: resource.MustParse("1Gi"),
+		Spec: kcorev1.PersistentVolumeClaimSpec{
+			AccessModes: []kcorev1.PersistentVolumeAccessMode{kcorev1.ReadWriteOnce},
+			Resources: kcorev1.VolumeResourceRequirements{
+				Requests: kcorev1.ResourceList{
+					kcorev1.ResourceStorage: resource.MustParse("1Gi"),
 				},
 			},
 		},

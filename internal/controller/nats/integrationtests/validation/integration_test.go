@@ -8,7 +8,7 @@ import (
 	"github.com/onsi/gomega"
 	gomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -481,13 +481,13 @@ func Test_NATS_Defaulting(t *testing.T) {
 	}
 }
 
-func defaultResources() corev1.ResourceRequirements {
-	return corev1.ResourceRequirements{
-		Limits: corev1.ResourceList{
+func defaultResources() kcorev1.ResourceRequirements {
+	return kcorev1.ResourceRequirements{
+		Limits: kcorev1.ResourceList{
 			"cpu":    resource.MustParse("500m"),
 			"memory": resource.MustParse("1Gi"),
 		},
-		Requests: corev1.ResourceList{
+		Requests: kcorev1.ResourceList{
 			"cpu":    resource.MustParse("40m"),
 			"memory": resource.MustParse("64Mi"),
 		},

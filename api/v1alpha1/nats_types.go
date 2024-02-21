@@ -20,7 +20,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -111,7 +111,7 @@ type NATSSpec struct {
 
 	// Resources defines resources for NATS.
 	// +kubebuilder:default:={limits:{cpu:"500m",memory:"1Gi"}, requests:{cpu:"40m",memory:"64Mi"}}
-	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+	Resources kcorev1.ResourceRequirements `json:"resources,omitempty"`
 
 	// Annotations allows to add annotations to NATS.
 	Annotations map[string]string `json:"annotations,omitempty"`

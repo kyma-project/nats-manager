@@ -6,7 +6,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -79,7 +79,7 @@ func HaveSpecLoggingTrace(enabled bool) gomegatypes.GomegaMatcher {
 		}, gomega.Equal(enabled))
 }
 
-func HaveSpecResources(res corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
+func HaveSpecResources(res kcorev1.ResourceRequirements) gomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
 			func(n *v1alpha1.NATS) bool {
@@ -134,9 +134,9 @@ func HaveCondition(condition kmetav1.Condition) gomegatypes.GomegaMatcher {
 		})))
 }
 
-func HaveEvent(event corev1.Event) gomegatypes.GomegaMatcher {
+func HaveEvent(event kcorev1.Event) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(l corev1.EventList) []corev1.Event {
+		func(l kcorev1.EventList) []kcorev1.Event {
 			return l.Items
 		}, gomega.ContainElement(gstruct.MatchFields(gstruct.IgnoreExtras|gstruct.IgnoreMissing, gstruct.Fields{
 			"Reason":  gomega.Equal(event.Reason),
@@ -146,26 +146,26 @@ func HaveEvent(event corev1.Event) gomegatypes.GomegaMatcher {
 }
 
 func HaveDeployedEvent() gomegatypes.GomegaMatcher {
-	return HaveEvent(corev1.Event{
+	return HaveEvent(kcorev1.Event{
 		Reason:  string(v1alpha1.ConditionReasonDeployed),
 		Message: "StatefulSet is ready and NATS is deployed.",
-		Type:    corev1.EventTypeNormal,
+		Type:    kcorev1.EventTypeNormal,
 	})
 }
 
 func HaveDeployingEvent() gomegatypes.GomegaMatcher {
-	return HaveEvent(corev1.Event{
+	return HaveEvent(kcorev1.Event{
 		Reason:  string(v1alpha1.ConditionReasonDeploying),
 		Message: "NATS is being deployed, waiting for StatefulSet to get ready.",
-		Type:    corev1.EventTypeNormal,
+		Type:    kcorev1.EventTypeNormal,
 	})
 }
 
 func HaveProcessingEvent() gomegatypes.GomegaMatcher {
-	return HaveEvent(corev1.Event{
+	return HaveEvent(kcorev1.Event{
 		Reason:  string(v1alpha1.ConditionReasonProcessing),
 		Message: "Initializing NATS resource.",
-		Type:    corev1.EventTypeNormal,
+		Type:    kcorev1.EventTypeNormal,
 	})
 }
 

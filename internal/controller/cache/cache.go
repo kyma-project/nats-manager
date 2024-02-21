@@ -3,7 +3,7 @@ package cache
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -27,10 +27,10 @@ func applySelectors(options cache.Options) cache.Options {
 	options.ByObject = map[client.Object]cache.ByObject{
 		&appsv1.Deployment{}:                     managedByNATS,
 		&appsv1.StatefulSet{}:                    managedByNATS,
-		&corev1.ServiceAccount{}:                 managedByNATS,
-		&corev1.Secret{}:                         managedByNATS,
-		&corev1.Service{}:                        managedByNATS,
-		&corev1.ConfigMap{}:                      managedByNATS,
+		&kcorev1.ServiceAccount{}:                managedByNATS,
+		&kcorev1.Secret{}:                        managedByNATS,
+		&kcorev1.Service{}:                       managedByNATS,
+		&kcorev1.ConfigMap{}:                     managedByNATS,
 		&rbacv1.ClusterRole{}:                    managedByNATS,
 		&rbacv1.ClusterRoleBinding{}:             managedByNATS,
 		&autoscalingv1.HorizontalPodAutoscaler{}: managedByNATS,

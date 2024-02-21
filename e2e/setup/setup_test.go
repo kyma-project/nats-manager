@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
@@ -290,7 +290,7 @@ func Test_PodsReady(t *testing.T) {
 
 	// RetryGet the NATS Pods and test them.
 	err = Retry(attempts, interval, func() error {
-		var pods *v1.PodList
+		var pods *kcorev1.PodList
 		// RetryGet the NATS Pods via labels.
 		pods, err = clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if err != nil {
@@ -337,11 +337,11 @@ func Test_PVCs(t *testing.T) {
 
 	// Get the PersistentVolumeClaims --PVCs-- and test them.
 	ctx := context.TODO()
-	var pvcs *v1.PersistentVolumeClaimList
+	var pvcs *kcorev1.PersistentVolumeClaimList
 	err := Retry(attempts, interval, func() error {
 		// RetryGet PVCs via a label.
 		var err error
-		pvcs, err = RetryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
+		pvcs, err = RetryGet(attempts, interval, func() (*kcorev1.PersistentVolumeClaimList, error) {
 			return clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		})
 		if err != nil {
@@ -362,7 +362,7 @@ func Test_PVCs(t *testing.T) {
 
 	// Compare the PVC's sizes with the definition in the CRD.
 	for _, pvc := range pvcs.Items {
-		size := pvc.Spec.Resources.Requests[v1.ResourceStorage]
+		size := pvc.Spec.Resources.Requests[kcorev1.ResourceStorage]
 		require.True(t, size.Equal(NATSCR().Spec.FileStorage.Size))
 	}
 }

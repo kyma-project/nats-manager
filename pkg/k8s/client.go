@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -25,7 +25,7 @@ type Client interface {
 	PatchApply(context.Context, *unstructured.Unstructured) error
 	GetStatefulSet(context.Context, string, string) (*appsv1.StatefulSet, error)
 	Delete(context.Context, *unstructured.Unstructured) error
-	GetSecret(context.Context, string, string) (*apiv1.Secret, error)
+	GetSecret(context.Context, string, string) (*kcorev1.Secret, error)
 	GetCRD(context.Context, string) (*apiextensionsv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
 	DeletePVCsWithLabel(context.Context, string, string, string) error
@@ -68,12 +68,12 @@ func (c *KubeClient) GetStatefulSet(ctx context.Context, name, namespace string)
 	return result, nil
 }
 
-func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*apiv1.Secret, error) {
+func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*kcorev1.Secret, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &apiv1.Secret{}
+	result := &kcorev1.Secret{}
 	if err := c.client.Get(ctx, nn, result); err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector stri
 		return err
 	}
 
-	pvcList := &apiv1.PersistentVolumeClaimList{}
+	pvcList := &kcorev1.PersistentVolumeClaimList{}
 	if err = c.client.List(ctx, pvcList, &client.ListOptions{
 		Namespace:     namespace,
 		LabelSelector: selector,

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -60,12 +60,12 @@ func Test_GenerateOverrides(t *testing.T) {
 					Enabled: true,
 					Size:    resource.MustParse("16Gi"),
 				}),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("999m"),
 						"memory": resource.MustParse("999Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("919m"),
 						"memory": resource.MustParse("919Mi"),
 					},

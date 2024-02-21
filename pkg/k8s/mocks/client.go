@@ -7,7 +7,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -241,23 +241,23 @@ func (_c *Client_GetCRD_Call) RunAndReturn(run func(context.Context, string) (*v
 }
 
 // GetSecret provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Client) GetSecret(_a0 context.Context, _a1 string, _a2 string) (*corev1.Secret, error) {
+func (_m *Client) GetSecret(_a0 context.Context, _a1 string, _a2 string) (*kcorev1.Secret, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetSecret")
 	}
 
-	var r0 *corev1.Secret
+	var r0 *kcorev1.Secret
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*corev1.Secret, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*kcorev1.Secret, error)); ok {
 		return rf(_a0, _a1, _a2)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *corev1.Secret); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *kcorev1.Secret); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*corev1.Secret)
+			r0 = ret.Get(0).(*kcorev1.Secret)
 		}
 	}
 
@@ -290,12 +290,12 @@ func (_c *Client_GetSecret_Call) Run(run func(_a0 context.Context, _a1 string, _
 	return _c
 }
 
-func (_c *Client_GetSecret_Call) Return(_a0 *corev1.Secret, _a1 error) *Client_GetSecret_Call {
+func (_c *Client_GetSecret_Call) Return(_a0 *kcorev1.Secret, _a1 error) *Client_GetSecret_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Client_GetSecret_Call) RunAndReturn(run func(context.Context, string, string) (*corev1.Secret, error)) *Client_GetSecret_Call {
+func (_c *Client_GetSecret_Call) RunAndReturn(run func(context.Context, string, string) (*kcorev1.Secret, error)) *Client_GetSecret_Call {
 	_c.Call.Return(run)
 	return _c
 }

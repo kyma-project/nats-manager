@@ -3,7 +3,7 @@ package testutils
 import (
 	"errors"
 
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -238,7 +238,7 @@ func WithNATSAnnotations(annotations map[string]string) NATSOption {
 	}
 }
 
-func WithNATSResources(resources corev1.ResourceRequirements) NATSOption {
+func WithNATSResources(resources kcorev1.ResourceRequirements) NATSOption {
 	return func(nats *v1alpha1.NATS) error {
 		nats.Spec.Resources = resources
 		return nil
