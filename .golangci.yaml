@@ -173,6 +173,8 @@ linters-settings:
         alias: ktypes
       - pkg: sigs.k8s.io/controller-runtime/pkg/log/zap
         alias: klogzap
+      - pkg: github.com/kyma-project/nats-manager/pkg/k8s/mocks
+        alias: nmkmocks
 
 
   ireturn:

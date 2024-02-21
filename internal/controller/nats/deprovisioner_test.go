@@ -14,7 +14,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	k8smocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
+	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	natssdk "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/mock"
@@ -327,7 +327,7 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 			testEnv := NewMockedUnitTestEnvironment(t, objs...)
 			r := testEnv.Reconciler
 
-			r.kubeClient.(*k8smocks.Client).On("DeletePVCsWithLabel", mock.Anything, mock.Anything,
+			r.kubeClient.(*nmkmocks.Client).On("DeletePVCsWithLabel", mock.Anything, mock.Anything,
 				tt.nats.Name, tt.nats.Namespace).Return(tt.deleteErr)
 			natsClient := new(mocks.Client)
 			r.setNatsClient(tt.nats, natsClient)
@@ -342,7 +342,7 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 			}
 
 			labelSelector := fmt.Sprintf("%s=%s", InstanceLabelKey, tt.labelValue)
-			r.kubeClient.(*k8smocks.Client).EXPECT().DeletePVCsWithLabel(mock.Anything, labelSelector,
+			r.kubeClient.(*nmkmocks.Client).EXPECT().DeletePVCsWithLabel(mock.Anything, labelSelector,
 				tt.nats.Name, tt.nats.Namespace).Times(1)
 		})
 	}

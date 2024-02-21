@@ -12,7 +12,7 @@ import (
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	chartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
-	k8smocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
+	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	managermocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
@@ -27,7 +27,7 @@ import (
 type MockedUnitTestEnvironment struct {
 	Context       context.Context
 	Client        client.Client
-	kubeClient    *k8smocks.Client
+	kubeClient    *nmkmocks.Client
 	chartRenderer *chartmocks.Renderer
 	natsManager   *managermocks.Manager
 	ctrlManager   *ctrlmocks.Manager
@@ -57,7 +57,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 
 	// setup custom mocks
 	chartRenderer := new(chartmocks.Renderer)
-	kubeClient := new(k8smocks.Client)
+	kubeClient := new(nmkmocks.Client)
 	natsManager := new(managermocks.Manager)
 	mockController := new(ctrlmocks.Controller)
 	mockManager := new(ctrlmocks.Manager)
