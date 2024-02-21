@@ -40,7 +40,7 @@ import (
 	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
@@ -69,7 +69,7 @@ type TestEnvironment struct {
 	K8sDynamicClient *dynamic.DynamicClient
 	KubeClient       *k8s.Client
 	ChartRenderer    *chart.Renderer
-	NATSManager      *manager.Manager
+	NATSManager      *nmmgr.Manager
 	Reconciler       *nmctrl.Reconciler
 	Logger           *zap.SugaredLogger
 	Recorder         *record.EventRecorder
@@ -144,7 +144,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	}
 
 	// create NATS manager instance
-	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
 	// setup reconciler
 	natsReconciler := nmctrl.NewReconciler(

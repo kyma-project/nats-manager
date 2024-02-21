@@ -7,7 +7,7 @@ import (
 
 	chart "github.com/kyma-project/nats-manager/pkg/k8s/chart"
 
-	manager "github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -122,7 +122,7 @@ func (_c *Manager_DeployInstance_Call) RunAndReturn(run func(context.Context, *c
 }
 
 // GenerateNATSResources provides a mock function with given fields: _a0, _a1
-func (_m *Manager) GenerateNATSResources(_a0 *chart.ReleaseInstance, _a1 ...manager.Option) (*chart.ManifestResources, error) {
+func (_m *Manager) GenerateNATSResources(_a0 *chart.ReleaseInstance, _a1 ...nmmgr.Option) (*chart.ManifestResources, error) {
 	_va := make([]interface{}, len(_a1))
 	for _i := range _a1 {
 		_va[_i] = _a1[_i]
@@ -138,10 +138,10 @@ func (_m *Manager) GenerateNATSResources(_a0 *chart.ReleaseInstance, _a1 ...mana
 
 	var r0 *chart.ManifestResources
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*chart.ReleaseInstance, ...manager.Option) (*chart.ManifestResources, error)); ok {
+	if rf, ok := ret.Get(0).(func(*chart.ReleaseInstance, ...nmmgr.Option) (*chart.ManifestResources, error)); ok {
 		return rf(_a0, _a1...)
 	}
-	if rf, ok := ret.Get(0).(func(*chart.ReleaseInstance, ...manager.Option) *chart.ManifestResources); ok {
+	if rf, ok := ret.Get(0).(func(*chart.ReleaseInstance, ...nmmgr.Option) *chart.ManifestResources); ok {
 		r0 = rf(_a0, _a1...)
 	} else {
 		if ret.Get(0) != nil {
@@ -149,7 +149,7 @@ func (_m *Manager) GenerateNATSResources(_a0 *chart.ReleaseInstance, _a1 ...mana
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*chart.ReleaseInstance, ...manager.Option) error); ok {
+	if rf, ok := ret.Get(1).(func(*chart.ReleaseInstance, ...nmmgr.Option) error); ok {
 		r1 = rf(_a0, _a1...)
 	} else {
 		r1 = ret.Error(1)
@@ -165,18 +165,18 @@ type Manager_GenerateNATSResources_Call struct {
 
 // GenerateNATSResources is a helper method to define mock.On call
 //   - _a0 *chart.ReleaseInstance
-//   - _a1 ...manager.Option
+//   - _a1 ...nmmgr.Option
 func (_e *Manager_Expecter) GenerateNATSResources(_a0 interface{}, _a1 ...interface{}) *Manager_GenerateNATSResources_Call {
 	return &Manager_GenerateNATSResources_Call{Call: _e.mock.On("GenerateNATSResources",
 		append([]interface{}{_a0}, _a1...)...)}
 }
 
-func (_c *Manager_GenerateNATSResources_Call) Run(run func(_a0 *chart.ReleaseInstance, _a1 ...manager.Option)) *Manager_GenerateNATSResources_Call {
+func (_c *Manager_GenerateNATSResources_Call) Run(run func(_a0 *chart.ReleaseInstance, _a1 ...nmmgr.Option)) *Manager_GenerateNATSResources_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]manager.Option, len(args)-1)
+		variadicArgs := make([]nmmgr.Option, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(manager.Option)
+				variadicArgs[i] = a.(nmmgr.Option)
 			}
 		}
 		run(args[0].(*chart.ReleaseInstance), variadicArgs...)
@@ -189,7 +189,7 @@ func (_c *Manager_GenerateNATSResources_Call) Return(_a0 *chart.ManifestResource
 	return _c
 }
 
-func (_c *Manager_GenerateNATSResources_Call) RunAndReturn(run func(*chart.ReleaseInstance, ...manager.Option) (*chart.ManifestResources, error)) *Manager_GenerateNATSResources_Call {
+func (_c *Manager_GenerateNATSResources_Call) RunAndReturn(run func(*chart.ReleaseInstance, ...nmmgr.Option) (*chart.ManifestResources, error)) *Manager_GenerateNATSResources_Call {
 	_c.Call.Return(run)
 	return _c
 }

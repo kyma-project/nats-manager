@@ -9,7 +9,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
 
-	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/pkg/nats/mocks"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -236,8 +236,8 @@ func Test_handleNATSDeletion(t *testing.T) {
 			testEnv.natsManager.On("GenerateOverrides",
 				mock.Anything, mock.Anything, mock.Anything).Return(
 				map[string]interface{}{
-					natsmanager.IstioEnabledKey:   false,
-					natsmanager.RotatePasswordKey: true, // do not recreate secret if it exists
+					nmmgr.IstioEnabledKey:   false,
+					nmmgr.RotatePasswordKey: true, // do not recreate secret if it exists
 				},
 			)
 

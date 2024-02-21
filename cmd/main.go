@@ -43,7 +43,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const defaultMetricsPort = 9443
@@ -149,7 +149,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 
 	kubeClient := k8s.NewKubeClient(mgr.GetClient(), apiClientSet, "nats-manager")
 
-	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
 	// create NATS reconciler instance
 	natsReconciler := nmctrl.NewReconciler(

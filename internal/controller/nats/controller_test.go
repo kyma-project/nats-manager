@@ -6,7 +6,7 @@ import (
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -107,8 +107,8 @@ func Test_initNATSInstance(t *testing.T) {
 			testEnv.natsManager.On("GenerateOverrides",
 				mock.Anything, mock.Anything, mock.Anything).Return(
 				map[string]interface{}{
-					natsmanager.IstioEnabledKey:   tc.wantIstioEnabled,
-					natsmanager.RotatePasswordKey: tc.wantRotatePassword, // do not recreate secret if it exists
+					nmmgr.IstioEnabledKey:   tc.wantIstioEnabled,
+					nmmgr.RotatePasswordKey: tc.wantRotatePassword, // do not recreate secret if it exists
 				},
 			)
 

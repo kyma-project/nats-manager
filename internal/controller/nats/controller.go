@@ -38,7 +38,7 @@ import (
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const (
@@ -63,7 +63,7 @@ type Reconciler struct {
 	scheme                      *runtime.Scheme
 	recorder                    record.EventRecorder
 	logger                      *zap.SugaredLogger
-	natsManager                 manager.Manager
+	natsManager                 nmmgr.Manager
 	ctrlManager                 kcontrollerruntime.Manager
 	destinationRuleWatchStarted bool
 	allowedNATSCR               *nmapiv1alpha1.NATS
@@ -76,7 +76,7 @@ func NewReconciler(
 	scheme *runtime.Scheme,
 	logger *zap.SugaredLogger,
 	recorder record.EventRecorder,
-	natsManager manager.Manager,
+	natsManager nmmgr.Manager,
 	allowedNATSCR *nmapiv1alpha1.NATS,
 ) *Reconciler {
 	return &Reconciler{
@@ -178,8 +178,8 @@ func (r *Reconciler) generateNatsResources(nats *nmapiv1alpha1.NATS, instance *c
 	// Generate Nats resources from chart.
 	natsResources, err := r.natsManager.GenerateNATSResources(
 		instance,
-		manager.WithOwnerReference(*nats), // add owner references to all resources
-		manager.WithLabel(ManagedByLabelKey, ManagedByLabelValue),
+		nmmgr.WithOwnerReference(*nats), // add owner references to all resources
+		nmmgr.WithLabel(ManagedByLabelKey, ManagedByLabelValue),
 	)
 	if err != nil {
 		return err
