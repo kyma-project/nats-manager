@@ -10,7 +10,7 @@ import (
 	keventsv1 "k8s.io/api/events/v1"
 
 	"github.com/onsi/gomega"
-	
+
 	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 	kcorev1 "k8s.io/api/core/v1"
