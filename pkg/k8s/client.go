@@ -6,7 +6,7 @@ import (
 
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	kapiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
@@ -26,7 +26,7 @@ type Client interface {
 	GetStatefulSet(context.Context, string, string) (*kappsv1.StatefulSet, error)
 	Delete(context.Context, *unstructured.Unstructured) error
 	GetSecret(context.Context, string, string) (*kcorev1.Secret, error)
-	GetCRD(context.Context, string) (*apiextensionsv1.CustomResourceDefinition, error)
+	GetCRD(context.Context, string) (*kapiextv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
 	DeletePVCsWithLabel(context.Context, string, string, string) error
 }
@@ -80,7 +80,7 @@ func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*kc
 	return result, nil
 }
 
-func (c *KubeClient) GetCRD(ctx context.Context, name string) (*apiextensionsv1.CustomResourceDefinition, error) {
+func (c *KubeClient) GetCRD(ctx context.Context, name string) (*kapiextv1.CustomResourceDefinition, error) {
 	return c.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(ctx, name, kmetav1.GetOptions{})
 }
 

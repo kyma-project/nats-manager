@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	kapiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -158,8 +158,8 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 	return nats
 }
 
-func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
-	result := &apiextensionsv1.CustomResourceDefinition{
+func NewDestinationRuleCRD() *kapiextv1.CustomResourceDefinition {
+	result := &kapiextv1.CustomResourceDefinition{
 		TypeMeta: kmetav1.TypeMeta{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
@@ -167,8 +167,8 @@ func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name: "destinationrules.networking.istio.io",
 		},
-		Spec: apiextensionsv1.CustomResourceDefinitionSpec{
-			Names:                 apiextensionsv1.CustomResourceDefinitionNames{},
+		Spec: kapiextv1.CustomResourceDefinitionSpec{
+			Names:                 kapiextv1.CustomResourceDefinitionNames{},
 			Scope:                 "Namespaced",
 			PreserveUnknownFields: false,
 		},
