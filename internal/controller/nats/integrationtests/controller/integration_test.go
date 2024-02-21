@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
-	v1 "k8s.io/api/events/v1"
+	keventsv1 "k8s.io/api/events/v1"
 
 	"github.com/onsi/gomega"
+	
 	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 	kcorev1 "k8s.io/api/core/v1"
@@ -55,7 +56,7 @@ func Test_CreateNATSCR(t *testing.T) {
 	testCases := []struct {
 		name                  string
 		givenNATS             *nmapiv1alpha1.NATS
-		givenK8sEvents        v1.EventList
+		givenK8sEvents        keventsv1.EventList
 		givenStatefulSetReady bool
 		wantMatches           onsigomegatypes.GomegaMatcher
 		wantEventMatches      onsigomegatypes.GomegaMatcher
