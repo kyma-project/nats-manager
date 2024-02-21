@@ -7,7 +7,7 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	kcorev1 "k8s.io/api/core/v1"
-	apiclientsetfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
+	kapiextclientsetfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -272,7 +272,7 @@ func Test_GetCRD(t *testing.T) {
 				objs = append(objs, sampleCRD)
 			}
 
-			fakeClientSet := apiclientsetfake.NewSimpleClientset(objs...)
+			fakeClientSet := kapiextclientsetfake.NewSimpleClientset(objs...)
 			kubeClient := NewKubeClient(nil, fakeClientSet, testFieldManager)
 
 			// when
@@ -321,7 +321,7 @@ func Test_DestinationRuleCRDExists(t *testing.T) {
 				objs = append(objs, sampleCRD)
 			}
 
-			fakeClientSet := apiclientsetfake.NewSimpleClientset(objs...)
+			fakeClientSet := kapiextclientsetfake.NewSimpleClientset(objs...)
 			kubeClient := NewKubeClient(nil, fakeClientSet, testFieldManager)
 
 			// when

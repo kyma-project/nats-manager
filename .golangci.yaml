@@ -187,6 +187,8 @@ linters-settings:
         alias: kapipolicyv1
       - pkg: github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks
         alias: nmkchartmocks
+      - pkg: k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake
+        alias: kapiextclientsetfake
 
 
   ireturn:
