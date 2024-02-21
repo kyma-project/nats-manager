@@ -5,14 +5,14 @@ import (
 
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
-	gomegatypes "github.com/onsi/gomega/types"
+	onsigomegatypes "github.com/onsi/gomega/types"
 	kcorev1 "k8s.io/api/core/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
-func HaveSpecJetsStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatcher {
+func HaveSpecJetsStreamMemStorage(ms v1alpha1.MemStorage) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
 			func(n *v1alpha1.NATS) bool {
@@ -25,7 +25,7 @@ func HaveSpecJetsStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatc
 	)
 }
 
-func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMatcher {
+func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
 			func(n *v1alpha1.NATS) string {
@@ -38,21 +38,21 @@ func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMat
 	)
 }
 
-func HaveSpecCluster(cluster v1alpha1.Cluster) gomegatypes.GomegaMatcher {
+func HaveSpecCluster(cluster v1alpha1.Cluster) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) bool {
 			return reflect.DeepEqual(n.Spec.Cluster, cluster)
 		}, gomega.BeTrue())
 }
 
-func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
+func HaveSpecClusterSize(size int) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) int {
 			return n.Spec.Cluster.Size
 		}, gomega.Equal(size))
 }
 
-func HaveSpecLogging(logging v1alpha1.Logging) gomegatypes.GomegaMatcher {
+func HaveSpecLogging(logging v1alpha1.Logging) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
 			func(n *v1alpha1.NATS) bool {
@@ -65,21 +65,21 @@ func HaveSpecLogging(logging v1alpha1.Logging) gomegatypes.GomegaMatcher {
 	)
 }
 
-func HaveSpecLoggingDebug(enabled bool) gomegatypes.GomegaMatcher {
+func HaveSpecLoggingDebug(enabled bool) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) bool {
 			return n.Spec.Logging.Debug
 		}, gomega.Equal(enabled))
 }
 
-func HaveSpecLoggingTrace(enabled bool) gomegatypes.GomegaMatcher {
+func HaveSpecLoggingTrace(enabled bool) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) bool {
 			return n.Spec.Logging.Trace
 		}, gomega.Equal(enabled))
 }
 
-func HaveSpecResources(res kcorev1.ResourceRequirements) gomegatypes.GomegaMatcher {
+func HaveSpecResources(res kcorev1.ResourceRequirements) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
 			func(n *v1alpha1.NATS) bool {
@@ -100,28 +100,28 @@ func HaveSpecResources(res kcorev1.ResourceRequirements) gomegatypes.GomegaMatch
 	)
 }
 
-func HaveStatusReady() gomegatypes.GomegaMatcher {
+func HaveStatusReady() onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) string {
 			return n.Status.State
 		}, gomega.Equal(v1alpha1.StateReady))
 }
 
-func HaveStatusProcessing() gomegatypes.GomegaMatcher {
+func HaveStatusProcessing() onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) string {
 			return n.Status.State
 		}, gomega.Equal(v1alpha1.StateProcessing))
 }
 
-func HaveStatusError() gomegatypes.GomegaMatcher {
+func HaveStatusError() onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) string {
 			return n.Status.State
 		}, gomega.Equal(v1alpha1.StateError))
 }
 
-func HaveCondition(condition kmetav1.Condition) gomegatypes.GomegaMatcher {
+func HaveCondition(condition kmetav1.Condition) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *v1alpha1.NATS) []kmetav1.Condition {
 			return n.Status.Conditions
@@ -134,7 +134,7 @@ func HaveCondition(condition kmetav1.Condition) gomegatypes.GomegaMatcher {
 		})))
 }
 
-func HaveEvent(event kcorev1.Event) gomegatypes.GomegaMatcher {
+func HaveEvent(event kcorev1.Event) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(l kcorev1.EventList) []kcorev1.Event {
 			return l.Items
@@ -145,7 +145,7 @@ func HaveEvent(event kcorev1.Event) gomegatypes.GomegaMatcher {
 		})))
 }
 
-func HaveDeployedEvent() gomegatypes.GomegaMatcher {
+func HaveDeployedEvent() onsigomegatypes.GomegaMatcher {
 	return HaveEvent(kcorev1.Event{
 		Reason:  string(v1alpha1.ConditionReasonDeployed),
 		Message: "StatefulSet is ready and NATS is deployed.",
@@ -153,7 +153,7 @@ func HaveDeployedEvent() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HaveDeployingEvent() gomegatypes.GomegaMatcher {
+func HaveDeployingEvent() onsigomegatypes.GomegaMatcher {
 	return HaveEvent(kcorev1.Event{
 		Reason:  string(v1alpha1.ConditionReasonDeploying),
 		Message: "NATS is being deployed, waiting for StatefulSet to get ready.",
@@ -161,7 +161,7 @@ func HaveDeployingEvent() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HaveProcessingEvent() gomegatypes.GomegaMatcher {
+func HaveProcessingEvent() onsigomegatypes.GomegaMatcher {
 	return HaveEvent(kcorev1.Event{
 		Reason:  string(v1alpha1.ConditionReasonProcessing),
 		Message: "Initializing NATS resource.",
@@ -169,7 +169,7 @@ func HaveProcessingEvent() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HaveReadyConditionStatefulSet() gomegatypes.GomegaMatcher {
+func HaveReadyConditionStatefulSet() onsigomegatypes.GomegaMatcher {
 	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionStatefulSet),
 		Status:  kmetav1.ConditionTrue,
@@ -178,7 +178,7 @@ func HaveReadyConditionStatefulSet() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HavePendingConditionStatefulSet() gomegatypes.GomegaMatcher {
+func HavePendingConditionStatefulSet() onsigomegatypes.GomegaMatcher {
 	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionStatefulSet),
 		Status:  kmetav1.ConditionFalse,
@@ -187,7 +187,7 @@ func HavePendingConditionStatefulSet() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HaveForbiddenConditionStatefulSet() gomegatypes.GomegaMatcher {
+func HaveForbiddenConditionStatefulSet() onsigomegatypes.GomegaMatcher {
 	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionStatefulSet),
 		Status:  kmetav1.ConditionFalse,
@@ -196,7 +196,7 @@ func HaveForbiddenConditionStatefulSet() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HaveReadyConditionAvailable() gomegatypes.GomegaMatcher {
+func HaveReadyConditionAvailable() onsigomegatypes.GomegaMatcher {
 	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
 		Status:  kmetav1.ConditionTrue,
@@ -205,7 +205,7 @@ func HaveReadyConditionAvailable() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HaveDeployingConditionAvailable() gomegatypes.GomegaMatcher {
+func HaveDeployingConditionAvailable() onsigomegatypes.GomegaMatcher {
 	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
 		Status:  kmetav1.ConditionFalse,
@@ -214,7 +214,7 @@ func HaveDeployingConditionAvailable() gomegatypes.GomegaMatcher {
 	})
 }
 
-func HaveForbiddenConditionAvailableWithMsg(msg string) gomegatypes.GomegaMatcher {
+func HaveForbiddenConditionAvailableWithMsg(msg string) onsigomegatypes.GomegaMatcher {
 	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
 		Status:  kmetav1.ConditionFalse,

@@ -10,7 +10,7 @@ import (
 	v1 "k8s.io/api/events/v1"
 
 	"github.com/onsi/gomega"
-	gomegatypes "github.com/onsi/gomega/types"
+	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -57,8 +57,8 @@ func Test_CreateNATSCR(t *testing.T) {
 		givenNATS             *v1alpha1.NATS
 		givenK8sEvents        v1.EventList
 		givenStatefulSetReady bool
-		wantMatches           gomegatypes.GomegaMatcher
-		wantEventMatches      gomegatypes.GomegaMatcher
+		wantMatches           onsigomegatypes.GomegaMatcher
+		wantEventMatches      onsigomegatypes.GomegaMatcher
 		wantEnsureK8sObjects  bool
 	}{
 		{
@@ -490,7 +490,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 	testCases := []struct {
 		name         string
 		givenNATS    *v1alpha1.NATS
-		wantMatchers gomegatypes.GomegaMatcher
+		wantMatchers onsigomegatypes.GomegaMatcher
 	}{
 		{
 			name: "should have reconciled again without problems",

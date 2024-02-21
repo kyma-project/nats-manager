@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/onsi/gomega"
-	gomegatypes "github.com/onsi/gomega/types"
+	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -229,7 +229,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 	testCases := []struct {
 		name         string
 		givenNATS    *v1alpha1.NATS
-		wantMatches  gomegatypes.GomegaMatcher
+		wantMatches  onsigomegatypes.GomegaMatcher
 		givenUpdates []testutils.NATSOption
 		wantErrMsg   string
 	}{
@@ -332,7 +332,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 		name string
 		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
 		givenUnstructuredNATS unstructured.Unstructured
-		wantMatches           gomegatypes.GomegaMatcher
+		wantMatches           onsigomegatypes.GomegaMatcher
 	}{
 		{
 			name: "defaulting with bare minimum NATS",

@@ -11,7 +11,7 @@ import (
 	"github.com/kyma-project/nats-manager/testutils/integration"
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 	"github.com/onsi/gomega"
-	gomegatypes "github.com/onsi/gomega/types"
+	onsigomegatypes "github.com/onsi/gomega/types"
 )
 
 const projectRootDir = "../../../../../"
@@ -60,7 +60,7 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 	testCases := []struct {
 		name        string
 		givenNATS   *v1alpha1.NATS
-		wantMatches gomegatypes.GomegaMatcher
+		wantMatches onsigomegatypes.GomegaMatcher
 	}{
 		{
 			name: "should allow NATS CR if name and namespace is correct",
