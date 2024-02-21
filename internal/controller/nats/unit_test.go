@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	chartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
+	nmkchartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	managermocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -28,7 +28,7 @@ type MockedUnitTestEnvironment struct {
 	Context       context.Context
 	Client        client.Client
 	kubeClient    *nmkmocks.Client
-	chartRenderer *chartmocks.Renderer
+	chartRenderer *nmkchartmocks.Renderer
 	natsManager   *managermocks.Manager
 	ctrlManager   *ctrlmocks.Manager
 	Reconciler    *Reconciler
@@ -56,7 +56,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	recorder := record.NewFakeRecorder(3)
 
 	// setup custom mocks
-	chartRenderer := new(chartmocks.Renderer)
+	chartRenderer := new(nmkchartmocks.Renderer)
 	kubeClient := new(nmkmocks.Client)
 	natsManager := new(managermocks.Manager)
 	mockController := new(ctrlmocks.Controller)

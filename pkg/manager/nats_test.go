@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	chartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
+	nmkchartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
@@ -58,7 +58,7 @@ func Test_GenerateNATSResources(t *testing.T) {
 				},
 			}
 
-			mockHelmRenderer := chartmocks.NewRenderer(t)
+			mockHelmRenderer := nmkchartmocks.NewRenderer(t)
 			mockHelmRenderer.On("RenderManifestAsUnstructured",
 				releaseInstance).Return(manifestResources, nil).Once()
 
@@ -140,7 +140,7 @@ func Test_DeployInstance(t *testing.T) {
 					len(releaseInstance.RenderedManifests.Items))
 			}
 
-			manager := NewNATSManger(mockKubeClient, chartmocks.NewRenderer(t), sugaredLogger)
+			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger)
 
 			// when
 			err = manager.DeployInstance(context.Background(), releaseInstance)
@@ -205,7 +205,7 @@ func Test_DeleteInstance(t *testing.T) {
 					len(releaseInstance.RenderedManifests.Items))
 			}
 
-			manager := NewNATSManger(mockKubeClient, chartmocks.NewRenderer(t), sugaredLogger)
+			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger)
 
 			// when
 			err = manager.DeleteInstance(context.Background(), releaseInstance)
@@ -322,7 +322,7 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 				Items: items,
 			})
 
-			manager := NewNATSManger(mockKubeClient, chartmocks.NewRenderer(t), sugaredLogger)
+			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger)
 
 			// when
 			isReady, err := manager.IsNATSStatefulSetReady(context.Background(), releaseInstance)

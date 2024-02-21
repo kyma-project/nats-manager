@@ -185,6 +185,8 @@ linters-settings:
         alias: nmapiv1alpha1
       - pkg: k8s.io/api/policy/v1
         alias: kapipolicyv1
+      - pkg: github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks
+        alias: nmkchartmocks
 
 
   ireturn:
