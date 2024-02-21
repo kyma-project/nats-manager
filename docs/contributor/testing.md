@@ -35,7 +35,7 @@ Because E2E tests need a Kubernetes cluster to run on, they are separate from th
 
 2. Execute the E2E test.
 
-   If NATS Manager has not yet been deployed on the cluster, run:
+   If NATS Manager has not yet been deployed in the cluster, run:
 
    ```sh
    make e2e IMG=<container-registry>/nats-manager:<tag>

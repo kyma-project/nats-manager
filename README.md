@@ -12,19 +12,19 @@ NATS Manager is a standard Kubernetes operator that observes the state of NATS J
 
 This project aims to follow the [Kubernetes Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
 
-It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/), which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
+It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/), which provide a reconcile function responsible for synchronizing resources until the desired state is reached in the cluster.
 
 This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and all the Kubebuilder [`makefile` helpers](https://book.kubebuilder.io/reference/makefile-helpers.html) can be used.
 
 ## Installation
 
-1. To install the latest version of the NATS manager on your cluster, run:
+1. To install the latest version of the NATS manager in your cluster, run:
 
    ```bash
    kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-manager.yaml
    ```
 
-2. To install the latest version of the default NATS CR on your cluster, run:
+2. To install the latest version of the default NATS CR in your cluster, run:
 
    ```bash
    kubectl apply -f https://github.com/kyma-project/nats-manager/releases/latest/download/nats-default-cr.yaml
@@ -118,7 +118,7 @@ You’ll need a Kubernetes cluster to run against. You can use [k3d](https://k3d
 
 > **NOTE:** Your NATS Manager automatically uses the current context in your kubeconfig file, that is, whatever cluster `kubectl cluster-info` shows.
 
-### Deploy on the Cluster
+### Deploy in the Cluster
 
 1. Download Go packages:
 
@@ -176,7 +176,7 @@ For the E2E tests, provide a Kubernetes cluster and run:
 make e2e IMG=<container-registry>/nats-manager:<tag>
 ```
 
-If you already have deployed the NATS-Manager on your cluster, you can simply run:
+If you already have deployed the NATS-Manager in your cluster, you can simply run:
 
 ```shell
 make e2e-only

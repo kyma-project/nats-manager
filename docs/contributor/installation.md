@@ -80,7 +80,7 @@ For information about the prerequisites, refer to [Development](./development.md
    make uninstall
    ```
 
-## Run the NATS Manager on a Cluster Using the Go Runtime Environment
+## Run the NATS Manager in a Cluster Using the Go Runtime Environment
 
 ### Installation
 
