@@ -29,7 +29,7 @@ import (
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	kutilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -51,8 +51,8 @@ const defaultMetricsPort = 9443
 func main() { //nolint:funlen // main function needs to initialize many objects
 	scheme := runtime.NewScheme()
 	setupLog := ctrl.Log.WithName("setup")
-	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(natsv1alpha1.AddToScheme(scheme))
+	kutilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	kutilruntime.Must(natsv1alpha1.AddToScheme(scheme))
 
 	// get configs from ENV
 	envConfigs, err := env.GetConfig()
