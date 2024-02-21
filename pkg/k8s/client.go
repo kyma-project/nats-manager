@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,7 +23,7 @@ var _ Client = &KubeClient{}
 //go:generate go run github.com/vektra/mockery/v2 --name=Client --outpkg=mocks --case=underscore
 type Client interface {
 	PatchApply(context.Context, *unstructured.Unstructured) error
-	GetStatefulSet(context.Context, string, string) (*appsv1.StatefulSet, error)
+	GetStatefulSet(context.Context, string, string) (*kappsv1.StatefulSet, error)
 	Delete(context.Context, *unstructured.Unstructured) error
 	GetSecret(context.Context, string, string) (*kcorev1.Secret, error)
 	GetCRD(context.Context, string) (*apiextensionsv1.CustomResourceDefinition, error)
@@ -56,12 +56,12 @@ func (c *KubeClient) Delete(ctx context.Context, object *unstructured.Unstructur
 	return client.IgnoreNotFound(c.client.Delete(ctx, object))
 }
 
-func (c *KubeClient) GetStatefulSet(ctx context.Context, name, namespace string) (*appsv1.StatefulSet, error) {
+func (c *KubeClient) GetStatefulSet(ctx context.Context, name, namespace string) (*kappsv1.StatefulSet, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &appsv1.StatefulSet{}
+	result := &kappsv1.StatefulSet{}
 	if err := c.client.Get(ctx, nn, result); err != nil {
 		return nil, err
 	}

@@ -18,7 +18,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -390,7 +390,7 @@ func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS,
 	return &natsCR, err
 }
 
-func getDeployment(ctx context.Context, name, namespace string) (*appsv1.Deployment, error) {
+func getDeployment(ctx context.Context, name, namespace string) (*kappsv1.Deployment, error) {
 	return clientSet.AppsV1().Deployments(namespace).Get(ctx, name, kmetav1.GetOptions{})
 }
 
@@ -461,7 +461,7 @@ func waitForNATSManagerDeploymentReady(image string) error {
 		logger.Debug(fmt.Sprintf("waiting for nats-manager deployment to get ready with image: %s", image))
 		ctx := context.TODO()
 		// Get the NATS-manager deployment from the cluster.
-		gotDeployment, err := RetryGet(attempts, interval, func() (*appsv1.Deployment, error) {
+		gotDeployment, err := RetryGet(attempts, interval, func() (*kappsv1.Deployment, error) {
 			return getDeployment(ctx, ManagerDeploymentName, NamespaceName)
 		})
 		if err != nil {

@@ -1,7 +1,7 @@
 package cache
 
 import (
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
@@ -25,8 +25,8 @@ func applySelectors(options cache.Options) cache.Options {
 
 	// Apply the label selector to all relevant objects.
 	options.ByObject = map[client.Object]cache.ByObject{
-		&appsv1.Deployment{}:                     managedByNATS,
-		&appsv1.StatefulSet{}:                    managedByNATS,
+		&kappsv1.Deployment{}:                    managedByNATS,
+		&kappsv1.StatefulSet{}:                   managedByNATS,
 		&kcorev1.ServiceAccount{}:                managedByNATS,
 		&kcorev1.Secret{}:                        managedByNATS,
 		&kcorev1.Service{}:                       managedByNATS,

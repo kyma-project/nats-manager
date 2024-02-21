@@ -11,7 +11,7 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -305,7 +305,7 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 					tc.givenStatefulSet,
 				}
 
-				var stsStructObject appsv1.StatefulSet
+				var stsStructObject kappsv1.StatefulSet
 				err = runtime.DefaultUnstructuredConverter.FromUnstructured(
 					tc.givenStatefulSet.UnstructuredContent(), &stsStructObject)
 				require.NoError(t, err)

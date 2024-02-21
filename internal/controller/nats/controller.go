@@ -24,7 +24,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/nats"
 
 	"go.uber.org/zap"
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -231,10 +231,10 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	var err error
 	r.controller, err = ctrl.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.NATS{}).
-		Owns(&appsv1.StatefulSet{}).           // watch for StatefulSets.
-		Owns(&kcorev1.Service{}).                // watch for Services.
-		Owns(&kcorev1.ConfigMap{}).              // watch for ConfigMaps.
-		Owns(&kcorev1.Secret{}).                 // watch for Secrets.
+		Owns(&kappsv1.StatefulSet{}).          // watch for StatefulSets.
+		Owns(&kcorev1.Service{}).              // watch for Services.
+		Owns(&kcorev1.ConfigMap{}).            // watch for ConfigMaps.
+		Owns(&kcorev1.Secret{}).               // watch for Secrets.
 		Owns(&policyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
 		Build(r)
 

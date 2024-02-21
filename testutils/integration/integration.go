@@ -23,7 +23,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	k8stypes "k8s.io/apimachinery/pkg/types"
@@ -561,12 +561,12 @@ func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.
 	return nats, err
 }
 
-func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv1.StatefulSet, error) {
+func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*kappsv1.StatefulSet, error) {
 	nn := k8stypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &appsv1.StatefulSet{}
+	result := &kappsv1.StatefulSet{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
@@ -590,7 +590,7 @@ func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*kcorev1.Pers
 	return &pvcList.Items[0], nil
 }
 
-func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
+func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts kappsv1.StatefulSet) error {
 	return env.k8sClient.Status().Update(env.Context, &sts)
 }
 
@@ -649,7 +649,7 @@ func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*u
 }
 
 func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &appsv1.StatefulSet{
+	return env.k8sClient.Delete(env.Context, &kappsv1.StatefulSet{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,

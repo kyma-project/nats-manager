@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 
 	kcorev1 "k8s.io/api/core/v1"
 
@@ -301,23 +301,23 @@ func (_c *Client_GetSecret_Call) RunAndReturn(run func(context.Context, string, 
 }
 
 // GetStatefulSet provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Client) GetStatefulSet(_a0 context.Context, _a1 string, _a2 string) (*appsv1.StatefulSet, error) {
+func (_m *Client) GetStatefulSet(_a0 context.Context, _a1 string, _a2 string) (*kappsv1.StatefulSet, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetStatefulSet")
 	}
 
-	var r0 *appsv1.StatefulSet
+	var r0 *kappsv1.StatefulSet
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*appsv1.StatefulSet, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*kappsv1.StatefulSet, error)); ok {
 		return rf(_a0, _a1, _a2)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *appsv1.StatefulSet); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *kappsv1.StatefulSet); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*appsv1.StatefulSet)
+			r0 = ret.Get(0).(*kappsv1.StatefulSet)
 		}
 	}
 
@@ -350,12 +350,12 @@ func (_c *Client_GetStatefulSet_Call) Run(run func(_a0 context.Context, _a1 stri
 	return _c
 }
 
-func (_c *Client_GetStatefulSet_Call) Return(_a0 *appsv1.StatefulSet, _a1 error) *Client_GetStatefulSet_Call {
+func (_c *Client_GetStatefulSet_Call) Return(_a0 *kappsv1.StatefulSet, _a1 error) *Client_GetStatefulSet_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Client_GetStatefulSet_Call) RunAndReturn(run func(context.Context, string, string) (*appsv1.StatefulSet, error)) *Client_GetStatefulSet_Call {
+func (_c *Client_GetStatefulSet_Call) RunAndReturn(run func(context.Context, string, string) (*kappsv1.StatefulSet, error)) *Client_GetStatefulSet_Call {
 	_c.Call.Return(run)
 	return _c
 }

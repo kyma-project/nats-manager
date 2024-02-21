@@ -8,7 +8,7 @@ import (
 
 	natslabels "github.com/kyma-project/nats-manager/pkg/labels"
 	"github.com/stretchr/testify/require"
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
@@ -44,8 +44,8 @@ func Test_applySelectors(t *testing.T) {
 			},
 			want: cache.Options{
 				ByObject: map[client.Object]cache.ByObject{
-					&appsv1.Deployment{}:                     selector,
-					&appsv1.StatefulSet{}:                    selector,
+					&kappsv1.Deployment{}:                    selector,
+					&kappsv1.StatefulSet{}:                   selector,
 					&kcorev1.ServiceAccount{}:                selector,
 					&kcorev1.Secret{}:                        selector,
 					&kcorev1.Service{}:                       selector,
@@ -67,8 +67,8 @@ func Test_applySelectors(t *testing.T) {
 			want: cache.Options{
 				SyncPeriod: &syncPeriod,
 				ByObject: map[client.Object]cache.ByObject{
-					&appsv1.Deployment{}:                     selector,
-					&appsv1.StatefulSet{}:                    selector,
+					&kappsv1.Deployment{}:                    selector,
+					&kappsv1.StatefulSet{}:                   selector,
 					&kcorev1.ServiceAccount{}:                selector,
 					&kcorev1.Secret{}:                        selector,
 					&kcorev1.Service{}:                       selector,
@@ -114,7 +114,7 @@ func deepEqualByObject(a, b map[client.Object]cache.ByObject) bool {
 func computeTypeMap(byObjectMap map[client.Object]cache.ByObject, typeMap map[string]cache.ByObject) {
 	keyOf := func(i interface{}) string { return fmt.Sprintf(">>> %T", i) }
 	for k, v := range byObjectMap {
-		if obj, ok := k.(*appsv1.Deployment); ok {
+		if obj, ok := k.(*kappsv1.Deployment); ok {
 			key := keyOf(obj)
 			typeMap[key] = v
 		}

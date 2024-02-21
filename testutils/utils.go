@@ -11,7 +11,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	appsv1 "k8s.io/api/apps/v1"
+	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -237,8 +237,8 @@ func NewPVC(name, namespace string, labels map[string]string) *kcorev1.Persisten
 	}
 }
 
-func NewStatefulSet(name, namespace string, labels map[string]string) *appsv1.StatefulSet {
-	return &appsv1.StatefulSet{
+func NewStatefulSet(name, namespace string, labels map[string]string) *kappsv1.StatefulSet {
+	return &kappsv1.StatefulSet{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
