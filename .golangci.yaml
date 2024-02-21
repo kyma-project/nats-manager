@@ -179,6 +179,8 @@ linters-settings:
         alias: kapiextv1
       - pkg: k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
         alias: kapiextclientset
+      - pkg: github.com/kyma-project/nats-manager/internal/controller/nats
+        alias: nmcontroller
 
 
   ireturn:
