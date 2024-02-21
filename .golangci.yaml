@@ -169,6 +169,8 @@ linters-settings:
         ######
       - pkg: k8s.io/api/apps/v1
         alias: kappsv1
+      - pkg: k8s.io/apimachinery/pkg/types
+        alias: ktypes
 
 
   ireturn:

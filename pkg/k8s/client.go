@@ -12,7 +12,7 @@ import (
 
 	k8sclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -57,7 +57,7 @@ func (c *KubeClient) Delete(ctx context.Context, object *unstructured.Unstructur
 }
 
 func (c *KubeClient) GetStatefulSet(ctx context.Context, name, namespace string) (*kappsv1.StatefulSet, error) {
-	nn := k8stypes.NamespacedName{
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
@@ -69,7 +69,7 @@ func (c *KubeClient) GetStatefulSet(ctx context.Context, name, namespace string)
 }
 
 func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*kcorev1.Secret, error) {
-	nn := k8stypes.NamespacedName{
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}

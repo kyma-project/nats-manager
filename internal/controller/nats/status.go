@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	k8stype "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -31,7 +31,7 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 // syncNATSStatus syncs NATS status.
 func (r *Reconciler) syncNATSStatus(ctx context.Context,
 	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) error {
-	namespacedName := &k8stype.NamespacedName{
+	namespacedName := &ktypes.NamespacedName{
 		Name:      nats.Name,
 		Namespace: nats.Namespace,
 	}

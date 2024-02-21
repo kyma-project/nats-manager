@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -182,7 +182,7 @@ func Test_NoNATSCRExists(t *testing.T) {
 
 func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
 	var natsCR natsv1alpha1.NATS
-	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
+	err := k8sClient.Get(ctx, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}, &natsCR)

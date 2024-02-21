@@ -17,7 +17,7 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -92,7 +92,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 
 func (testEnv *MockedUnitTestEnvironment) GetNATS(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
-	err := testEnv.Client.Get(testEnv.Context, types.NamespacedName{
+	err := testEnv.Client.Get(testEnv.Context, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}, &nats)

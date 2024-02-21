@@ -26,7 +26,7 @@ import (
 	kappsv1 "k8s.io/api/apps/v1"
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
@@ -554,7 +554,7 @@ func (env TestEnvironment) EnsureURLInNATSStatus(t *testing.T, name, namespace s
 
 func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
 	var nats natsv1alpha1.NATS
-	err := env.k8sClient.Get(env.Context, k8stypes.NamespacedName{
+	err := env.k8sClient.Get(env.Context, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}, &nats)
@@ -562,7 +562,7 @@ func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.
 }
 
 func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*kappsv1.StatefulSet, error) {
-	nn := k8stypes.NamespacedName{
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
@@ -595,7 +595,7 @@ func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts kappsv1.StatefulSet)
 }
 
 func (env TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*kcorev1.ConfigMap, error) {
-	nn := k8stypes.NamespacedName{
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
@@ -607,7 +607,7 @@ func (env TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*kcorev1
 }
 
 func (env TestEnvironment) GetSecretFromK8s(name, namespace string) (*kcorev1.Secret, error) {
-	nn := k8stypes.NamespacedName{
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
@@ -619,7 +619,7 @@ func (env TestEnvironment) GetSecretFromK8s(name, namespace string) (*kcorev1.Se
 }
 
 func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*kcorev1.Service, error) {
-	nn := k8stypes.NamespacedName{
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
@@ -632,7 +632,7 @@ func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*kcorev1.S
 
 func (env TestEnvironment) GetPodDisruptionBudgetFromK8s(name,
 	namespace string) (*policyv1.PodDisruptionBudget, error) {
-	nn := k8stypes.NamespacedName{
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
