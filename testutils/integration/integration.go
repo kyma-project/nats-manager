@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	policyv1 "k8s.io/api/policy/v1"
+	kapipolicyv1 "k8s.io/api/policy/v1"
 
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -631,12 +631,12 @@ func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*kcorev1.S
 }
 
 func (env TestEnvironment) GetPodDisruptionBudgetFromK8s(name,
-	namespace string) (*policyv1.PodDisruptionBudget, error) {
+	namespace string) (*kapipolicyv1.PodDisruptionBudget, error) {
 	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &policyv1.PodDisruptionBudget{}
+	result := &kapipolicyv1.PodDisruptionBudget{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
@@ -667,7 +667,7 @@ func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
 }
 
 func (env TestEnvironment) DeletePodDisruptionBudgetFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &policyv1.PodDisruptionBudget{
+	return env.k8sClient.Delete(env.Context, &kapipolicyv1.PodDisruptionBudget{
 		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,

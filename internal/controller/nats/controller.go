@@ -26,7 +26,7 @@ import (
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
-	policyv1 "k8s.io/api/policy/v1"
+	kapipolicyv1 "k8s.io/api/policy/v1"
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -231,11 +231,11 @@ func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 	var err error
 	r.controller, err = kcontrollerruntime.NewControllerManagedBy(mgr).
 		For(&nmapiv1alpha1.NATS{}).
-		Owns(&kappsv1.StatefulSet{}).          // watch for StatefulSets.
-		Owns(&kcorev1.Service{}).              // watch for Services.
-		Owns(&kcorev1.ConfigMap{}).            // watch for ConfigMaps.
-		Owns(&kcorev1.Secret{}).               // watch for Secrets.
-		Owns(&policyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
+		Owns(&kappsv1.StatefulSet{}).              // watch for StatefulSets.
+		Owns(&kcorev1.Service{}).                  // watch for Services.
+		Owns(&kcorev1.ConfigMap{}).                // watch for ConfigMaps.
+		Owns(&kcorev1.Secret{}).                   // watch for Secrets.
+		Owns(&kapipolicyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
 		Build(r)
 
 	return err

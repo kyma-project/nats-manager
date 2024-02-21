@@ -4,7 +4,7 @@ import (
 	kappsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	kcorev1 "k8s.io/api/core/v1"
-	policyv1 "k8s.io/api/policy/v1"
+	kapipolicyv1 "k8s.io/api/policy/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/rest"
@@ -34,7 +34,7 @@ func applySelectors(options cache.Options) cache.Options {
 		&rbacv1.ClusterRole{}:                    managedByNATS,
 		&rbacv1.ClusterRoleBinding{}:             managedByNATS,
 		&autoscalingv1.HorizontalPodAutoscaler{}: managedByNATS,
-		&policyv1.PodDisruptionBudget{}:          managedByNATS,
+		&kapipolicyv1.PodDisruptionBudget{}:      managedByNATS,
 	}
 	return options
 }

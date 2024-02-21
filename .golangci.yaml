@@ -183,6 +183,8 @@ linters-settings:
         alias: nmcontroller
       - pkg: github.com/kyma-project/nats-manager/api/v1alpha1
         alias: nmapiv1alpha1
+      - pkg: k8s.io/api/policy/v1
+        alias: kapipolicyv1
 
 
   ireturn:
