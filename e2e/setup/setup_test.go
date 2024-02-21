@@ -20,7 +20,7 @@ import (
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -86,7 +86,7 @@ func TestMain(m *testing.M) {
 	// Create the NATS CR used for testing.
 	err = Retry(attempts, interval, func() error {
 		errNATS := k8sClient.Create(ctx, NATSCR())
-		if k8serrors.IsAlreadyExists(errNATS) {
+		if kapierrors.IsAlreadyExists(errNATS) {
 			logger.Warn(
 				"error while creating NATS CR, resource already exist; test will continue with existing NATS CR",
 			)

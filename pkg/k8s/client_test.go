@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	kcorev1 "k8s.io/api/core/v1"
 	apiclientsetfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
@@ -63,7 +63,7 @@ func Test_GetStatefulSet(t *testing.T) {
 			// then
 			if tc.wantNotFoundError {
 				require.Error(t, err)
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.givenStatefulSet.GetName(), gotSTS.Name)
@@ -116,7 +116,7 @@ func Test_GetSecret(t *testing.T) {
 			// then
 			if tc.wantNotFoundError {
 				require.Error(t, err)
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.givenSecret.GetName(), gotSecret.Name)
@@ -171,7 +171,7 @@ func Test_Delete(t *testing.T) {
 			gotSTS, err := kubeClient.GetStatefulSet(context.Background(),
 				tc.givenStatefulSet.GetName(), tc.givenStatefulSet.GetNamespace())
 			require.Error(t, err)
-			require.True(t, k8serrors.IsNotFound(err))
+			require.True(t, kapierrors.IsNotFound(err))
 			require.Nil(t, gotSTS)
 		})
 	}
@@ -281,7 +281,7 @@ func Test_GetCRD(t *testing.T) {
 			// then
 			if tc.wantNotFoundError {
 				require.Error(t, err)
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, sampleCRD.GetName(), gotCRD.Name)
@@ -411,7 +411,7 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 			err = fakeClient.Get(context.Background(),
 				ktypes.NamespacedName{Name: tc.givenPVC.Name, Namespace: tc.givenPVC.Namespace}, tc.givenPVC)
 			if tc.wantNotFoundErr {
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 			}

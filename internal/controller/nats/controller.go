@@ -27,7 +27,7 @@ import (
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
@@ -204,7 +204,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 	// Check if NATS account secret exists.
 	accountSecretName := fmt.Sprintf("%s-secret", nats.Name)
 	accountSecret, err := r.kubeClient.GetSecret(ctx, accountSecretName, nats.Namespace)
-	if err != nil && !errors.IsNotFound(err) {
+	if err != nil && !kapierrors.IsNotFound(err) {
 		log.Errorf("Failed to fetch secret: %s", accountSecretName)
 		log.Error(err)
 		return nil, err

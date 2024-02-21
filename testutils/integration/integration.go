@@ -25,7 +25,7 @@ import (
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -313,35 +313,35 @@ func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace str
 func (env TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetConfigMapFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of ConfigMap")
 }
 
 func (env TestEnvironment) EnsureK8sSecretNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetSecretFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of Secret")
 }
 
 func (env TestEnvironment) EnsureK8sServiceNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetServiceFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of Service")
 }
 
 func (env TestEnvironment) EnsureK8sDestinationRuleNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetDestinationRuleFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of DestinationRule")
 }
 
 func (env TestEnvironment) EnsureK8sNATSNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetNATSFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of NATS")
 }
 
@@ -352,7 +352,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, name
 			env.Logger.Errorw("failed to ensure STS", "error", err,
 				"name", name, "namespace", namespace)
 		}
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, BigTimeOut, BigPollingInterval, "failed to ensure non-existence of StatefulSet")
 }
 
@@ -363,7 +363,7 @@ func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace st
 			env.Logger.Errorw("failed to ensure PVC", "error", err,
 				"name", name, "namespace", namespace)
 		}
-		return (err != nil && k8serrors.IsNotFound(err)) || (pvc == nil && err == nil) ||
+		return (err != nil && kapierrors.IsNotFound(err)) || (pvc == nil && err == nil) ||
 			(pvc != nil && pvc.DeletionTimestamp != nil)
 	}, BigTimeOut, BigPollingInterval, "failed to ensure non-existence of PVC")
 }
