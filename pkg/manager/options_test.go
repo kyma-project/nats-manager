@@ -5,7 +5,7 @@ import (
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -18,11 +18,11 @@ func Test_WithOwnerReference(t *testing.T) {
 		// given
 		natsCR := v1alpha1.NATS{
 			// Name, UUID, Kind, APIVersion
-			TypeMeta: metav1.TypeMeta{
+			TypeMeta: kmetav1.TypeMeta{
 				APIVersion: "v1alpha1",
 				Kind:       "NATS",
 			},
-			ObjectMeta: metav1.ObjectMeta{
+			ObjectMeta: kmetav1.ObjectMeta{
 				Name:      "test-object1",
 				Namespace: "test-ns1",
 				UID:       "1234-5678-1234-5678",

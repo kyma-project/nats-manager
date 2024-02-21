@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -472,7 +472,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 
 			// then
 			testEnvironment.GetNATSAssert(g, &v1alpha1.NATS{
-				ObjectMeta: metav1.ObjectMeta{
+				ObjectMeta: kmetav1.ObjectMeta{
 					Name:      tc.givenUnstructuredNATS.GetName(),
 					Namespace: tc.givenUnstructuredNATS.GetNamespace(),
 				},

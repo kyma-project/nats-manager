@@ -242,7 +242,7 @@ spec:
                     \n type FooStatus struct{ // Represents the observations of a
                     foo's current state. // Known .status.conditions.type are: \"Available\",
                     \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge
-                    // +listType=map // +listMapKey=type Conditions []metav1.Condition
+                    // +listType=map // +listMapKey=type Conditions []kmetav1.Condition
                     `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
                     protobuf:\"bytes,1,rep,name=conditions\"` \n // other fields }"
                   properties:

@@ -21,7 +21,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -134,7 +134,7 @@ func Test_PriorityClass(t *testing.T) {
 	ctx := context.TODO()
 
 	err := Retry(attempts, interval, func() error {
-		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, kmetav1.GetOptions{})
 		if stsErr != nil {
 			return stsErr
 		}
@@ -149,7 +149,7 @@ func Test_PriorityClass(t *testing.T) {
 			return fmt.Errorf("PriorityClassName was expected to be %s but was %s", PriorityClassName, pcName)
 		}
 
-		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, metav1.GetOptions{})
+		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, kmetav1.GetOptions{})
 		return pcErr
 	})
 
@@ -161,7 +161,7 @@ func Test_ConfigMap(t *testing.T) {
 	ctx := context.TODO()
 
 	err := Retry(attempts, interval, func() error {
-		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, metav1.GetOptions{})
+		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, kmetav1.GetOptions{})
 		if cmErr != nil {
 			return cmErr
 		}
@@ -183,7 +183,7 @@ func Test_ConfigMap(t *testing.T) {
 		// To check the correct key in configMap,
 		// fetch the NATS statefulSet and get the NATS server version.
 		// And then based on the version, check the expected key.
-		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, kmetav1.GetOptions{})
 		if stsErr != nil {
 			return stsErr
 		}
@@ -372,7 +372,7 @@ func Test_Secret(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	err := Retry(attempts, interval, func() error {
-		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, metav1.GetOptions{})
+		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, kmetav1.GetOptions{})
 		if secErr != nil {
 			return secErr
 		}
@@ -391,7 +391,7 @@ func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS,
 }
 
 func getDeployment(ctx context.Context, name, namespace string) (*appsv1.Deployment, error) {
-	return clientSet.AppsV1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
+	return clientSet.AppsV1().Deployments(namespace).Get(ctx, name, kmetav1.GetOptions{})
 }
 
 func cmToMap(cm string) map[string]string {

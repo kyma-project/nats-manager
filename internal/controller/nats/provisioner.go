@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -73,7 +73,7 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NAT
 	// checking if statefulSet is ready.
 	isSTSReady, err := r.natsManager.IsNATSStatefulSetReady(ctx, instance)
 	if err != nil {
-		nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
+		nats.Status.UpdateConditionStatefulSet(kmetav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonSyncFailError, err.Error())
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonSyncFailError,
 			"Failed to sync the resources. StatefulSet is not ready.")

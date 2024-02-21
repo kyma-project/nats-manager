@@ -27,7 +27,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -161,7 +161,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		mgr.GetEventRecorderFor("nats-manager"),
 		natsManager,
 		&natsv1alpha1.NATS{
-			ObjectMeta: metav1.ObjectMeta{
+			ObjectMeta: kmetav1.ObjectMeta{
 				Name:      envConfigs.NATSCRName,
 				Namespace: envConfigs.NATSCRNamespace,
 			},

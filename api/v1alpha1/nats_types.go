@@ -22,7 +22,7 @@ package v1alpha1
 import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type ConditionReason string
@@ -79,8 +79,8 @@ undefined they will be interpreted as "" and result in 0 instead of being replac
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
 type NATS struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	kmetav1.TypeMeta   `json:",inline"`
+	kmetav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"1Gi",enabled:true}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"500m",memory:"1Gi"}, requests:{cpu:"40m",memory:"64Mi"}}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
@@ -89,9 +89,9 @@ type NATS struct {
 
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
-	State      string             `json:"state"`
-	URL        string             `json:"url,omitempty"`
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
+	State      string              `json:"state"`
+	URL        string              `json:"url,omitempty"`
+	Conditions []kmetav1.Condition `json:"conditions,omitempty"`
 }
 
 // NATSSpec defines the desired state of NATS.
@@ -182,9 +182,9 @@ type Logging struct {
 
 // NATSList contains a list of NATS.
 type NATSList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []NATS `json:"items"`
+	kmetav1.TypeMeta `json:",inline"`
+	kmetav1.ListMeta `json:"metadata,omitempty"`
+	Items            []NATS `json:"items"`
 }
 
 func (n *NATS) IsInDeletion() bool {

@@ -7,7 +7,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
 	k8sclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -81,7 +81,7 @@ func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*ap
 }
 
 func (c *KubeClient) GetCRD(ctx context.Context, name string) (*apiextensionsv1.CustomResourceDefinition, error) {
-	return c.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(ctx, name, metav1.GetOptions{})
+	return c.clientset.ApiextensionsV1().CustomResourceDefinitions().Get(ctx, name, kmetav1.GetOptions{})
 }
 
 func (c *KubeClient) DestinationRuleCRDExists(ctx context.Context) (bool, error) {

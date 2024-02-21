@@ -28,7 +28,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	policyv1 "k8s.io/api/policy/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -162,10 +162,10 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 	// Set error state in status.
 	nats.Status.SetStateError()
 	// Update conditions in status.
-	nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
+	nats.Status.UpdateConditionStatefulSet(kmetav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, "")
 	errorMessage := fmt.Sprintf(CreationNotAllowedMsg, r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
-	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse,
+	nats.Status.UpdateConditionAvailable(kmetav1.ConditionFalse,
 		natsv1alpha1.ConditionReasonForbidden, errorMessage)
 	events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonForbidden, errorMessage)
 

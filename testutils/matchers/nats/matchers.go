@@ -7,7 +7,7 @@ import (
 	"github.com/onsi/gomega/gstruct"
 	gomegatypes "github.com/onsi/gomega/types"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/kyma-project/nats-manager/api/v1alpha1"
 )
@@ -121,9 +121,9 @@ func HaveStatusError() gomegatypes.GomegaMatcher {
 		}, gomega.Equal(v1alpha1.StateError))
 }
 
-func HaveCondition(condition metav1.Condition) gomegatypes.GomegaMatcher {
+func HaveCondition(condition kmetav1.Condition) gomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) []metav1.Condition {
+		func(n *v1alpha1.NATS) []kmetav1.Condition {
 			return n.Status.Conditions
 		},
 		gomega.ContainElement(gstruct.MatchFields(gstruct.IgnoreExtras|gstruct.IgnoreMissing, gstruct.Fields{
@@ -170,54 +170,54 @@ func HaveProcessingEvent() gomegatypes.GomegaMatcher {
 }
 
 func HaveReadyConditionStatefulSet() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
+	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionStatefulSet),
-		Status:  metav1.ConditionTrue,
+		Status:  kmetav1.ConditionTrue,
 		Reason:  string(v1alpha1.ConditionReasonStatefulSetAvailable),
 		Message: "StatefulSet is ready",
 	})
 }
 
 func HavePendingConditionStatefulSet() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
+	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionStatefulSet),
-		Status:  metav1.ConditionFalse,
+		Status:  kmetav1.ConditionFalse,
 		Reason:  string(v1alpha1.ConditionReasonStatefulSetPending),
 		Message: "",
 	})
 }
 
 func HaveForbiddenConditionStatefulSet() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
+	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionStatefulSet),
-		Status:  metav1.ConditionFalse,
+		Status:  kmetav1.ConditionFalse,
 		Reason:  string(v1alpha1.ConditionReasonForbidden),
 		Message: "",
 	})
 }
 
 func HaveReadyConditionAvailable() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
+	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
-		Status:  metav1.ConditionTrue,
+		Status:  kmetav1.ConditionTrue,
 		Reason:  string(v1alpha1.ConditionReasonDeployed),
 		Message: "NATS is deployed",
 	})
 }
 
 func HaveDeployingConditionAvailable() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
+	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
-		Status:  metav1.ConditionFalse,
+		Status:  kmetav1.ConditionFalse,
 		Reason:  string(v1alpha1.ConditionReasonDeploying),
 		Message: "",
 	})
 }
 
 func HaveForbiddenConditionAvailableWithMsg(msg string) gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
+	return HaveCondition(kmetav1.Condition{
 		Type:    string(v1alpha1.ConditionAvailable),
-		Status:  metav1.ConditionFalse,
+		Status:  kmetav1.ConditionFalse,
 		Reason:  string(v1alpha1.ConditionReasonForbidden),
 		Message: msg,
 	})

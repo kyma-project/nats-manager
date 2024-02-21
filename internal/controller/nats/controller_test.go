@@ -10,7 +10,7 @@ import (
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -198,18 +198,18 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 				require.Equal(t, natsv1alpha1.StateError, gotNATS.Status.State)
 
 				// check nats.status.conditions
-				wantConditions := []metav1.Condition{
+				wantConditions := []kmetav1.Condition{
 					{
 						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonForbidden),
 						Message:            "",
 					},
 					{
 						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonForbidden),
 						Message:            fmt.Sprintf(CreationNotAllowedMsg, givenAllowedNATS.Name, givenAllowedNATS.Namespace),
 					},

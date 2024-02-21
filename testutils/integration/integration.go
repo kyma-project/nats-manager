@@ -12,7 +12,7 @@ import (
 
 	policyv1 "k8s.io/api/policy/v1"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/dynamic"
@@ -645,12 +645,12 @@ func (env TestEnvironment) GetPodDisruptionBudgetFromK8s(name,
 
 func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*unstructured.Unstructured, error) {
 	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
-		namespace).Get(env.Context, name, metav1.GetOptions{})
+		namespace).Get(env.Context, name, kmetav1.GetOptions{})
 }
 
 func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &appsv1.StatefulSet{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -659,7 +659,7 @@ func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) erro
 
 func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -668,7 +668,7 @@ func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
 
 func (env TestEnvironment) DeletePodDisruptionBudgetFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &policyv1.PodDisruptionBudget{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -677,7 +677,7 @@ func (env TestEnvironment) DeletePodDisruptionBudgetFromK8s(name, namespace stri
 
 func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -686,7 +686,7 @@ func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error 
 
 func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
 	return env.k8sClient.Delete(env.Context, &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -695,7 +695,7 @@ func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
 
 func (env TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) error {
 	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
-		namespace).Delete(env.Context, name, metav1.DeleteOptions{})
+		namespace).Delete(env.Context, name, kmetav1.DeleteOptions{})
 }
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.

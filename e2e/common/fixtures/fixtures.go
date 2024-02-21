@@ -3,7 +3,7 @@ package fixtures
 import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -58,16 +58,16 @@ func NATSCR() *natsv1alpha1.NATS {
 
 func Namespace() *corev1.Namespace {
 	return &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name: NamespaceName,
 		},
 	}
 }
 
-func PodListOpts() metav1.ListOptions {
-	return metav1.ListOptions{LabelSelector: podLabel}
+func PodListOpts() kmetav1.ListOptions {
+	return kmetav1.ListOptions{LabelSelector: podLabel}
 }
 
-func PVCListOpts() metav1.ListOptions {
-	return metav1.ListOptions{LabelSelector: pvcLabel}
+func PVCListOpts() kmetav1.ListOptions {
+	return kmetav1.ListOptions{LabelSelector: pvcLabel}
 }

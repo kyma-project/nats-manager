@@ -13,7 +13,7 @@ import (
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_syncNATSStatus(t *testing.T) {
@@ -34,18 +34,18 @@ func Test_syncNATSStatus(t *testing.T) {
 			),
 			wantNATSStatus: natsv1alpha1.NATSStatus{
 				State: natsv1alpha1.StateReady,
-				Conditions: []metav1.Condition{
+				Conditions: []kmetav1.Condition{
 					{
 						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},
 					{
 						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},
@@ -100,18 +100,18 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 			givenError: errors.New("test error"),
 			wantNATSStatus: natsv1alpha1.NATSStatus{
 				State: natsv1alpha1.StateError,
-				Conditions: []metav1.Condition{
+				Conditions: []kmetav1.Condition{
 					{
 						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonSyncFailError),
 						Message:            "",
 					},
 					{
 						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonProcessingError),
 						Message:            "test error",
 					},
@@ -167,18 +167,18 @@ func Test_updateStatus(t *testing.T) {
 			),
 			wantNATSStatus: natsv1alpha1.NATSStatus{
 				State: natsv1alpha1.StateReady,
-				Conditions: []metav1.Condition{
+				Conditions: []kmetav1.Condition{
 					{
 						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},
 					{
 						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
 						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_IsEqual(t *testing.T) {
@@ -20,14 +20,14 @@ func Test_IsEqual(t *testing.T) {
 		{
 			name: "should not be equal if the conditions are not equal",
 			natsStatus1: NATSStatus{
-				Conditions: []metav1.Condition{
-					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
+				Conditions: []kmetav1.Condition{
+					{Type: string(ConditionAvailable), Status: kmetav1.ConditionTrue},
 				},
 				State: StateReady,
 			},
 			natsStatus2: NATSStatus{
-				Conditions: []metav1.Condition{
-					{Type: string(ConditionAvailable), Status: metav1.ConditionFalse},
+				Conditions: []kmetav1.Condition{
+					{Type: string(ConditionAvailable), Status: kmetav1.ConditionFalse},
 				},
 				State: StateReady,
 			},
@@ -36,14 +36,14 @@ func Test_IsEqual(t *testing.T) {
 		{
 			name: "should not be equal if the ready status is not equal",
 			natsStatus1: NATSStatus{
-				Conditions: []metav1.Condition{
-					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
+				Conditions: []kmetav1.Condition{
+					{Type: string(ConditionAvailable), Status: kmetav1.ConditionTrue},
 				},
 				State: StateReady,
 			},
 			natsStatus2: NATSStatus{
-				Conditions: []metav1.Condition{
-					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
+				Conditions: []kmetav1.Condition{
+					{Type: string(ConditionAvailable), Status: kmetav1.ConditionTrue},
 				},
 				State: StateProcessing,
 			},
@@ -52,14 +52,14 @@ func Test_IsEqual(t *testing.T) {
 		{
 			name: "should be equal if all the fields are equal",
 			natsStatus1: NATSStatus{
-				Conditions: []metav1.Condition{
-					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
+				Conditions: []kmetav1.Condition{
+					{Type: string(ConditionAvailable), Status: kmetav1.ConditionTrue},
 				},
 				State: StateReady,
 			},
 			natsStatus2: NATSStatus{
-				Conditions: []metav1.Condition{
-					{Type: string(ConditionAvailable), Status: metav1.ConditionTrue},
+				Conditions: []kmetav1.Condition{
+					{Type: string(ConditionAvailable), Status: kmetav1.ConditionTrue},
 				},
 				State: StateReady,
 			},
@@ -77,40 +77,40 @@ func Test_IsEqual(t *testing.T) {
 }
 
 func Test_FindCondition(t *testing.T) {
-	currentTime := metav1.NewTime(time.Now())
+	currentTime := kmetav1.NewTime(time.Now())
 
 	testCases := []struct {
 		name              string
-		givenConditions   []metav1.Condition
+		givenConditions   []kmetav1.Condition
 		findConditionType ConditionType
-		wantCondition     *metav1.Condition
+		wantCondition     *kmetav1.Condition
 	}{
 		{
 			name: "should be able to find the present condition",
-			givenConditions: []metav1.Condition{
+			givenConditions: []kmetav1.Condition{
 				{
 					Type:               string(ConditionAvailable),
-					Status:             metav1.ConditionTrue,
+					Status:             kmetav1.ConditionTrue,
 					LastTransitionTime: currentTime,
 				}, {
 					Type:               string(ConditionStatefulSet),
-					Status:             metav1.ConditionTrue,
+					Status:             kmetav1.ConditionTrue,
 					LastTransitionTime: currentTime,
 				},
 			},
 			findConditionType: ConditionAvailable,
-			wantCondition: &metav1.Condition{
+			wantCondition: &kmetav1.Condition{
 				Type:               string(ConditionAvailable),
-				Status:             metav1.ConditionTrue,
+				Status:             kmetav1.ConditionTrue,
 				LastTransitionTime: currentTime,
 			},
 		},
 		{
 			name: "should not be able to find the non-present condition",
-			givenConditions: []metav1.Condition{
+			givenConditions: []kmetav1.Condition{
 				{
 					Type:               string(ConditionStatefulSet),
-					Status:             metav1.ConditionTrue,
+					Status:             kmetav1.ConditionTrue,
 					LastTransitionTime: currentTime,
 				},
 			},
@@ -140,10 +140,10 @@ func Test_UpdateConditionStatefulSet(t *testing.T) {
 
 		// given
 		natsStatus1 := &NATSStatus{
-			Conditions: []metav1.Condition{
+			Conditions: []kmetav1.Condition{
 				{
 					Type:    string(ConditionStatefulSet),
-					Status:  metav1.ConditionFalse,
+					Status:  kmetav1.ConditionFalse,
 					Reason:  "",
 					Message: "",
 				},
@@ -151,7 +151,7 @@ func Test_UpdateConditionStatefulSet(t *testing.T) {
 			State: StateReady,
 		}
 
-		givenStatus := metav1.ConditionTrue
+		givenStatus := kmetav1.ConditionTrue
 		givenReason := ConditionReasonProcessing
 		givenMessage := "test123"
 
@@ -175,10 +175,10 @@ func Test_UpdateConditionAvailable(t *testing.T) {
 
 		// given
 		natsStatus1 := &NATSStatus{
-			Conditions: []metav1.Condition{
+			Conditions: []kmetav1.Condition{
 				{
 					Type:    string(ConditionAvailable),
-					Status:  metav1.ConditionFalse,
+					Status:  kmetav1.ConditionFalse,
 					Reason:  "",
 					Message: "",
 				},
@@ -186,7 +186,7 @@ func Test_UpdateConditionAvailable(t *testing.T) {
 			State: StateReady,
 		}
 
-		givenStatus := metav1.ConditionTrue
+		givenStatus := kmetav1.ConditionTrue
 		givenReason := ConditionReasonProcessing
 		givenMessage := "test123"
 
@@ -284,24 +284,24 @@ func Test_SetWaitingStateForStatefulSet(t *testing.T) {
 	t.Run("should update the condition", func(t *testing.T) {
 		t.Parallel()
 
-		currentTime := metav1.NewTime(time.Now())
+		currentTime := kmetav1.NewTime(time.Now())
 
 		// given
 		natsStatus1 := &NATSStatus{
 			State: StateError,
 		}
 
-		expectedSTSCondition := &metav1.Condition{
+		expectedSTSCondition := &kmetav1.Condition{
 			Type:               string(ConditionStatefulSet),
-			Status:             metav1.ConditionFalse,
+			Status:             kmetav1.ConditionFalse,
 			Reason:             string(ConditionReasonStatefulSetPending),
 			Message:            "",
 			LastTransitionTime: currentTime,
 		}
 
-		expectedAvailableCondition := &metav1.Condition{
+		expectedAvailableCondition := &kmetav1.Condition{
 			Type:               string(ConditionAvailable),
-			Status:             metav1.ConditionFalse,
+			Status:             kmetav1.ConditionFalse,
 			Reason:             string(ConditionReasonDeploying),
 			Message:            "",
 			LastTransitionTime: currentTime,
@@ -332,24 +332,24 @@ func Test_Initialize(t *testing.T) {
 	t.Run("should update the condition", func(t *testing.T) {
 		t.Parallel()
 
-		currentTime := metav1.NewTime(time.Now())
+		currentTime := kmetav1.NewTime(time.Now())
 
 		// given
 		natsStatus1 := &NATSStatus{
 			State: StateError,
 		}
 
-		expectedSTSCondition := &metav1.Condition{
+		expectedSTSCondition := &kmetav1.Condition{
 			Type:               string(ConditionStatefulSet),
-			Status:             metav1.ConditionFalse,
+			Status:             kmetav1.ConditionFalse,
 			Reason:             string(ConditionReasonProcessing),
 			Message:            "",
 			LastTransitionTime: currentTime,
 		}
 
-		expectedAvailableCondition := &metav1.Condition{
+		expectedAvailableCondition := &kmetav1.Condition{
 			Type:               string(ConditionAvailable),
-			Status:             metav1.ConditionFalse,
+			Status:             kmetav1.ConditionFalse,
 			Reason:             string(ConditionReasonProcessing),
 			Message:            "",
 			LastTransitionTime: currentTime,

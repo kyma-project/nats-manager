@@ -19,7 +19,7 @@ import (
 	natssdk "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,7 +35,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		givenWithNATSCreated   bool
 		natsCrWithoutFinalizer bool
 		mockNatsClientFunc     func() nats.Client
-		wantCondition          *metav1.Condition
+		wantCondition          *kmetav1.Condition
 		wantNATSStatusState    string
 		wantFinalizerExists    bool
 		wantK8sEvents          []string
@@ -101,10 +101,10 @@ func Test_handleNATSDeletion(t *testing.T) {
 			name:                 "should block deletion if non 'sap' stream exists",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  natsv1alpha1.StateWarning,
-			wantCondition: &metav1.Condition{
+			wantCondition: &kmetav1.Condition{
 				Type:               string(natsv1alpha1.ConditionDeleted),
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
+				Status:             kmetav1.ConditionFalse,
+				LastTransitionTime: kmetav1.Now(),
 				Reason:             string(natsv1alpha1.ConditionReasonDeletionError),
 				Message:            StreamExistsErrorMsg,
 			},
@@ -132,10 +132,10 @@ func Test_handleNATSDeletion(t *testing.T) {
 			name:                 "should block deletion if 'sap' stream consumer exists",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  natsv1alpha1.StateWarning,
-			wantCondition: &metav1.Condition{
+			wantCondition: &kmetav1.Condition{
 				Type:               string(natsv1alpha1.ConditionDeleted),
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
+				Status:             kmetav1.ConditionFalse,
+				LastTransitionTime: kmetav1.Now(),
 				Reason:             string(natsv1alpha1.ConditionReasonDeletionError),
 				Message:            ConsumerExistsErrorMsg,
 			},

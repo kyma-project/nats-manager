@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"go.uber.org/zap"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -46,7 +46,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	// if any streams exists except for 'sap' stream, block the deletion.
 	if customerStreamExists {
 		nats.Status.SetStateWarning()
-		nats.Status.UpdateConditionDeletion(metav1.ConditionFalse,
+		nats.Status.UpdateConditionDeletion(kmetav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
 		return ctrl.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
@@ -59,7 +59,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	// if any 'sap' stream consumer exists, block the deletion.
 	if sapStreamConsumerExists {
 		nats.Status.SetStateWarning()
-		nats.Status.UpdateConditionDeletion(metav1.ConditionFalse,
+		nats.Status.UpdateConditionDeletion(kmetav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
 		return ctrl.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)

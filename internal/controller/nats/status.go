@@ -7,7 +7,7 @@ import (
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"go.uber.org/zap"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8stype "k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -22,7 +22,7 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 	nats *natsv1alpha1.NATS, err error, log *zap.SugaredLogger) error {
 	// set error state in status
 	nats.Status.SetStateError()
-	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse, natsv1alpha1.ConditionReasonProcessingError, err.Error())
+	nats.Status.UpdateConditionAvailable(kmetav1.ConditionFalse, natsv1alpha1.ConditionReasonProcessingError, err.Error())
 
 	// return the original error so the controller triggers another reconciliation.
 	return errors.Join(err, r.syncNATSStatus(ctx, nats, log))
@@ -82,7 +82,7 @@ func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 
 	// define label selector for "managed-by".
 	labelSelectorPredicate, err := predicate.LabelSelectorPredicate(
-		metav1.LabelSelector{
+		kmetav1.LabelSelector{
 			MatchLabels: map[string]string{
 				ManagedByLabelKey: ManagedByLabelValue,
 			},

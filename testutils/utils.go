@@ -14,7 +14,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -54,11 +54,11 @@ func GetRandK8sName(length int) string {
 
 func NewNamespace(name string) *apiv1.Namespace {
 	namespace := apiv1.Namespace{
-		TypeMeta: metav1.TypeMeta{
+		TypeMeta: kmetav1.TypeMeta{
 			Kind:       "Namespace",
 			APIVersion: "v1",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name: name,
 		},
 	}
@@ -138,11 +138,11 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 
 	nats := &v1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
-		TypeMeta: metav1.TypeMeta{
+		TypeMeta: kmetav1.TypeMeta{
 			APIVersion: "v1alpha1",
 			Kind:       "NATS",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			UID:       "1234-5678-1234-5678",
@@ -160,11 +160,11 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 
 func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 	result := &apiextensionsv1.CustomResourceDefinition{
-		TypeMeta: metav1.TypeMeta{
+		TypeMeta: kmetav1.TypeMeta{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name: "destinationrules.networking.istio.io",
 		},
 		Spec: apiextensionsv1.CustomResourceDefinitionSpec{
@@ -221,7 +221,7 @@ func GetDestinationRuleGVR() schema.GroupVersionResource {
 // NewPVC creates a new PVC object with the given name, namespace, and label.
 func NewPVC(name, namespace string, labels map[string]string) *apiv1.PersistentVolumeClaim {
 	return &apiv1.PersistentVolumeClaim{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Labels:    labels,
@@ -239,7 +239,7 @@ func NewPVC(name, namespace string, labels map[string]string) *apiv1.PersistentV
 
 func NewStatefulSet(name, namespace string, labels map[string]string) *appsv1.StatefulSet {
 	return &appsv1.StatefulSet{
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Labels:    labels,
