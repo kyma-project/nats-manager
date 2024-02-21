@@ -37,7 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	controllercache "github.com/kyma-project/nats-manager/internal/controller/cache"
 	nmcontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/env"
@@ -52,7 +52,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	scheme := runtime.NewScheme()
 	setupLog := kcontrollerruntime.Log.WithName("setup")
 	kutilruntime.Must(kscheme.AddToScheme(scheme))
-	kutilruntime.Must(natsv1alpha1.AddToScheme(scheme))
+	kutilruntime.Must(nmapiv1alpha1.AddToScheme(scheme))
 
 	// get configs from ENV
 	envConfigs, err := env.GetConfig()
@@ -160,7 +160,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		sugaredLogger,
 		mgr.GetEventRecorderFor("nats-manager"),
 		natsManager,
-		&natsv1alpha1.NATS{
+		&nmapiv1alpha1.NATS{
 			ObjectMeta: kmetav1.ObjectMeta{
 				Name:      envConfigs.NATSCRName,
 				Namespace: envConfigs.NATSCRNamespace,

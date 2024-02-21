@@ -12,7 +12,7 @@ import (
 	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/pkg/nats/mocks"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -45,7 +45,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			name:                   "should not do anything if finalizer is not set",
 			givenWithNATSCreated:   false,
 			natsCrWithoutFinalizer: true,
-			wantNATSStatusState:    natsv1alpha1.StateReady,
+			wantNATSStatusState:    nmapiv1alpha1.StateReady,
 			wantK8sEvents:          []string{},
 			wantResult:             kcontrollerruntime.Result{},
 		},
@@ -58,14 +58,14 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient.On("Close").Return()
 				return natsClient
 			},
-			wantNATSStatusState: natsv1alpha1.StateDeleting,
+			wantNATSStatusState: nmapiv1alpha1.StateDeleting,
 			wantK8sEvents:       []string{"Normal Deleting Deleting the NATS cluster."},
 			wantResult:          kcontrollerruntime.Result{},
 		},
 		{
 			name:                 "should delete resources if natsClients GetStreams returns unexpected error",
 			givenWithNATSCreated: true,
-			wantNATSStatusState:  natsv1alpha1.StateDeleting,
+			wantNATSStatusState:  nmapiv1alpha1.StateDeleting,
 			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
@@ -79,7 +79,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should delete resources if natsClients ConsumersExist returns unexpected error",
 			givenWithNATSCreated: true,
-			wantNATSStatusState:  natsv1alpha1.StateDeleting,
+			wantNATSStatusState:  nmapiv1alpha1.StateDeleting,
 			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
@@ -100,12 +100,12 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should block deletion if non 'sap' stream exists",
 			givenWithNATSCreated: true,
-			wantNATSStatusState:  natsv1alpha1.StateWarning,
+			wantNATSStatusState:  nmapiv1alpha1.StateWarning,
 			wantCondition: &kmetav1.Condition{
-				Type:               string(natsv1alpha1.ConditionDeleted),
+				Type:               string(nmapiv1alpha1.ConditionDeleted),
 				Status:             kmetav1.ConditionFalse,
 				LastTransitionTime: kmetav1.Now(),
-				Reason:             string(natsv1alpha1.ConditionReasonDeletionError),
+				Reason:             string(nmapiv1alpha1.ConditionReasonDeletionError),
 				Message:            StreamExistsErrorMsg,
 			},
 			mockNatsClientFunc: func() nats.Client {
@@ -131,12 +131,12 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should block deletion if 'sap' stream consumer exists",
 			givenWithNATSCreated: true,
-			wantNATSStatusState:  natsv1alpha1.StateWarning,
+			wantNATSStatusState:  nmapiv1alpha1.StateWarning,
 			wantCondition: &kmetav1.Condition{
-				Type:               string(natsv1alpha1.ConditionDeleted),
+				Type:               string(nmapiv1alpha1.ConditionDeleted),
 				Status:             kmetav1.ConditionFalse,
 				LastTransitionTime: kmetav1.Now(),
-				Reason:             string(natsv1alpha1.ConditionReasonDeletionError),
+				Reason:             string(nmapiv1alpha1.ConditionReasonDeletionError),
 				Message:            ConsumerExistsErrorMsg,
 			},
 			mockNatsClientFunc: func() nats.Client {
@@ -163,7 +163,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should delete resources if neither consumer stream nor 'sap' stream exists",
 			givenWithNATSCreated: true,
-			wantNATSStatusState:  natsv1alpha1.StateDeleting,
+			wantNATSStatusState:  nmapiv1alpha1.StateDeleting,
 			mockNatsClientFunc: func() nats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
@@ -192,7 +192,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			t.Parallel()
 
 			// given
-			var givenNats *natsv1alpha1.NATS
+			var givenNats *nmapiv1alpha1.NATS
 			if tc.natsCrWithoutFinalizer {
 				givenNats = testutils.NewNATSCR(
 					testutils.WithNATSCRStatusInitialized(),
@@ -256,9 +256,9 @@ func Test_handleNATSDeletion(t *testing.T) {
 			}
 
 			if tc.wantCondition != nil {
-				gotCondition := nats.Status.FindCondition(natsv1alpha1.ConditionType(tc.wantCondition.Type))
+				gotCondition := nats.Status.FindCondition(nmapiv1alpha1.ConditionType(tc.wantCondition.Type))
 				require.NotNil(t, gotCondition)
-				require.True(t, natsv1alpha1.ConditionEquals(*gotCondition, *tc.wantCondition))
+				require.True(t, nmapiv1alpha1.ConditionEquals(*gotCondition, *tc.wantCondition))
 			}
 
 			// check k8s events
@@ -273,7 +273,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 	tests := []struct {
 		name           string
-		nats           *natsv1alpha1.NATS
+		nats           *nmapiv1alpha1.NATS
 		labelValue     string
 		deleteErr      error
 		expectedResult kcontrollerruntime.Result
@@ -351,7 +351,7 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 func Test_CreateAndConnectNatsClient(t *testing.T) {
 	tests := []struct {
 		name        string
-		nats        *natsv1alpha1.NATS
+		nats        *nmapiv1alpha1.NATS
 		initErr     error
 		expectedErr error
 	}{
@@ -395,7 +395,7 @@ func Test_CreateAndConnectNatsClient(t *testing.T) {
 func Test_CloseNatsClient(t *testing.T) {
 	tests := []struct {
 		name           string
-		nats           *natsv1alpha1.NATS
+		nats           *nmapiv1alpha1.NATS
 		existingClient *mocks.Client
 	}{
 		{

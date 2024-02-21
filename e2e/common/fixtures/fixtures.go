@@ -5,7 +5,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
@@ -26,16 +26,16 @@ const (
 	PriorityClassName     = "nats-manager-priority-class"
 )
 
-func NATSCR() *natsv1alpha1.NATS {
+func NATSCR() *nmapiv1alpha1.NATS {
 	return testutils.NewNATSCR(
 		testutils.WithNATSCRName(CRName),
 		testutils.WithNATSCRNamespace(NamespaceName),
 		testutils.WithNATSClusterSize(ClusterSize),
-		testutils.WithNATSFileStorage(natsv1alpha1.FileStorage{
+		testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 			StorageClassName: "default",
 			Size:             resource.MustParse(FileStorageSize),
 		}),
-		testutils.WithNATSMemStorage(natsv1alpha1.MemStorage{
+		testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 			Enabled: true,
 			Size:    resource.MustParse(MemStorageSize),
 		}),

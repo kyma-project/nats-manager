@@ -7,25 +7,25 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type Option func(*unstructured.Unstructured) error
-type NATSOption func(*v1alpha1.NATS) error
+type NATSOption func(*nmapiv1alpha1.NATS) error
 
 func WithNATSCRDefaults() NATSOption {
-	return func(nats *v1alpha1.NATS) error {
-		nats.Spec = v1alpha1.NATSSpec{
-			Cluster: v1alpha1.Cluster{
+	return func(nats *nmapiv1alpha1.NATS) error {
+		nats.Spec = nmapiv1alpha1.NATSSpec{
+			Cluster: nmapiv1alpha1.Cluster{
 				Size: 1,
 			},
-			JetStream: v1alpha1.JetStream{
-				MemStorage: v1alpha1.MemStorage{
+			JetStream: nmapiv1alpha1.JetStream{
+				MemStorage: nmapiv1alpha1.MemStorage{
 					Enabled: false,
 				},
-				FileStorage: v1alpha1.FileStorage{
+				FileStorage: nmapiv1alpha1.FileStorage{
 					StorageClassName: "default",
 					Size:             resource.MustParse("1Gi"),
 				},
@@ -126,120 +126,120 @@ func WithStatefulSetStatusReadyReplicas(replicas int) Option {
 }
 
 func WithNATSCRFinalizer(finalizer string) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		controllerutil.AddFinalizer(nats, finalizer)
 		return nil
 	}
 }
 
 func WithNATSCRStatusInitialized() NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Status.Initialize()
 		return nil
 	}
 }
 
 func WithNATSStateReady() NATSOption {
-	return func(nats *v1alpha1.NATS) error {
-		nats.Status.State = v1alpha1.StateReady
+	return func(nats *nmapiv1alpha1.NATS) error {
+		nats.Status.State = nmapiv1alpha1.StateReady
 		return nil
 	}
 }
 
 func WithNATSStateWarning() NATSOption {
-	return func(nats *v1alpha1.NATS) error {
-		nats.Status.State = v1alpha1.StateWarning
+	return func(nats *nmapiv1alpha1.NATS) error {
+		nats.Status.State = nmapiv1alpha1.StateWarning
 		return nil
 	}
 }
 
 func WithNATSStateProcessing() NATSOption {
-	return func(nats *v1alpha1.NATS) error {
-		nats.Status.State = v1alpha1.StateProcessing
+	return func(nats *nmapiv1alpha1.NATS) error {
+		nats.Status.State = nmapiv1alpha1.StateProcessing
 		return nil
 	}
 }
 
 func WithNATSStateError() NATSOption {
-	return func(nats *v1alpha1.NATS) error {
-		nats.Status.State = v1alpha1.StateError
+	return func(nats *nmapiv1alpha1.NATS) error {
+		nats.Status.State = nmapiv1alpha1.StateError
 		return nil
 	}
 }
 
 func WithNATSCRName(name string) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Name = name
 		return nil
 	}
 }
 
 func WithNATSCRNamespace(namespace string) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Namespace = namespace
 		return nil
 	}
 }
 
 func WithNATSEmptySpec() NATSOption {
-	return func(nats *v1alpha1.NATS) error {
-		nats.Spec = v1alpha1.NATSSpec{}
+	return func(nats *nmapiv1alpha1.NATS) error {
+		nats.Spec = nmapiv1alpha1.NATSSpec{}
 		return nil
 	}
 }
 
 func WithNATSClusterSize(size int) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.Cluster.Size = size
 		return nil
 	}
 }
 
 func WithNATSLogging(debug, trace bool) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.Logging.Debug = debug
 		nats.Spec.Logging.Trace = trace
 		return nil
 	}
 }
 
-func WithNATSMemStorage(memStorage v1alpha1.MemStorage) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+func WithNATSMemStorage(memStorage nmapiv1alpha1.MemStorage) NATSOption {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.JetStream.MemStorage = memStorage
 		return nil
 	}
 }
 
-func WithNATSFileStorage(fileStorage v1alpha1.FileStorage) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+func WithNATSFileStorage(fileStorage nmapiv1alpha1.FileStorage) NATSOption {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.JetStream.FileStorage = fileStorage
 		return nil
 	}
 }
 
-func WithNATSCluster(cluster v1alpha1.Cluster) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+func WithNATSCluster(cluster nmapiv1alpha1.Cluster) NATSOption {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.Cluster = cluster
 		return nil
 	}
 }
 
 func WithNATSLabels(labels map[string]string) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.Labels = labels
 		return nil
 	}
 }
 
 func WithNATSAnnotations(annotations map[string]string) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.Annotations = annotations
 		return nil
 	}
 }
 
 func WithNATSResources(resources kcorev1.ResourceRequirements) NATSOption {
-	return func(nats *v1alpha1.NATS) error {
+	return func(nats *nmapiv1alpha1.NATS) error {
 		nats.Spec.Resources = resources
 		return nil
 	}

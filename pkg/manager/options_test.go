@@ -3,7 +3,7 @@ package manager
 import (
 	"testing"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/stretchr/testify/require"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -16,7 +16,7 @@ func Test_WithOwnerReference(t *testing.T) {
 		t.Parallel()
 
 		// given
-		natsCR := v1alpha1.NATS{
+		natsCR := nmapiv1alpha1.NATS{
 			// Name, UUID, Kind, APIVersion
 			TypeMeta: kmetav1.TypeMeta{
 				APIVersion: "v1alpha1",

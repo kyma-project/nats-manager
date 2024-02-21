@@ -181,6 +181,8 @@ linters-settings:
         alias: kapiextclientset
       - pkg: github.com/kyma-project/nats-manager/internal/controller/nats
         alias: nmcontroller
+      - pkg: github.com/kyma-project/nats-manager/api/v1alpha1
+        alias: nmapiv1alpha1
 
 
   ireturn:

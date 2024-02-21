@@ -10,7 +10,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 func GetK8sClients() (*kubernetes.Clientset, client.Client, error) {
@@ -34,7 +34,7 @@ func GetK8sClients() (*kubernetes.Clientset, client.Client, error) {
 	}
 
 	// We need to add the NATS CRD to the scheme, so we can create a client that can access NATS objects.
-	err = natsv1alpha1.AddToScheme(kscheme.Scheme)
+	err = nmapiv1alpha1.AddToScheme(kscheme.Scheme)
 	if err != nil {
 		return nil, nil, err
 	}

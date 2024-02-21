@@ -26,7 +26,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/common/fixtures"
 )
@@ -117,7 +117,7 @@ func Test_CR(t *testing.T) {
 
 	ctx := context.TODO()
 	// Get the NATS CR from the cluster.
-	actual, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+	actual, err := RetryGet(attempts, interval, func() (*nmapiv1alpha1.NATS, error) {
 		return getNATSCR(ctx, want.Name, want.Namespace)
 	})
 	require.NoError(t, err)
@@ -283,7 +283,7 @@ func Test_PodsReady(t *testing.T) {
 
 	ctx := context.TODO()
 	// RetryGet the NATS CR. It will tell us how many Pods we should expect.
-	natsCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+	natsCR, err := RetryGet(attempts, interval, func() (*nmapiv1alpha1.NATS, error) {
 		return getNATSCR(ctx, CRName, NamespaceName)
 	})
 	require.NoError(t, err)
@@ -381,8 +381,8 @@ func Test_Secret(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
-	var natsCR natsv1alpha1.NATS
+func getNATSCR(ctx context.Context, name, namespace string) (*nmapiv1alpha1.NATS, error) {
+	var natsCR nmapiv1alpha1.NATS
 	err := k8sClient.Get(ctx, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
@@ -434,14 +434,14 @@ func waitForNATSCRReady() error {
 
 		ctx := context.TODO()
 		// Get the NATS CR from the cluster.
-		gotNATSCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+		gotNATSCR, err := RetryGet(attempts, interval, func() (*nmapiv1alpha1.NATS, error) {
 			return getNATSCR(ctx, want.Name, want.Namespace)
 		})
 		if err != nil {
 			return err
 		}
 
-		if gotNATSCR.Status.State != natsv1alpha1.StateReady {
+		if gotNATSCR.Status.State != nmapiv1alpha1.StateReady {
 			err := fmt.Errorf("waiting for NATS CR to get ready state")
 			logger.Debug(err.Error())
 			return err

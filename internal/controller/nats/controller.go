@@ -35,7 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/pkg/manager"
@@ -66,7 +66,7 @@ type Reconciler struct {
 	natsManager                 manager.Manager
 	ctrlManager                 kcontrollerruntime.Manager
 	destinationRuleWatchStarted bool
-	allowedNATSCR               *natsv1alpha1.NATS
+	allowedNATSCR               *nmapiv1alpha1.NATS
 }
 
 func NewReconciler(
@@ -77,7 +77,7 @@ func NewReconciler(
 	logger *zap.SugaredLogger,
 	recorder record.EventRecorder,
 	natsManager manager.Manager,
-	allowedNATSCR *natsv1alpha1.NATS,
+	allowedNATSCR *nmapiv1alpha1.NATS,
 ) *Reconciler {
 	return &Reconciler{
 		Client:                      client,
@@ -122,7 +122,7 @@ func NewReconciler(
 func (r *Reconciler) Reconcile(ctx context.Context, req kcontrollerruntime.Request) (kcontrollerruntime.Result, error) {
 	r.logger.Info("Reconciliation triggered")
 	// fetch latest subscription object
-	currentNats := &natsv1alpha1.NATS{}
+	currentNats := &nmapiv1alpha1.NATS{}
 	if err := r.Get(ctx, req.NamespacedName, currentNats); err != nil {
 		return kcontrollerruntime.Result{}, client.IgnoreNotFound(err)
 	}
@@ -151,7 +151,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req kcontrollerruntime.Reque
 
 // handleNATSCRAllowedCheck checks if NATS CR is allowed to be created or not.
 // returns true if the NATS CR is allowed.
-func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1alpha1.NATS,
+func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *nmapiv1alpha1.NATS,
 	log *zap.SugaredLogger,
 ) (bool, error) {
 	// If the name and namespace matches with allowed NATS CR then allow the CR to be reconciled.
@@ -163,18 +163,18 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 	nats.Status.SetStateError()
 	// Update conditions in status.
 	nats.Status.UpdateConditionStatefulSet(kmetav1.ConditionFalse,
-		natsv1alpha1.ConditionReasonForbidden, "")
+		nmapiv1alpha1.ConditionReasonForbidden, "")
 	errorMessage := fmt.Sprintf(CreationNotAllowedMsg, r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
 	nats.Status.UpdateConditionAvailable(kmetav1.ConditionFalse,
-		natsv1alpha1.ConditionReasonForbidden, errorMessage)
-	events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonForbidden, errorMessage)
+		nmapiv1alpha1.ConditionReasonForbidden, errorMessage)
+	events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonForbidden, errorMessage)
 
 	return false, r.syncNATSStatus(ctx, nats, log)
 }
 
 // generateNatsResources renders the NATS chart with provided overrides.
 // It puts results into ReleaseInstance.
-func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance) error {
+func (r *Reconciler) generateNatsResources(nats *nmapiv1alpha1.NATS, instance *chart.ReleaseInstance) error {
 	// Generate Nats resources from chart.
 	natsResources, err := r.natsManager.GenerateNATSResources(
 		instance,
@@ -191,7 +191,7 @@ func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *ch
 }
 
 // initNATSInstance initializes a new NATS release instance based on NATS CR.
-func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NATS,
+func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.NATS,
 	log *zap.SugaredLogger,
 ) (*chart.ReleaseInstance, error) {
 	// Check if istio is enabled in cluster.
@@ -230,7 +230,7 @@ func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 	r.ctrlManager = mgr
 	var err error
 	r.controller, err = kcontrollerruntime.NewControllerManagedBy(mgr).
-		For(&natsv1alpha1.NATS{}).
+		For(&nmapiv1alpha1.NATS{}).
 		Owns(&kappsv1.StatefulSet{}).          // watch for StatefulSets.
 		Owns(&kcorev1.Service{}).              // watch for Services.
 		Owns(&kcorev1.ConfigMap{}).            // watch for ConfigMaps.
@@ -242,7 +242,7 @@ func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 }
 
 // loggerWithNATS returns a logger with the given NATS CR details.
-func (r *Reconciler) loggerWithNATS(nats *natsv1alpha1.NATS) *zap.SugaredLogger {
+func (r *Reconciler) loggerWithNATS(nats *nmapiv1alpha1.NATS) *zap.SugaredLogger {
 	return r.logger.With(
 		"kind", nats.GetObjectKind().GroupVersionKind().Kind,
 		"resourceVersion", nats.GetResourceVersion(),

@@ -15,7 +15,7 @@ import (
 	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmcontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
@@ -54,7 +54,7 @@ func Test_CreateNATSCR(t *testing.T) {
 
 	testCases := []struct {
 		name                  string
-		givenNATS             *v1alpha1.NATS
+		givenNATS             *nmapiv1alpha1.NATS
 		givenK8sEvents        v1.EventList
 		givenStatefulSetReady bool
 		wantMatches           onsigomegatypes.GomegaMatcher
@@ -113,11 +113,11 @@ func Test_CreateNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
 					Size:             resource.MustParse("66Gi"),
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),
@@ -195,8 +195,8 @@ func Test_UpdateNATSCR(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
 		name            string
-		givenNATS       *v1alpha1.NATS
-		givenUpdateNATS *v1alpha1.NATS
+		givenNATS       *nmapiv1alpha1.NATS
+		givenUpdateNATS *nmapiv1alpha1.NATS
 	}{
 		{
 			name: "NATS CR should have ready status when StatefulSet is ready",
@@ -226,7 +226,7 @@ func Test_UpdateNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),
@@ -279,7 +279,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 
 	testCases := []struct {
 		name      string
-		givenNATS *v1alpha1.NATS
+		givenNATS *nmapiv1alpha1.NATS
 	}{
 		{
 			name: "should delete all k8s objects",
@@ -308,11 +308,11 @@ func Test_DeleteNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
 					Size:             resource.MustParse("66Gi"),
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),
@@ -371,7 +371,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 
 	testCases := []struct {
 		name                 string
-		givenNATS            *v1alpha1.NATS
+		givenNATS            *nmapiv1alpha1.NATS
 		wantResourceDeletion []deletionFunc
 	}{
 		{
@@ -489,7 +489,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 
 	testCases := []struct {
 		name         string
-		givenNATS    *v1alpha1.NATS
+		givenNATS    *nmapiv1alpha1.NATS
 		wantMatchers onsigomegatypes.GomegaMatcher
 	}{
 		{
@@ -514,11 +514,11 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
 					Size:             resource.MustParse("66Gi"),
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),

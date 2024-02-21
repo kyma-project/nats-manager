@@ -9,7 +9,7 @@ import (
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natsurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
 	"github.com/kyma-project/nats-manager/pkg/events"
 	natspkg "github.com/kyma-project/nats-manager/pkg/nats"
@@ -22,7 +22,7 @@ const (
 	SapStreamName          = "sap"
 )
 
-func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.NATS,
+func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *nmapiv1alpha1.NATS,
 	log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
 	// skip reconciliation for deletion if the finalizer is not set.
 	if !r.containsFinalizer(nats) {
@@ -32,7 +32,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 
 	r.logger.Info("Deleting the NATS")
 	nats.Status.SetStateDeleting()
-	events.Normal(r.recorder, nats, natsv1alpha1.ConditionReasonDeleting, "Deleting the NATS cluster.")
+	events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeleting, "Deleting the NATS cluster.")
 
 	// create a new NATS client instance.
 	if err := r.createAndConnectNatsClient(nats); err != nil {
@@ -47,8 +47,8 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	if customerStreamExists {
 		nats.Status.SetStateWarning()
 		nats.Status.UpdateConditionDeletion(kmetav1.ConditionFalse,
-			natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
-		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
+			nmapiv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
+		events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
 		return kcontrollerruntime.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
 	}
 
@@ -60,8 +60,8 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 	if sapStreamConsumerExists {
 		nats.Status.SetStateWarning()
 		nats.Status.UpdateConditionDeletion(kmetav1.ConditionFalse,
-			natsv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
-		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
+			nmapiv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
+		events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
 		return kcontrollerruntime.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
 	}
 
@@ -69,7 +69,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 }
 
 // check if any other stream exists except for 'sap' stream.
-func (r *Reconciler) customerStreamExists(nats *natsv1alpha1.NATS) (bool, error) {
+func (r *Reconciler) customerStreamExists(nats *nmapiv1alpha1.NATS) (bool, error) {
 	// check if any other stream exists except for 'sap' stream.
 	streams, err := r.getNatsClient(nats).GetStreams()
 	if err != nil {
@@ -83,7 +83,7 @@ func (r *Reconciler) customerStreamExists(nats *natsv1alpha1.NATS) (bool, error)
 	return false, nil
 }
 
-func (r *Reconciler) sapStreamConsumerExists(nats *natsv1alpha1.NATS) (bool, error) {
+func (r *Reconciler) sapStreamConsumerExists(nats *nmapiv1alpha1.NATS) (bool, error) {
 	// check if 'sap' stream exists.
 	streams, err := r.getNatsClient(nats).GetStreams()
 	if err != nil {
@@ -105,7 +105,7 @@ func (r *Reconciler) sapStreamConsumerExists(nats *natsv1alpha1.NATS) (bool, err
 }
 
 // create a new NATS client instance and connect to the NATS server.
-func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
+func (r *Reconciler) createAndConnectNatsClient(nats *nmapiv1alpha1.NATS) error {
 	// create a new instance if it does not exist.
 	if r.getNatsClient(nats) == nil {
 		r.setNatsClient(nats, natspkg.NewNatsClient(&natspkg.Config{
@@ -116,7 +116,7 @@ func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 }
 
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
-	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
+	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
 	labelValue := nats.Name
 	// TODO: delete the following logic after migrating to modular Kyma
 	if nats.Name == "eventing-nats" {
@@ -134,18 +134,18 @@ func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	return r.removeFinalizer(ctx, nats)
 }
 
-func (r *Reconciler) getNatsClient(nats *natsv1alpha1.NATS) natspkg.Client {
+func (r *Reconciler) getNatsClient(nats *nmapiv1alpha1.NATS) natspkg.Client {
 	crKey := nats.Namespace + "/" + nats.Name
 	return r.natsClients[crKey]
 }
 
-func (r *Reconciler) setNatsClient(nats *natsv1alpha1.NATS, newNatsClient natspkg.Client) {
+func (r *Reconciler) setNatsClient(nats *nmapiv1alpha1.NATS, newNatsClient natspkg.Client) {
 	crKey := nats.Namespace + "/" + nats.Name
 	r.natsClients[crKey] = newNatsClient
 }
 
 // close the nats connection and remove the client instance.
-func (r *Reconciler) closeNatsClient(nats *natsv1alpha1.NATS) {
+func (r *Reconciler) closeNatsClient(nats *nmapiv1alpha1.NATS) {
 	// check if nats client exists.
 	if r.getNatsClient(nats) != nil {
 		r.getNatsClient(nats).Close()

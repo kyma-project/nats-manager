@@ -24,7 +24,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/common/fixtures"
 )
@@ -180,8 +180,8 @@ func Test_NoNATSCRExists(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
-	var natsCR natsv1alpha1.NATS
+func getNATSCR(ctx context.Context, name, namespace string) (*nmapiv1alpha1.NATS, error) {
+	var natsCR nmapiv1alpha1.NATS
 	err := k8sClient.Get(ctx, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,

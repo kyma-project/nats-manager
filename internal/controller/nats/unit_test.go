@@ -10,7 +10,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	chartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	managermocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
@@ -47,7 +47,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 
 	// setup fake client for k8s
 	newScheme := runtime.NewScheme()
-	err = natsv1alpha1.AddToScheme(newScheme)
+	err = nmapiv1alpha1.AddToScheme(newScheme)
 	require.NoError(t, err)
 	err = kcorev1.AddToScheme(newScheme)
 	require.NoError(t, err)
@@ -90,8 +90,8 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	}
 }
 
-func (testEnv *MockedUnitTestEnvironment) GetNATS(name, namespace string) (natsv1alpha1.NATS, error) {
-	var nats natsv1alpha1.NATS
+func (testEnv *MockedUnitTestEnvironment) GetNATS(name, namespace string) (nmapiv1alpha1.NATS, error) {
+	var nats nmapiv1alpha1.NATS
 	err := testEnv.Client.Get(testEnv.Context, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,

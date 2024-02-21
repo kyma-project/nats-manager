@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
@@ -59,7 +59,7 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		givenNATS   *v1alpha1.NATS
+		givenNATS   *nmapiv1alpha1.NATS
 		wantMatches onsigomegatypes.GomegaMatcher
 	}{
 		{

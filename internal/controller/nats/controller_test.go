@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -54,7 +54,7 @@ func Test_initNATSInstance(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name               string
-		givenNATS          *natsv1alpha1.NATS
+		givenNATS          *nmapiv1alpha1.NATS
 		wantIstioEnabled   bool
 		wantRotatePassword bool
 	}{
@@ -136,7 +136,7 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name            string
-		givenNATS       *natsv1alpha1.NATS
+		givenNATS       *nmapiv1alpha1.NATS
 		wantCheckResult bool
 	}{
 		{
@@ -195,26 +195,26 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 			require.NoError(t, err)
 			if !tc.wantCheckResult {
 				// check nats.status.state
-				require.Equal(t, natsv1alpha1.StateError, gotNATS.Status.State)
+				require.Equal(t, nmapiv1alpha1.StateError, gotNATS.Status.State)
 
 				// check nats.status.conditions
 				wantConditions := []kmetav1.Condition{
 					{
-						Type:               string(natsv1alpha1.ConditionStatefulSet),
+						Type:               string(nmapiv1alpha1.ConditionStatefulSet),
 						Status:             kmetav1.ConditionFalse,
 						LastTransitionTime: kmetav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonForbidden),
+						Reason:             string(nmapiv1alpha1.ConditionReasonForbidden),
 						Message:            "",
 					},
 					{
-						Type:               string(natsv1alpha1.ConditionAvailable),
+						Type:               string(nmapiv1alpha1.ConditionAvailable),
 						Status:             kmetav1.ConditionFalse,
 						LastTransitionTime: kmetav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonForbidden),
+						Reason:             string(nmapiv1alpha1.ConditionReasonForbidden),
 						Message:            fmt.Sprintf(CreationNotAllowedMsg, givenAllowedNATS.Name, givenAllowedNATS.Namespace),
 					},
 				}
-				require.True(t, natsv1alpha1.ConditionsEquals(wantConditions, gotNATS.Status.Conditions))
+				require.True(t, nmapiv1alpha1.ConditionsEquals(wantConditions, gotNATS.Status.Conditions))
 
 				wantK8sEventMsg := fmt.Sprintf("Warning Forbidden %s", CreationNotAllowedMsg)
 				wantK8sEvent := []string{

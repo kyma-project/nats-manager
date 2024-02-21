@@ -13,7 +13,7 @@ import (
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 
@@ -228,7 +228,7 @@ func Test_Validate_CreateNATS(t *testing.T) {
 func Test_Validate_UpdateNATS(t *testing.T) {
 	testCases := []struct {
 		name         string
-		givenNATS    *v1alpha1.NATS
+		givenNATS    *nmapiv1alpha1.NATS
 		wantMatches  onsigomegatypes.GomegaMatcher
 		givenUpdates []testutils.NATSOption
 		wantErrMsg   string
@@ -242,7 +242,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: defaultFileStorage().StorageClassName,
 					Size:             resource.MustParse("2Gi"),
 				}),
@@ -258,7 +258,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "not-standard",
 					Size:             defaultFileStorage().Size,
 				}),
@@ -274,7 +274,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				natsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSCluster(v1alpha1.Cluster{
+				testutils.WithNATSCluster(nmapiv1alpha1.Cluster{
 					Size: 1,
 				}),
 			},
@@ -290,7 +290,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				natsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSCluster(v1alpha1.Cluster{
+				testutils.WithNATSCluster(nmapiv1alpha1.Cluster{
 					Size: 5,
 				}),
 			},
@@ -471,7 +471,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 			testEnvironment.EnsureK8sUnStructResourceCreated(t, &tc.givenUnstructuredNATS)
 
 			// then
-			testEnvironment.GetNATSAssert(g, &v1alpha1.NATS{
+			testEnvironment.GetNATSAssert(g, &nmapiv1alpha1.NATS{
 				ObjectMeta: kmetav1.ObjectMeta{
 					Name:      tc.givenUnstructuredNATS.GetName(),
 					Namespace: tc.givenUnstructuredNATS.GetNamespace(),
@@ -494,27 +494,27 @@ func defaultResources() kcorev1.ResourceRequirements {
 	}
 }
 
-func defaultMemStorage() v1alpha1.MemStorage {
-	return v1alpha1.MemStorage{
+func defaultMemStorage() nmapiv1alpha1.MemStorage {
+	return nmapiv1alpha1.MemStorage{
 		Enabled: true,
 		Size:    resource.MustParse("1Gi"),
 	}
 }
 
-func defaultFileStorage() v1alpha1.FileStorage {
-	return v1alpha1.FileStorage{
+func defaultFileStorage() nmapiv1alpha1.FileStorage {
+	return nmapiv1alpha1.FileStorage{
 		StorageClassName: "default",
 		Size:             resource.MustParse("1Gi"),
 	}
 }
 
-func defaultLogging() v1alpha1.Logging {
-	return v1alpha1.Logging{
+func defaultLogging() nmapiv1alpha1.Logging {
+	return nmapiv1alpha1.Logging{
 		Debug: false,
 		Trace: false,
 	}
 }
 
-func defaultCluster() v1alpha1.Cluster {
-	return v1alpha1.Cluster{Size: 3}
+func defaultCluster() nmapiv1alpha1.Cluster {
+	return nmapiv1alpha1.Cluster{Size: 3}
 }

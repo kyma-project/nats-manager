@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 const (
@@ -132,11 +132,11 @@ func NewSecret(opts ...Option) *kcorev1.Secret {
 	return &sampleSecret
 }
 
-func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
+func NewNATSCR(opts ...NATSOption) *nmapiv1alpha1.NATS {
 	name := fmt.Sprintf(NameFormat, GetRandString(randomNameLen))
 	namespace := fmt.Sprintf(NamespaceFormat, GetRandString(randomNameLen))
 
-	nats := &v1alpha1.NATS{
+	nats := &nmapiv1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
 		TypeMeta: kmetav1.TypeMeta{
 			APIVersion: "v1alpha1",
@@ -177,27 +177,27 @@ func NewDestinationRuleCRD() *kapiextv1.CustomResourceDefinition {
 	return result
 }
 
-func GetStatefulSetName(nats v1alpha1.NATS) string {
+func GetStatefulSetName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(StatefulSetNameFormat, nats.GetName())
 }
 
-func GetConfigMapName(nats v1alpha1.NATS) string {
+func GetConfigMapName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(ConfigMapNameFormat, nats.Name)
 }
 
-func GetSecretName(nats v1alpha1.NATS) string {
+func GetSecretName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(SecretNameFormat, nats.Name)
 }
 
-func GetServiceName(nats v1alpha1.NATS) string {
+func GetServiceName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(ServiceNameFormat, nats.Name)
 }
 
-func GetPodDisruptionBudgetName(nats v1alpha1.NATS) string {
+func GetPodDisruptionBudgetName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(PodDisruptionBudgetNameFormat, nats.Name)
 }
 
-func GetDestinationRuleName(nats v1alpha1.NATS) string {
+func GetDestinationRuleName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(DestinationRuleNameFormat, nats.Name)
 }
 

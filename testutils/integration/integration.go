@@ -36,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmcontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
@@ -78,7 +78,7 @@ type TestEnvironment struct {
 
 //nolint:funlen // Used in testing
 func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
-	allowedNATSCR *natsv1alpha1.NATS) (*TestEnvironment, error) {
+	allowedNATSCR *nmapiv1alpha1.NATS) (*TestEnvironment, error) {
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -95,7 +95,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	}
 
 	// add to Scheme
-	err = natsv1alpha1.AddToScheme(kscheme.Scheme)
+	err = nmapiv1alpha1.AddToScheme(kscheme.Scheme)
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +234,7 @@ func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Obj
 	require.NoError(t, env.k8sClient.Update(env.Context, obj))
 }
 
-func (env TestEnvironment) UpdatedNATSInK8s(nats *natsv1alpha1.NATS, options ...testutils.NATSOption) error {
+func (env TestEnvironment) UpdatedNATSInK8s(nats *nmapiv1alpha1.NATS, options ...testutils.NATSOption) error {
 	natsOnK8s, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 	if err != nil {
 		log.Fatal(err)
@@ -410,7 +410,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name
 
 // EnsureNATSSpecClusterSizeReflected ensures that NATS CR Spec.cluster.size is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
 		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
@@ -425,7 +425,7 @@ func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats
 
 // EnsureNATSSpecResourcesReflected ensures that NATS CR Spec.resources is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
 		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
@@ -444,7 +444,7 @@ func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats n
 
 // EnsureNATSSpecDebugTraceReflected ensures that NATS CR Spec.trace and Spec.debug is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -468,7 +468,7 @@ func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats 
 
 // EnsureNATSSpecFileStorageReflected ensures that NATS CR Spec.jetStream.fileStorage is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -512,7 +512,7 @@ func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats
 
 // EnsureNATSSpecMemStorageReflected ensures that NATS CR Spec.jetStream.memStorage is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -539,7 +539,7 @@ func (env TestEnvironment) EnsureURLInNATSStatus(t *testing.T, name, namespace s
 	require.NotNil(t, natsCR)
 
 	switch natsCR.Status.State {
-	case natsv1alpha1.StateReady:
+	case nmapiv1alpha1.StateReady:
 		{
 			wantURL := fmt.Sprintf("nats://%s.%s.svc.cluster.local:4222", natsCR.Name, natsCR.Namespace)
 			require.Equal(t, wantURL, natsCR.Status.URL)
@@ -552,8 +552,8 @@ func (env TestEnvironment) EnsureURLInNATSStatus(t *testing.T, name, namespace s
 	}
 }
 
-func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
-	var nats natsv1alpha1.NATS
+func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (nmapiv1alpha1.NATS, error) {
+	var nats nmapiv1alpha1.NATS
 	err := env.k8sClient.Get(env.Context, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
@@ -700,8 +700,8 @@ func (env TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) 
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.
 func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
-	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
-	return g.Eventually(func() *natsv1alpha1.NATS {
+	nats *nmapiv1alpha1.NATS) gomega.AsyncAssertion {
+	return g.Eventually(func() *nmapiv1alpha1.NATS {
 		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 		if err != nil {
 			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
@@ -711,7 +711,7 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	}, BigTimeOut, SmallPollingInterval)
 }
 
-func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
+func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *nmapiv1alpha1.NATS) gomega.AsyncAssertion {
 	eventList := kcorev1.EventList{}
 	return g.Eventually(func() (kcorev1.EventList, error) {
 		err := env.k8sClient.List(env.Context, &eventList, client.InNamespace(nats.Namespace))

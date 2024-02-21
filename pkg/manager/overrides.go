@@ -1,6 +1,6 @@
 package manager
 
-import natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+import nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 
 const (
 	MinClusterSize         = 3
@@ -22,7 +22,7 @@ const (
 	ResourceLimitsMemKey   = "nats.resources.limits.memory"
 )
 
-func (m NATSManager) GenerateOverrides(spec *natsv1alpha1.NATSSpec, istioEnabled bool,
+func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnabled bool,
 	rotatePassword bool) map[string]interface{} {
 	overrides := map[string]interface{}{
 		IstioEnabledKey:   istioEnabled,
