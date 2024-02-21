@@ -94,6 +94,15 @@ spec:
       # reload to the server without restarting the pod.
       shareProcessNamespace: true
 
+      initContainers:
+      - name: change-storage-permissions
+        securityContext:
+          runAsUser: 0
+        image: alpine:latest
+        command: ["sh", "-c", "chown -R 1000:10001 {{ .Values.nats.jetstream.fileStorage.storageDirectory }} && chmod -R 755 {{ .Values.nats.jetstream.fileStorage.storageDirectory }} && echo 'Done!'"]
+        volumeMounts:
+          - name: {{ include "nats.fullname" . }}-js-pvc
+            mountPath: {{ .Values.nats.jetstream.fileStorage.storageDirectory }}
       #################
       #               #
       #  NATS Server  #
