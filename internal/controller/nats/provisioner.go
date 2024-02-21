@@ -9,7 +9,7 @@ import (
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	natsurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
+	nmctrlurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
 	"github.com/kyma-project/nats-manager/pkg/events"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 )
@@ -82,7 +82,7 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *nmapiv1alpha1.NA
 
 	if isSTSReady {
 		nats.Status.SetStateReady()
-		nats.Status.SetURL(natsurl.Format(nats.Name, nats.Namespace))
+		nats.Status.SetURL(nmctrlurl.Format(nats.Name, nats.Namespace))
 		events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeployed, "StatefulSet is ready and NATS is deployed.")
 	} else {
 		nats.Status.SetWaitingStateForStatefulSet()

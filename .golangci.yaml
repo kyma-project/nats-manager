@@ -197,6 +197,8 @@ linters-settings:
         alias: nmctrlmocks
       - pkg: github.com/kyma-project/nats-manager/pkg/manager
         alias: nmmgr
+      - pkg: github.com/kyma-project/nats-manager/internal/controller/nats/url
+        alias: nmctrlurl
 
 
   ireturn:

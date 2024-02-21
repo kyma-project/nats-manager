@@ -10,7 +10,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	natsurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
+	nmctrlurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
 	"github.com/kyma-project/nats-manager/pkg/events"
 	natspkg "github.com/kyma-project/nats-manager/pkg/nats"
 )
@@ -109,7 +109,7 @@ func (r *Reconciler) createAndConnectNatsClient(nats *nmapiv1alpha1.NATS) error 
 	// create a new instance if it does not exist.
 	if r.getNatsClient(nats) == nil {
 		r.setNatsClient(nats, natspkg.NewNatsClient(&natspkg.Config{
-			URL: natsurl.Format(nats.Name, nats.Namespace),
+			URL: nmctrlurl.Format(nats.Name, nats.Namespace),
 		}))
 	}
 	return r.getNatsClient(nats).Init()
