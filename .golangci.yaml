@@ -189,6 +189,8 @@ linters-settings:
         alias: nmkchartmocks
       - pkg: k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake
         alias: kapiextclientsetfake
+      - pkg: k8s.io/apimachinery/pkg/util/yaml
+        alias: kutilyaml
 
 
   ireturn:
