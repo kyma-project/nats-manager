@@ -15,7 +15,7 @@ import (
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
-	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
+	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 
 	"github.com/kyma-project/nats-manager/testutils/integration"
 )
@@ -239,7 +239,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSFileStorage(defaultFileStorage()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 			givenUpdates: []testutils.NATSOption{
 				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
@@ -255,7 +255,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSFileStorage(defaultFileStorage()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 			givenUpdates: []testutils.NATSOption{
 				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
@@ -271,7 +271,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSCluster(defaultCluster()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 			givenUpdates: []testutils.NATSOption{
 				testutils.WithNATSCluster(nmapiv1alpha1.Cluster{
@@ -287,7 +287,7 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSCluster(defaultCluster()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 			givenUpdates: []testutils.NATSOption{
 				testutils.WithNATSCluster(nmapiv1alpha1.Cluster{
@@ -347,11 +347,11 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
-				natsmatchers.HaveSpecResources(defaultResources()),
-				natsmatchers.HaveSpecLogging(defaultLogging()),
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecResources(defaultResources()),
+				nmtsmatchers.HaveSpecLogging(defaultLogging()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -368,11 +368,11 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
-				natsmatchers.HaveSpecResources(defaultResources()),
-				natsmatchers.HaveSpecLogging(defaultLogging()),
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecResources(defaultResources()),
+				nmtsmatchers.HaveSpecLogging(defaultLogging()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -391,7 +391,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 		},
 		{
@@ -410,8 +410,8 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -433,8 +433,8 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -453,7 +453,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecLogging(defaultLogging()),
+				nmtsmatchers.HaveSpecLogging(defaultLogging()),
 			),
 		},
 	}

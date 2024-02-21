@@ -199,7 +199,8 @@ linters-settings:
         alias: nmmgr
       - pkg: github.com/kyma-project/nats-manager/internal/controller/nats/url
         alias: nmctrlurl
-
+      - pkg: github.com/kyma-project/nats-manager/testutils/matchers/nats
+        alias: nmtsmatchers      
 
   ireturn:
     allow:

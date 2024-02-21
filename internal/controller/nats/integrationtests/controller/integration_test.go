@@ -19,7 +19,7 @@ import (
 	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
-	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
+	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
 const projectRootDir = "../../../../../"
@@ -68,12 +68,12 @@ func Test_CreateNATSCR(t *testing.T) {
 			),
 			givenStatefulSetReady: false,
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusProcessing(),
-				natsmatchers.HavePendingConditionStatefulSet(),
-				natsmatchers.HaveDeployingConditionAvailable(),
+				nmtsmatchers.HaveStatusProcessing(),
+				nmtsmatchers.HavePendingConditionStatefulSet(),
+				nmtsmatchers.HaveDeployingConditionAvailable(),
 			),
 			wantEventMatches: gomega.And(
-				natsmatchers.HaveProcessingEvent(),
+				nmtsmatchers.HaveProcessingEvent(),
 			),
 		},
 		{
@@ -83,13 +83,13 @@ func Test_CreateNATSCR(t *testing.T) {
 			),
 			givenStatefulSetReady: true,
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusReady(),
-				natsmatchers.HaveReadyConditionStatefulSet(),
-				natsmatchers.HaveReadyConditionAvailable(),
+				nmtsmatchers.HaveStatusReady(),
+				nmtsmatchers.HaveReadyConditionStatefulSet(),
+				nmtsmatchers.HaveReadyConditionAvailable(),
 			),
 			wantEventMatches: gomega.And(
-				natsmatchers.HaveProcessingEvent(),
-				natsmatchers.HaveDeployingEvent(),
+				nmtsmatchers.HaveProcessingEvent(),
+				nmtsmatchers.HaveDeployingEvent(),
 			),
 		},
 		{
@@ -124,14 +124,14 @@ func Test_CreateNATSCR(t *testing.T) {
 			),
 			givenStatefulSetReady: true,
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusReady(),
-				natsmatchers.HaveReadyConditionStatefulSet(),
-				natsmatchers.HaveReadyConditionAvailable(),
+				nmtsmatchers.HaveStatusReady(),
+				nmtsmatchers.HaveReadyConditionStatefulSet(),
+				nmtsmatchers.HaveReadyConditionAvailable(),
 			),
 			wantEnsureK8sObjects: true,
 			wantEventMatches: gomega.And(
-				natsmatchers.HaveProcessingEvent(),
-				natsmatchers.HaveDeployingEvent(),
+				nmtsmatchers.HaveProcessingEvent(),
+				nmtsmatchers.HaveDeployingEvent(),
 			),
 		},
 	}
@@ -524,9 +524,9 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 				}),
 			),
 			wantMatchers: gomega.And(
-				natsmatchers.HaveStatusReady(),
-				natsmatchers.HaveReadyConditionStatefulSet(),
-				natsmatchers.HaveReadyConditionAvailable(),
+				nmtsmatchers.HaveStatusReady(),
+				nmtsmatchers.HaveReadyConditionStatefulSet(),
+				nmtsmatchers.HaveReadyConditionAvailable(),
 			),
 		},
 	}
