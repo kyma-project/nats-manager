@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	nmcontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
 	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
@@ -344,7 +344,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 			if !*testEnvironment.EnvTestInstance.UseExistingCluster {
 				// create a PVC as local envtest cluster cannot create PVCs.
 				pvc := testutils.NewPVC(tc.givenNATS.Name, givenNamespace,
-					map[string]string{nmcontroller.InstanceLabelKey: tc.givenNATS.Name})
+					map[string]string{nmctrl.InstanceLabelKey: tc.givenNATS.Name})
 				testEnvironment.EnsureK8sResourceCreated(t, pvc)
 			}
 

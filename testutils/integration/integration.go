@@ -37,7 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	nmcontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/pkg/manager"
@@ -70,7 +70,7 @@ type TestEnvironment struct {
 	KubeClient       *k8s.Client
 	ChartRenderer    *chart.Renderer
 	NATSManager      *manager.Manager
-	Reconciler       *nmcontroller.Reconciler
+	Reconciler       *nmctrl.Reconciler
 	Logger           *zap.SugaredLogger
 	Recorder         *record.EventRecorder
 	TestCancelFn     context.CancelFunc
@@ -147,7 +147,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
 	// setup reconciler
-	natsReconciler := nmcontroller.NewReconciler(
+	natsReconciler := nmctrl.NewReconciler(
 		ctrlMgr.GetClient(),
 		kubeClient,
 		helmRenderer,
@@ -304,7 +304,7 @@ func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace str
 		result, err := env.GetPVCFromK8s(label, namespace)
 		if err != nil {
 			env.Logger.Errorw("failed to ensure PVC", "error", err,
-				nmcontroller.InstanceLabelKey, label, "namespace", namespace)
+				nmctrl.InstanceLabelKey, label, "namespace", namespace)
 		}
 		return err == nil && result != nil
 	}, BigTimeOut, BigPollingInterval, "failed to ensure existence of PVC")
@@ -579,7 +579,7 @@ func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*kcorev1.Pers
 	if err := env.k8sClient.List(env.Context, pvcList, &client.ListOptions{
 		Namespace: namespace,
 		LabelSelector: labels.SelectorFromSet(map[string]string{
-			nmcontroller.InstanceLabelKey: label,
+			nmctrl.InstanceLabelKey: label,
 		}),
 	}); err != nil {
 		return nil, err

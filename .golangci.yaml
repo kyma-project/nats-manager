@@ -180,7 +180,7 @@ linters-settings:
       - pkg: k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
         alias: kapiextclientset
       - pkg: github.com/kyma-project/nats-manager/internal/controller/nats
-        alias: nmcontroller
+        alias: nmctrl
       - pkg: github.com/kyma-project/nats-manager/api/v1alpha1
         alias: nmapiv1alpha1
       - pkg: k8s.io/api/policy/v1
