@@ -171,6 +171,8 @@ linters-settings:
         alias: kappsv1
       - pkg: k8s.io/apimachinery/pkg/types
         alias: ktypes
+      - pkg: sigs.k8s.io/controller-runtime/pkg/log/zap
+        alias: klogzap
 
 
   ireturn:

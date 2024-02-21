@@ -33,7 +33,7 @@ import (
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
+	klogzap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
@@ -84,14 +84,14 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		setupLog.Error(err, "unable to parse log level")
 		os.Exit(1)
 	}
-	opts := k8szap.Options{
+	opts := klogzap.Options{
 		Development: false,
 		Level:       logLevel,
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	kcontrollerruntime.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
+	kcontrollerruntime.SetLogger(klogzap.New(klogzap.UseFlagOptions(&opts)))
 
 	// setup logger
 	loggerConfig := zap.NewProductionConfig()
