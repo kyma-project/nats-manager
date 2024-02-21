@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
+	nmctrlmocks "github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/require"
 )
@@ -22,8 +22,8 @@ func Test_StreamExists(t *testing.T) {
 		{
 			name: "should no stream exist",
 			createMockNatsClient: func() *natsClient {
-				mockNatsConn := &mocks.NatsConn{}
-				jsCtx := &mocks.JetStreamContext{}
+				mockNatsConn := &nmctrlmocks.NatsConn{}
+				jsCtx := &nmctrlmocks.JetStreamContext{}
 				jsCtx.On("Streams").Return(returnEmptyStream())
 				mockNatsConn.On("JetStream").Return(jsCtx, nil)
 				return &natsClient{conn: mockNatsConn}
@@ -34,8 +34,8 @@ func Test_StreamExists(t *testing.T) {
 		{
 			name: "should streams exist",
 			createMockNatsClient: func() *natsClient {
-				mockNatsConn := &mocks.NatsConn{}
-				jsCtx := &mocks.JetStreamContext{}
+				mockNatsConn := &nmctrlmocks.NatsConn{}
+				jsCtx := &nmctrlmocks.JetStreamContext{}
 				jsCtx.On("Streams").Return(returnStreams())
 				mockNatsConn.On("JetStream").Return(jsCtx, nil)
 				return &natsClient{conn: mockNatsConn}
@@ -46,7 +46,7 @@ func Test_StreamExists(t *testing.T) {
 		{
 			name: "should fail getting JetStream context",
 			createMockNatsClient: func() *natsClient {
-				mockNatsConn := &mocks.NatsConn{}
+				mockNatsConn := &nmctrlmocks.NatsConn{}
 				mockNatsConn.On("JetStream").Return(nil, fakeError)
 				return &natsClient{conn: mockNatsConn}
 			},

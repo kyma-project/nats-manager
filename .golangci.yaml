@@ -193,6 +193,8 @@ linters-settings:
         alias: kutilyaml
       - pkg: github.com/kyma-project/nats-manager/pkg/manager/mocks
         alias: nmmanagermocks
+      - pkg: github.com/kyma-project/nats-manager/internal/controller/nats/mocks
+        alias: nmctrlmocks
 
 
   ireturn:
