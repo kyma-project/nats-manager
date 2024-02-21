@@ -26,7 +26,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	kutilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -141,7 +141,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	}
 
 	// init custom kube client wrapper
-	apiClientSet, err := apiclientset.NewForConfig(mgr.GetConfig())
+	apiClientSet, err := kapiextclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		setupLog.Error(err, "failed to create new k8s clientset")
 		os.Exit(1)

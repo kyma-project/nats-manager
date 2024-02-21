@@ -10,7 +10,7 @@ import (
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
-	k8sclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
@@ -33,11 +33,11 @@ type Client interface {
 
 type KubeClient struct {
 	client       client.Client
-	clientset    k8sclientset.Interface
+	clientset    kapiextclientset.Interface
 	fieldManager string
 }
 
-func NewKubeClient(client client.Client, clientset k8sclientset.Interface, fieldManager string) Client {
+func NewKubeClient(client client.Client, clientset kapiextclientset.Interface, fieldManager string) Client {
 	return &KubeClient{
 		client:       client,
 		clientset:    clientset,

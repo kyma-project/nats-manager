@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
-	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
@@ -131,7 +131,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	recorder := ctrlMgr.GetEventRecorderFor("nats-manager")
 
 	// init custom kube client wrapper
-	apiClientSet, err := apiclientset.NewForConfig(ctrlMgr.GetConfig())
+	apiClientSet, err := kapiextclientset.NewForConfig(ctrlMgr.GetConfig())
 	if err != nil {
 		return nil, err
 	}
