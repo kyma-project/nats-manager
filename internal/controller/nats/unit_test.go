@@ -13,7 +13,7 @@ import (
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmkchartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
-	nmmanagermocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
+	nmmgrmocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -29,7 +29,7 @@ type MockedUnitTestEnvironment struct {
 	Client        client.Client
 	kubeClient    *nmkmocks.Client
 	chartRenderer *nmkchartmocks.Renderer
-	natsManager   *nmmanagermocks.Manager
+	natsManager   *nmmgrmocks.Manager
 	ctrlManager   *nmctrlmocks.Manager
 	Reconciler    *Reconciler
 	controller    *nmctrlmocks.Controller
@@ -58,7 +58,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	// setup custom mocks
 	chartRenderer := new(nmkchartmocks.Renderer)
 	kubeClient := new(nmkmocks.Client)
-	natsManager := new(nmmanagermocks.Manager)
+	natsManager := new(nmmgrmocks.Manager)
 	mockController := new(nmctrlmocks.Controller)
 	mockManager := new(nmctrlmocks.Manager)
 
