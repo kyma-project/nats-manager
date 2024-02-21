@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/require"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -39,7 +39,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		wantNATSStatusState    string
 		wantFinalizerExists    bool
 		wantK8sEvents          []string
-		wantResult             ctrl.Result
+		wantResult             kcontrollerruntime.Result
 	}{
 		{
 			name:                   "should not do anything if finalizer is not set",
@@ -47,7 +47,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			natsCrWithoutFinalizer: true,
 			wantNATSStatusState:    natsv1alpha1.StateReady,
 			wantK8sEvents:          []string{},
-			wantResult:             ctrl.Result{},
+			wantResult:             kcontrollerruntime.Result{},
 		},
 		{
 			name:                 "should delete resources if connection to NATS server is not established",
@@ -60,7 +60,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			},
 			wantNATSStatusState: natsv1alpha1.StateDeleting,
 			wantK8sEvents:       []string{"Normal Deleting Deleting the NATS cluster."},
-			wantResult:          ctrl.Result{},
+			wantResult:          kcontrollerruntime.Result{},
 		},
 		{
 			name:                 "should delete resources if natsClients GetStreams returns unexpected error",
@@ -74,7 +74,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				return natsClient
 			},
 			wantK8sEvents: []string{"Normal Deleting Deleting the NATS cluster."},
-			wantResult:    ctrl.Result{},
+			wantResult:    kcontrollerruntime.Result{},
 		},
 		{
 			name:                 "should delete resources if natsClients ConsumersExist returns unexpected error",
@@ -95,7 +95,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				return natsClient
 			},
 			wantK8sEvents: []string{"Normal Deleting Deleting the NATS cluster."},
-			wantResult:    ctrl.Result{},
+			wantResult:    kcontrollerruntime.Result{},
 		},
 		{
 			name:                 "should block deletion if non 'sap' stream exists",
@@ -126,7 +126,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				"Normal Deleting Deleting the NATS cluster.",
 				"Warning DeletionError " + StreamExistsErrorMsg,
 			},
-			wantResult: ctrl.Result{Requeue: true},
+			wantResult: kcontrollerruntime.Result{Requeue: true},
 		},
 		{
 			name:                 "should block deletion if 'sap' stream consumer exists",
@@ -158,7 +158,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				"Normal Deleting Deleting the NATS cluster.",
 				"Warning DeletionError " + ConsumerExistsErrorMsg,
 			},
-			wantResult: ctrl.Result{Requeue: true},
+			wantResult: kcontrollerruntime.Result{Requeue: true},
 		},
 		{
 			name:                 "should delete resources if neither consumer stream nor 'sap' stream exists",
@@ -181,7 +181,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			wantK8sEvents: []string{
 				"Normal Deleting Deleting the NATS cluster.",
 			},
-			wantResult: ctrl.Result{},
+			wantResult: kcontrollerruntime.Result{},
 		},
 	}
 
@@ -276,7 +276,7 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 		nats           *natsv1alpha1.NATS
 		labelValue     string
 		deleteErr      error
-		expectedResult ctrl.Result
+		expectedResult kcontrollerruntime.Result
 		expectedErr    error
 	}{
 		{
@@ -288,7 +288,7 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 			),
 			labelValue:     "test-nats",
 			deleteErr:      nil,
-			expectedResult: ctrl.Result{},
+			expectedResult: kcontrollerruntime.Result{},
 			expectedErr:    nil,
 		},
 		{
@@ -300,7 +300,7 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 			),
 			labelValue:     "eventing",
 			deleteErr:      nil,
-			expectedResult: ctrl.Result{},
+			expectedResult: kcontrollerruntime.Result{},
 			expectedErr:    nil,
 		},
 		{
@@ -312,7 +312,7 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 			),
 			labelValue:     "test-nats",
 			deleteErr:      errors.New("delete error"),
-			expectedResult: ctrl.Result{},
+			expectedResult: kcontrollerruntime.Result{},
 			expectedErr:    errors.New("delete error"),
 		},
 	}

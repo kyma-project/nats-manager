@@ -31,7 +31,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	kutilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
@@ -50,7 +50,7 @@ const defaultMetricsPort = 9443
 
 func main() { //nolint:funlen // main function needs to initialize many objects
 	scheme := runtime.NewScheme()
-	setupLog := ctrl.Log.WithName("setup")
+	setupLog := kcontrollerruntime.Log.WithName("setup")
 	kutilruntime.Must(kscheme.AddToScheme(scheme))
 	kutilruntime.Must(natsv1alpha1.AddToScheme(scheme))
 
@@ -91,7 +91,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	ctrl.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
+	kcontrollerruntime.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
 
 	// setup logger
 	loggerConfig := zap.NewProductionConfig()
@@ -108,7 +108,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	sugaredLogger := logger.Sugar()
 
 	// setup ctrl manager
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	mgr, err := kcontrollerruntime.NewManager(kcontrollerruntime.GetConfigOrDie(), kcontrollerruntime.Options{
 		Scheme:                 scheme,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
@@ -184,7 +184,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	}
 
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(kcontrollerruntime.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}

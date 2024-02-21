@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -23,11 +23,11 @@ const (
 )
 
 func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.NATS,
-	log *zap.SugaredLogger) (ctrl.Result, error) {
+	log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
 	// skip reconciliation for deletion if the finalizer is not set.
 	if !r.containsFinalizer(nats) {
 		log.Debugf("skipped reconciliation for deletion as finalizer is not set.")
-		return ctrl.Result{}, nil
+		return kcontrollerruntime.Result{}, nil
 	}
 
 	r.logger.Info("Deleting the NATS")
@@ -49,7 +49,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 		nats.Status.UpdateConditionDeletion(kmetav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonDeletionError, StreamExistsErrorMsg)
-		return ctrl.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
+		return kcontrollerruntime.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
 	}
 
 	sapStreamConsumerExists, err := r.sapStreamConsumerExists(nats)
@@ -62,7 +62,7 @@ func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *natsv1alpha1.
 		nats.Status.UpdateConditionDeletion(kmetav1.ConditionFalse,
 			natsv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonDeletionError, ConsumerExistsErrorMsg)
-		return ctrl.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
+		return kcontrollerruntime.Result{Requeue: true}, r.syncNATSStatus(ctx, nats, log)
 	}
 
 	return r.deletePVCsAndRemoveFinalizer(ctx, nats, r.logger)
@@ -116,7 +116,7 @@ func (r *Reconciler) createAndConnectNatsClient(nats *natsv1alpha1.NATS) error {
 }
 
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
-	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
+	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
 	labelValue := nats.Name
 	// TODO: delete the following logic after migrating to modular Kyma
 	if nats.Name == "eventing-nats" {
@@ -125,7 +125,7 @@ func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	// delete PVCs with the label selector.
 	labelSelector := fmt.Sprintf("%s=%s", InstanceLabelKey, labelValue)
 	if err := r.kubeClient.DeletePVCsWithLabel(ctx, labelSelector, nats.Name, nats.Namespace); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+		return kcontrollerruntime.Result{}, client.IgnoreNotFound(err)
 	}
 	// close the nats connection and remove the client instance.
 	r.closeNatsClient(nats)

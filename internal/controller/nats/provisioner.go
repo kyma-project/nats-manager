@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 
 	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	natsurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
@@ -17,7 +17,7 @@ import (
 const RequeueTimeForStatusCheck = 10
 
 func (r *Reconciler) handleNATSReconcile(ctx context.Context,
-	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (ctrl.Result, error) {
+	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
 	log.Info("handling NATS reconciliation...")
 
 	// set status to processing
@@ -35,7 +35,7 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 	if err != nil {
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonProcessingError,
 			"Error while NATS resources were being initialized: %s", err)
-		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
+		return kcontrollerruntime.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
 	log.Info("deploying NATS resources...")
@@ -43,7 +43,7 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 	if err = r.natsManager.DeployInstance(ctx, instance); err != nil {
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonProcessingError,
 			"Error while NATS resources were deployed: %s", err)
-		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
+		return kcontrollerruntime.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
 	// watchers for dynamic resources managed by controller.
@@ -51,7 +51,7 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 		if err = r.watchDestinationRule(log); err != nil {
 			events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonProcessingError,
 				"Error while NATS resources were watched: %s", err)
-			return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
+			return kcontrollerruntime.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 		}
 		// update flag to keep track if watcher is started.
 		r.destinationRuleWatchStarted = true
@@ -66,7 +66,7 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 // handleNATSState checks if NATS resources are ready.
 // It also syncs the NATS CR status.
 func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance,
-	log *zap.SugaredLogger) (ctrl.Result, error) {
+	log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
 	// Clear the url until the StatefulSet is ready.
 	nats.Status.ClearURL()
 
@@ -77,7 +77,7 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NAT
 			natsv1alpha1.ConditionReasonSyncFailError, err.Error())
 		events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonSyncFailError,
 			"Failed to sync the resources. StatefulSet is not ready.")
-		return ctrl.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
+		return kcontrollerruntime.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
 	if isSTSReady {
@@ -89,9 +89,9 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *natsv1alpha1.NAT
 		events.Normal(r.recorder, nats, natsv1alpha1.ConditionReasonDeploying,
 			"NATS is being deployed, waiting for StatefulSet to get ready.")
 		r.logger.Info("Reconciliation successful: waiting for STS to get ready...")
-		return ctrl.Result{RequeueAfter: RequeueTimeForStatusCheck * time.Second}, r.syncNATSStatus(ctx, nats, log)
+		return kcontrollerruntime.Result{RequeueAfter: RequeueTimeForStatusCheck * time.Second}, r.syncNATSStatus(ctx, nats, log)
 	}
 
 	r.logger.Info("Reconciliation successful")
-	return ctrl.Result{}, r.syncNATSStatus(ctx, nats, log)
+	return kcontrollerruntime.Result{}, r.syncNATSStatus(ctx, nats, log)
 }

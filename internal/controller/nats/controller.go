@@ -31,7 +31,7 @@ import (
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
@@ -64,7 +64,7 @@ type Reconciler struct {
 	recorder                    record.EventRecorder
 	logger                      *zap.SugaredLogger
 	natsManager                 manager.Manager
-	ctrlManager                 ctrl.Manager
+	ctrlManager                 kcontrollerruntime.Manager
 	destinationRuleWatchStarted bool
 	allowedNATSCR               *natsv1alpha1.NATS
 }
@@ -119,12 +119,12 @@ func NewReconciler(
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/finalizers,verbs=update
 
-func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req kcontrollerruntime.Request) (kcontrollerruntime.Result, error) {
 	r.logger.Info("Reconciliation triggered")
 	// fetch latest subscription object
 	currentNats := &natsv1alpha1.NATS{}
 	if err := r.Get(ctx, req.NamespacedName, currentNats); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+		return kcontrollerruntime.Result{}, client.IgnoreNotFound(err)
 	}
 
 	// Copy the object, so we don't modify the source object.
@@ -141,7 +141,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	// Check if the NATS CR is allowed to be created.
 	if r.allowedNATSCR != nil {
 		if result, err := r.handleNATSCRAllowedCheck(ctx, nats, log); !result || err != nil {
-			return ctrl.Result{}, err
+			return kcontrollerruntime.Result{}, err
 		}
 	}
 
@@ -226,10 +226,10 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 	r.ctrlManager = mgr
 	var err error
-	r.controller, err = ctrl.NewControllerManagedBy(mgr).
+	r.controller, err = kcontrollerruntime.NewControllerManagedBy(mgr).
 		For(&natsv1alpha1.NATS{}).
 		Owns(&kappsv1.StatefulSet{}).          // watch for StatefulSets.
 		Owns(&kcorev1.Service{}).              // watch for Services.

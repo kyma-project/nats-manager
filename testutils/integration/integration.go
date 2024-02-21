@@ -30,7 +30,7 @@ import (
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
@@ -118,7 +118,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		return nil, err
 	}
 
-	ctrlMgr, err := ctrl.NewManager(envTestKubeCfg, ctrl.Options{
+	ctrlMgr, err := kcontrollerruntime.NewManager(envTestKubeCfg, kcontrollerruntime.Options{
 		Scheme:                 kscheme.Scheme,
 		HealthProbeBindAddress: "0",                              // disable
 		PprofBindAddress:       "0",                              // disable
@@ -165,7 +165,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	var cancelCtx context.CancelFunc
 	go func() {
 		var mgrCtx context.Context
-		mgrCtx, cancelCtx = context.WithCancel(ctrl.SetupSignalHandler())
+		mgrCtx, cancelCtx = context.WithCancel(kcontrollerruntime.SetupSignalHandler())
 		err = ctrlMgr.Start(mgrCtx)
 		if err != nil {
 			log.Fatal(err)
