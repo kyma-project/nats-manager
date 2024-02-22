@@ -12,8 +12,10 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-type Option func(*unstructured.Unstructured) error
-type NATSOption func(*nmapiv1alpha1.NATS) error
+type (
+	Option     func(*unstructured.Unstructured) error
+	NATSOption func(*nmapiv1alpha1.NATS) error
+)
 
 func WithNATSCRDefaults() NATSOption {
 	return func(nats *nmapiv1alpha1.NATS) error {

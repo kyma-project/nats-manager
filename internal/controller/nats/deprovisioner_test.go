@@ -383,7 +383,6 @@ func Test_CreateAndConnectNatsClient(t *testing.T) {
 			r.getNatsClient(tt.nats).(*mocks.Client).On("Init").Return(tt.initErr)
 
 			err := r.createAndConnectNatsClient(tt.nats)
-
 			if err != nil {
 				require.Equal(t, tt.expectedErr.Error(), err.Error())
 			}

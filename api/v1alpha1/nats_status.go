@@ -29,7 +29,8 @@ func (ns *NATSStatus) FindCondition(conditionType ConditionType) *kmetav1.Condit
 }
 
 func (ns *NATSStatus) UpdateConditionStatefulSet(status kmetav1.ConditionStatus, reason ConditionReason,
-	message string) {
+	message string,
+) {
 	condition := kmetav1.Condition{
 		Type:               string(ConditionStatefulSet),
 		Status:             status,
@@ -41,7 +42,8 @@ func (ns *NATSStatus) UpdateConditionStatefulSet(status kmetav1.ConditionStatus,
 }
 
 func (ns *NATSStatus) UpdateConditionAvailable(status kmetav1.ConditionStatus, reason ConditionReason,
-	message string) {
+	message string,
+) {
 	condition := kmetav1.Condition{
 		Type:               string(ConditionAvailable),
 		Status:             status,
@@ -85,7 +87,8 @@ func (ns *NATSStatus) SetStateDeleting() {
 }
 
 func (ns *NATSStatus) UpdateConditionDeletion(status kmetav1.ConditionStatus, reason ConditionReason,
-	message string) {
+	message string,
+) {
 	condition := kmetav1.Condition{
 		Type:               string(ConditionDeleted),
 		Status:             status,
