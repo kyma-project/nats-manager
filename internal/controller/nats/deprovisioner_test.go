@@ -16,7 +16,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
-	natssdk "github.com/nats-io/nats.go"
+	natsgo "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -83,9 +83,9 @@ func Test_handleNATSDeletion(t *testing.T) {
 			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+				natsClient.On("GetStreams").Return([]*natsgo.StreamInfo{
 					{
-						Config: natssdk.StreamConfig{
+						Config: natsgo.StreamConfig{
 							Name: SapStreamName,
 						},
 					},
@@ -111,9 +111,9 @@ func Test_handleNATSDeletion(t *testing.T) {
 			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+				natsClient.On("GetStreams").Return([]*natsgo.StreamInfo{
 					{
-						Config: natssdk.StreamConfig{
+						Config: natsgo.StreamConfig{
 							Name: "non-sap",
 						},
 					},
@@ -142,9 +142,9 @@ func Test_handleNATSDeletion(t *testing.T) {
 			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+				natsClient.On("GetStreams").Return([]*natsgo.StreamInfo{
 					{
-						Config: natssdk.StreamConfig{
+						Config: natsgo.StreamConfig{
 							Name: SapStreamName,
 						},
 					},
@@ -167,9 +167,9 @@ func Test_handleNATSDeletion(t *testing.T) {
 			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
+				natsClient.On("GetStreams").Return([]*natsgo.StreamInfo{
 					{
-						Config: natssdk.StreamConfig{
+						Config: natsgo.StreamConfig{
 							Name: SapStreamName,
 						},
 					},

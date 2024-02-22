@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	nmctrlmocks "github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
-	"github.com/nats-io/nats.go"
+	natsgo "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,7 +15,7 @@ func Test_StreamExists(t *testing.T) {
 	tests := []struct {
 		name                 string
 		createMockNatsClient func() *natsClient
-		streams              []*nats.StreamInfo
+		streams              []*natsgo.StreamInfo
 		expected             bool
 		err                  error
 	}{
@@ -72,18 +72,18 @@ func Test_StreamExists(t *testing.T) {
 	}
 }
 
-func returnStreams() <-chan *nats.StreamInfo {
-	ch := make(chan *nats.StreamInfo)
+func returnStreams() <-chan *natsgo.StreamInfo {
+	ch := make(chan *natsgo.StreamInfo)
 	go func() {
 		defer close(ch)
-		ch <- &nats.StreamInfo{
-			Config: nats.StreamConfig{
+		ch <- &natsgo.StreamInfo{
+			Config: natsgo.StreamConfig{
 				Name:     "test-stream",
 				Subjects: []string{"test-subject"},
 			},
 		}
-		ch <- &nats.StreamInfo{
-			Config: nats.StreamConfig{
+		ch <- &natsgo.StreamInfo{
+			Config: natsgo.StreamConfig{
 				Name:     "test-stream-2",
 				Subjects: []string{"test-subject-2"},
 			},
@@ -92,8 +92,8 @@ func returnStreams() <-chan *nats.StreamInfo {
 	return ch
 }
 
-func returnEmptyStream() <-chan *nats.StreamInfo {
-	ch := make(chan *nats.StreamInfo)
+func returnEmptyStream() <-chan *natsgo.StreamInfo {
+	ch := make(chan *natsgo.StreamInfo)
 	go func() {
 		defer close(ch)
 	}()
