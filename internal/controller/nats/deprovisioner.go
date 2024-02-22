@@ -12,7 +12,7 @@ import (
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmctrlurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
 	"github.com/kyma-project/nats-manager/pkg/events"
-	natspkg "github.com/kyma-project/nats-manager/pkg/nats"
+	natsgo "github.com/kyma-project/nats-manager/pkg/nats"
 )
 
 const (
@@ -108,7 +108,7 @@ func (r *Reconciler) sapStreamConsumerExists(nats *nmapiv1alpha1.NATS) (bool, er
 func (r *Reconciler) createAndConnectNatsClient(nats *nmapiv1alpha1.NATS) error {
 	// create a new instance if it does not exist.
 	if r.getNatsClient(nats) == nil {
-		r.setNatsClient(nats, natspkg.NewNatsClient(&natspkg.Config{
+		r.setNatsClient(nats, natsgo.NewNatsClient(&natsgo.Config{
 			URL: nmctrlurl.Format(nats.Name, nats.Namespace),
 		}))
 	}
@@ -134,12 +134,12 @@ func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	return r.removeFinalizer(ctx, nats)
 }
 
-func (r *Reconciler) getNatsClient(nats *nmapiv1alpha1.NATS) natspkg.Client {
+func (r *Reconciler) getNatsClient(nats *nmapiv1alpha1.NATS) natsgo.Client {
 	crKey := nats.Namespace + "/" + nats.Name
 	return r.natsClients[crKey]
 }
 
-func (r *Reconciler) setNatsClient(nats *nmapiv1alpha1.NATS, newNatsClient natspkg.Client) {
+func (r *Reconciler) setNatsClient(nats *nmapiv1alpha1.NATS, newNatsClient natsgo.Client) {
 	crKey := nats.Namespace + "/" + nats.Name
 	r.natsClients[crKey] = newNatsClient
 }
