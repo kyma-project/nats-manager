@@ -12,7 +12,7 @@ import (
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	kapipolicyv1 "k8s.io/api/policy/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
+	krbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -50,8 +50,8 @@ func Test_applySelectors(t *testing.T) {
 					&kcorev1.Secret{}:                        selector,
 					&kcorev1.Service{}:                       selector,
 					&kcorev1.ConfigMap{}:                     selector,
-					&rbacv1.ClusterRole{}:                    selector,
-					&rbacv1.ClusterRoleBinding{}:             selector,
+					&krbacv1.ClusterRole{}:                   selector,
+					&krbacv1.ClusterRoleBinding{}:            selector,
 					&autoscalingv1.HorizontalPodAutoscaler{}: selector,
 					&kapipolicyv1.PodDisruptionBudget{}:      selector,
 				},
@@ -73,8 +73,8 @@ func Test_applySelectors(t *testing.T) {
 					&kcorev1.Secret{}:                        selector,
 					&kcorev1.Service{}:                       selector,
 					&kcorev1.ConfigMap{}:                     selector,
-					&rbacv1.ClusterRole{}:                    selector,
-					&rbacv1.ClusterRoleBinding{}:             selector,
+					&krbacv1.ClusterRole{}:                   selector,
+					&krbacv1.ClusterRoleBinding{}:            selector,
 					&autoscalingv1.HorizontalPodAutoscaler{}: selector,
 					&kapipolicyv1.PodDisruptionBudget{}:      selector,
 				},
@@ -122,11 +122,11 @@ func computeTypeMap(byObjectMap map[client.Object]cache.ByObject, typeMap map[st
 			key := keyOf(obj)
 			typeMap[key] = v
 		}
-		if obj, ok := k.(*rbacv1.ClusterRole); ok {
+		if obj, ok := k.(*krbacv1.ClusterRole); ok {
 			key := keyOf(obj)
 			typeMap[key] = v
 		}
-		if obj, ok := k.(*rbacv1.ClusterRoleBinding); ok {
+		if obj, ok := k.(*krbacv1.ClusterRoleBinding); ok {
 			key := keyOf(obj)
 			typeMap[key] = v
 		}

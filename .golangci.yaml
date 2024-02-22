@@ -205,6 +205,8 @@ linters-settings:
         alias: keventsv1
       - pkg: github.com/kyma-project/nats-manager/pkg/nats
         alias: nmnats
+      - pkg: k8s.io/api/rbac/v1
+        alias: krbacv1
 
   ireturn:
     allow:
