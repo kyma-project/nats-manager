@@ -211,6 +211,8 @@ linters-settings:
         alias: kautoscalingv1
       - pkg: github.com/kyma-project/nats-manager/internal/controller/cache
         alias: nmctrlcache
+      - pkg: github.com/kyma-project/nats-manager/pkg/labels
+        alias: nmlabels
 
   ireturn:
     allow:

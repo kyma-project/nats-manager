@@ -11,7 +11,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	natslabels "github.com/kyma-project/nats-manager/pkg/labels"
+	nmlabels "github.com/kyma-project/nats-manager/pkg/labels"
 )
 
 // New returns a cache with the cache-options applied, generade form the rest-config.
@@ -21,7 +21,7 @@ func New(config *rest.Config, options cache.Options) (cache.Cache, error) {
 
 func applySelectors(options cache.Options) cache.Options {
 	// The only objects we allow are the ones with the 'managed-by: nats-manager' label applied.
-	managedByNATS := fromLabelSelector(natslabels.SelectorManagedByNATS())
+	managedByNATS := fromLabelSelector(nmlabels.SelectorManagedByNATS())
 
 	// Apply the label selector to all relevant objects.
 	options.ByObject = map[client.Object]cache.ByObject{
