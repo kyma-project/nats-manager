@@ -207,6 +207,8 @@ linters-settings:
         alias: nmnats
       - pkg: k8s.io/api/rbac/v1
         alias: krbacv1
+      - pkg: k8s.io/api/autoscaling/v1
+        alias: kautoscalingv1
 
   ireturn:
     allow:

@@ -9,7 +9,7 @@ import (
 	natslabels "github.com/kyma-project/nats-manager/pkg/labels"
 	"github.com/stretchr/testify/require"
 	kappsv1 "k8s.io/api/apps/v1"
-	autoscalingv1 "k8s.io/api/autoscaling/v1"
+	kautoscalingv1 "k8s.io/api/autoscaling/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	kapipolicyv1 "k8s.io/api/policy/v1"
 	krbacv1 "k8s.io/api/rbac/v1"
@@ -44,16 +44,16 @@ func Test_applySelectors(t *testing.T) {
 			},
 			want: cache.Options{
 				ByObject: map[client.Object]cache.ByObject{
-					&kappsv1.Deployment{}:                    selector,
-					&kappsv1.StatefulSet{}:                   selector,
-					&kcorev1.ServiceAccount{}:                selector,
-					&kcorev1.Secret{}:                        selector,
-					&kcorev1.Service{}:                       selector,
-					&kcorev1.ConfigMap{}:                     selector,
-					&krbacv1.ClusterRole{}:                   selector,
-					&krbacv1.ClusterRoleBinding{}:            selector,
-					&autoscalingv1.HorizontalPodAutoscaler{}: selector,
-					&kapipolicyv1.PodDisruptionBudget{}:      selector,
+					&kappsv1.Deployment{}:                     selector,
+					&kappsv1.StatefulSet{}:                    selector,
+					&kcorev1.ServiceAccount{}:                 selector,
+					&kcorev1.Secret{}:                         selector,
+					&kcorev1.Service{}:                        selector,
+					&kcorev1.ConfigMap{}:                      selector,
+					&krbacv1.ClusterRole{}:                    selector,
+					&krbacv1.ClusterRoleBinding{}:             selector,
+					&kautoscalingv1.HorizontalPodAutoscaler{}: selector,
+					&kapipolicyv1.PodDisruptionBudget{}:       selector,
 				},
 			},
 		},
@@ -67,16 +67,16 @@ func Test_applySelectors(t *testing.T) {
 			want: cache.Options{
 				SyncPeriod: &syncPeriod,
 				ByObject: map[client.Object]cache.ByObject{
-					&kappsv1.Deployment{}:                    selector,
-					&kappsv1.StatefulSet{}:                   selector,
-					&kcorev1.ServiceAccount{}:                selector,
-					&kcorev1.Secret{}:                        selector,
-					&kcorev1.Service{}:                       selector,
-					&kcorev1.ConfigMap{}:                     selector,
-					&krbacv1.ClusterRole{}:                   selector,
-					&krbacv1.ClusterRoleBinding{}:            selector,
-					&autoscalingv1.HorizontalPodAutoscaler{}: selector,
-					&kapipolicyv1.PodDisruptionBudget{}:      selector,
+					&kappsv1.Deployment{}:                     selector,
+					&kappsv1.StatefulSet{}:                    selector,
+					&kcorev1.ServiceAccount{}:                 selector,
+					&kcorev1.Secret{}:                         selector,
+					&kcorev1.Service{}:                        selector,
+					&kcorev1.ConfigMap{}:                      selector,
+					&krbacv1.ClusterRole{}:                    selector,
+					&krbacv1.ClusterRoleBinding{}:             selector,
+					&kautoscalingv1.HorizontalPodAutoscaler{}: selector,
+					&kapipolicyv1.PodDisruptionBudget{}:       selector,
 				},
 			},
 		},
@@ -130,7 +130,7 @@ func computeTypeMap(byObjectMap map[client.Object]cache.ByObject, typeMap map[st
 			key := keyOf(obj)
 			typeMap[key] = v
 		}
-		if obj, ok := k.(*autoscalingv1.HorizontalPodAutoscaler); ok {
+		if obj, ok := k.(*kautoscalingv1.HorizontalPodAutoscaler); ok {
 			key := keyOf(obj)
 			typeMap[key] = v
 		}
