@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	natsgo "github.com/kyma-project/nats-manager/pkg/nats"
+	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
 
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
@@ -34,7 +34,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		name                   string
 		givenWithNATSCreated   bool
 		natsCrWithoutFinalizer bool
-		mockNatsClientFunc     func() natsgo.Client
+		mockNatsClientFunc     func() nmnats.Client
 		wantCondition          *kmetav1.Condition
 		wantNATSStatusState    string
 		wantFinalizerExists    bool
@@ -52,7 +52,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 		{
 			name:                 "should delete resources if connection to NATS server is not established",
 			givenWithNATSCreated: true,
-			mockNatsClientFunc: func() natsgo.Client {
+			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(errors.New("connection cannot be established"))
 				natsClient.On("Close").Return()
@@ -66,7 +66,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			name:                 "should delete resources if natsClients GetStreams returns unexpected error",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  nmapiv1alpha1.StateDeleting,
-			mockNatsClientFunc: func() natsgo.Client {
+			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("GetStreams").Return(nil, errors.New("unexpected error"))
@@ -80,7 +80,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			name:                 "should delete resources if natsClients ConsumersExist returns unexpected error",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  nmapiv1alpha1.StateDeleting,
-			mockNatsClientFunc: func() natsgo.Client {
+			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
@@ -108,7 +108,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				Reason:             string(nmapiv1alpha1.ConditionReasonDeletionError),
 				Message:            StreamExistsErrorMsg,
 			},
-			mockNatsClientFunc: func() natsgo.Client {
+			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
@@ -139,7 +139,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				Reason:             string(nmapiv1alpha1.ConditionReasonDeletionError),
 				Message:            ConsumerExistsErrorMsg,
 			},
-			mockNatsClientFunc: func() natsgo.Client {
+			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
@@ -164,7 +164,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			name:                 "should delete resources if neither consumer stream nor 'sap' stream exists",
 			givenWithNATSCreated: true,
 			wantNATSStatusState:  nmapiv1alpha1.StateDeleting,
-			mockNatsClientFunc: func() natsgo.Client {
+			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
 				natsClient.On("GetStreams").Return([]*natssdk.StreamInfo{
@@ -378,7 +378,7 @@ func Test_CreateAndConnectNatsClient(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Reconciler{}
-			r.natsClients = make(map[string]natsgo.Client)
+			r.natsClients = make(map[string]nmnats.Client)
 			r.setNatsClient(tt.nats, new(mocks.Client))
 			r.getNatsClient(tt.nats).(*mocks.Client).On("Init").Return(tt.initErr)
 
@@ -419,7 +419,7 @@ func Test_CloseNatsClient(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Reconciler{}
-			r.natsClients = make(map[string]natsgo.Client)
+			r.natsClients = make(map[string]nmnats.Client)
 			if tt.existingClient != nil {
 				tt.existingClient.On("Close").Return(nil)
 				r.setNatsClient(tt.nats, tt.existingClient)

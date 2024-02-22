@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/kyma-project/nats-manager/pkg/events"
-	natsgo "github.com/kyma-project/nats-manager/pkg/nats"
+	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
 
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
@@ -58,7 +58,7 @@ type Reconciler struct {
 	client.Client
 	controller                  controller.Controller
 	kubeClient                  k8s.Client
-	natsClients                 map[string]natsgo.Client
+	natsClients                 map[string]nmnats.Client
 	chartRenderer               chart.Renderer
 	scheme                      *runtime.Scheme
 	recorder                    record.EventRecorder
@@ -82,7 +82,7 @@ func NewReconciler(
 	return &Reconciler{
 		Client:                      client,
 		kubeClient:                  kubeClient,
-		natsClients:                 make(map[string]natsgo.Client),
+		natsClients:                 make(map[string]nmnats.Client),
 		chartRenderer:               chartRenderer,
 		scheme:                      scheme,
 		recorder:                    recorder,
