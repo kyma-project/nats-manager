@@ -200,7 +200,7 @@ linters-settings:
       - pkg: github.com/kyma-project/nats-manager/internal/controller/nats/url
         alias: nmctrlurl
       - pkg: github.com/kyma-project/nats-manager/testutils/matchers/nats
-        alias: nmtsmatche   
+        alias: nmtsmatchers   
       - pkg: k8s.io/api/events/v1   
         alias: keventsv1
 
