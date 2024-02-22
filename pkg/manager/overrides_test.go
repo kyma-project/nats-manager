@@ -7,10 +7,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
@@ -20,7 +20,7 @@ func Test_GenerateOverrides(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name                string
-		givenNATS           *v1alpha1.NATS
+		givenNATS           *nmapiv1alpha1.NATS
 		givenIstioEnabled   bool
 		givenRotatePassword bool
 		wantOverrides       map[string]interface{}
@@ -52,20 +52,20 @@ func Test_GenerateOverrides(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSClusterSize(5),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					Size:             resource.MustParse("15Gi"),
 					StorageClassName: "test1",
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("16Gi"),
 				}),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("999m"),
 						"memory": resource.MustParse("999Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("919m"),
 						"memory": resource.MustParse("919Mi"),
 					},

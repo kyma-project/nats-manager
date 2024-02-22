@@ -11,14 +11,14 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kappsv1 "k8s.io/api/apps/v1"
+	kcorev1 "k8s.io/api/core/v1"
+	kapiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 const (
@@ -52,13 +52,13 @@ func GetRandK8sName(length int) string {
 	return fmt.Sprintf("name-%s", GetRandString(length))
 }
 
-func NewNamespace(name string) *apiv1.Namespace {
-	namespace := apiv1.Namespace{
-		TypeMeta: metav1.TypeMeta{
+func NewNamespace(name string) *kcorev1.Namespace {
+	namespace := kcorev1.Namespace{
+		TypeMeta: kmetav1.TypeMeta{
 			Kind:       "Namespace",
 			APIVersion: "v1",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name: name,
 		},
 	}
@@ -122,8 +122,8 @@ func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 	return obj
 }
 
-func NewSecret(opts ...Option) *apiv1.Secret {
-	sampleSecret := apiv1.Secret{}
+func NewSecret(opts ...Option) *kcorev1.Secret {
+	sampleSecret := kcorev1.Secret{}
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(
 		NewSecretUnStruct(opts...).UnstructuredContent(), &sampleSecret)
 	if err != nil {
@@ -132,17 +132,17 @@ func NewSecret(opts ...Option) *apiv1.Secret {
 	return &sampleSecret
 }
 
-func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
+func NewNATSCR(opts ...NATSOption) *nmapiv1alpha1.NATS {
 	name := fmt.Sprintf(NameFormat, GetRandString(randomNameLen))
 	namespace := fmt.Sprintf(NamespaceFormat, GetRandString(randomNameLen))
 
-	nats := &v1alpha1.NATS{
+	nats := &nmapiv1alpha1.NATS{
 		// Name, UUID, Kind, APIVersion
-		TypeMeta: metav1.TypeMeta{
+		TypeMeta: kmetav1.TypeMeta{
 			APIVersion: "v1alpha1",
 			Kind:       "NATS",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			UID:       "1234-5678-1234-5678",
@@ -158,17 +158,17 @@ func NewNATSCR(opts ...NATSOption) *v1alpha1.NATS {
 	return nats
 }
 
-func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
-	result := &apiextensionsv1.CustomResourceDefinition{
-		TypeMeta: metav1.TypeMeta{
+func NewDestinationRuleCRD() *kapiextv1.CustomResourceDefinition {
+	result := &kapiextv1.CustomResourceDefinition{
+		TypeMeta: kmetav1.TypeMeta{
 			APIVersion: "apiextensions.k8s.io/v1",
 			Kind:       "CustomResourceDefinition",
 		},
-		ObjectMeta: metav1.ObjectMeta{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name: "destinationrules.networking.istio.io",
 		},
-		Spec: apiextensionsv1.CustomResourceDefinitionSpec{
-			Names:                 apiextensionsv1.CustomResourceDefinitionNames{},
+		Spec: kapiextv1.CustomResourceDefinitionSpec{
+			Names:                 kapiextv1.CustomResourceDefinitionNames{},
 			Scope:                 "Namespaced",
 			PreserveUnknownFields: false,
 		},
@@ -177,31 +177,31 @@ func NewDestinationRuleCRD() *apiextensionsv1.CustomResourceDefinition {
 	return result
 }
 
-func GetStatefulSetName(nats v1alpha1.NATS) string {
+func GetStatefulSetName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(StatefulSetNameFormat, nats.GetName())
 }
 
-func GetConfigMapName(nats v1alpha1.NATS) string {
+func GetConfigMapName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(ConfigMapNameFormat, nats.Name)
 }
 
-func GetSecretName(nats v1alpha1.NATS) string {
+func GetSecretName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(SecretNameFormat, nats.Name)
 }
 
-func GetServiceName(nats v1alpha1.NATS) string {
+func GetServiceName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(ServiceNameFormat, nats.Name)
 }
 
-func GetPodDisruptionBudgetName(nats v1alpha1.NATS) string {
+func GetPodDisruptionBudgetName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(PodDisruptionBudgetNameFormat, nats.Name)
 }
 
-func GetDestinationRuleName(nats v1alpha1.NATS) string {
+func GetDestinationRuleName(nats nmapiv1alpha1.NATS) string {
 	return fmt.Sprintf(DestinationRuleNameFormat, nats.Name)
 }
 
-func FindContainer(containers []apiv1.Container, name string) *apiv1.Container {
+func FindContainer(containers []kcorev1.Container, name string) *kcorev1.Container {
 	for _, container := range containers {
 		if container.Name == name {
 			return &container
@@ -219,27 +219,27 @@ func GetDestinationRuleGVR() schema.GroupVersionResource {
 }
 
 // NewPVC creates a new PVC object with the given name, namespace, and label.
-func NewPVC(name, namespace string, labels map[string]string) *apiv1.PersistentVolumeClaim {
-	return &apiv1.PersistentVolumeClaim{
-		ObjectMeta: metav1.ObjectMeta{
+func NewPVC(name, namespace string, labels map[string]string) *kcorev1.PersistentVolumeClaim {
+	return &kcorev1.PersistentVolumeClaim{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Labels:    labels,
 		},
-		Spec: apiv1.PersistentVolumeClaimSpec{
-			AccessModes: []apiv1.PersistentVolumeAccessMode{apiv1.ReadWriteOnce},
-			Resources: apiv1.VolumeResourceRequirements{
-				Requests: apiv1.ResourceList{
-					apiv1.ResourceStorage: resource.MustParse("1Gi"),
+		Spec: kcorev1.PersistentVolumeClaimSpec{
+			AccessModes: []kcorev1.PersistentVolumeAccessMode{kcorev1.ReadWriteOnce},
+			Resources: kcorev1.VolumeResourceRequirements{
+				Requests: kcorev1.ResourceList{
+					kcorev1.ResourceStorage: resource.MustParse("1Gi"),
 				},
 			},
 		},
 	}
 }
 
-func NewStatefulSet(name, namespace string, labels map[string]string) *appsv1.StatefulSet {
-	return &appsv1.StatefulSet{
-		ObjectMeta: metav1.ObjectMeta{
+func NewStatefulSet(name, namespace string, labels map[string]string) *kappsv1.StatefulSet {
+	return &kappsv1.StatefulSet{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Labels:    labels,

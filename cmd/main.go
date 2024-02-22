@@ -26,33 +26,33 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kutilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	kscheme "k8s.io/client-go/kubernetes/scheme"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	k8szap "sigs.k8s.io/controller-runtime/pkg/log/zap"
+	klogzap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	controllercache "github.com/kyma-project/nats-manager/internal/controller/cache"
-	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmctrlcache "github.com/kyma-project/nats-manager/internal/controller/cache"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const defaultMetricsPort = 9443
 
 func main() { //nolint:funlen // main function needs to initialize many objects
 	scheme := runtime.NewScheme()
-	setupLog := ctrl.Log.WithName("setup")
-	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(natsv1alpha1.AddToScheme(scheme))
+	setupLog := kcontrollerruntime.Log.WithName("setup")
+	kutilruntime.Must(kscheme.AddToScheme(scheme))
+	kutilruntime.Must(nmapiv1alpha1.AddToScheme(scheme))
 
 	// get configs from ENV
 	envConfigs, err := env.GetConfig()
@@ -84,14 +84,14 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		setupLog.Error(err, "unable to parse log level")
 		os.Exit(1)
 	}
-	opts := k8szap.Options{
+	opts := klogzap.Options{
 		Development: false,
 		Level:       logLevel,
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	ctrl.SetLogger(k8szap.New(k8szap.UseFlagOptions(&opts)))
+	kcontrollerruntime.SetLogger(klogzap.New(klogzap.UseFlagOptions(&opts)))
 
 	// setup logger
 	loggerConfig := zap.NewProductionConfig()
@@ -108,7 +108,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	sugaredLogger := logger.Sugar()
 
 	// setup ctrl manager
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	mgr, err := kcontrollerruntime.NewManager(kcontrollerruntime.GetConfigOrDie(), kcontrollerruntime.Options{
 		Scheme:                 scheme,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
@@ -126,7 +126,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		// LeaderElectionReleaseOnCancel: true,
 		Metrics:       server.Options{BindAddress: metricsAddr},
 		WebhookServer: webhook.NewServer(webhook.Options{Port: metricsPort}),
-		NewCache:      controllercache.New,
+		NewCache:      nmctrlcache.New,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -141,7 +141,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	}
 
 	// init custom kube client wrapper
-	apiClientSet, err := apiclientset.NewForConfig(mgr.GetConfig())
+	apiClientSet, err := kapiextclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		setupLog.Error(err, "failed to create new k8s clientset")
 		os.Exit(1)
@@ -149,10 +149,10 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 
 	kubeClient := k8s.NewKubeClient(mgr.GetClient(), apiClientSet, "nats-manager")
 
-	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
 	// create NATS reconciler instance
-	natsReconciler := natscontroller.NewReconciler(
+	natsReconciler := nmctrl.NewReconciler(
 		mgr.GetClient(),
 		kubeClient,
 		helmRenderer,
@@ -160,8 +160,8 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 		sugaredLogger,
 		mgr.GetEventRecorderFor("nats-manager"),
 		natsManager,
-		&natsv1alpha1.NATS{
-			ObjectMeta: metav1.ObjectMeta{
+		&nmapiv1alpha1.NATS{
+			ObjectMeta: kmetav1.ObjectMeta{
 				Name:      envConfigs.NATSCRName,
 				Namespace: envConfigs.NATSCRNamespace,
 			},
@@ -184,7 +184,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 	}
 
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(kcontrollerruntime.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}

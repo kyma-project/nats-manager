@@ -5,6 +5,9 @@ endif
 # Module Name used for bundling the OCI Image and later on for referencing in the Kyma Modules
 MODULE_NAME ?= nats
 
+# Lint issue category
+CATEGORY = "default"
+
 # Operating system architecture
 OS_ARCH ?= $(shell uname -m)
 
@@ -103,6 +106,36 @@ generate-and-test: vendor manifests generate fmt imports vet lint test;
 .PHONY: test
 test: envtest ## Run only tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out
+
+.PHONY: lint
+lint: ## Check lint issues using `golangci-lint`
+	golangci-lint run --timeout 5m --config=./.golangci.yaml
+
+.PHONY: lint-compact
+lint-compact: ## Check lint issues using `golangci-lint` in compact result format
+	golangci-lint run --timeout 5m --config=./.golangci.yaml --print-issued-lines=false
+
+.PHONY: lint-fix
+lint-fix: ## Check and fix lint issues using `golangci-lint`
+	golangci-lint run --fix --timeout 5m --config=./.golangci.yaml
+
+.PHONY: lint-report
+lint-report: ## Check lint issues using `golangci-lint` then export them to a file, then print the list of linters used
+	golangci-lint run --timeout 5m --config=./.golangci.yaml --issues-exit-code 0 --out-format json > ./lint-report.json
+
+.PHONY: lint-report-issue-category
+lint-report-issue-category: ## Get lint issues categories
+	make lint-report-clean
+	make lint-report
+	cat ./lint-report.json | jq '.Issues[].FromLinter' | jq -s 'map({(.):1})|add|keys_unsorted'
+
+.PHONY: lint-report-get-category
+lint-report-get-category: ## Get lint issues by category
+	cat ./lint-report.json | jq --arg CATEGORY $$CATEGORY '.Issues[] | select(.FromLinter==$$CATEGORY)'
+
+.PHONY: lint-report-clean
+lint-report-clean: ## Clean lint report
+	rm -f ./lint-report.json
 
 ##@ Build
 
@@ -225,9 +258,6 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
-
-lint:
-	golangci-lint run --fix
 
 go-gen:
 	go generate ./...

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	yamlUtil "k8s.io/apimachinery/pkg/util/yaml"
+	kutilyaml "k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/yaml"
 )
 
@@ -19,7 +19,7 @@ func IsStatefulSetObject(u unstructured.Unstructured) bool {
 
 func ParseManifestStringToObjects(manifest string) (*ManifestResources, error) {
 	objects := &ManifestResources{}
-	reader := yamlUtil.NewYAMLReader(bufio.NewReader(strings.NewReader(manifest)))
+	reader := kutilyaml.NewYAMLReader(bufio.NewReader(strings.NewReader(manifest)))
 	for {
 		rawBytes, err := reader.Read()
 		if err != nil {

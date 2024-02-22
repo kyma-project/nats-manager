@@ -10,10 +10,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_syncNATSStatus(t *testing.T) {
@@ -22,8 +22,8 @@ func Test_syncNATSStatus(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name           string
-		givenNATS      *natsv1alpha1.NATS
-		wantNATSStatus natsv1alpha1.NATSStatus
+		givenNATS      *nmapiv1alpha1.NATS
+		wantNATSStatus nmapiv1alpha1.NATSStatus
 		wantResult     bool
 	}{
 		{
@@ -32,21 +32,21 @@ func Test_syncNATSStatus(t *testing.T) {
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateProcessing(),
 			),
-			wantNATSStatus: natsv1alpha1.NATSStatus{
-				State: natsv1alpha1.StateReady,
-				Conditions: []metav1.Condition{
+			wantNATSStatus: nmapiv1alpha1.NATSStatus{
+				State: nmapiv1alpha1.StateReady,
+				Conditions: []kmetav1.Condition{
 					{
-						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
+						Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},
 					{
-						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
+						Type:               string(nmapiv1alpha1.ConditionAvailable),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},
 				},
@@ -86,9 +86,9 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name           string
-		givenNATS      *natsv1alpha1.NATS
+		givenNATS      *nmapiv1alpha1.NATS
 		givenError     error
-		wantNATSStatus natsv1alpha1.NATSStatus
+		wantNATSStatus nmapiv1alpha1.NATSStatus
 		wantResult     bool
 	}{
 		{
@@ -98,21 +98,21 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 				testutils.WithNATSStateProcessing(),
 			),
 			givenError: errors.New("test error"),
-			wantNATSStatus: natsv1alpha1.NATSStatus{
-				State: natsv1alpha1.StateError,
-				Conditions: []metav1.Condition{
+			wantNATSStatus: nmapiv1alpha1.NATSStatus{
+				State: nmapiv1alpha1.StateError,
+				Conditions: []kmetav1.Condition{
 					{
-						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonSyncFailError),
+						Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonSyncFailError),
 						Message:            "",
 					},
 					{
-						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonProcessingError),
+						Type:               string(nmapiv1alpha1.ConditionAvailable),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonProcessingError),
 						Message:            "test error",
 					},
 				},
@@ -141,7 +141,7 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 			// the original error should have being returned.
 			require.Error(t, err)
 			require.Equal(t, tc.givenError.Error(), err.Error())
-			// now check if the error is refelcted in the CR status.
+			// now check if the error is reflected in the CR status.
 			gotNats, err := testEnv.GetNATS(tc.givenNATS.GetName(), tc.givenNATS.GetNamespace())
 			require.NoError(t, err)
 			require.True(t, gotNats.Status.IsEqual(tc.wantNATSStatus))
@@ -155,8 +155,8 @@ func Test_updateStatus(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name           string
-		givenNATS      *natsv1alpha1.NATS
-		wantNATSStatus natsv1alpha1.NATSStatus
+		givenNATS      *nmapiv1alpha1.NATS
+		wantNATSStatus nmapiv1alpha1.NATSStatus
 		wantResult     bool
 	}{
 		{
@@ -165,21 +165,21 @@ func Test_updateStatus(t *testing.T) {
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateProcessing(),
 			),
-			wantNATSStatus: natsv1alpha1.NATSStatus{
-				State: natsv1alpha1.StateReady,
-				Conditions: []metav1.Condition{
+			wantNATSStatus: nmapiv1alpha1.NATSStatus{
+				State: nmapiv1alpha1.StateReady,
+				Conditions: []kmetav1.Condition{
 					{
-						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
+						Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},
 					{
-						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionTrue,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonProcessing),
+						Type:               string(nmapiv1alpha1.ConditionAvailable),
+						Status:             kmetav1.ConditionTrue,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonProcessing),
 						Message:            "",
 					},
 				},

@@ -3,14 +3,14 @@ package manager
 import (
 	"errors"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type Option func(*unstructured.Unstructured) error
 
 // WithOwnerReference sets the OwnerReferences of a k8s Object.
-func WithOwnerReference(nats v1alpha1.NATS) Option {
+func WithOwnerReference(nats nmapiv1alpha1.NATS) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
 			o.Object["metadata"] = make(map[string]interface{})

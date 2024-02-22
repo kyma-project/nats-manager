@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 )
@@ -15,7 +15,7 @@ func Test_containsFinalizer(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name       string
-		givenNats  *natsv1alpha1.NATS
+		givenNats  *nmapiv1alpha1.NATS
 		wantResult bool
 	}{
 		{

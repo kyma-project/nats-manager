@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"go.uber.org/zap"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	k8stype "k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -19,10 +19,10 @@ import (
 // syncNATSStatus syncs NATS status.
 // Returns the relevant error.
 func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
-	nats *natsv1alpha1.NATS, err error, log *zap.SugaredLogger) error {
+	nats *nmapiv1alpha1.NATS, err error, log *zap.SugaredLogger) error {
 	// set error state in status
 	nats.Status.SetStateError()
-	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse, natsv1alpha1.ConditionReasonProcessingError, err.Error())
+	nats.Status.UpdateConditionAvailable(kmetav1.ConditionFalse, nmapiv1alpha1.ConditionReasonProcessingError, err.Error())
 
 	// return the original error so the controller triggers another reconciliation.
 	return errors.Join(err, r.syncNATSStatus(ctx, nats, log))
@@ -30,14 +30,14 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 
 // syncNATSStatus syncs NATS status.
 func (r *Reconciler) syncNATSStatus(ctx context.Context,
-	nats *natsv1alpha1.NATS, log *zap.SugaredLogger) error {
-	namespacedName := &k8stype.NamespacedName{
+	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger) error {
+	namespacedName := &ktypes.NamespacedName{
 		Name:      nats.Name,
 		Namespace: nats.Namespace,
 	}
 
 	// fetch the latest NATS object, to avoid k8s conflict errors.
-	actualNATS := &natsv1alpha1.NATS{}
+	actualNATS := &nmapiv1alpha1.NATS{}
 	if err := r.Client.Get(ctx, *namespacedName, actualNATS); err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (r *Reconciler) syncNATSStatus(ctx context.Context,
 }
 
 // updateStatus updates the status to k8s if modified.
-func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *natsv1alpha1.NATS,
+func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *nmapiv1alpha1.NATS,
 	logger *zap.SugaredLogger) error {
 	// compare the status taking into consideration lastTransitionTime in conditions
 	if oldNATS.Status.IsEqual(newNATS.Status) {
@@ -82,7 +82,7 @@ func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 
 	// define label selector for "managed-by".
 	labelSelectorPredicate, err := predicate.LabelSelectorPredicate(
-		metav1.LabelSelector{
+		kmetav1.LabelSelector{
 			MatchLabels: map[string]string{
 				ManagedByLabelKey: ManagedByLabelValue,
 			},
@@ -104,7 +104,7 @@ func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 	return r.controller.Watch(
 		source.Kind(r.ctrlManager.GetCache(), destinationRuleType),
 		handler.EnqueueRequestForOwner(r.scheme, r.ctrlManager.GetRESTMapper(),
-			&natsv1alpha1.NATS{}, handler.OnlyControllerOwner()),
+			&nmapiv1alpha1.NATS{}, handler.OnlyControllerOwner()),
 		labelSelectorPredicate,
 		predicate.ResourceVersionChangedPredicate{},
 		ignoreCreationPredicate,

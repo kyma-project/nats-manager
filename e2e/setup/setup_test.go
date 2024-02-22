@@ -18,15 +18,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	appsv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/core/v1"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	kappsv1 "k8s.io/api/apps/v1"
+	kcorev1 "k8s.io/api/core/v1"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	. "github.com/kyma-project/nats-manager/e2e/common"
 	. "github.com/kyma-project/nats-manager/e2e/common/fixtures"
 )
@@ -86,7 +86,7 @@ func TestMain(m *testing.M) {
 	// Create the NATS CR used for testing.
 	err = Retry(attempts, interval, func() error {
 		errNATS := k8sClient.Create(ctx, NATSCR())
-		if k8serrors.IsAlreadyExists(errNATS) {
+		if kapierrors.IsAlreadyExists(errNATS) {
 			logger.Warn(
 				"error while creating NATS CR, resource already exist; test will continue with existing NATS CR",
 			)
@@ -117,7 +117,7 @@ func Test_CR(t *testing.T) {
 
 	ctx := context.TODO()
 	// Get the NATS CR from the cluster.
-	actual, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+	actual, err := RetryGet(attempts, interval, func() (*nmapiv1alpha1.NATS, error) {
 		return getNATSCR(ctx, want.Name, want.Namespace)
 	})
 	require.NoError(t, err)
@@ -134,7 +134,7 @@ func Test_PriorityClass(t *testing.T) {
 	ctx := context.TODO()
 
 	err := Retry(attempts, interval, func() error {
-		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, kmetav1.GetOptions{})
 		if stsErr != nil {
 			return stsErr
 		}
@@ -149,7 +149,7 @@ func Test_PriorityClass(t *testing.T) {
 			return fmt.Errorf("PriorityClassName was expected to be %s but was %s", PriorityClassName, pcName)
 		}
 
-		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, metav1.GetOptions{})
+		_, pcErr := clientSet.SchedulingV1().PriorityClasses().Get(ctx, pcName, kmetav1.GetOptions{})
 		return pcErr
 	})
 
@@ -161,7 +161,7 @@ func Test_ConfigMap(t *testing.T) {
 	ctx := context.TODO()
 
 	err := Retry(attempts, interval, func() error {
-		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, metav1.GetOptions{})
+		cm, cmErr := clientSet.CoreV1().ConfigMaps(NamespaceName).Get(ctx, CMName, kmetav1.GetOptions{})
 		if cmErr != nil {
 			return cmErr
 		}
@@ -183,7 +183,7 @@ func Test_ConfigMap(t *testing.T) {
 		// To check the correct key in configMap,
 		// fetch the NATS statefulSet and get the NATS server version.
 		// And then based on the version, check the expected key.
-		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, metav1.GetOptions{})
+		sts, stsErr := clientSet.AppsV1().StatefulSets(NamespaceName).Get(ctx, STSName, kmetav1.GetOptions{})
 		if stsErr != nil {
 			return stsErr
 		}
@@ -283,14 +283,14 @@ func Test_PodsReady(t *testing.T) {
 
 	ctx := context.TODO()
 	// RetryGet the NATS CR. It will tell us how many Pods we should expect.
-	natsCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+	natsCR, err := RetryGet(attempts, interval, func() (*nmapiv1alpha1.NATS, error) {
 		return getNATSCR(ctx, CRName, NamespaceName)
 	})
 	require.NoError(t, err)
 
 	// RetryGet the NATS Pods and test them.
 	err = Retry(attempts, interval, func() error {
-		var pods *v1.PodList
+		var pods *kcorev1.PodList
 		// RetryGet the NATS Pods via labels.
 		pods, err = clientSet.CoreV1().Pods(NamespaceName).List(ctx, PodListOpts())
 		if err != nil {
@@ -337,11 +337,11 @@ func Test_PVCs(t *testing.T) {
 
 	// Get the PersistentVolumeClaims --PVCs-- and test them.
 	ctx := context.TODO()
-	var pvcs *v1.PersistentVolumeClaimList
+	var pvcs *kcorev1.PersistentVolumeClaimList
 	err := Retry(attempts, interval, func() error {
 		// RetryGet PVCs via a label.
 		var err error
-		pvcs, err = RetryGet(attempts, interval, func() (*v1.PersistentVolumeClaimList, error) {
+		pvcs, err = RetryGet(attempts, interval, func() (*kcorev1.PersistentVolumeClaimList, error) {
 			return clientSet.CoreV1().PersistentVolumeClaims(NamespaceName).List(ctx, PVCListOpts())
 		})
 		if err != nil {
@@ -362,7 +362,7 @@ func Test_PVCs(t *testing.T) {
 
 	// Compare the PVC's sizes with the definition in the CRD.
 	for _, pvc := range pvcs.Items {
-		size := pvc.Spec.Resources.Requests[v1.ResourceStorage]
+		size := pvc.Spec.Resources.Requests[kcorev1.ResourceStorage]
 		require.True(t, size.Equal(NATSCR().Spec.FileStorage.Size))
 	}
 }
@@ -372,7 +372,7 @@ func Test_Secret(t *testing.T) {
 	t.Parallel()
 	ctx := context.TODO()
 	err := Retry(attempts, interval, func() error {
-		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, metav1.GetOptions{})
+		_, secErr := clientSet.CoreV1().Secrets(NamespaceName).Get(ctx, SecretName, kmetav1.GetOptions{})
 		if secErr != nil {
 			return secErr
 		}
@@ -381,17 +381,17 @@ func Test_Secret(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func getNATSCR(ctx context.Context, name, namespace string) (*natsv1alpha1.NATS, error) {
-	var natsCR natsv1alpha1.NATS
-	err := k8sClient.Get(ctx, k8stypes.NamespacedName{
+func getNATSCR(ctx context.Context, name, namespace string) (*nmapiv1alpha1.NATS, error) {
+	var natsCR nmapiv1alpha1.NATS
+	err := k8sClient.Get(ctx, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}, &natsCR)
 	return &natsCR, err
 }
 
-func getDeployment(ctx context.Context, name, namespace string) (*appsv1.Deployment, error) {
-	return clientSet.AppsV1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
+func getDeployment(ctx context.Context, name, namespace string) (*kappsv1.Deployment, error) {
+	return clientSet.AppsV1().Deployments(namespace).Get(ctx, name, kmetav1.GetOptions{})
 }
 
 func cmToMap(cm string) map[string]string {
@@ -434,14 +434,14 @@ func waitForNATSCRReady() error {
 
 		ctx := context.TODO()
 		// Get the NATS CR from the cluster.
-		gotNATSCR, err := RetryGet(attempts, interval, func() (*natsv1alpha1.NATS, error) {
+		gotNATSCR, err := RetryGet(attempts, interval, func() (*nmapiv1alpha1.NATS, error) {
 			return getNATSCR(ctx, want.Name, want.Namespace)
 		})
 		if err != nil {
 			return err
 		}
 
-		if gotNATSCR.Status.State != natsv1alpha1.StateReady {
+		if gotNATSCR.Status.State != nmapiv1alpha1.StateReady {
 			err := fmt.Errorf("waiting for NATS CR to get ready state")
 			logger.Debug(err.Error())
 			return err
@@ -461,7 +461,7 @@ func waitForNATSManagerDeploymentReady(image string) error {
 		logger.Debug(fmt.Sprintf("waiting for nats-manager deployment to get ready with image: %s", image))
 		ctx := context.TODO()
 		// Get the NATS-manager deployment from the cluster.
-		gotDeployment, err := RetryGet(attempts, interval, func() (*appsv1.Deployment, error) {
+		gotDeployment, err := RetryGet(attempts, interval, func() (*kappsv1.Deployment, error) {
 			return getDeployment(ctx, ManagerDeploymentName, NamespaceName)
 		})
 		if err != nil {

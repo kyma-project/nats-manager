@@ -6,12 +6,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
-	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
+	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 	"github.com/onsi/gomega"
-	gomegatypes "github.com/onsi/gomega/types"
+	onsigomegatypes "github.com/onsi/gomega/types"
 )
 
 const projectRootDir = "../../../../../"
@@ -59,8 +59,8 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		givenNATS   *v1alpha1.NATS
-		wantMatches gomegatypes.GomegaMatcher
+		givenNATS   *nmapiv1alpha1.NATS
+		wantMatches onsigomegatypes.GomegaMatcher
 	}{
 		{
 			name: "should allow NATS CR if name and namespace is correct",
@@ -70,9 +70,9 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 				testutils.WithNATSCRNamespace(givenAllowedNATS.Namespace),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusProcessing(),
-				natsmatchers.HavePendingConditionStatefulSet(),
-				natsmatchers.HaveDeployingConditionAvailable(),
+				nmtsmatchers.HaveStatusProcessing(),
+				nmtsmatchers.HavePendingConditionStatefulSet(),
+				nmtsmatchers.HaveDeployingConditionAvailable(),
 			),
 		},
 		{
@@ -83,9 +83,9 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 				testutils.WithNATSCRNamespace("kyma-system"),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusError(),
-				natsmatchers.HaveForbiddenConditionStatefulSet(),
-				natsmatchers.HaveForbiddenConditionAvailableWithMsg(errMsg),
+				nmtsmatchers.HaveStatusError(),
+				nmtsmatchers.HaveForbiddenConditionStatefulSet(),
+				nmtsmatchers.HaveForbiddenConditionAvailableWithMsg(errMsg),
 			),
 		},
 		{
@@ -96,9 +96,9 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 				testutils.WithNATSCRNamespace("not-allowed-namespace"),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusError(),
-				natsmatchers.HaveForbiddenConditionStatefulSet(),
-				natsmatchers.HaveForbiddenConditionAvailableWithMsg(errMsg),
+				nmtsmatchers.HaveStatusError(),
+				nmtsmatchers.HaveForbiddenConditionStatefulSet(),
+				nmtsmatchers.HaveForbiddenConditionAvailableWithMsg(errMsg),
 			),
 		},
 		{
@@ -109,9 +109,9 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 				testutils.WithNATSCRNamespace("not-allowed-namespace"),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusError(),
-				natsmatchers.HaveForbiddenConditionStatefulSet(),
-				natsmatchers.HaveForbiddenConditionAvailableWithMsg(errMsg),
+				nmtsmatchers.HaveStatusError(),
+				nmtsmatchers.HaveForbiddenConditionStatefulSet(),
+				nmtsmatchers.HaveForbiddenConditionAvailableWithMsg(errMsg),
 			),
 		},
 	}

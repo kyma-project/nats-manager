@@ -42,3 +42,8 @@ nats-manager.yaml
 module-config.yaml
 
 .env.dev
+
+
+.golangci.yaml
+.golangci.yaml_old
+lint-report.json

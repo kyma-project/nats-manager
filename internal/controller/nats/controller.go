@@ -21,24 +21,24 @@ import (
 	"fmt"
 
 	"github.com/kyma-project/nats-manager/pkg/events"
-	"github.com/kyma-project/nats-manager/pkg/nats"
+	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
 
 	"go.uber.org/zap"
-	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
-	policyv1 "k8s.io/api/policy/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kappsv1 "k8s.io/api/apps/v1"
+	kcorev1 "k8s.io/api/core/v1"
+	kapipolicyv1 "k8s.io/api/policy/v1"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const (
@@ -58,15 +58,15 @@ type Reconciler struct {
 	client.Client
 	controller                  controller.Controller
 	kubeClient                  k8s.Client
-	natsClients                 map[string]nats.Client
+	natsClients                 map[string]nmnats.Client
 	chartRenderer               chart.Renderer
 	scheme                      *runtime.Scheme
 	recorder                    record.EventRecorder
 	logger                      *zap.SugaredLogger
-	natsManager                 manager.Manager
-	ctrlManager                 ctrl.Manager
+	natsManager                 nmmgr.Manager
+	ctrlManager                 kcontrollerruntime.Manager
 	destinationRuleWatchStarted bool
-	allowedNATSCR               *natsv1alpha1.NATS
+	allowedNATSCR               *nmapiv1alpha1.NATS
 }
 
 func NewReconciler(
@@ -76,13 +76,13 @@ func NewReconciler(
 	scheme *runtime.Scheme,
 	logger *zap.SugaredLogger,
 	recorder record.EventRecorder,
-	natsManager manager.Manager,
-	allowedNATSCR *natsv1alpha1.NATS,
+	natsManager nmmgr.Manager,
+	allowedNATSCR *nmapiv1alpha1.NATS,
 ) *Reconciler {
 	return &Reconciler{
 		Client:                      client,
 		kubeClient:                  kubeClient,
-		natsClients:                 make(map[string]nats.Client),
+		natsClients:                 make(map[string]nmnats.Client),
 		chartRenderer:               chartRenderer,
 		scheme:                      scheme,
 		recorder:                    recorder,
@@ -119,12 +119,12 @@ func NewReconciler(
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=operator.kyma-project.io,resources=nats/finalizers,verbs=update
 
-func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req kcontrollerruntime.Request) (kcontrollerruntime.Result, error) {
 	r.logger.Info("Reconciliation triggered")
 	// fetch latest subscription object
-	currentNats := &natsv1alpha1.NATS{}
+	currentNats := &nmapiv1alpha1.NATS{}
 	if err := r.Get(ctx, req.NamespacedName, currentNats); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
+		return kcontrollerruntime.Result{}, client.IgnoreNotFound(err)
 	}
 
 	// Copy the object, so we don't modify the source object.
@@ -141,7 +141,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	// Check if the NATS CR is allowed to be created.
 	if r.allowedNATSCR != nil {
 		if result, err := r.handleNATSCRAllowedCheck(ctx, nats, log); !result || err != nil {
-			return ctrl.Result{}, err
+			return kcontrollerruntime.Result{}, err
 		}
 	}
 
@@ -151,7 +151,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 // handleNATSCRAllowedCheck checks if NATS CR is allowed to be created or not.
 // returns true if the NATS CR is allowed.
-func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1alpha1.NATS,
+func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *nmapiv1alpha1.NATS,
 	log *zap.SugaredLogger,
 ) (bool, error) {
 	// If the name and namespace matches with allowed NATS CR then allow the CR to be reconciled.
@@ -162,24 +162,24 @@ func (r *Reconciler) handleNATSCRAllowedCheck(ctx context.Context, nats *natsv1a
 	// Set error state in status.
 	nats.Status.SetStateError()
 	// Update conditions in status.
-	nats.Status.UpdateConditionStatefulSet(metav1.ConditionFalse,
-		natsv1alpha1.ConditionReasonForbidden, "")
+	nats.Status.UpdateConditionStatefulSet(kmetav1.ConditionFalse,
+		nmapiv1alpha1.ConditionReasonForbidden, "")
 	errorMessage := fmt.Sprintf(CreationNotAllowedMsg, r.allowedNATSCR.Name, r.allowedNATSCR.Namespace)
-	nats.Status.UpdateConditionAvailable(metav1.ConditionFalse,
-		natsv1alpha1.ConditionReasonForbidden, errorMessage)
-	events.Warn(r.recorder, nats, natsv1alpha1.ConditionReasonForbidden, errorMessage)
+	nats.Status.UpdateConditionAvailable(kmetav1.ConditionFalse,
+		nmapiv1alpha1.ConditionReasonForbidden, errorMessage)
+	events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonForbidden, errorMessage)
 
 	return false, r.syncNATSStatus(ctx, nats, log)
 }
 
 // generateNatsResources renders the NATS chart with provided overrides.
 // It puts results into ReleaseInstance.
-func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *chart.ReleaseInstance) error {
+func (r *Reconciler) generateNatsResources(nats *nmapiv1alpha1.NATS, instance *chart.ReleaseInstance) error {
 	// Generate Nats resources from chart.
 	natsResources, err := r.natsManager.GenerateNATSResources(
 		instance,
-		manager.WithOwnerReference(*nats), // add owner references to all resources
-		manager.WithLabel(ManagedByLabelKey, ManagedByLabelValue),
+		nmmgr.WithOwnerReference(*nats), // add owner references to all resources
+		nmmgr.WithLabel(ManagedByLabelKey, ManagedByLabelValue),
 	)
 	if err != nil {
 		return err
@@ -191,7 +191,7 @@ func (r *Reconciler) generateNatsResources(nats *natsv1alpha1.NATS, instance *ch
 }
 
 // initNATSInstance initializes a new NATS release instance based on NATS CR.
-func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NATS,
+func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.NATS,
 	log *zap.SugaredLogger,
 ) (*chart.ReleaseInstance, error) {
 	// Check if istio is enabled in cluster.
@@ -204,7 +204,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 	// Check if NATS account secret exists.
 	accountSecretName := fmt.Sprintf("%s-secret", nats.Name)
 	accountSecret, err := r.kubeClient.GetSecret(ctx, accountSecretName, nats.Namespace)
-	if err != nil && !errors.IsNotFound(err) {
+	if err != nil && !kapierrors.IsNotFound(err) {
 		log.Errorf("Failed to fetch secret: %s", accountSecretName)
 		log.Error(err)
 		return nil, err
@@ -226,23 +226,23 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *natsv1alpha1.NA
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 	r.ctrlManager = mgr
 	var err error
-	r.controller, err = ctrl.NewControllerManagedBy(mgr).
-		For(&natsv1alpha1.NATS{}).
-		Owns(&appsv1.StatefulSet{}).           // watch for StatefulSets.
-		Owns(&apiv1.Service{}).                // watch for Services.
-		Owns(&apiv1.ConfigMap{}).              // watch for ConfigMaps.
-		Owns(&apiv1.Secret{}).                 // watch for Secrets.
-		Owns(&policyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
+	r.controller, err = kcontrollerruntime.NewControllerManagedBy(mgr).
+		For(&nmapiv1alpha1.NATS{}).
+		Owns(&kappsv1.StatefulSet{}).              // watch for StatefulSets.
+		Owns(&kcorev1.Service{}).                  // watch for Services.
+		Owns(&kcorev1.ConfigMap{}).                // watch for ConfigMaps.
+		Owns(&kcorev1.Secret{}).                   // watch for Secrets.
+		Owns(&kapipolicyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
 		Build(r)
 
 	return err
 }
 
 // loggerWithNATS returns a logger with the given NATS CR details.
-func (r *Reconciler) loggerWithNATS(nats *natsv1alpha1.NATS) *zap.SugaredLogger {
+func (r *Reconciler) loggerWithNATS(nats *nmapiv1alpha1.NATS) *zap.SugaredLogger {
 	return r.logger.With(
 		"kind", nats.GetObjectKind().GroupVersionKind().Kind,
 		"resourceVersion", nats.GetResourceVersion(),

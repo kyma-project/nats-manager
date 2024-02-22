@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -54,7 +54,7 @@ func Test_initNATSInstance(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name               string
-		givenNATS          *natsv1alpha1.NATS
+		givenNATS          *nmapiv1alpha1.NATS
 		wantIstioEnabled   bool
 		wantRotatePassword bool
 	}{
@@ -107,8 +107,8 @@ func Test_initNATSInstance(t *testing.T) {
 			testEnv.natsManager.On("GenerateOverrides",
 				mock.Anything, mock.Anything, mock.Anything).Return(
 				map[string]interface{}{
-					natsmanager.IstioEnabledKey:   tc.wantIstioEnabled,
-					natsmanager.RotatePasswordKey: tc.wantRotatePassword, // do not recreate secret if it exists
+					nmmgr.IstioEnabledKey:   tc.wantIstioEnabled,
+					nmmgr.RotatePasswordKey: tc.wantRotatePassword, // do not recreate secret if it exists
 				},
 			)
 
@@ -136,7 +136,7 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name            string
-		givenNATS       *natsv1alpha1.NATS
+		givenNATS       *nmapiv1alpha1.NATS
 		wantCheckResult bool
 	}{
 		{
@@ -195,26 +195,26 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 			require.NoError(t, err)
 			if !tc.wantCheckResult {
 				// check nats.status.state
-				require.Equal(t, natsv1alpha1.StateError, gotNATS.Status.State)
+				require.Equal(t, nmapiv1alpha1.StateError, gotNATS.Status.State)
 
 				// check nats.status.conditions
-				wantConditions := []metav1.Condition{
+				wantConditions := []kmetav1.Condition{
 					{
-						Type:               string(natsv1alpha1.ConditionStatefulSet),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonForbidden),
+						Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonForbidden),
 						Message:            "",
 					},
 					{
-						Type:               string(natsv1alpha1.ConditionAvailable),
-						Status:             metav1.ConditionFalse,
-						LastTransitionTime: metav1.Now(),
-						Reason:             string(natsv1alpha1.ConditionReasonForbidden),
+						Type:               string(nmapiv1alpha1.ConditionAvailable),
+						Status:             kmetav1.ConditionFalse,
+						LastTransitionTime: kmetav1.Now(),
+						Reason:             string(nmapiv1alpha1.ConditionReasonForbidden),
 						Message:            fmt.Sprintf(CreationNotAllowedMsg, givenAllowedNATS.Name, givenAllowedNATS.Namespace),
 					},
 				}
-				require.True(t, natsv1alpha1.ConditionsEquals(wantConditions, gotNATS.Status.Conditions))
+				require.True(t, nmapiv1alpha1.ConditionsEquals(wantConditions, gotNATS.Status.Conditions))
 
 				wantK8sEventMsg := fmt.Sprintf("Warning Forbidden %s", CreationNotAllowedMsg)
 				wantK8sEvent := []string{

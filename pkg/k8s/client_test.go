@@ -6,12 +6,12 @@ import (
 
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
-	apiv1 "k8s.io/api/core/v1"
-	apiclientsetfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	kcorev1 "k8s.io/api/core/v1"
+	kapiextclientsetfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
+	ktypes "k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -63,7 +63,7 @@ func Test_GetStatefulSet(t *testing.T) {
 			// then
 			if tc.wantNotFoundError {
 				require.Error(t, err)
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.givenStatefulSet.GetName(), gotSTS.Name)
@@ -116,7 +116,7 @@ func Test_GetSecret(t *testing.T) {
 			// then
 			if tc.wantNotFoundError {
 				require.Error(t, err)
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.givenSecret.GetName(), gotSecret.Name)
@@ -171,7 +171,7 @@ func Test_Delete(t *testing.T) {
 			gotSTS, err := kubeClient.GetStatefulSet(context.Background(),
 				tc.givenStatefulSet.GetName(), tc.givenStatefulSet.GetNamespace())
 			require.Error(t, err)
-			require.True(t, k8serrors.IsNotFound(err))
+			require.True(t, kapierrors.IsNotFound(err))
 			require.Nil(t, gotSTS)
 		})
 	}
@@ -272,7 +272,7 @@ func Test_GetCRD(t *testing.T) {
 				objs = append(objs, sampleCRD)
 			}
 
-			fakeClientSet := apiclientsetfake.NewSimpleClientset(objs...)
+			fakeClientSet := kapiextclientsetfake.NewSimpleClientset(objs...)
 			kubeClient := NewKubeClient(nil, fakeClientSet, testFieldManager)
 
 			// when
@@ -281,7 +281,7 @@ func Test_GetCRD(t *testing.T) {
 			// then
 			if tc.wantNotFoundError {
 				require.Error(t, err)
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, sampleCRD.GetName(), gotCRD.Name)
@@ -321,7 +321,7 @@ func Test_DestinationRuleCRDExists(t *testing.T) {
 				objs = append(objs, sampleCRD)
 			}
 
-			fakeClientSet := apiclientsetfake.NewSimpleClientset(objs...)
+			fakeClientSet := kapiextclientsetfake.NewSimpleClientset(objs...)
 			kubeClient := NewKubeClient(nil, fakeClientSet, testFieldManager)
 
 			// when
@@ -342,7 +342,7 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 		mustHaveNamePrefix string
 		labelSelector      string
 		namespace          string
-		givenPVC           *apiv1.PersistentVolumeClaim
+		givenPVC           *kcorev1.PersistentVolumeClaim
 		wantNotFoundErr    bool
 	}{
 		{
@@ -409,9 +409,9 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 			}
 			// check that the PVCs were deleted
 			err = fakeClient.Get(context.Background(),
-				types.NamespacedName{Name: tc.givenPVC.Name, Namespace: tc.givenPVC.Namespace}, tc.givenPVC)
+				ktypes.NamespacedName{Name: tc.givenPVC.Name, Namespace: tc.givenPVC.Namespace}, tc.givenPVC)
 			if tc.wantNotFoundErr {
-				require.True(t, k8serrors.IsNotFound(err))
+				require.True(t, kapierrors.IsNotFound(err))
 			} else {
 				require.NoError(t, err)
 			}

@@ -6,16 +6,16 @@ import (
 	"testing"
 
 	"github.com/onsi/gomega"
-	gomegatypes "github.com/onsi/gomega/types"
+	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
-	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
+	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 
 	"github.com/kyma-project/nats-manager/testutils/integration"
 )
@@ -228,8 +228,8 @@ func Test_Validate_CreateNATS(t *testing.T) {
 func Test_Validate_UpdateNATS(t *testing.T) {
 	testCases := []struct {
 		name         string
-		givenNATS    *v1alpha1.NATS
-		wantMatches  gomegatypes.GomegaMatcher
+		givenNATS    *nmapiv1alpha1.NATS
+		wantMatches  onsigomegatypes.GomegaMatcher
 		givenUpdates []testutils.NATSOption
 		wantErrMsg   string
 	}{
@@ -239,10 +239,10 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSFileStorage(defaultFileStorage()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: defaultFileStorage().StorageClassName,
 					Size:             resource.MustParse("2Gi"),
 				}),
@@ -255,10 +255,10 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSFileStorage(defaultFileStorage()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "not-standard",
 					Size:             defaultFileStorage().Size,
 				}),
@@ -271,10 +271,10 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSCluster(defaultCluster()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSCluster(v1alpha1.Cluster{
+				testutils.WithNATSCluster(nmapiv1alpha1.Cluster{
 					Size: 1,
 				}),
 			},
@@ -287,10 +287,10 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 				testutils.WithNATSCluster(defaultCluster()),
 			),
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 			givenUpdates: []testutils.NATSOption{
-				testutils.WithNATSCluster(v1alpha1.Cluster{
+				testutils.WithNATSCluster(nmapiv1alpha1.Cluster{
 					Size: 5,
 				}),
 			},
@@ -332,7 +332,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 		name string
 		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
 		givenUnstructuredNATS unstructured.Unstructured
-		wantMatches           gomegatypes.GomegaMatcher
+		wantMatches           onsigomegatypes.GomegaMatcher
 	}{
 		{
 			name: "defaulting with bare minimum NATS",
@@ -347,11 +347,11 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
-				natsmatchers.HaveSpecResources(defaultResources()),
-				natsmatchers.HaveSpecLogging(defaultLogging()),
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecResources(defaultResources()),
+				nmtsmatchers.HaveSpecLogging(defaultLogging()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -368,11 +368,11 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
-				natsmatchers.HaveSpecResources(defaultResources()),
-				natsmatchers.HaveSpecLogging(defaultLogging()),
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecResources(defaultResources()),
+				nmtsmatchers.HaveSpecLogging(defaultLogging()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -391,7 +391,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecCluster(defaultCluster()),
+				nmtsmatchers.HaveSpecCluster(defaultCluster()),
 			),
 		},
 		{
@@ -410,8 +410,8 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -433,8 +433,8 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
-				natsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
+				nmtsmatchers.HaveSpecJetsStreamMemStorage(defaultMemStorage()),
+				nmtsmatchers.HaveSpecJetStreamFileStorage(defaultFileStorage()),
 			),
 		},
 		{
@@ -453,7 +453,7 @@ func Test_NATS_Defaulting(t *testing.T) {
 				},
 			},
 			wantMatches: gomega.And(
-				natsmatchers.HaveSpecLogging(defaultLogging()),
+				nmtsmatchers.HaveSpecLogging(defaultLogging()),
 			),
 		},
 	}
@@ -471,8 +471,8 @@ func Test_NATS_Defaulting(t *testing.T) {
 			testEnvironment.EnsureK8sUnStructResourceCreated(t, &tc.givenUnstructuredNATS)
 
 			// then
-			testEnvironment.GetNATSAssert(g, &v1alpha1.NATS{
-				ObjectMeta: metav1.ObjectMeta{
+			testEnvironment.GetNATSAssert(g, &nmapiv1alpha1.NATS{
+				ObjectMeta: kmetav1.ObjectMeta{
 					Name:      tc.givenUnstructuredNATS.GetName(),
 					Namespace: tc.givenUnstructuredNATS.GetNamespace(),
 				},
@@ -481,40 +481,40 @@ func Test_NATS_Defaulting(t *testing.T) {
 	}
 }
 
-func defaultResources() corev1.ResourceRequirements {
-	return corev1.ResourceRequirements{
-		Limits: corev1.ResourceList{
+func defaultResources() kcorev1.ResourceRequirements {
+	return kcorev1.ResourceRequirements{
+		Limits: kcorev1.ResourceList{
 			"cpu":    resource.MustParse("500m"),
 			"memory": resource.MustParse("1Gi"),
 		},
-		Requests: corev1.ResourceList{
+		Requests: kcorev1.ResourceList{
 			"cpu":    resource.MustParse("40m"),
 			"memory": resource.MustParse("64Mi"),
 		},
 	}
 }
 
-func defaultMemStorage() v1alpha1.MemStorage {
-	return v1alpha1.MemStorage{
+func defaultMemStorage() nmapiv1alpha1.MemStorage {
+	return nmapiv1alpha1.MemStorage{
 		Enabled: true,
 		Size:    resource.MustParse("1Gi"),
 	}
 }
 
-func defaultFileStorage() v1alpha1.FileStorage {
-	return v1alpha1.FileStorage{
+func defaultFileStorage() nmapiv1alpha1.FileStorage {
+	return nmapiv1alpha1.FileStorage{
 		StorageClassName: "default",
 		Size:             resource.MustParse("1Gi"),
 	}
 }
 
-func defaultLogging() v1alpha1.Logging {
-	return v1alpha1.Logging{
+func defaultLogging() nmapiv1alpha1.Logging {
+	return nmapiv1alpha1.Logging{
 		Debug: false,
 		Trace: false,
 	}
 }
 
-func defaultCluster() v1alpha1.Cluster {
-	return v1alpha1.Cluster{Size: 3}
+func defaultCluster() nmapiv1alpha1.Cluster {
+	return nmapiv1alpha1.Cluster{Size: 3}
 }

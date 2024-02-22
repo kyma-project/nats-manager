@@ -5,125 +5,125 @@ import (
 
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
-	gomegatypes "github.com/onsi/gomega/types"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	onsigomegatypes "github.com/onsi/gomega/types"
+	kcorev1 "k8s.io/api/core/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
-func HaveSpecJetsStreamMemStorage(ms v1alpha1.MemStorage) gomegatypes.GomegaMatcher {
+func HaveSpecJetsStreamMemStorage(ms nmapiv1alpha1.MemStorage) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.JetStream.MemStorage.Enabled
 			}, gomega.Equal(ms.Enabled)),
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.JetStream.MemStorage.Size.Equal(ms.Size)
 			}, gomega.BeTrue()),
 	)
 }
 
-func HaveSpecJetStreamFileStorage(fs v1alpha1.FileStorage) gomegatypes.GomegaMatcher {
+func HaveSpecJetStreamFileStorage(fs nmapiv1alpha1.FileStorage) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) string {
+			func(n *nmapiv1alpha1.NATS) string {
 				return n.Spec.JetStream.FileStorage.StorageClassName
 			}, gomega.Equal(fs.StorageClassName)),
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.JetStream.FileStorage.Size.Equal(fs.Size)
 			}, gomega.BeTrue()),
 	)
 }
 
-func HaveSpecCluster(cluster v1alpha1.Cluster) gomegatypes.GomegaMatcher {
+func HaveSpecCluster(cluster nmapiv1alpha1.Cluster) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) bool {
+		func(n *nmapiv1alpha1.NATS) bool {
 			return reflect.DeepEqual(n.Spec.Cluster, cluster)
 		}, gomega.BeTrue())
 }
 
-func HaveSpecClusterSize(size int) gomegatypes.GomegaMatcher {
+func HaveSpecClusterSize(size int) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) int {
+		func(n *nmapiv1alpha1.NATS) int {
 			return n.Spec.Cluster.Size
 		}, gomega.Equal(size))
 }
 
-func HaveSpecLogging(logging v1alpha1.Logging) gomegatypes.GomegaMatcher {
+func HaveSpecLogging(logging nmapiv1alpha1.Logging) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.Logging.Debug
 			}, gomega.Equal(logging.Debug)),
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.Logging.Trace
 			}, gomega.Equal(logging.Trace)),
 	)
 }
 
-func HaveSpecLoggingDebug(enabled bool) gomegatypes.GomegaMatcher {
+func HaveSpecLoggingDebug(enabled bool) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) bool {
+		func(n *nmapiv1alpha1.NATS) bool {
 			return n.Spec.Logging.Debug
 		}, gomega.Equal(enabled))
 }
 
-func HaveSpecLoggingTrace(enabled bool) gomegatypes.GomegaMatcher {
+func HaveSpecLoggingTrace(enabled bool) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) bool {
+		func(n *nmapiv1alpha1.NATS) bool {
 			return n.Spec.Logging.Trace
 		}, gomega.Equal(enabled))
 }
 
-func HaveSpecResources(res corev1.ResourceRequirements) gomegatypes.GomegaMatcher {
+func HaveSpecResources(res kcorev1.ResourceRequirements) onsigomegatypes.GomegaMatcher {
 	return gomega.And(
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.Resources.Requests.Storage().Equal(*res.Requests.Storage())
 			}, gomega.BeTrue()),
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.Resources.Requests.Cpu().Equal(*res.Requests.Cpu())
 			}, gomega.BeTrue()),
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.Resources.Limits.Storage().Equal(*res.Requests.Storage())
 			}, gomega.BeTrue()),
 		gomega.WithTransform(
-			func(n *v1alpha1.NATS) bool {
+			func(n *nmapiv1alpha1.NATS) bool {
 				return n.Spec.Resources.Requests.Cpu().Equal(*res.Requests.Cpu())
 			}, gomega.BeTrue()),
 	)
 }
 
-func HaveStatusReady() gomegatypes.GomegaMatcher {
+func HaveStatusReady() onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) string {
+		func(n *nmapiv1alpha1.NATS) string {
 			return n.Status.State
-		}, gomega.Equal(v1alpha1.StateReady))
+		}, gomega.Equal(nmapiv1alpha1.StateReady))
 }
 
-func HaveStatusProcessing() gomegatypes.GomegaMatcher {
+func HaveStatusProcessing() onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) string {
+		func(n *nmapiv1alpha1.NATS) string {
 			return n.Status.State
-		}, gomega.Equal(v1alpha1.StateProcessing))
+		}, gomega.Equal(nmapiv1alpha1.StateProcessing))
 }
 
-func HaveStatusError() gomegatypes.GomegaMatcher {
+func HaveStatusError() onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) string {
+		func(n *nmapiv1alpha1.NATS) string {
 			return n.Status.State
-		}, gomega.Equal(v1alpha1.StateError))
+		}, gomega.Equal(nmapiv1alpha1.StateError))
 }
 
-func HaveCondition(condition metav1.Condition) gomegatypes.GomegaMatcher {
+func HaveCondition(condition kmetav1.Condition) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(n *v1alpha1.NATS) []metav1.Condition {
+		func(n *nmapiv1alpha1.NATS) []kmetav1.Condition {
 			return n.Status.Conditions
 		},
 		gomega.ContainElement(gstruct.MatchFields(gstruct.IgnoreExtras|gstruct.IgnoreMissing, gstruct.Fields{
@@ -134,9 +134,9 @@ func HaveCondition(condition metav1.Condition) gomegatypes.GomegaMatcher {
 		})))
 }
 
-func HaveEvent(event corev1.Event) gomegatypes.GomegaMatcher {
+func HaveEvent(event kcorev1.Event) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
-		func(l corev1.EventList) []corev1.Event {
+		func(l kcorev1.EventList) []kcorev1.Event {
 			return l.Items
 		}, gomega.ContainElement(gstruct.MatchFields(gstruct.IgnoreExtras|gstruct.IgnoreMissing, gstruct.Fields{
 			"Reason":  gomega.Equal(event.Reason),
@@ -145,80 +145,80 @@ func HaveEvent(event corev1.Event) gomegatypes.GomegaMatcher {
 		})))
 }
 
-func HaveDeployedEvent() gomegatypes.GomegaMatcher {
-	return HaveEvent(corev1.Event{
-		Reason:  string(v1alpha1.ConditionReasonDeployed),
+func HaveDeployedEvent() onsigomegatypes.GomegaMatcher {
+	return HaveEvent(kcorev1.Event{
+		Reason:  string(nmapiv1alpha1.ConditionReasonDeployed),
 		Message: "StatefulSet is ready and NATS is deployed.",
-		Type:    corev1.EventTypeNormal,
+		Type:    kcorev1.EventTypeNormal,
 	})
 }
 
-func HaveDeployingEvent() gomegatypes.GomegaMatcher {
-	return HaveEvent(corev1.Event{
-		Reason:  string(v1alpha1.ConditionReasonDeploying),
+func HaveDeployingEvent() onsigomegatypes.GomegaMatcher {
+	return HaveEvent(kcorev1.Event{
+		Reason:  string(nmapiv1alpha1.ConditionReasonDeploying),
 		Message: "NATS is being deployed, waiting for StatefulSet to get ready.",
-		Type:    corev1.EventTypeNormal,
+		Type:    kcorev1.EventTypeNormal,
 	})
 }
 
-func HaveProcessingEvent() gomegatypes.GomegaMatcher {
-	return HaveEvent(corev1.Event{
-		Reason:  string(v1alpha1.ConditionReasonProcessing),
+func HaveProcessingEvent() onsigomegatypes.GomegaMatcher {
+	return HaveEvent(kcorev1.Event{
+		Reason:  string(nmapiv1alpha1.ConditionReasonProcessing),
 		Message: "Initializing NATS resource.",
-		Type:    corev1.EventTypeNormal,
+		Type:    kcorev1.EventTypeNormal,
 	})
 }
 
-func HaveReadyConditionStatefulSet() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
-		Type:    string(v1alpha1.ConditionStatefulSet),
-		Status:  metav1.ConditionTrue,
-		Reason:  string(v1alpha1.ConditionReasonStatefulSetAvailable),
+func HaveReadyConditionStatefulSet() onsigomegatypes.GomegaMatcher {
+	return HaveCondition(kmetav1.Condition{
+		Type:    string(nmapiv1alpha1.ConditionStatefulSet),
+		Status:  kmetav1.ConditionTrue,
+		Reason:  string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
 		Message: "StatefulSet is ready",
 	})
 }
 
-func HavePendingConditionStatefulSet() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
-		Type:    string(v1alpha1.ConditionStatefulSet),
-		Status:  metav1.ConditionFalse,
-		Reason:  string(v1alpha1.ConditionReasonStatefulSetPending),
+func HavePendingConditionStatefulSet() onsigomegatypes.GomegaMatcher {
+	return HaveCondition(kmetav1.Condition{
+		Type:    string(nmapiv1alpha1.ConditionStatefulSet),
+		Status:  kmetav1.ConditionFalse,
+		Reason:  string(nmapiv1alpha1.ConditionReasonStatefulSetPending),
 		Message: "",
 	})
 }
 
-func HaveForbiddenConditionStatefulSet() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
-		Type:    string(v1alpha1.ConditionStatefulSet),
-		Status:  metav1.ConditionFalse,
-		Reason:  string(v1alpha1.ConditionReasonForbidden),
+func HaveForbiddenConditionStatefulSet() onsigomegatypes.GomegaMatcher {
+	return HaveCondition(kmetav1.Condition{
+		Type:    string(nmapiv1alpha1.ConditionStatefulSet),
+		Status:  kmetav1.ConditionFalse,
+		Reason:  string(nmapiv1alpha1.ConditionReasonForbidden),
 		Message: "",
 	})
 }
 
-func HaveReadyConditionAvailable() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
-		Type:    string(v1alpha1.ConditionAvailable),
-		Status:  metav1.ConditionTrue,
-		Reason:  string(v1alpha1.ConditionReasonDeployed),
+func HaveReadyConditionAvailable() onsigomegatypes.GomegaMatcher {
+	return HaveCondition(kmetav1.Condition{
+		Type:    string(nmapiv1alpha1.ConditionAvailable),
+		Status:  kmetav1.ConditionTrue,
+		Reason:  string(nmapiv1alpha1.ConditionReasonDeployed),
 		Message: "NATS is deployed",
 	})
 }
 
-func HaveDeployingConditionAvailable() gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
-		Type:    string(v1alpha1.ConditionAvailable),
-		Status:  metav1.ConditionFalse,
-		Reason:  string(v1alpha1.ConditionReasonDeploying),
+func HaveDeployingConditionAvailable() onsigomegatypes.GomegaMatcher {
+	return HaveCondition(kmetav1.Condition{
+		Type:    string(nmapiv1alpha1.ConditionAvailable),
+		Status:  kmetav1.ConditionFalse,
+		Reason:  string(nmapiv1alpha1.ConditionReasonDeploying),
 		Message: "",
 	})
 }
 
-func HaveForbiddenConditionAvailableWithMsg(msg string) gomegatypes.GomegaMatcher {
-	return HaveCondition(metav1.Condition{
-		Type:    string(v1alpha1.ConditionAvailable),
-		Status:  metav1.ConditionFalse,
-		Reason:  string(v1alpha1.ConditionReasonForbidden),
+func HaveForbiddenConditionAvailableWithMsg(msg string) onsigomegatypes.GomegaMatcher {
+	return HaveCondition(kmetav1.Condition{
+		Type:    string(nmapiv1alpha1.ConditionAvailable),
+		Status:  kmetav1.ConditionFalse,
+		Reason:  string(nmapiv1alpha1.ConditionReasonForbidden),
 		Message: msg,
 	})
 }

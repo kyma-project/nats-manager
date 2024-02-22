@@ -7,19 +7,20 @@ import (
 	"testing"
 	"time"
 
-	v1 "k8s.io/api/events/v1"
+	keventsv1 "k8s.io/api/events/v1"
 
 	"github.com/onsi/gomega"
-	gomegatypes "github.com/onsi/gomega/types"
+
+	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/internal/controller/nats"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
-	natsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
+	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 )
 
 const projectRootDir = "../../../../../"
@@ -54,11 +55,11 @@ func Test_CreateNATSCR(t *testing.T) {
 
 	testCases := []struct {
 		name                  string
-		givenNATS             *v1alpha1.NATS
-		givenK8sEvents        v1.EventList
+		givenNATS             *nmapiv1alpha1.NATS
+		givenK8sEvents        keventsv1.EventList
 		givenStatefulSetReady bool
-		wantMatches           gomegatypes.GomegaMatcher
-		wantEventMatches      gomegatypes.GomegaMatcher
+		wantMatches           onsigomegatypes.GomegaMatcher
+		wantEventMatches      onsigomegatypes.GomegaMatcher
 		wantEnsureK8sObjects  bool
 	}{
 		{
@@ -68,12 +69,12 @@ func Test_CreateNATSCR(t *testing.T) {
 			),
 			givenStatefulSetReady: false,
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusProcessing(),
-				natsmatchers.HavePendingConditionStatefulSet(),
-				natsmatchers.HaveDeployingConditionAvailable(),
+				nmtsmatchers.HaveStatusProcessing(),
+				nmtsmatchers.HavePendingConditionStatefulSet(),
+				nmtsmatchers.HaveDeployingConditionAvailable(),
 			),
 			wantEventMatches: gomega.And(
-				natsmatchers.HaveProcessingEvent(),
+				nmtsmatchers.HaveProcessingEvent(),
 			),
 		},
 		{
@@ -83,13 +84,13 @@ func Test_CreateNATSCR(t *testing.T) {
 			),
 			givenStatefulSetReady: true,
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusReady(),
-				natsmatchers.HaveReadyConditionStatefulSet(),
-				natsmatchers.HaveReadyConditionAvailable(),
+				nmtsmatchers.HaveStatusReady(),
+				nmtsmatchers.HaveReadyConditionStatefulSet(),
+				nmtsmatchers.HaveReadyConditionAvailable(),
 			),
 			wantEventMatches: gomega.And(
-				natsmatchers.HaveProcessingEvent(),
-				natsmatchers.HaveDeployingEvent(),
+				nmtsmatchers.HaveProcessingEvent(),
+				nmtsmatchers.HaveDeployingEvent(),
 			),
 		},
 		{
@@ -97,12 +98,12 @@ func Test_CreateNATSCR(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},
@@ -113,25 +114,25 @@ func Test_CreateNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
 					Size:             resource.MustParse("66Gi"),
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 			givenStatefulSetReady: true,
 			wantMatches: gomega.And(
-				natsmatchers.HaveStatusReady(),
-				natsmatchers.HaveReadyConditionStatefulSet(),
-				natsmatchers.HaveReadyConditionAvailable(),
+				nmtsmatchers.HaveStatusReady(),
+				nmtsmatchers.HaveReadyConditionStatefulSet(),
+				nmtsmatchers.HaveReadyConditionAvailable(),
 			),
 			wantEnsureK8sObjects: true,
 			wantEventMatches: gomega.And(
-				natsmatchers.HaveProcessingEvent(),
-				natsmatchers.HaveDeployingEvent(),
+				nmtsmatchers.HaveProcessingEvent(),
+				nmtsmatchers.HaveDeployingEvent(),
 			),
 		},
 	}
@@ -195,8 +196,8 @@ func Test_UpdateNATSCR(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
 		name            string
-		givenNATS       *v1alpha1.NATS
-		givenUpdateNATS *v1alpha1.NATS
+		givenNATS       *nmapiv1alpha1.NATS
+		givenUpdateNATS *nmapiv1alpha1.NATS
 	}{
 		{
 			name: "NATS CR should have ready status when StatefulSet is ready",
@@ -210,12 +211,12 @@ func Test_UpdateNATSCR(t *testing.T) {
 				testutils.WithNATSCRName("name-stays-the-same-1"),
 				testutils.WithNATSCRNamespace("namespace-stays-the-same-1"),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},
@@ -226,7 +227,7 @@ func Test_UpdateNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),
@@ -279,7 +280,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 
 	testCases := []struct {
 		name      string
-		givenNATS *v1alpha1.NATS
+		givenNATS *nmapiv1alpha1.NATS
 	}{
 		{
 			name: "should delete all k8s objects",
@@ -292,12 +293,12 @@ func Test_DeleteNATSCR(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},
@@ -308,11 +309,11 @@ func Test_DeleteNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
 					Size:             resource.MustParse("66Gi"),
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),
@@ -344,7 +345,7 @@ func Test_DeleteNATSCR(t *testing.T) {
 			if !*testEnvironment.EnvTestInstance.UseExistingCluster {
 				// create a PVC as local envtest cluster cannot create PVCs.
 				pvc := testutils.NewPVC(tc.givenNATS.Name, givenNamespace,
-					map[string]string{nats.InstanceLabelKey: tc.givenNATS.Name})
+					map[string]string{nmctrl.InstanceLabelKey: tc.givenNATS.Name})
 				testEnvironment.EnsureK8sResourceCreated(t, pvc)
 			}
 
@@ -371,7 +372,7 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 
 	testCases := []struct {
 		name                 string
-		givenNATS            *v1alpha1.NATS
+		givenNATS            *nmapiv1alpha1.NATS
 		wantResourceDeletion []deletionFunc
 	}{
 		{
@@ -489,8 +490,8 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 
 	testCases := []struct {
 		name         string
-		givenNATS    *v1alpha1.NATS
-		wantMatchers gomegatypes.GomegaMatcher
+		givenNATS    *nmapiv1alpha1.NATS
+		wantMatchers onsigomegatypes.GomegaMatcher
 	}{
 		{
 			name: "should have reconciled again without problems",
@@ -498,12 +499,12 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 				testutils.WithNATSCRDefaults(),
 				testutils.WithNATSCRName("test1"),
 				testutils.WithNATSLogging(true, true),
-				testutils.WithNATSResources(corev1.ResourceRequirements{
-					Limits: corev1.ResourceList{
+				testutils.WithNATSResources(kcorev1.ResourceRequirements{
+					Limits: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("199m"),
 						"memory": resource.MustParse("199Mi"),
 					},
-					Requests: corev1.ResourceList{
+					Requests: kcorev1.ResourceList{
 						"cpu":    resource.MustParse("99m"),
 						"memory": resource.MustParse("99Mi"),
 					},
@@ -514,19 +515,19 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 				testutils.WithNATSAnnotations(map[string]string{
 					"test-key2": "value2",
 				}),
-				testutils.WithNATSFileStorage(v1alpha1.FileStorage{
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
 					StorageClassName: "test-sc1",
 					Size:             resource.MustParse("66Gi"),
 				}),
-				testutils.WithNATSMemStorage(v1alpha1.MemStorage{
+				testutils.WithNATSMemStorage(nmapiv1alpha1.MemStorage{
 					Enabled: true,
 					Size:    resource.MustParse("66Gi"),
 				}),
 			),
 			wantMatchers: gomega.And(
-				natsmatchers.HaveStatusReady(),
-				natsmatchers.HaveReadyConditionStatefulSet(),
-				natsmatchers.HaveReadyConditionAvailable(),
+				nmtsmatchers.HaveStatusReady(),
+				nmtsmatchers.HaveReadyConditionStatefulSet(),
+				nmtsmatchers.HaveReadyConditionAvailable(),
 			),
 		},
 	}
@@ -607,7 +608,7 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		sts, err := testEnvironment.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
-			testEnvironment.Logger.Errorw("failed to get statefulSet", err)
+			testEnvironment.Logger.Errorw("failed to get statefulSet", "error", err)
 			return false
 		}
 
@@ -619,7 +620,7 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 
 		err = testEnvironment.UpdateStatefulSetStatusOnK8s(*sts)
 		if err != nil {
-			testEnvironment.Logger.Errorw("failed to update statefulSet status", err)
+			testEnvironment.Logger.Errorw("failed to update statefulSet status", "error", err)
 			return false
 		}
 		return true

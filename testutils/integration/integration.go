@@ -10,37 +10,37 @@ import (
 	"testing"
 	"time"
 
-	policyv1 "k8s.io/api/policy/v1"
+	kapipolicyv1 "k8s.io/api/policy/v1"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/dynamic"
 
-	corev1 "k8s.io/api/core/v1"
+	kcorev1 "k8s.io/api/core/v1"
 
 	"github.com/avast/retry-go/v3"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
-	appsv1 "k8s.io/api/apps/v1"
-	apiclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	k8stypes "k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes/scheme"
+	kappsv1 "k8s.io/api/apps/v1"
+	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
+	ktypes "k8s.io/apimachinery/pkg/types"
+	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
-	ctrl "sigs.k8s.io/controller-runtime"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	natscontroller "github.com/kyma-project/nats-manager/internal/controller/nats"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	"github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
 )
 
@@ -69,8 +69,8 @@ type TestEnvironment struct {
 	K8sDynamicClient *dynamic.DynamicClient
 	KubeClient       *k8s.Client
 	ChartRenderer    *chart.Renderer
-	NATSManager      *manager.Manager
-	Reconciler       *natscontroller.Reconciler
+	NATSManager      *nmmgr.Manager
+	Reconciler       *nmctrl.Reconciler
 	Logger           *zap.SugaredLogger
 	Recorder         *record.EventRecorder
 	TestCancelFn     context.CancelFunc
@@ -78,7 +78,7 @@ type TestEnvironment struct {
 
 //nolint:funlen // Used in testing
 func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
-	allowedNATSCR *natsv1alpha1.NATS) (*TestEnvironment, error) {
+	allowedNATSCR *nmapiv1alpha1.NATS) (*TestEnvironment, error) {
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -95,14 +95,14 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	}
 
 	// add to Scheme
-	err = natsv1alpha1.AddToScheme(scheme.Scheme)
+	err = nmapiv1alpha1.AddToScheme(kscheme.Scheme)
 	if err != nil {
 		return nil, err
 	}
 
 	// +kubebuilder:scaffold:scheme
 
-	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: scheme.Scheme})
+	k8sClient, err := client.New(envTestKubeCfg, client.Options{Scheme: kscheme.Scheme})
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +118,8 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		return nil, err
 	}
 
-	ctrlMgr, err := ctrl.NewManager(envTestKubeCfg, ctrl.Options{
-		Scheme:                 scheme.Scheme,
+	ctrlMgr, err := kcontrollerruntime.NewManager(envTestKubeCfg, kcontrollerruntime.Options{
+		Scheme:                 kscheme.Scheme,
 		HealthProbeBindAddress: "0",                              // disable
 		PprofBindAddress:       "0",                              // disable
 		Metrics:                server.Options{BindAddress: "0"}, // disable
@@ -131,7 +131,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	recorder := ctrlMgr.GetEventRecorderFor("nats-manager")
 
 	// init custom kube client wrapper
-	apiClientSet, err := apiclientset.NewForConfig(ctrlMgr.GetConfig())
+	apiClientSet, err := kapiextclientset.NewForConfig(ctrlMgr.GetConfig())
 	if err != nil {
 		return nil, err
 	}
@@ -144,10 +144,10 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	}
 
 	// create NATS manager instance
-	natsManager := manager.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
 	// setup reconciler
-	natsReconciler := natscontroller.NewReconciler(
+	natsReconciler := nmctrl.NewReconciler(
 		ctrlMgr.GetClient(),
 		kubeClient,
 		helmRenderer,
@@ -165,7 +165,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	var cancelCtx context.CancelFunc
 	go func() {
 		var mgrCtx context.Context
-		mgrCtx, cancelCtx = context.WithCancel(ctrl.SetupSignalHandler())
+		mgrCtx, cancelCtx = context.WithCancel(kcontrollerruntime.SetupSignalHandler())
 		err = ctrlMgr.Start(mgrCtx)
 		if err != nil {
 			log.Fatal(err)
@@ -234,7 +234,7 @@ func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Obj
 	require.NoError(t, env.k8sClient.Update(env.Context, obj))
 }
 
-func (env TestEnvironment) UpdatedNATSInK8s(nats *natsv1alpha1.NATS, options ...testutils.NATSOption) error {
+func (env TestEnvironment) UpdatedNATSInK8s(nats *nmapiv1alpha1.NATS, options ...testutils.NATSOption) error {
 	natsOnK8s, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 	if err != nil {
 		log.Fatal(err)
@@ -304,7 +304,7 @@ func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace str
 		result, err := env.GetPVCFromK8s(label, namespace)
 		if err != nil {
 			env.Logger.Errorw("failed to ensure PVC", "error", err,
-				natscontroller.InstanceLabelKey, label, "namespace", namespace)
+				nmctrl.InstanceLabelKey, label, "namespace", namespace)
 		}
 		return err == nil && result != nil
 	}, BigTimeOut, BigPollingInterval, "failed to ensure existence of PVC")
@@ -313,35 +313,35 @@ func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace str
 func (env TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetConfigMapFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of ConfigMap")
 }
 
 func (env TestEnvironment) EnsureK8sSecretNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetSecretFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of Secret")
 }
 
 func (env TestEnvironment) EnsureK8sServiceNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetServiceFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of Service")
 }
 
 func (env TestEnvironment) EnsureK8sDestinationRuleNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetDestinationRuleFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of DestinationRule")
 }
 
 func (env TestEnvironment) EnsureK8sNATSNotFound(t *testing.T, name, namespace string) {
 	require.Eventually(t, func() bool {
 		_, err := env.GetNATSFromK8s(name, namespace)
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure non-existence of NATS")
 }
 
@@ -352,7 +352,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, name
 			env.Logger.Errorw("failed to ensure STS", "error", err,
 				"name", name, "namespace", namespace)
 		}
-		return err != nil && k8serrors.IsNotFound(err)
+		return err != nil && kapierrors.IsNotFound(err)
 	}, BigTimeOut, BigPollingInterval, "failed to ensure non-existence of StatefulSet")
 }
 
@@ -363,7 +363,7 @@ func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace st
 			env.Logger.Errorw("failed to ensure PVC", "error", err,
 				"name", name, "namespace", namespace)
 		}
-		return (err != nil && k8serrors.IsNotFound(err)) || (pvc == nil && err == nil) ||
+		return (err != nil && kapierrors.IsNotFound(err)) || (pvc == nil && err == nil) ||
 			(pvc != nil && pvc.DeletionTimestamp != nil)
 	}, BigTimeOut, BigPollingInterval, "failed to ensure non-existence of PVC")
 }
@@ -410,7 +410,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name
 
 // EnsureNATSSpecClusterSizeReflected ensures that NATS CR Spec.cluster.size is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
 		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
@@ -425,7 +425,7 @@ func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats
 
 // EnsureNATSSpecResourcesReflected ensures that NATS CR Spec.resources is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
 		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
@@ -444,7 +444,7 @@ func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats n
 
 // EnsureNATSSpecDebugTraceReflected ensures that NATS CR Spec.trace and Spec.debug is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -468,7 +468,7 @@ func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats 
 
 // EnsureNATSSpecFileStorageReflected ensures that NATS CR Spec.jetStream.fileStorage is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -512,7 +512,7 @@ func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats
 
 // EnsureNATSSpecMemStorageReflected ensures that NATS CR Spec.jetStream.memStorage is reflected
 // in relevant k8s objects.
-func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats natsv1alpha1.NATS) {
+func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -539,7 +539,7 @@ func (env TestEnvironment) EnsureURLInNATSStatus(t *testing.T, name, namespace s
 	require.NotNil(t, natsCR)
 
 	switch natsCR.Status.State {
-	case natsv1alpha1.StateReady:
+	case nmapiv1alpha1.StateReady:
 		{
 			wantURL := fmt.Sprintf("nats://%s.%s.svc.cluster.local:4222", natsCR.Name, natsCR.Namespace)
 			require.Equal(t, wantURL, natsCR.Status.URL)
@@ -552,34 +552,34 @@ func (env TestEnvironment) EnsureURLInNATSStatus(t *testing.T, name, namespace s
 	}
 }
 
-func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (natsv1alpha1.NATS, error) {
-	var nats natsv1alpha1.NATS
-	err := env.k8sClient.Get(env.Context, k8stypes.NamespacedName{
+func (env TestEnvironment) GetNATSFromK8s(name, namespace string) (nmapiv1alpha1.NATS, error) {
+	var nats nmapiv1alpha1.NATS
+	err := env.k8sClient.Get(env.Context, ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}, &nats)
 	return nats, err
 }
 
-func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*appsv1.StatefulSet, error) {
-	nn := k8stypes.NamespacedName{
+func (env TestEnvironment) GetStatefulSetFromK8s(name, namespace string) (*kappsv1.StatefulSet, error) {
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &appsv1.StatefulSet{}
+	result := &kappsv1.StatefulSet{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*corev1.PersistentVolumeClaim, error) {
+func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*kcorev1.PersistentVolumeClaim, error) {
 	// get PVCs.
-	pvcList := &corev1.PersistentVolumeClaimList{}
+	pvcList := &kcorev1.PersistentVolumeClaimList{}
 	if err := env.k8sClient.List(env.Context, pvcList, &client.ListOptions{
 		Namespace: namespace,
 		LabelSelector: labels.SelectorFromSet(map[string]string{
-			natscontroller.InstanceLabelKey: label,
+			nmctrl.InstanceLabelKey: label,
 		}),
 	}); err != nil {
 		return nil, err
@@ -590,40 +590,40 @@ func (env TestEnvironment) GetPVCFromK8s(label, namespace string) (*corev1.Persi
 	return &pvcList.Items[0], nil
 }
 
-func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts appsv1.StatefulSet) error {
+func (env TestEnvironment) UpdateStatefulSetStatusOnK8s(sts kappsv1.StatefulSet) error {
 	return env.k8sClient.Status().Update(env.Context, &sts)
 }
 
-func (env TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*corev1.ConfigMap, error) {
-	nn := k8stypes.NamespacedName{
+func (env TestEnvironment) GetConfigMapFromK8s(name, namespace string) (*kcorev1.ConfigMap, error) {
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &corev1.ConfigMap{}
+	result := &kcorev1.ConfigMap{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (env TestEnvironment) GetSecretFromK8s(name, namespace string) (*corev1.Secret, error) {
-	nn := k8stypes.NamespacedName{
+func (env TestEnvironment) GetSecretFromK8s(name, namespace string) (*kcorev1.Secret, error) {
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &corev1.Secret{}
+	result := &kcorev1.Secret{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
-func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Service, error) {
-	nn := k8stypes.NamespacedName{
+func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*kcorev1.Service, error) {
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &corev1.Service{}
+	result := &kcorev1.Service{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
@@ -631,12 +631,12 @@ func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*corev1.Se
 }
 
 func (env TestEnvironment) GetPodDisruptionBudgetFromK8s(name,
-	namespace string) (*policyv1.PodDisruptionBudget, error) {
-	nn := k8stypes.NamespacedName{
+	namespace string) (*kapipolicyv1.PodDisruptionBudget, error) {
+	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
-	result := &policyv1.PodDisruptionBudget{}
+	result := &kapipolicyv1.PodDisruptionBudget{}
 	if err := env.k8sClient.Get(env.Context, nn, result); err != nil {
 		return nil, err
 	}
@@ -645,12 +645,12 @@ func (env TestEnvironment) GetPodDisruptionBudgetFromK8s(name,
 
 func (env TestEnvironment) GetDestinationRuleFromK8s(name, namespace string) (*unstructured.Unstructured, error) {
 	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
-		namespace).Get(env.Context, name, metav1.GetOptions{})
+		namespace).Get(env.Context, name, kmetav1.GetOptions{})
 }
 
 func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &appsv1.StatefulSet{
-		ObjectMeta: metav1.ObjectMeta{
+	return env.k8sClient.Delete(env.Context, &kappsv1.StatefulSet{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -658,8 +658,8 @@ func (env TestEnvironment) DeleteStatefulSetFromK8s(name, namespace string) erro
 }
 
 func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
+	return env.k8sClient.Delete(env.Context, &kcorev1.Service{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -667,8 +667,8 @@ func (env TestEnvironment) DeleteServiceFromK8s(name, namespace string) error {
 }
 
 func (env TestEnvironment) DeletePodDisruptionBudgetFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &policyv1.PodDisruptionBudget{
-		ObjectMeta: metav1.ObjectMeta{
+	return env.k8sClient.Delete(env.Context, &kapipolicyv1.PodDisruptionBudget{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -676,8 +676,8 @@ func (env TestEnvironment) DeletePodDisruptionBudgetFromK8s(name, namespace stri
 }
 
 func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
+	return env.k8sClient.Delete(env.Context, &kcorev1.ConfigMap{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -685,8 +685,8 @@ func (env TestEnvironment) DeleteConfigMapFromK8s(name, namespace string) error 
 }
 
 func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
-	return env.k8sClient.Delete(env.Context, &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
+	return env.k8sClient.Delete(env.Context, &kcorev1.Secret{
+		ObjectMeta: kmetav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
@@ -695,13 +695,13 @@ func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
 
 func (env TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) error {
 	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
-		namespace).Delete(env.Context, name, metav1.DeleteOptions{})
+		namespace).Delete(env.Context, name, kmetav1.DeleteOptions{})
 }
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.
 func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
-	nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
-	return g.Eventually(func() *natsv1alpha1.NATS {
+	nats *nmapiv1alpha1.NATS) gomega.AsyncAssertion {
+	return g.Eventually(func() *nmapiv1alpha1.NATS {
 		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 		if err != nil {
 			log.Printf("fetch subscription %s/%s failed: %v", nats.Name, nats.Namespace, err)
@@ -711,13 +711,13 @@ func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
 	}, BigTimeOut, SmallPollingInterval)
 }
 
-func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *natsv1alpha1.NATS) gomega.AsyncAssertion {
-	eventList := corev1.EventList{}
-	return g.Eventually(func() (corev1.EventList, error) {
+func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *nmapiv1alpha1.NATS) gomega.AsyncAssertion {
+	eventList := kcorev1.EventList{}
+	return g.Eventually(func() (kcorev1.EventList, error) {
 		err := env.k8sClient.List(env.Context, &eventList, client.InNamespace(nats.Namespace))
 		if err != nil {
 			log.Printf("fetch kubernetes events in ns:%s failed: %v", nats.Namespace, err)
-			return corev1.EventList{}, err
+			return kcorev1.EventList{}, err
 		}
 		return eventList, err
 	}, BigTimeOut, SmallPollingInterval)

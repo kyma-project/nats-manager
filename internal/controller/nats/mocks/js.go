@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	nats "github.com/nats-io/nats.go"
+	natsgo "github.com/nats-io/nats.go"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -21,7 +21,7 @@ func (_m *JetStreamContext) EXPECT() *JetStreamContext_Expecter {
 }
 
 // AccountInfo provides a mock function with given fields: opts
-func (_m *JetStreamContext) AccountInfo(opts ...nats.JSOpt) (*nats.AccountInfo, error) {
+func (_m *JetStreamContext) AccountInfo(opts ...natsgo.JSOpt) (*natsgo.AccountInfo, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -30,20 +30,20 @@ func (_m *JetStreamContext) AccountInfo(opts ...nats.JSOpt) (*nats.AccountInfo, 
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.AccountInfo
+	var r0 *natsgo.AccountInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(...nats.JSOpt) (*nats.AccountInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(...natsgo.JSOpt) (*natsgo.AccountInfo, error)); ok {
 		return rf(opts...)
 	}
-	if rf, ok := ret.Get(0).(func(...nats.JSOpt) *nats.AccountInfo); ok {
+	if rf, ok := ret.Get(0).(func(...natsgo.JSOpt) *natsgo.AccountInfo); ok {
 		r0 = rf(opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.AccountInfo)
+			r0 = ret.Get(0).(*natsgo.AccountInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(...natsgo.JSOpt) error); ok {
 		r1 = rf(opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -58,18 +58,18 @@ type JetStreamContext_AccountInfo_Call struct {
 }
 
 // AccountInfo is a helper method to define mock.On call
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) AccountInfo(opts ...interface{}) *JetStreamContext_AccountInfo_Call {
 	return &JetStreamContext_AccountInfo_Call{Call: _e.mock.On("AccountInfo",
 		append([]interface{}{}, opts...)...)}
 }
 
-func (_c *JetStreamContext_AccountInfo_Call) Run(run func(opts ...nats.JSOpt)) *JetStreamContext_AccountInfo_Call {
+func (_c *JetStreamContext_AccountInfo_Call) Run(run func(opts ...natsgo.JSOpt)) *JetStreamContext_AccountInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-0)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-0)
 		for i, a := range args[0:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(variadicArgs...)
@@ -77,18 +77,18 @@ func (_c *JetStreamContext_AccountInfo_Call) Run(run func(opts ...nats.JSOpt)) *
 	return _c
 }
 
-func (_c *JetStreamContext_AccountInfo_Call) Return(_a0 *nats.AccountInfo, _a1 error) *JetStreamContext_AccountInfo_Call {
+func (_c *JetStreamContext_AccountInfo_Call) Return(_a0 *natsgo.AccountInfo, _a1 error) *JetStreamContext_AccountInfo_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_AccountInfo_Call) RunAndReturn(run func(...nats.JSOpt) (*nats.AccountInfo, error)) *JetStreamContext_AccountInfo_Call {
+func (_c *JetStreamContext_AccountInfo_Call) RunAndReturn(run func(...natsgo.JSOpt) (*natsgo.AccountInfo, error)) *JetStreamContext_AccountInfo_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // AddConsumer provides a mock function with given fields: stream, cfg, opts
-func (_m *JetStreamContext) AddConsumer(stream string, cfg *nats.ConsumerConfig, opts ...nats.JSOpt) (*nats.ConsumerInfo, error) {
+func (_m *JetStreamContext) AddConsumer(stream string, cfg *natsgo.ConsumerConfig, opts ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -98,20 +98,20 @@ func (_m *JetStreamContext) AddConsumer(stream string, cfg *nats.ConsumerConfig,
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.ConsumerInfo
+	var r0 *natsgo.ConsumerInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, *nats.ConsumerConfig, ...nats.JSOpt) (*nats.ConsumerInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error)); ok {
 		return rf(stream, cfg, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, *nats.ConsumerConfig, ...nats.JSOpt) *nats.ConsumerInfo); ok {
+	if rf, ok := ret.Get(0).(func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) *natsgo.ConsumerInfo); ok {
 		r0 = rf(stream, cfg, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.ConsumerInfo)
+			r0 = ret.Get(0).(*natsgo.ConsumerInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, *nats.ConsumerConfig, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) error); ok {
 		r1 = rf(stream, cfg, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -127,38 +127,38 @@ type JetStreamContext_AddConsumer_Call struct {
 
 // AddConsumer is a helper method to define mock.On call
 //   - stream string
-//   - cfg *nats.ConsumerConfig
-//   - opts ...nats.JSOpt
+//   - cfg *natsgo.ConsumerConfig
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) AddConsumer(stream interface{}, cfg interface{}, opts ...interface{}) *JetStreamContext_AddConsumer_Call {
 	return &JetStreamContext_AddConsumer_Call{Call: _e.mock.On("AddConsumer",
 		append([]interface{}{stream, cfg}, opts...)...)}
 }
 
-func (_c *JetStreamContext_AddConsumer_Call) Run(run func(stream string, cfg *nats.ConsumerConfig, opts ...nats.JSOpt)) *JetStreamContext_AddConsumer_Call {
+func (_c *JetStreamContext_AddConsumer_Call) Run(run func(stream string, cfg *natsgo.ConsumerConfig, opts ...natsgo.JSOpt)) *JetStreamContext_AddConsumer_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
-		run(args[0].(string), args[1].(*nats.ConsumerConfig), variadicArgs...)
+		run(args[0].(string), args[1].(*natsgo.ConsumerConfig), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_AddConsumer_Call) Return(_a0 *nats.ConsumerInfo, _a1 error) *JetStreamContext_AddConsumer_Call {
+func (_c *JetStreamContext_AddConsumer_Call) Return(_a0 *natsgo.ConsumerInfo, _a1 error) *JetStreamContext_AddConsumer_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_AddConsumer_Call) RunAndReturn(run func(string, *nats.ConsumerConfig, ...nats.JSOpt) (*nats.ConsumerInfo, error)) *JetStreamContext_AddConsumer_Call {
+func (_c *JetStreamContext_AddConsumer_Call) RunAndReturn(run func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error)) *JetStreamContext_AddConsumer_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // AddStream provides a mock function with given fields: cfg, opts
-func (_m *JetStreamContext) AddStream(cfg *nats.StreamConfig, opts ...nats.JSOpt) (*nats.StreamInfo, error) {
+func (_m *JetStreamContext) AddStream(cfg *natsgo.StreamConfig, opts ...natsgo.JSOpt) (*natsgo.StreamInfo, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -168,20 +168,20 @@ func (_m *JetStreamContext) AddStream(cfg *nats.StreamConfig, opts ...nats.JSOpt
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.StreamInfo
+	var r0 *natsgo.StreamInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*nats.StreamConfig, ...nats.JSOpt) (*nats.StreamInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.StreamConfig, ...natsgo.JSOpt) (*natsgo.StreamInfo, error)); ok {
 		return rf(cfg, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(*nats.StreamConfig, ...nats.JSOpt) *nats.StreamInfo); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.StreamConfig, ...natsgo.JSOpt) *natsgo.StreamInfo); ok {
 		r0 = rf(cfg, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.StreamInfo)
+			r0 = ret.Get(0).(*natsgo.StreamInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*nats.StreamConfig, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(*natsgo.StreamConfig, ...natsgo.JSOpt) error); ok {
 		r1 = rf(cfg, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -196,38 +196,38 @@ type JetStreamContext_AddStream_Call struct {
 }
 
 // AddStream is a helper method to define mock.On call
-//   - cfg *nats.StreamConfig
-//   - opts ...nats.JSOpt
+//   - cfg *natsgo.StreamConfig
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) AddStream(cfg interface{}, opts ...interface{}) *JetStreamContext_AddStream_Call {
 	return &JetStreamContext_AddStream_Call{Call: _e.mock.On("AddStream",
 		append([]interface{}{cfg}, opts...)...)}
 }
 
-func (_c *JetStreamContext_AddStream_Call) Run(run func(cfg *nats.StreamConfig, opts ...nats.JSOpt)) *JetStreamContext_AddStream_Call {
+func (_c *JetStreamContext_AddStream_Call) Run(run func(cfg *natsgo.StreamConfig, opts ...natsgo.JSOpt)) *JetStreamContext_AddStream_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
-		run(args[0].(*nats.StreamConfig), variadicArgs...)
+		run(args[0].(*natsgo.StreamConfig), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_AddStream_Call) Return(_a0 *nats.StreamInfo, _a1 error) *JetStreamContext_AddStream_Call {
+func (_c *JetStreamContext_AddStream_Call) Return(_a0 *natsgo.StreamInfo, _a1 error) *JetStreamContext_AddStream_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_AddStream_Call) RunAndReturn(run func(*nats.StreamConfig, ...nats.JSOpt) (*nats.StreamInfo, error)) *JetStreamContext_AddStream_Call {
+func (_c *JetStreamContext_AddStream_Call) RunAndReturn(run func(*natsgo.StreamConfig, ...natsgo.JSOpt) (*natsgo.StreamInfo, error)) *JetStreamContext_AddStream_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ChanQueueSubscribe provides a mock function with given fields: subj, queue, ch, opts
-func (_m *JetStreamContext) ChanQueueSubscribe(subj string, queue string, ch chan *nats.Msg, opts ...nats.SubOpt) (*nats.Subscription, error) {
+func (_m *JetStreamContext) ChanQueueSubscribe(subj string, queue string, ch chan *natsgo.Msg, opts ...natsgo.SubOpt) (*natsgo.Subscription, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -237,20 +237,20 @@ func (_m *JetStreamContext) ChanQueueSubscribe(subj string, queue string, ch cha
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.Subscription
+	var r0 *natsgo.Subscription
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, chan *nats.Msg, ...nats.SubOpt) (*nats.Subscription, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, chan *natsgo.Msg, ...natsgo.SubOpt) (*natsgo.Subscription, error)); ok {
 		return rf(subj, queue, ch, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, chan *nats.Msg, ...nats.SubOpt) *nats.Subscription); ok {
+	if rf, ok := ret.Get(0).(func(string, string, chan *natsgo.Msg, ...natsgo.SubOpt) *natsgo.Subscription); ok {
 		r0 = rf(subj, queue, ch, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.Subscription)
+			r0 = ret.Get(0).(*natsgo.Subscription)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, chan *nats.Msg, ...nats.SubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, chan *natsgo.Msg, ...natsgo.SubOpt) error); ok {
 		r1 = rf(subj, queue, ch, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -267,38 +267,38 @@ type JetStreamContext_ChanQueueSubscribe_Call struct {
 // ChanQueueSubscribe is a helper method to define mock.On call
 //   - subj string
 //   - queue string
-//   - ch chan *nats.Msg
-//   - opts ...nats.SubOpt
+//   - ch chan *natsgo.Msg
+//   - opts ...natsgo.SubOpt
 func (_e *JetStreamContext_Expecter) ChanQueueSubscribe(subj interface{}, queue interface{}, ch interface{}, opts ...interface{}) *JetStreamContext_ChanQueueSubscribe_Call {
 	return &JetStreamContext_ChanQueueSubscribe_Call{Call: _e.mock.On("ChanQueueSubscribe",
 		append([]interface{}{subj, queue, ch}, opts...)...)}
 }
 
-func (_c *JetStreamContext_ChanQueueSubscribe_Call) Run(run func(subj string, queue string, ch chan *nats.Msg, opts ...nats.SubOpt)) *JetStreamContext_ChanQueueSubscribe_Call {
+func (_c *JetStreamContext_ChanQueueSubscribe_Call) Run(run func(subj string, queue string, ch chan *natsgo.Msg, opts ...natsgo.SubOpt)) *JetStreamContext_ChanQueueSubscribe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.SubOpt, len(args)-3)
+		variadicArgs := make([]natsgo.SubOpt, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.SubOpt)
+				variadicArgs[i] = a.(natsgo.SubOpt)
 			}
 		}
-		run(args[0].(string), args[1].(string), args[2].(chan *nats.Msg), variadicArgs...)
+		run(args[0].(string), args[1].(string), args[2].(chan *natsgo.Msg), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_ChanQueueSubscribe_Call) Return(_a0 *nats.Subscription, _a1 error) *JetStreamContext_ChanQueueSubscribe_Call {
+func (_c *JetStreamContext_ChanQueueSubscribe_Call) Return(_a0 *natsgo.Subscription, _a1 error) *JetStreamContext_ChanQueueSubscribe_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_ChanQueueSubscribe_Call) RunAndReturn(run func(string, string, chan *nats.Msg, ...nats.SubOpt) (*nats.Subscription, error)) *JetStreamContext_ChanQueueSubscribe_Call {
+func (_c *JetStreamContext_ChanQueueSubscribe_Call) RunAndReturn(run func(string, string, chan *natsgo.Msg, ...natsgo.SubOpt) (*natsgo.Subscription, error)) *JetStreamContext_ChanQueueSubscribe_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ChanSubscribe provides a mock function with given fields: subj, ch, opts
-func (_m *JetStreamContext) ChanSubscribe(subj string, ch chan *nats.Msg, opts ...nats.SubOpt) (*nats.Subscription, error) {
+func (_m *JetStreamContext) ChanSubscribe(subj string, ch chan *natsgo.Msg, opts ...natsgo.SubOpt) (*natsgo.Subscription, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -308,20 +308,20 @@ func (_m *JetStreamContext) ChanSubscribe(subj string, ch chan *nats.Msg, opts .
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.Subscription
+	var r0 *natsgo.Subscription
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, chan *nats.Msg, ...nats.SubOpt) (*nats.Subscription, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, chan *natsgo.Msg, ...natsgo.SubOpt) (*natsgo.Subscription, error)); ok {
 		return rf(subj, ch, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, chan *nats.Msg, ...nats.SubOpt) *nats.Subscription); ok {
+	if rf, ok := ret.Get(0).(func(string, chan *natsgo.Msg, ...natsgo.SubOpt) *natsgo.Subscription); ok {
 		r0 = rf(subj, ch, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.Subscription)
+			r0 = ret.Get(0).(*natsgo.Subscription)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, chan *nats.Msg, ...nats.SubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, chan *natsgo.Msg, ...natsgo.SubOpt) error); ok {
 		r1 = rf(subj, ch, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -337,38 +337,38 @@ type JetStreamContext_ChanSubscribe_Call struct {
 
 // ChanSubscribe is a helper method to define mock.On call
 //   - subj string
-//   - ch chan *nats.Msg
-//   - opts ...nats.SubOpt
+//   - ch chan *natsgo.Msg
+//   - opts ...natsgo.SubOpt
 func (_e *JetStreamContext_Expecter) ChanSubscribe(subj interface{}, ch interface{}, opts ...interface{}) *JetStreamContext_ChanSubscribe_Call {
 	return &JetStreamContext_ChanSubscribe_Call{Call: _e.mock.On("ChanSubscribe",
 		append([]interface{}{subj, ch}, opts...)...)}
 }
 
-func (_c *JetStreamContext_ChanSubscribe_Call) Run(run func(subj string, ch chan *nats.Msg, opts ...nats.SubOpt)) *JetStreamContext_ChanSubscribe_Call {
+func (_c *JetStreamContext_ChanSubscribe_Call) Run(run func(subj string, ch chan *natsgo.Msg, opts ...natsgo.SubOpt)) *JetStreamContext_ChanSubscribe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.SubOpt, len(args)-2)
+		variadicArgs := make([]natsgo.SubOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.SubOpt)
+				variadicArgs[i] = a.(natsgo.SubOpt)
 			}
 		}
-		run(args[0].(string), args[1].(chan *nats.Msg), variadicArgs...)
+		run(args[0].(string), args[1].(chan *natsgo.Msg), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_ChanSubscribe_Call) Return(_a0 *nats.Subscription, _a1 error) *JetStreamContext_ChanSubscribe_Call {
+func (_c *JetStreamContext_ChanSubscribe_Call) Return(_a0 *natsgo.Subscription, _a1 error) *JetStreamContext_ChanSubscribe_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_ChanSubscribe_Call) RunAndReturn(run func(string, chan *nats.Msg, ...nats.SubOpt) (*nats.Subscription, error)) *JetStreamContext_ChanSubscribe_Call {
+func (_c *JetStreamContext_ChanSubscribe_Call) RunAndReturn(run func(string, chan *natsgo.Msg, ...natsgo.SubOpt) (*natsgo.Subscription, error)) *JetStreamContext_ChanSubscribe_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ConsumerInfo provides a mock function with given fields: stream, name, opts
-func (_m *JetStreamContext) ConsumerInfo(stream string, name string, opts ...nats.JSOpt) (*nats.ConsumerInfo, error) {
+func (_m *JetStreamContext) ConsumerInfo(stream string, name string, opts ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -378,20 +378,20 @@ func (_m *JetStreamContext) ConsumerInfo(stream string, name string, opts ...nat
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.ConsumerInfo
+	var r0 *natsgo.ConsumerInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.JSOpt) (*nats.ConsumerInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error)); ok {
 		return rf(stream, name, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.JSOpt) *nats.ConsumerInfo); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.JSOpt) *natsgo.ConsumerInfo); ok {
 		r0 = rf(stream, name, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.ConsumerInfo)
+			r0 = ret.Get(0).(*natsgo.ConsumerInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, ...natsgo.JSOpt) error); ok {
 		r1 = rf(stream, name, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -408,18 +408,18 @@ type JetStreamContext_ConsumerInfo_Call struct {
 // ConsumerInfo is a helper method to define mock.On call
 //   - stream string
 //   - name string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) ConsumerInfo(stream interface{}, name interface{}, opts ...interface{}) *JetStreamContext_ConsumerInfo_Call {
 	return &JetStreamContext_ConsumerInfo_Call{Call: _e.mock.On("ConsumerInfo",
 		append([]interface{}{stream, name}, opts...)...)}
 }
 
-func (_c *JetStreamContext_ConsumerInfo_Call) Run(run func(stream string, name string, opts ...nats.JSOpt)) *JetStreamContext_ConsumerInfo_Call {
+func (_c *JetStreamContext_ConsumerInfo_Call) Run(run func(stream string, name string, opts ...natsgo.JSOpt)) *JetStreamContext_ConsumerInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), args[1].(string), variadicArgs...)
@@ -427,18 +427,18 @@ func (_c *JetStreamContext_ConsumerInfo_Call) Run(run func(stream string, name s
 	return _c
 }
 
-func (_c *JetStreamContext_ConsumerInfo_Call) Return(_a0 *nats.ConsumerInfo, _a1 error) *JetStreamContext_ConsumerInfo_Call {
+func (_c *JetStreamContext_ConsumerInfo_Call) Return(_a0 *natsgo.ConsumerInfo, _a1 error) *JetStreamContext_ConsumerInfo_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_ConsumerInfo_Call) RunAndReturn(run func(string, string, ...nats.JSOpt) (*nats.ConsumerInfo, error)) *JetStreamContext_ConsumerInfo_Call {
+func (_c *JetStreamContext_ConsumerInfo_Call) RunAndReturn(run func(string, string, ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error)) *JetStreamContext_ConsumerInfo_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ConsumerNames provides a mock function with given fields: stream, opts
-func (_m *JetStreamContext) ConsumerNames(stream string, opts ...nats.JSOpt) <-chan string {
+func (_m *JetStreamContext) ConsumerNames(stream string, opts ...natsgo.JSOpt) <-chan string {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -449,7 +449,7 @@ func (_m *JetStreamContext) ConsumerNames(stream string, opts ...nats.JSOpt) <-c
 	ret := _m.Called(_ca...)
 
 	var r0 <-chan string
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) <-chan string); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) <-chan string); ok {
 		r0 = rf(stream, opts...)
 	} else {
 		if ret.Get(0) != nil {
@@ -467,18 +467,18 @@ type JetStreamContext_ConsumerNames_Call struct {
 
 // ConsumerNames is a helper method to define mock.On call
 //   - stream string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) ConsumerNames(stream interface{}, opts ...interface{}) *JetStreamContext_ConsumerNames_Call {
 	return &JetStreamContext_ConsumerNames_Call{Call: _e.mock.On("ConsumerNames",
 		append([]interface{}{stream}, opts...)...)}
 }
 
-func (_c *JetStreamContext_ConsumerNames_Call) Run(run func(stream string, opts ...nats.JSOpt)) *JetStreamContext_ConsumerNames_Call {
+func (_c *JetStreamContext_ConsumerNames_Call) Run(run func(stream string, opts ...natsgo.JSOpt)) *JetStreamContext_ConsumerNames_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -491,13 +491,13 @@ func (_c *JetStreamContext_ConsumerNames_Call) Return(_a0 <-chan string) *JetStr
 	return _c
 }
 
-func (_c *JetStreamContext_ConsumerNames_Call) RunAndReturn(run func(string, ...nats.JSOpt) <-chan string) *JetStreamContext_ConsumerNames_Call {
+func (_c *JetStreamContext_ConsumerNames_Call) RunAndReturn(run func(string, ...natsgo.JSOpt) <-chan string) *JetStreamContext_ConsumerNames_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Consumers provides a mock function with given fields: stream, opts
-func (_m *JetStreamContext) Consumers(stream string, opts ...nats.JSOpt) <-chan *nats.ConsumerInfo {
+func (_m *JetStreamContext) Consumers(stream string, opts ...natsgo.JSOpt) <-chan *natsgo.ConsumerInfo {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -507,12 +507,12 @@ func (_m *JetStreamContext) Consumers(stream string, opts ...nats.JSOpt) <-chan 
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 <-chan *nats.ConsumerInfo
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) <-chan *nats.ConsumerInfo); ok {
+	var r0 <-chan *natsgo.ConsumerInfo
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) <-chan *natsgo.ConsumerInfo); ok {
 		r0 = rf(stream, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan *nats.ConsumerInfo)
+			r0 = ret.Get(0).(<-chan *natsgo.ConsumerInfo)
 		}
 	}
 
@@ -526,18 +526,18 @@ type JetStreamContext_Consumers_Call struct {
 
 // Consumers is a helper method to define mock.On call
 //   - stream string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) Consumers(stream interface{}, opts ...interface{}) *JetStreamContext_Consumers_Call {
 	return &JetStreamContext_Consumers_Call{Call: _e.mock.On("Consumers",
 		append([]interface{}{stream}, opts...)...)}
 }
 
-func (_c *JetStreamContext_Consumers_Call) Run(run func(stream string, opts ...nats.JSOpt)) *JetStreamContext_Consumers_Call {
+func (_c *JetStreamContext_Consumers_Call) Run(run func(stream string, opts ...natsgo.JSOpt)) *JetStreamContext_Consumers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -545,18 +545,18 @@ func (_c *JetStreamContext_Consumers_Call) Run(run func(stream string, opts ...n
 	return _c
 }
 
-func (_c *JetStreamContext_Consumers_Call) Return(_a0 <-chan *nats.ConsumerInfo) *JetStreamContext_Consumers_Call {
+func (_c *JetStreamContext_Consumers_Call) Return(_a0 <-chan *natsgo.ConsumerInfo) *JetStreamContext_Consumers_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *JetStreamContext_Consumers_Call) RunAndReturn(run func(string, ...nats.JSOpt) <-chan *nats.ConsumerInfo) *JetStreamContext_Consumers_Call {
+func (_c *JetStreamContext_Consumers_Call) RunAndReturn(run func(string, ...natsgo.JSOpt) <-chan *natsgo.ConsumerInfo) *JetStreamContext_Consumers_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ConsumersInfo provides a mock function with given fields: stream, opts
-func (_m *JetStreamContext) ConsumersInfo(stream string, opts ...nats.JSOpt) <-chan *nats.ConsumerInfo {
+func (_m *JetStreamContext) ConsumersInfo(stream string, opts ...natsgo.JSOpt) <-chan *natsgo.ConsumerInfo {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -566,12 +566,12 @@ func (_m *JetStreamContext) ConsumersInfo(stream string, opts ...nats.JSOpt) <-c
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 <-chan *nats.ConsumerInfo
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) <-chan *nats.ConsumerInfo); ok {
+	var r0 <-chan *natsgo.ConsumerInfo
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) <-chan *natsgo.ConsumerInfo); ok {
 		r0 = rf(stream, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan *nats.ConsumerInfo)
+			r0 = ret.Get(0).(<-chan *natsgo.ConsumerInfo)
 		}
 	}
 
@@ -585,18 +585,18 @@ type JetStreamContext_ConsumersInfo_Call struct {
 
 // ConsumersInfo is a helper method to define mock.On call
 //   - stream string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) ConsumersInfo(stream interface{}, opts ...interface{}) *JetStreamContext_ConsumersInfo_Call {
 	return &JetStreamContext_ConsumersInfo_Call{Call: _e.mock.On("ConsumersInfo",
 		append([]interface{}{stream}, opts...)...)}
 }
 
-func (_c *JetStreamContext_ConsumersInfo_Call) Run(run func(stream string, opts ...nats.JSOpt)) *JetStreamContext_ConsumersInfo_Call {
+func (_c *JetStreamContext_ConsumersInfo_Call) Run(run func(stream string, opts ...natsgo.JSOpt)) *JetStreamContext_ConsumersInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -604,34 +604,34 @@ func (_c *JetStreamContext_ConsumersInfo_Call) Run(run func(stream string, opts 
 	return _c
 }
 
-func (_c *JetStreamContext_ConsumersInfo_Call) Return(_a0 <-chan *nats.ConsumerInfo) *JetStreamContext_ConsumersInfo_Call {
+func (_c *JetStreamContext_ConsumersInfo_Call) Return(_a0 <-chan *natsgo.ConsumerInfo) *JetStreamContext_ConsumersInfo_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *JetStreamContext_ConsumersInfo_Call) RunAndReturn(run func(string, ...nats.JSOpt) <-chan *nats.ConsumerInfo) *JetStreamContext_ConsumersInfo_Call {
+func (_c *JetStreamContext_ConsumersInfo_Call) RunAndReturn(run func(string, ...natsgo.JSOpt) <-chan *natsgo.ConsumerInfo) *JetStreamContext_ConsumersInfo_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // CreateKeyValue provides a mock function with given fields: cfg
-func (_m *JetStreamContext) CreateKeyValue(cfg *nats.KeyValueConfig) (nats.KeyValue, error) {
+func (_m *JetStreamContext) CreateKeyValue(cfg *natsgo.KeyValueConfig) (natsgo.KeyValue, error) {
 	ret := _m.Called(cfg)
 
-	var r0 nats.KeyValue
+	var r0 natsgo.KeyValue
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*nats.KeyValueConfig) (nats.KeyValue, error)); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.KeyValueConfig) (natsgo.KeyValue, error)); ok {
 		return rf(cfg)
 	}
-	if rf, ok := ret.Get(0).(func(*nats.KeyValueConfig) nats.KeyValue); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.KeyValueConfig) natsgo.KeyValue); ok {
 		r0 = rf(cfg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(nats.KeyValue)
+			r0 = ret.Get(0).(natsgo.KeyValue)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*nats.KeyValueConfig) error); ok {
+	if rf, ok := ret.Get(1).(func(*natsgo.KeyValueConfig) error); ok {
 		r1 = rf(cfg)
 	} else {
 		r1 = ret.Error(1)
@@ -646,46 +646,46 @@ type JetStreamContext_CreateKeyValue_Call struct {
 }
 
 // CreateKeyValue is a helper method to define mock.On call
-//   - cfg *nats.KeyValueConfig
+//   - cfg *natsgo.KeyValueConfig
 func (_e *JetStreamContext_Expecter) CreateKeyValue(cfg interface{}) *JetStreamContext_CreateKeyValue_Call {
 	return &JetStreamContext_CreateKeyValue_Call{Call: _e.mock.On("CreateKeyValue", cfg)}
 }
 
-func (_c *JetStreamContext_CreateKeyValue_Call) Run(run func(cfg *nats.KeyValueConfig)) *JetStreamContext_CreateKeyValue_Call {
+func (_c *JetStreamContext_CreateKeyValue_Call) Run(run func(cfg *natsgo.KeyValueConfig)) *JetStreamContext_CreateKeyValue_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*nats.KeyValueConfig))
+		run(args[0].(*natsgo.KeyValueConfig))
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_CreateKeyValue_Call) Return(_a0 nats.KeyValue, _a1 error) *JetStreamContext_CreateKeyValue_Call {
+func (_c *JetStreamContext_CreateKeyValue_Call) Return(_a0 natsgo.KeyValue, _a1 error) *JetStreamContext_CreateKeyValue_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_CreateKeyValue_Call) RunAndReturn(run func(*nats.KeyValueConfig) (nats.KeyValue, error)) *JetStreamContext_CreateKeyValue_Call {
+func (_c *JetStreamContext_CreateKeyValue_Call) RunAndReturn(run func(*natsgo.KeyValueConfig) (natsgo.KeyValue, error)) *JetStreamContext_CreateKeyValue_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // CreateObjectStore provides a mock function with given fields: cfg
-func (_m *JetStreamContext) CreateObjectStore(cfg *nats.ObjectStoreConfig) (nats.ObjectStore, error) {
+func (_m *JetStreamContext) CreateObjectStore(cfg *natsgo.ObjectStoreConfig) (natsgo.ObjectStore, error) {
 	ret := _m.Called(cfg)
 
-	var r0 nats.ObjectStore
+	var r0 natsgo.ObjectStore
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*nats.ObjectStoreConfig) (nats.ObjectStore, error)); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.ObjectStoreConfig) (natsgo.ObjectStore, error)); ok {
 		return rf(cfg)
 	}
-	if rf, ok := ret.Get(0).(func(*nats.ObjectStoreConfig) nats.ObjectStore); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.ObjectStoreConfig) natsgo.ObjectStore); ok {
 		r0 = rf(cfg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(nats.ObjectStore)
+			r0 = ret.Get(0).(natsgo.ObjectStore)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*nats.ObjectStoreConfig) error); ok {
+	if rf, ok := ret.Get(1).(func(*natsgo.ObjectStoreConfig) error); ok {
 		r1 = rf(cfg)
 	} else {
 		r1 = ret.Error(1)
@@ -700,30 +700,30 @@ type JetStreamContext_CreateObjectStore_Call struct {
 }
 
 // CreateObjectStore is a helper method to define mock.On call
-//   - cfg *nats.ObjectStoreConfig
+//   - cfg *natsgo.ObjectStoreConfig
 func (_e *JetStreamContext_Expecter) CreateObjectStore(cfg interface{}) *JetStreamContext_CreateObjectStore_Call {
 	return &JetStreamContext_CreateObjectStore_Call{Call: _e.mock.On("CreateObjectStore", cfg)}
 }
 
-func (_c *JetStreamContext_CreateObjectStore_Call) Run(run func(cfg *nats.ObjectStoreConfig)) *JetStreamContext_CreateObjectStore_Call {
+func (_c *JetStreamContext_CreateObjectStore_Call) Run(run func(cfg *natsgo.ObjectStoreConfig)) *JetStreamContext_CreateObjectStore_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*nats.ObjectStoreConfig))
+		run(args[0].(*natsgo.ObjectStoreConfig))
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_CreateObjectStore_Call) Return(_a0 nats.ObjectStore, _a1 error) *JetStreamContext_CreateObjectStore_Call {
+func (_c *JetStreamContext_CreateObjectStore_Call) Return(_a0 natsgo.ObjectStore, _a1 error) *JetStreamContext_CreateObjectStore_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_CreateObjectStore_Call) RunAndReturn(run func(*nats.ObjectStoreConfig) (nats.ObjectStore, error)) *JetStreamContext_CreateObjectStore_Call {
+func (_c *JetStreamContext_CreateObjectStore_Call) RunAndReturn(run func(*natsgo.ObjectStoreConfig) (natsgo.ObjectStore, error)) *JetStreamContext_CreateObjectStore_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // DeleteConsumer provides a mock function with given fields: stream, consumer, opts
-func (_m *JetStreamContext) DeleteConsumer(stream string, consumer string, opts ...nats.JSOpt) error {
+func (_m *JetStreamContext) DeleteConsumer(stream string, consumer string, opts ...natsgo.JSOpt) error {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -734,7 +734,7 @@ func (_m *JetStreamContext) DeleteConsumer(stream string, consumer string, opts 
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.JSOpt) error); ok {
 		r0 = rf(stream, consumer, opts...)
 	} else {
 		r0 = ret.Error(0)
@@ -751,18 +751,18 @@ type JetStreamContext_DeleteConsumer_Call struct {
 // DeleteConsumer is a helper method to define mock.On call
 //   - stream string
 //   - consumer string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) DeleteConsumer(stream interface{}, consumer interface{}, opts ...interface{}) *JetStreamContext_DeleteConsumer_Call {
 	return &JetStreamContext_DeleteConsumer_Call{Call: _e.mock.On("DeleteConsumer",
 		append([]interface{}{stream, consumer}, opts...)...)}
 }
 
-func (_c *JetStreamContext_DeleteConsumer_Call) Run(run func(stream string, consumer string, opts ...nats.JSOpt)) *JetStreamContext_DeleteConsumer_Call {
+func (_c *JetStreamContext_DeleteConsumer_Call) Run(run func(stream string, consumer string, opts ...natsgo.JSOpt)) *JetStreamContext_DeleteConsumer_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), args[1].(string), variadicArgs...)
@@ -775,7 +775,7 @@ func (_c *JetStreamContext_DeleteConsumer_Call) Return(_a0 error) *JetStreamCont
 	return _c
 }
 
-func (_c *JetStreamContext_DeleteConsumer_Call) RunAndReturn(run func(string, string, ...nats.JSOpt) error) *JetStreamContext_DeleteConsumer_Call {
+func (_c *JetStreamContext_DeleteConsumer_Call) RunAndReturn(run func(string, string, ...natsgo.JSOpt) error) *JetStreamContext_DeleteConsumer_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -823,7 +823,7 @@ func (_c *JetStreamContext_DeleteKeyValue_Call) RunAndReturn(run func(string) er
 }
 
 // DeleteMsg provides a mock function with given fields: name, seq, opts
-func (_m *JetStreamContext) DeleteMsg(name string, seq uint64, opts ...nats.JSOpt) error {
+func (_m *JetStreamContext) DeleteMsg(name string, seq uint64, opts ...natsgo.JSOpt) error {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -834,7 +834,7 @@ func (_m *JetStreamContext) DeleteMsg(name string, seq uint64, opts ...nats.JSOp
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, uint64, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(0).(func(string, uint64, ...natsgo.JSOpt) error); ok {
 		r0 = rf(name, seq, opts...)
 	} else {
 		r0 = ret.Error(0)
@@ -851,18 +851,18 @@ type JetStreamContext_DeleteMsg_Call struct {
 // DeleteMsg is a helper method to define mock.On call
 //   - name string
 //   - seq uint64
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) DeleteMsg(name interface{}, seq interface{}, opts ...interface{}) *JetStreamContext_DeleteMsg_Call {
 	return &JetStreamContext_DeleteMsg_Call{Call: _e.mock.On("DeleteMsg",
 		append([]interface{}{name, seq}, opts...)...)}
 }
 
-func (_c *JetStreamContext_DeleteMsg_Call) Run(run func(name string, seq uint64, opts ...nats.JSOpt)) *JetStreamContext_DeleteMsg_Call {
+func (_c *JetStreamContext_DeleteMsg_Call) Run(run func(name string, seq uint64, opts ...natsgo.JSOpt)) *JetStreamContext_DeleteMsg_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), args[1].(uint64), variadicArgs...)
@@ -875,7 +875,7 @@ func (_c *JetStreamContext_DeleteMsg_Call) Return(_a0 error) *JetStreamContext_D
 	return _c
 }
 
-func (_c *JetStreamContext_DeleteMsg_Call) RunAndReturn(run func(string, uint64, ...nats.JSOpt) error) *JetStreamContext_DeleteMsg_Call {
+func (_c *JetStreamContext_DeleteMsg_Call) RunAndReturn(run func(string, uint64, ...natsgo.JSOpt) error) *JetStreamContext_DeleteMsg_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -923,7 +923,7 @@ func (_c *JetStreamContext_DeleteObjectStore_Call) RunAndReturn(run func(string)
 }
 
 // DeleteStream provides a mock function with given fields: name, opts
-func (_m *JetStreamContext) DeleteStream(name string, opts ...nats.JSOpt) error {
+func (_m *JetStreamContext) DeleteStream(name string, opts ...natsgo.JSOpt) error {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -934,7 +934,7 @@ func (_m *JetStreamContext) DeleteStream(name string, opts ...nats.JSOpt) error 
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) error); ok {
 		r0 = rf(name, opts...)
 	} else {
 		r0 = ret.Error(0)
@@ -950,18 +950,18 @@ type JetStreamContext_DeleteStream_Call struct {
 
 // DeleteStream is a helper method to define mock.On call
 //   - name string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) DeleteStream(name interface{}, opts ...interface{}) *JetStreamContext_DeleteStream_Call {
 	return &JetStreamContext_DeleteStream_Call{Call: _e.mock.On("DeleteStream",
 		append([]interface{}{name}, opts...)...)}
 }
 
-func (_c *JetStreamContext_DeleteStream_Call) Run(run func(name string, opts ...nats.JSOpt)) *JetStreamContext_DeleteStream_Call {
+func (_c *JetStreamContext_DeleteStream_Call) Run(run func(name string, opts ...natsgo.JSOpt)) *JetStreamContext_DeleteStream_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -974,13 +974,13 @@ func (_c *JetStreamContext_DeleteStream_Call) Return(_a0 error) *JetStreamContex
 	return _c
 }
 
-func (_c *JetStreamContext_DeleteStream_Call) RunAndReturn(run func(string, ...nats.JSOpt) error) *JetStreamContext_DeleteStream_Call {
+func (_c *JetStreamContext_DeleteStream_Call) RunAndReturn(run func(string, ...natsgo.JSOpt) error) *JetStreamContext_DeleteStream_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetLastMsg provides a mock function with given fields: name, subject, opts
-func (_m *JetStreamContext) GetLastMsg(name string, subject string, opts ...nats.JSOpt) (*nats.RawStreamMsg, error) {
+func (_m *JetStreamContext) GetLastMsg(name string, subject string, opts ...natsgo.JSOpt) (*natsgo.RawStreamMsg, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -990,20 +990,20 @@ func (_m *JetStreamContext) GetLastMsg(name string, subject string, opts ...nats
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.RawStreamMsg
+	var r0 *natsgo.RawStreamMsg
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.JSOpt) (*nats.RawStreamMsg, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.JSOpt) (*natsgo.RawStreamMsg, error)); ok {
 		return rf(name, subject, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.JSOpt) *nats.RawStreamMsg); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.JSOpt) *natsgo.RawStreamMsg); ok {
 		r0 = rf(name, subject, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.RawStreamMsg)
+			r0 = ret.Get(0).(*natsgo.RawStreamMsg)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, ...natsgo.JSOpt) error); ok {
 		r1 = rf(name, subject, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1020,18 +1020,18 @@ type JetStreamContext_GetLastMsg_Call struct {
 // GetLastMsg is a helper method to define mock.On call
 //   - name string
 //   - subject string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) GetLastMsg(name interface{}, subject interface{}, opts ...interface{}) *JetStreamContext_GetLastMsg_Call {
 	return &JetStreamContext_GetLastMsg_Call{Call: _e.mock.On("GetLastMsg",
 		append([]interface{}{name, subject}, opts...)...)}
 }
 
-func (_c *JetStreamContext_GetLastMsg_Call) Run(run func(name string, subject string, opts ...nats.JSOpt)) *JetStreamContext_GetLastMsg_Call {
+func (_c *JetStreamContext_GetLastMsg_Call) Run(run func(name string, subject string, opts ...natsgo.JSOpt)) *JetStreamContext_GetLastMsg_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), args[1].(string), variadicArgs...)
@@ -1039,18 +1039,18 @@ func (_c *JetStreamContext_GetLastMsg_Call) Run(run func(name string, subject st
 	return _c
 }
 
-func (_c *JetStreamContext_GetLastMsg_Call) Return(_a0 *nats.RawStreamMsg, _a1 error) *JetStreamContext_GetLastMsg_Call {
+func (_c *JetStreamContext_GetLastMsg_Call) Return(_a0 *natsgo.RawStreamMsg, _a1 error) *JetStreamContext_GetLastMsg_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_GetLastMsg_Call) RunAndReturn(run func(string, string, ...nats.JSOpt) (*nats.RawStreamMsg, error)) *JetStreamContext_GetLastMsg_Call {
+func (_c *JetStreamContext_GetLastMsg_Call) RunAndReturn(run func(string, string, ...natsgo.JSOpt) (*natsgo.RawStreamMsg, error)) *JetStreamContext_GetLastMsg_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetMsg provides a mock function with given fields: name, seq, opts
-func (_m *JetStreamContext) GetMsg(name string, seq uint64, opts ...nats.JSOpt) (*nats.RawStreamMsg, error) {
+func (_m *JetStreamContext) GetMsg(name string, seq uint64, opts ...natsgo.JSOpt) (*natsgo.RawStreamMsg, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1060,20 +1060,20 @@ func (_m *JetStreamContext) GetMsg(name string, seq uint64, opts ...nats.JSOpt) 
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.RawStreamMsg
+	var r0 *natsgo.RawStreamMsg
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, uint64, ...nats.JSOpt) (*nats.RawStreamMsg, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, uint64, ...natsgo.JSOpt) (*natsgo.RawStreamMsg, error)); ok {
 		return rf(name, seq, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, uint64, ...nats.JSOpt) *nats.RawStreamMsg); ok {
+	if rf, ok := ret.Get(0).(func(string, uint64, ...natsgo.JSOpt) *natsgo.RawStreamMsg); ok {
 		r0 = rf(name, seq, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.RawStreamMsg)
+			r0 = ret.Get(0).(*natsgo.RawStreamMsg)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, uint64, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, uint64, ...natsgo.JSOpt) error); ok {
 		r1 = rf(name, seq, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1090,18 +1090,18 @@ type JetStreamContext_GetMsg_Call struct {
 // GetMsg is a helper method to define mock.On call
 //   - name string
 //   - seq uint64
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) GetMsg(name interface{}, seq interface{}, opts ...interface{}) *JetStreamContext_GetMsg_Call {
 	return &JetStreamContext_GetMsg_Call{Call: _e.mock.On("GetMsg",
 		append([]interface{}{name, seq}, opts...)...)}
 }
 
-func (_c *JetStreamContext_GetMsg_Call) Run(run func(name string, seq uint64, opts ...nats.JSOpt)) *JetStreamContext_GetMsg_Call {
+func (_c *JetStreamContext_GetMsg_Call) Run(run func(name string, seq uint64, opts ...natsgo.JSOpt)) *JetStreamContext_GetMsg_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), args[1].(uint64), variadicArgs...)
@@ -1109,30 +1109,30 @@ func (_c *JetStreamContext_GetMsg_Call) Run(run func(name string, seq uint64, op
 	return _c
 }
 
-func (_c *JetStreamContext_GetMsg_Call) Return(_a0 *nats.RawStreamMsg, _a1 error) *JetStreamContext_GetMsg_Call {
+func (_c *JetStreamContext_GetMsg_Call) Return(_a0 *natsgo.RawStreamMsg, _a1 error) *JetStreamContext_GetMsg_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_GetMsg_Call) RunAndReturn(run func(string, uint64, ...nats.JSOpt) (*nats.RawStreamMsg, error)) *JetStreamContext_GetMsg_Call {
+func (_c *JetStreamContext_GetMsg_Call) RunAndReturn(run func(string, uint64, ...natsgo.JSOpt) (*natsgo.RawStreamMsg, error)) *JetStreamContext_GetMsg_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // KeyValue provides a mock function with given fields: bucket
-func (_m *JetStreamContext) KeyValue(bucket string) (nats.KeyValue, error) {
+func (_m *JetStreamContext) KeyValue(bucket string) (natsgo.KeyValue, error) {
 	ret := _m.Called(bucket)
 
-	var r0 nats.KeyValue
+	var r0 natsgo.KeyValue
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (nats.KeyValue, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (natsgo.KeyValue, error)); ok {
 		return rf(bucket)
 	}
-	if rf, ok := ret.Get(0).(func(string) nats.KeyValue); ok {
+	if rf, ok := ret.Get(0).(func(string) natsgo.KeyValue); ok {
 		r0 = rf(bucket)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(nats.KeyValue)
+			r0 = ret.Get(0).(natsgo.KeyValue)
 		}
 	}
 
@@ -1163,12 +1163,12 @@ func (_c *JetStreamContext_KeyValue_Call) Run(run func(bucket string)) *JetStrea
 	return _c
 }
 
-func (_c *JetStreamContext_KeyValue_Call) Return(_a0 nats.KeyValue, _a1 error) *JetStreamContext_KeyValue_Call {
+func (_c *JetStreamContext_KeyValue_Call) Return(_a0 natsgo.KeyValue, _a1 error) *JetStreamContext_KeyValue_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_KeyValue_Call) RunAndReturn(run func(string) (nats.KeyValue, error)) *JetStreamContext_KeyValue_Call {
+func (_c *JetStreamContext_KeyValue_Call) RunAndReturn(run func(string) (natsgo.KeyValue, error)) *JetStreamContext_KeyValue_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1217,15 +1217,15 @@ func (_c *JetStreamContext_KeyValueStoreNames_Call) RunAndReturn(run func() <-ch
 }
 
 // KeyValueStores provides a mock function with given fields:
-func (_m *JetStreamContext) KeyValueStores() <-chan nats.KeyValueStatus {
+func (_m *JetStreamContext) KeyValueStores() <-chan natsgo.KeyValueStatus {
 	ret := _m.Called()
 
-	var r0 <-chan nats.KeyValueStatus
-	if rf, ok := ret.Get(0).(func() <-chan nats.KeyValueStatus); ok {
+	var r0 <-chan natsgo.KeyValueStatus
+	if rf, ok := ret.Get(0).(func() <-chan natsgo.KeyValueStatus); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan nats.KeyValueStatus)
+			r0 = ret.Get(0).(<-chan natsgo.KeyValueStatus)
 		}
 	}
 
@@ -1249,30 +1249,30 @@ func (_c *JetStreamContext_KeyValueStores_Call) Run(run func()) *JetStreamContex
 	return _c
 }
 
-func (_c *JetStreamContext_KeyValueStores_Call) Return(_a0 <-chan nats.KeyValueStatus) *JetStreamContext_KeyValueStores_Call {
+func (_c *JetStreamContext_KeyValueStores_Call) Return(_a0 <-chan natsgo.KeyValueStatus) *JetStreamContext_KeyValueStores_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *JetStreamContext_KeyValueStores_Call) RunAndReturn(run func() <-chan nats.KeyValueStatus) *JetStreamContext_KeyValueStores_Call {
+func (_c *JetStreamContext_KeyValueStores_Call) RunAndReturn(run func() <-chan natsgo.KeyValueStatus) *JetStreamContext_KeyValueStores_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ObjectStore provides a mock function with given fields: bucket
-func (_m *JetStreamContext) ObjectStore(bucket string) (nats.ObjectStore, error) {
+func (_m *JetStreamContext) ObjectStore(bucket string) (natsgo.ObjectStore, error) {
 	ret := _m.Called(bucket)
 
-	var r0 nats.ObjectStore
+	var r0 natsgo.ObjectStore
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (nats.ObjectStore, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (natsgo.ObjectStore, error)); ok {
 		return rf(bucket)
 	}
-	if rf, ok := ret.Get(0).(func(string) nats.ObjectStore); ok {
+	if rf, ok := ret.Get(0).(func(string) natsgo.ObjectStore); ok {
 		r0 = rf(bucket)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(nats.ObjectStore)
+			r0 = ret.Get(0).(natsgo.ObjectStore)
 		}
 	}
 
@@ -1303,18 +1303,18 @@ func (_c *JetStreamContext_ObjectStore_Call) Run(run func(bucket string)) *JetSt
 	return _c
 }
 
-func (_c *JetStreamContext_ObjectStore_Call) Return(_a0 nats.ObjectStore, _a1 error) *JetStreamContext_ObjectStore_Call {
+func (_c *JetStreamContext_ObjectStore_Call) Return(_a0 natsgo.ObjectStore, _a1 error) *JetStreamContext_ObjectStore_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_ObjectStore_Call) RunAndReturn(run func(string) (nats.ObjectStore, error)) *JetStreamContext_ObjectStore_Call {
+func (_c *JetStreamContext_ObjectStore_Call) RunAndReturn(run func(string) (natsgo.ObjectStore, error)) *JetStreamContext_ObjectStore_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ObjectStoreNames provides a mock function with given fields: opts
-func (_m *JetStreamContext) ObjectStoreNames(opts ...nats.ObjectOpt) <-chan string {
+func (_m *JetStreamContext) ObjectStoreNames(opts ...natsgo.ObjectOpt) <-chan string {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1324,7 +1324,7 @@ func (_m *JetStreamContext) ObjectStoreNames(opts ...nats.ObjectOpt) <-chan stri
 	ret := _m.Called(_ca...)
 
 	var r0 <-chan string
-	if rf, ok := ret.Get(0).(func(...nats.ObjectOpt) <-chan string); ok {
+	if rf, ok := ret.Get(0).(func(...natsgo.ObjectOpt) <-chan string); ok {
 		r0 = rf(opts...)
 	} else {
 		if ret.Get(0) != nil {
@@ -1341,18 +1341,18 @@ type JetStreamContext_ObjectStoreNames_Call struct {
 }
 
 // ObjectStoreNames is a helper method to define mock.On call
-//   - opts ...nats.ObjectOpt
+//   - opts ...natsgo.ObjectOpt
 func (_e *JetStreamContext_Expecter) ObjectStoreNames(opts ...interface{}) *JetStreamContext_ObjectStoreNames_Call {
 	return &JetStreamContext_ObjectStoreNames_Call{Call: _e.mock.On("ObjectStoreNames",
 		append([]interface{}{}, opts...)...)}
 }
 
-func (_c *JetStreamContext_ObjectStoreNames_Call) Run(run func(opts ...nats.ObjectOpt)) *JetStreamContext_ObjectStoreNames_Call {
+func (_c *JetStreamContext_ObjectStoreNames_Call) Run(run func(opts ...natsgo.ObjectOpt)) *JetStreamContext_ObjectStoreNames_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.ObjectOpt, len(args)-0)
+		variadicArgs := make([]natsgo.ObjectOpt, len(args)-0)
 		for i, a := range args[0:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.ObjectOpt)
+				variadicArgs[i] = a.(natsgo.ObjectOpt)
 			}
 		}
 		run(variadicArgs...)
@@ -1365,13 +1365,13 @@ func (_c *JetStreamContext_ObjectStoreNames_Call) Return(_a0 <-chan string) *Jet
 	return _c
 }
 
-func (_c *JetStreamContext_ObjectStoreNames_Call) RunAndReturn(run func(...nats.ObjectOpt) <-chan string) *JetStreamContext_ObjectStoreNames_Call {
+func (_c *JetStreamContext_ObjectStoreNames_Call) RunAndReturn(run func(...natsgo.ObjectOpt) <-chan string) *JetStreamContext_ObjectStoreNames_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ObjectStores provides a mock function with given fields: opts
-func (_m *JetStreamContext) ObjectStores(opts ...nats.ObjectOpt) <-chan nats.ObjectStoreStatus {
+func (_m *JetStreamContext) ObjectStores(opts ...natsgo.ObjectOpt) <-chan natsgo.ObjectStoreStatus {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1380,12 +1380,12 @@ func (_m *JetStreamContext) ObjectStores(opts ...nats.ObjectOpt) <-chan nats.Obj
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 <-chan nats.ObjectStoreStatus
-	if rf, ok := ret.Get(0).(func(...nats.ObjectOpt) <-chan nats.ObjectStoreStatus); ok {
+	var r0 <-chan natsgo.ObjectStoreStatus
+	if rf, ok := ret.Get(0).(func(...natsgo.ObjectOpt) <-chan natsgo.ObjectStoreStatus); ok {
 		r0 = rf(opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan nats.ObjectStoreStatus)
+			r0 = ret.Get(0).(<-chan natsgo.ObjectStoreStatus)
 		}
 	}
 
@@ -1398,18 +1398,18 @@ type JetStreamContext_ObjectStores_Call struct {
 }
 
 // ObjectStores is a helper method to define mock.On call
-//   - opts ...nats.ObjectOpt
+//   - opts ...natsgo.ObjectOpt
 func (_e *JetStreamContext_Expecter) ObjectStores(opts ...interface{}) *JetStreamContext_ObjectStores_Call {
 	return &JetStreamContext_ObjectStores_Call{Call: _e.mock.On("ObjectStores",
 		append([]interface{}{}, opts...)...)}
 }
 
-func (_c *JetStreamContext_ObjectStores_Call) Run(run func(opts ...nats.ObjectOpt)) *JetStreamContext_ObjectStores_Call {
+func (_c *JetStreamContext_ObjectStores_Call) Run(run func(opts ...natsgo.ObjectOpt)) *JetStreamContext_ObjectStores_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.ObjectOpt, len(args)-0)
+		variadicArgs := make([]natsgo.ObjectOpt, len(args)-0)
 		for i, a := range args[0:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.ObjectOpt)
+				variadicArgs[i] = a.(natsgo.ObjectOpt)
 			}
 		}
 		run(variadicArgs...)
@@ -1417,18 +1417,18 @@ func (_c *JetStreamContext_ObjectStores_Call) Run(run func(opts ...nats.ObjectOp
 	return _c
 }
 
-func (_c *JetStreamContext_ObjectStores_Call) Return(_a0 <-chan nats.ObjectStoreStatus) *JetStreamContext_ObjectStores_Call {
+func (_c *JetStreamContext_ObjectStores_Call) Return(_a0 <-chan natsgo.ObjectStoreStatus) *JetStreamContext_ObjectStores_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *JetStreamContext_ObjectStores_Call) RunAndReturn(run func(...nats.ObjectOpt) <-chan nats.ObjectStoreStatus) *JetStreamContext_ObjectStores_Call {
+func (_c *JetStreamContext_ObjectStores_Call) RunAndReturn(run func(...natsgo.ObjectOpt) <-chan natsgo.ObjectStoreStatus) *JetStreamContext_ObjectStores_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Publish provides a mock function with given fields: subj, data, opts
-func (_m *JetStreamContext) Publish(subj string, data []byte, opts ...nats.PubOpt) (*nats.PubAck, error) {
+func (_m *JetStreamContext) Publish(subj string, data []byte, opts ...natsgo.PubOpt) (*natsgo.PubAck, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1438,20 +1438,20 @@ func (_m *JetStreamContext) Publish(subj string, data []byte, opts ...nats.PubOp
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.PubAck
+	var r0 *natsgo.PubAck
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, []byte, ...nats.PubOpt) (*nats.PubAck, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, []byte, ...natsgo.PubOpt) (*natsgo.PubAck, error)); ok {
 		return rf(subj, data, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, []byte, ...nats.PubOpt) *nats.PubAck); ok {
+	if rf, ok := ret.Get(0).(func(string, []byte, ...natsgo.PubOpt) *natsgo.PubAck); ok {
 		r0 = rf(subj, data, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.PubAck)
+			r0 = ret.Get(0).(*natsgo.PubAck)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, []byte, ...nats.PubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, []byte, ...natsgo.PubOpt) error); ok {
 		r1 = rf(subj, data, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1468,18 +1468,18 @@ type JetStreamContext_Publish_Call struct {
 // Publish is a helper method to define mock.On call
 //   - subj string
 //   - data []byte
-//   - opts ...nats.PubOpt
+//   - opts ...natsgo.PubOpt
 func (_e *JetStreamContext_Expecter) Publish(subj interface{}, data interface{}, opts ...interface{}) *JetStreamContext_Publish_Call {
 	return &JetStreamContext_Publish_Call{Call: _e.mock.On("Publish",
 		append([]interface{}{subj, data}, opts...)...)}
 }
 
-func (_c *JetStreamContext_Publish_Call) Run(run func(subj string, data []byte, opts ...nats.PubOpt)) *JetStreamContext_Publish_Call {
+func (_c *JetStreamContext_Publish_Call) Run(run func(subj string, data []byte, opts ...natsgo.PubOpt)) *JetStreamContext_Publish_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.PubOpt, len(args)-2)
+		variadicArgs := make([]natsgo.PubOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.PubOpt)
+				variadicArgs[i] = a.(natsgo.PubOpt)
 			}
 		}
 		run(args[0].(string), args[1].([]byte), variadicArgs...)
@@ -1487,18 +1487,18 @@ func (_c *JetStreamContext_Publish_Call) Run(run func(subj string, data []byte, 
 	return _c
 }
 
-func (_c *JetStreamContext_Publish_Call) Return(_a0 *nats.PubAck, _a1 error) *JetStreamContext_Publish_Call {
+func (_c *JetStreamContext_Publish_Call) Return(_a0 *natsgo.PubAck, _a1 error) *JetStreamContext_Publish_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_Publish_Call) RunAndReturn(run func(string, []byte, ...nats.PubOpt) (*nats.PubAck, error)) *JetStreamContext_Publish_Call {
+func (_c *JetStreamContext_Publish_Call) RunAndReturn(run func(string, []byte, ...natsgo.PubOpt) (*natsgo.PubAck, error)) *JetStreamContext_Publish_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PublishAsync provides a mock function with given fields: subj, data, opts
-func (_m *JetStreamContext) PublishAsync(subj string, data []byte, opts ...nats.PubOpt) (nats.PubAckFuture, error) {
+func (_m *JetStreamContext) PublishAsync(subj string, data []byte, opts ...natsgo.PubOpt) (natsgo.PubAckFuture, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1508,20 +1508,20 @@ func (_m *JetStreamContext) PublishAsync(subj string, data []byte, opts ...nats.
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 nats.PubAckFuture
+	var r0 natsgo.PubAckFuture
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, []byte, ...nats.PubOpt) (nats.PubAckFuture, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, []byte, ...natsgo.PubOpt) (natsgo.PubAckFuture, error)); ok {
 		return rf(subj, data, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, []byte, ...nats.PubOpt) nats.PubAckFuture); ok {
+	if rf, ok := ret.Get(0).(func(string, []byte, ...natsgo.PubOpt) natsgo.PubAckFuture); ok {
 		r0 = rf(subj, data, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(nats.PubAckFuture)
+			r0 = ret.Get(0).(natsgo.PubAckFuture)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, []byte, ...nats.PubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, []byte, ...natsgo.PubOpt) error); ok {
 		r1 = rf(subj, data, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1538,18 +1538,18 @@ type JetStreamContext_PublishAsync_Call struct {
 // PublishAsync is a helper method to define mock.On call
 //   - subj string
 //   - data []byte
-//   - opts ...nats.PubOpt
+//   - opts ...natsgo.PubOpt
 func (_e *JetStreamContext_Expecter) PublishAsync(subj interface{}, data interface{}, opts ...interface{}) *JetStreamContext_PublishAsync_Call {
 	return &JetStreamContext_PublishAsync_Call{Call: _e.mock.On("PublishAsync",
 		append([]interface{}{subj, data}, opts...)...)}
 }
 
-func (_c *JetStreamContext_PublishAsync_Call) Run(run func(subj string, data []byte, opts ...nats.PubOpt)) *JetStreamContext_PublishAsync_Call {
+func (_c *JetStreamContext_PublishAsync_Call) Run(run func(subj string, data []byte, opts ...natsgo.PubOpt)) *JetStreamContext_PublishAsync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.PubOpt, len(args)-2)
+		variadicArgs := make([]natsgo.PubOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.PubOpt)
+				variadicArgs[i] = a.(natsgo.PubOpt)
 			}
 		}
 		run(args[0].(string), args[1].([]byte), variadicArgs...)
@@ -1557,12 +1557,12 @@ func (_c *JetStreamContext_PublishAsync_Call) Run(run func(subj string, data []b
 	return _c
 }
 
-func (_c *JetStreamContext_PublishAsync_Call) Return(_a0 nats.PubAckFuture, _a1 error) *JetStreamContext_PublishAsync_Call {
+func (_c *JetStreamContext_PublishAsync_Call) Return(_a0 natsgo.PubAckFuture, _a1 error) *JetStreamContext_PublishAsync_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_PublishAsync_Call) RunAndReturn(run func(string, []byte, ...nats.PubOpt) (nats.PubAckFuture, error)) *JetStreamContext_PublishAsync_Call {
+func (_c *JetStreamContext_PublishAsync_Call) RunAndReturn(run func(string, []byte, ...natsgo.PubOpt) (natsgo.PubAckFuture, error)) *JetStreamContext_PublishAsync_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1652,7 +1652,7 @@ func (_c *JetStreamContext_PublishAsyncPending_Call) RunAndReturn(run func() int
 }
 
 // PublishMsg provides a mock function with given fields: m, opts
-func (_m *JetStreamContext) PublishMsg(m *nats.Msg, opts ...nats.PubOpt) (*nats.PubAck, error) {
+func (_m *JetStreamContext) PublishMsg(m *natsgo.Msg, opts ...natsgo.PubOpt) (*natsgo.PubAck, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1662,20 +1662,20 @@ func (_m *JetStreamContext) PublishMsg(m *nats.Msg, opts ...nats.PubOpt) (*nats.
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.PubAck
+	var r0 *natsgo.PubAck
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*nats.Msg, ...nats.PubOpt) (*nats.PubAck, error)); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.Msg, ...natsgo.PubOpt) (*natsgo.PubAck, error)); ok {
 		return rf(m, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(*nats.Msg, ...nats.PubOpt) *nats.PubAck); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.Msg, ...natsgo.PubOpt) *natsgo.PubAck); ok {
 		r0 = rf(m, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.PubAck)
+			r0 = ret.Get(0).(*natsgo.PubAck)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*nats.Msg, ...nats.PubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(*natsgo.Msg, ...natsgo.PubOpt) error); ok {
 		r1 = rf(m, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1690,38 +1690,38 @@ type JetStreamContext_PublishMsg_Call struct {
 }
 
 // PublishMsg is a helper method to define mock.On call
-//   - m *nats.Msg
-//   - opts ...nats.PubOpt
+//   - m *natsgo.Msg
+//   - opts ...natsgo.PubOpt
 func (_e *JetStreamContext_Expecter) PublishMsg(m interface{}, opts ...interface{}) *JetStreamContext_PublishMsg_Call {
 	return &JetStreamContext_PublishMsg_Call{Call: _e.mock.On("PublishMsg",
 		append([]interface{}{m}, opts...)...)}
 }
 
-func (_c *JetStreamContext_PublishMsg_Call) Run(run func(m *nats.Msg, opts ...nats.PubOpt)) *JetStreamContext_PublishMsg_Call {
+func (_c *JetStreamContext_PublishMsg_Call) Run(run func(m *natsgo.Msg, opts ...natsgo.PubOpt)) *JetStreamContext_PublishMsg_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.PubOpt, len(args)-1)
+		variadicArgs := make([]natsgo.PubOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.PubOpt)
+				variadicArgs[i] = a.(natsgo.PubOpt)
 			}
 		}
-		run(args[0].(*nats.Msg), variadicArgs...)
+		run(args[0].(*natsgo.Msg), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_PublishMsg_Call) Return(_a0 *nats.PubAck, _a1 error) *JetStreamContext_PublishMsg_Call {
+func (_c *JetStreamContext_PublishMsg_Call) Return(_a0 *natsgo.PubAck, _a1 error) *JetStreamContext_PublishMsg_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_PublishMsg_Call) RunAndReturn(run func(*nats.Msg, ...nats.PubOpt) (*nats.PubAck, error)) *JetStreamContext_PublishMsg_Call {
+func (_c *JetStreamContext_PublishMsg_Call) RunAndReturn(run func(*natsgo.Msg, ...natsgo.PubOpt) (*natsgo.PubAck, error)) *JetStreamContext_PublishMsg_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PublishMsgAsync provides a mock function with given fields: m, opts
-func (_m *JetStreamContext) PublishMsgAsync(m *nats.Msg, opts ...nats.PubOpt) (nats.PubAckFuture, error) {
+func (_m *JetStreamContext) PublishMsgAsync(m *natsgo.Msg, opts ...natsgo.PubOpt) (natsgo.PubAckFuture, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1731,20 +1731,20 @@ func (_m *JetStreamContext) PublishMsgAsync(m *nats.Msg, opts ...nats.PubOpt) (n
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 nats.PubAckFuture
+	var r0 natsgo.PubAckFuture
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*nats.Msg, ...nats.PubOpt) (nats.PubAckFuture, error)); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.Msg, ...natsgo.PubOpt) (natsgo.PubAckFuture, error)); ok {
 		return rf(m, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(*nats.Msg, ...nats.PubOpt) nats.PubAckFuture); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.Msg, ...natsgo.PubOpt) natsgo.PubAckFuture); ok {
 		r0 = rf(m, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(nats.PubAckFuture)
+			r0 = ret.Get(0).(natsgo.PubAckFuture)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*nats.Msg, ...nats.PubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(*natsgo.Msg, ...natsgo.PubOpt) error); ok {
 		r1 = rf(m, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1759,38 +1759,38 @@ type JetStreamContext_PublishMsgAsync_Call struct {
 }
 
 // PublishMsgAsync is a helper method to define mock.On call
-//   - m *nats.Msg
-//   - opts ...nats.PubOpt
+//   - m *natsgo.Msg
+//   - opts ...natsgo.PubOpt
 func (_e *JetStreamContext_Expecter) PublishMsgAsync(m interface{}, opts ...interface{}) *JetStreamContext_PublishMsgAsync_Call {
 	return &JetStreamContext_PublishMsgAsync_Call{Call: _e.mock.On("PublishMsgAsync",
 		append([]interface{}{m}, opts...)...)}
 }
 
-func (_c *JetStreamContext_PublishMsgAsync_Call) Run(run func(m *nats.Msg, opts ...nats.PubOpt)) *JetStreamContext_PublishMsgAsync_Call {
+func (_c *JetStreamContext_PublishMsgAsync_Call) Run(run func(m *natsgo.Msg, opts ...natsgo.PubOpt)) *JetStreamContext_PublishMsgAsync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.PubOpt, len(args)-1)
+		variadicArgs := make([]natsgo.PubOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.PubOpt)
+				variadicArgs[i] = a.(natsgo.PubOpt)
 			}
 		}
-		run(args[0].(*nats.Msg), variadicArgs...)
+		run(args[0].(*natsgo.Msg), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_PublishMsgAsync_Call) Return(_a0 nats.PubAckFuture, _a1 error) *JetStreamContext_PublishMsgAsync_Call {
+func (_c *JetStreamContext_PublishMsgAsync_Call) Return(_a0 natsgo.PubAckFuture, _a1 error) *JetStreamContext_PublishMsgAsync_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_PublishMsgAsync_Call) RunAndReturn(run func(*nats.Msg, ...nats.PubOpt) (nats.PubAckFuture, error)) *JetStreamContext_PublishMsgAsync_Call {
+func (_c *JetStreamContext_PublishMsgAsync_Call) RunAndReturn(run func(*natsgo.Msg, ...natsgo.PubOpt) (natsgo.PubAckFuture, error)) *JetStreamContext_PublishMsgAsync_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PullSubscribe provides a mock function with given fields: subj, durable, opts
-func (_m *JetStreamContext) PullSubscribe(subj string, durable string, opts ...nats.SubOpt) (*nats.Subscription, error) {
+func (_m *JetStreamContext) PullSubscribe(subj string, durable string, opts ...natsgo.SubOpt) (*natsgo.Subscription, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1800,20 +1800,20 @@ func (_m *JetStreamContext) PullSubscribe(subj string, durable string, opts ...n
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.Subscription
+	var r0 *natsgo.Subscription
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.SubOpt) (*nats.Subscription, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.SubOpt) (*natsgo.Subscription, error)); ok {
 		return rf(subj, durable, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.SubOpt) *nats.Subscription); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.SubOpt) *natsgo.Subscription); ok {
 		r0 = rf(subj, durable, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.Subscription)
+			r0 = ret.Get(0).(*natsgo.Subscription)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, ...nats.SubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, ...natsgo.SubOpt) error); ok {
 		r1 = rf(subj, durable, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1830,18 +1830,18 @@ type JetStreamContext_PullSubscribe_Call struct {
 // PullSubscribe is a helper method to define mock.On call
 //   - subj string
 //   - durable string
-//   - opts ...nats.SubOpt
+//   - opts ...natsgo.SubOpt
 func (_e *JetStreamContext_Expecter) PullSubscribe(subj interface{}, durable interface{}, opts ...interface{}) *JetStreamContext_PullSubscribe_Call {
 	return &JetStreamContext_PullSubscribe_Call{Call: _e.mock.On("PullSubscribe",
 		append([]interface{}{subj, durable}, opts...)...)}
 }
 
-func (_c *JetStreamContext_PullSubscribe_Call) Run(run func(subj string, durable string, opts ...nats.SubOpt)) *JetStreamContext_PullSubscribe_Call {
+func (_c *JetStreamContext_PullSubscribe_Call) Run(run func(subj string, durable string, opts ...natsgo.SubOpt)) *JetStreamContext_PullSubscribe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.SubOpt, len(args)-2)
+		variadicArgs := make([]natsgo.SubOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.SubOpt)
+				variadicArgs[i] = a.(natsgo.SubOpt)
 			}
 		}
 		run(args[0].(string), args[1].(string), variadicArgs...)
@@ -1849,18 +1849,18 @@ func (_c *JetStreamContext_PullSubscribe_Call) Run(run func(subj string, durable
 	return _c
 }
 
-func (_c *JetStreamContext_PullSubscribe_Call) Return(_a0 *nats.Subscription, _a1 error) *JetStreamContext_PullSubscribe_Call {
+func (_c *JetStreamContext_PullSubscribe_Call) Return(_a0 *natsgo.Subscription, _a1 error) *JetStreamContext_PullSubscribe_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_PullSubscribe_Call) RunAndReturn(run func(string, string, ...nats.SubOpt) (*nats.Subscription, error)) *JetStreamContext_PullSubscribe_Call {
+func (_c *JetStreamContext_PullSubscribe_Call) RunAndReturn(run func(string, string, ...natsgo.SubOpt) (*natsgo.Subscription, error)) *JetStreamContext_PullSubscribe_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PurgeStream provides a mock function with given fields: name, opts
-func (_m *JetStreamContext) PurgeStream(name string, opts ...nats.JSOpt) error {
+func (_m *JetStreamContext) PurgeStream(name string, opts ...natsgo.JSOpt) error {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1871,7 +1871,7 @@ func (_m *JetStreamContext) PurgeStream(name string, opts ...nats.JSOpt) error {
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) error); ok {
 		r0 = rf(name, opts...)
 	} else {
 		r0 = ret.Error(0)
@@ -1887,18 +1887,18 @@ type JetStreamContext_PurgeStream_Call struct {
 
 // PurgeStream is a helper method to define mock.On call
 //   - name string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) PurgeStream(name interface{}, opts ...interface{}) *JetStreamContext_PurgeStream_Call {
 	return &JetStreamContext_PurgeStream_Call{Call: _e.mock.On("PurgeStream",
 		append([]interface{}{name}, opts...)...)}
 }
 
-func (_c *JetStreamContext_PurgeStream_Call) Run(run func(name string, opts ...nats.JSOpt)) *JetStreamContext_PurgeStream_Call {
+func (_c *JetStreamContext_PurgeStream_Call) Run(run func(name string, opts ...natsgo.JSOpt)) *JetStreamContext_PurgeStream_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -1911,13 +1911,13 @@ func (_c *JetStreamContext_PurgeStream_Call) Return(_a0 error) *JetStreamContext
 	return _c
 }
 
-func (_c *JetStreamContext_PurgeStream_Call) RunAndReturn(run func(string, ...nats.JSOpt) error) *JetStreamContext_PurgeStream_Call {
+func (_c *JetStreamContext_PurgeStream_Call) RunAndReturn(run func(string, ...natsgo.JSOpt) error) *JetStreamContext_PurgeStream_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // QueueSubscribe provides a mock function with given fields: subj, queue, cb, opts
-func (_m *JetStreamContext) QueueSubscribe(subj string, queue string, cb nats.MsgHandler, opts ...nats.SubOpt) (*nats.Subscription, error) {
+func (_m *JetStreamContext) QueueSubscribe(subj string, queue string, cb natsgo.MsgHandler, opts ...natsgo.SubOpt) (*natsgo.Subscription, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1927,20 +1927,20 @@ func (_m *JetStreamContext) QueueSubscribe(subj string, queue string, cb nats.Ms
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.Subscription
+	var r0 *natsgo.Subscription
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, nats.MsgHandler, ...nats.SubOpt) (*nats.Subscription, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, natsgo.MsgHandler, ...natsgo.SubOpt) (*natsgo.Subscription, error)); ok {
 		return rf(subj, queue, cb, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, nats.MsgHandler, ...nats.SubOpt) *nats.Subscription); ok {
+	if rf, ok := ret.Get(0).(func(string, string, natsgo.MsgHandler, ...natsgo.SubOpt) *natsgo.Subscription); ok {
 		r0 = rf(subj, queue, cb, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.Subscription)
+			r0 = ret.Get(0).(*natsgo.Subscription)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, nats.MsgHandler, ...nats.SubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, natsgo.MsgHandler, ...natsgo.SubOpt) error); ok {
 		r1 = rf(subj, queue, cb, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -1957,38 +1957,38 @@ type JetStreamContext_QueueSubscribe_Call struct {
 // QueueSubscribe is a helper method to define mock.On call
 //   - subj string
 //   - queue string
-//   - cb nats.MsgHandler
-//   - opts ...nats.SubOpt
+//   - cb natsgo.MsgHandler
+//   - opts ...natsgo.SubOpt
 func (_e *JetStreamContext_Expecter) QueueSubscribe(subj interface{}, queue interface{}, cb interface{}, opts ...interface{}) *JetStreamContext_QueueSubscribe_Call {
 	return &JetStreamContext_QueueSubscribe_Call{Call: _e.mock.On("QueueSubscribe",
 		append([]interface{}{subj, queue, cb}, opts...)...)}
 }
 
-func (_c *JetStreamContext_QueueSubscribe_Call) Run(run func(subj string, queue string, cb nats.MsgHandler, opts ...nats.SubOpt)) *JetStreamContext_QueueSubscribe_Call {
+func (_c *JetStreamContext_QueueSubscribe_Call) Run(run func(subj string, queue string, cb natsgo.MsgHandler, opts ...natsgo.SubOpt)) *JetStreamContext_QueueSubscribe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.SubOpt, len(args)-3)
+		variadicArgs := make([]natsgo.SubOpt, len(args)-3)
 		for i, a := range args[3:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.SubOpt)
+				variadicArgs[i] = a.(natsgo.SubOpt)
 			}
 		}
-		run(args[0].(string), args[1].(string), args[2].(nats.MsgHandler), variadicArgs...)
+		run(args[0].(string), args[1].(string), args[2].(natsgo.MsgHandler), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_QueueSubscribe_Call) Return(_a0 *nats.Subscription, _a1 error) *JetStreamContext_QueueSubscribe_Call {
+func (_c *JetStreamContext_QueueSubscribe_Call) Return(_a0 *natsgo.Subscription, _a1 error) *JetStreamContext_QueueSubscribe_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_QueueSubscribe_Call) RunAndReturn(run func(string, string, nats.MsgHandler, ...nats.SubOpt) (*nats.Subscription, error)) *JetStreamContext_QueueSubscribe_Call {
+func (_c *JetStreamContext_QueueSubscribe_Call) RunAndReturn(run func(string, string, natsgo.MsgHandler, ...natsgo.SubOpt) (*natsgo.Subscription, error)) *JetStreamContext_QueueSubscribe_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // QueueSubscribeSync provides a mock function with given fields: subj, queue, opts
-func (_m *JetStreamContext) QueueSubscribeSync(subj string, queue string, opts ...nats.SubOpt) (*nats.Subscription, error) {
+func (_m *JetStreamContext) QueueSubscribeSync(subj string, queue string, opts ...natsgo.SubOpt) (*natsgo.Subscription, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1998,20 +1998,20 @@ func (_m *JetStreamContext) QueueSubscribeSync(subj string, queue string, opts .
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.Subscription
+	var r0 *natsgo.Subscription
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.SubOpt) (*nats.Subscription, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.SubOpt) (*natsgo.Subscription, error)); ok {
 		return rf(subj, queue, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, ...nats.SubOpt) *nats.Subscription); ok {
+	if rf, ok := ret.Get(0).(func(string, string, ...natsgo.SubOpt) *natsgo.Subscription); ok {
 		r0 = rf(subj, queue, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.Subscription)
+			r0 = ret.Get(0).(*natsgo.Subscription)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, ...nats.SubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, string, ...natsgo.SubOpt) error); ok {
 		r1 = rf(subj, queue, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -2028,18 +2028,18 @@ type JetStreamContext_QueueSubscribeSync_Call struct {
 // QueueSubscribeSync is a helper method to define mock.On call
 //   - subj string
 //   - queue string
-//   - opts ...nats.SubOpt
+//   - opts ...natsgo.SubOpt
 func (_e *JetStreamContext_Expecter) QueueSubscribeSync(subj interface{}, queue interface{}, opts ...interface{}) *JetStreamContext_QueueSubscribeSync_Call {
 	return &JetStreamContext_QueueSubscribeSync_Call{Call: _e.mock.On("QueueSubscribeSync",
 		append([]interface{}{subj, queue}, opts...)...)}
 }
 
-func (_c *JetStreamContext_QueueSubscribeSync_Call) Run(run func(subj string, queue string, opts ...nats.SubOpt)) *JetStreamContext_QueueSubscribeSync_Call {
+func (_c *JetStreamContext_QueueSubscribeSync_Call) Run(run func(subj string, queue string, opts ...natsgo.SubOpt)) *JetStreamContext_QueueSubscribeSync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.SubOpt, len(args)-2)
+		variadicArgs := make([]natsgo.SubOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.SubOpt)
+				variadicArgs[i] = a.(natsgo.SubOpt)
 			}
 		}
 		run(args[0].(string), args[1].(string), variadicArgs...)
@@ -2047,18 +2047,18 @@ func (_c *JetStreamContext_QueueSubscribeSync_Call) Run(run func(subj string, qu
 	return _c
 }
 
-func (_c *JetStreamContext_QueueSubscribeSync_Call) Return(_a0 *nats.Subscription, _a1 error) *JetStreamContext_QueueSubscribeSync_Call {
+func (_c *JetStreamContext_QueueSubscribeSync_Call) Return(_a0 *natsgo.Subscription, _a1 error) *JetStreamContext_QueueSubscribeSync_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_QueueSubscribeSync_Call) RunAndReturn(run func(string, string, ...nats.SubOpt) (*nats.Subscription, error)) *JetStreamContext_QueueSubscribeSync_Call {
+func (_c *JetStreamContext_QueueSubscribeSync_Call) RunAndReturn(run func(string, string, ...natsgo.SubOpt) (*natsgo.Subscription, error)) *JetStreamContext_QueueSubscribeSync_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SecureDeleteMsg provides a mock function with given fields: name, seq, opts
-func (_m *JetStreamContext) SecureDeleteMsg(name string, seq uint64, opts ...nats.JSOpt) error {
+func (_m *JetStreamContext) SecureDeleteMsg(name string, seq uint64, opts ...natsgo.JSOpt) error {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2069,7 +2069,7 @@ func (_m *JetStreamContext) SecureDeleteMsg(name string, seq uint64, opts ...nat
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, uint64, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(0).(func(string, uint64, ...natsgo.JSOpt) error); ok {
 		r0 = rf(name, seq, opts...)
 	} else {
 		r0 = ret.Error(0)
@@ -2086,18 +2086,18 @@ type JetStreamContext_SecureDeleteMsg_Call struct {
 // SecureDeleteMsg is a helper method to define mock.On call
 //   - name string
 //   - seq uint64
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) SecureDeleteMsg(name interface{}, seq interface{}, opts ...interface{}) *JetStreamContext_SecureDeleteMsg_Call {
 	return &JetStreamContext_SecureDeleteMsg_Call{Call: _e.mock.On("SecureDeleteMsg",
 		append([]interface{}{name, seq}, opts...)...)}
 }
 
-func (_c *JetStreamContext_SecureDeleteMsg_Call) Run(run func(name string, seq uint64, opts ...nats.JSOpt)) *JetStreamContext_SecureDeleteMsg_Call {
+func (_c *JetStreamContext_SecureDeleteMsg_Call) Run(run func(name string, seq uint64, opts ...natsgo.JSOpt)) *JetStreamContext_SecureDeleteMsg_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), args[1].(uint64), variadicArgs...)
@@ -2110,13 +2110,13 @@ func (_c *JetStreamContext_SecureDeleteMsg_Call) Return(_a0 error) *JetStreamCon
 	return _c
 }
 
-func (_c *JetStreamContext_SecureDeleteMsg_Call) RunAndReturn(run func(string, uint64, ...nats.JSOpt) error) *JetStreamContext_SecureDeleteMsg_Call {
+func (_c *JetStreamContext_SecureDeleteMsg_Call) RunAndReturn(run func(string, uint64, ...natsgo.JSOpt) error) *JetStreamContext_SecureDeleteMsg_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // StreamInfo provides a mock function with given fields: stream, opts
-func (_m *JetStreamContext) StreamInfo(stream string, opts ...nats.JSOpt) (*nats.StreamInfo, error) {
+func (_m *JetStreamContext) StreamInfo(stream string, opts ...natsgo.JSOpt) (*natsgo.StreamInfo, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2126,20 +2126,20 @@ func (_m *JetStreamContext) StreamInfo(stream string, opts ...nats.JSOpt) (*nats
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.StreamInfo
+	var r0 *natsgo.StreamInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) (*nats.StreamInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) (*natsgo.StreamInfo, error)); ok {
 		return rf(stream, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) *nats.StreamInfo); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) *natsgo.StreamInfo); ok {
 		r0 = rf(stream, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.StreamInfo)
+			r0 = ret.Get(0).(*natsgo.StreamInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, ...natsgo.JSOpt) error); ok {
 		r1 = rf(stream, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -2155,18 +2155,18 @@ type JetStreamContext_StreamInfo_Call struct {
 
 // StreamInfo is a helper method to define mock.On call
 //   - stream string
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) StreamInfo(stream interface{}, opts ...interface{}) *JetStreamContext_StreamInfo_Call {
 	return &JetStreamContext_StreamInfo_Call{Call: _e.mock.On("StreamInfo",
 		append([]interface{}{stream}, opts...)...)}
 }
 
-func (_c *JetStreamContext_StreamInfo_Call) Run(run func(stream string, opts ...nats.JSOpt)) *JetStreamContext_StreamInfo_Call {
+func (_c *JetStreamContext_StreamInfo_Call) Run(run func(stream string, opts ...natsgo.JSOpt)) *JetStreamContext_StreamInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -2174,18 +2174,18 @@ func (_c *JetStreamContext_StreamInfo_Call) Run(run func(stream string, opts ...
 	return _c
 }
 
-func (_c *JetStreamContext_StreamInfo_Call) Return(_a0 *nats.StreamInfo, _a1 error) *JetStreamContext_StreamInfo_Call {
+func (_c *JetStreamContext_StreamInfo_Call) Return(_a0 *natsgo.StreamInfo, _a1 error) *JetStreamContext_StreamInfo_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_StreamInfo_Call) RunAndReturn(run func(string, ...nats.JSOpt) (*nats.StreamInfo, error)) *JetStreamContext_StreamInfo_Call {
+func (_c *JetStreamContext_StreamInfo_Call) RunAndReturn(run func(string, ...natsgo.JSOpt) (*natsgo.StreamInfo, error)) *JetStreamContext_StreamInfo_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // StreamNameBySubject provides a mock function with given fields: _a0, _a1
-func (_m *JetStreamContext) StreamNameBySubject(_a0 string, _a1 ...nats.JSOpt) (string, error) {
+func (_m *JetStreamContext) StreamNameBySubject(_a0 string, _a1 ...natsgo.JSOpt) (string, error) {
 	_va := make([]interface{}, len(_a1))
 	for _i := range _a1 {
 		_va[_i] = _a1[_i]
@@ -2197,16 +2197,16 @@ func (_m *JetStreamContext) StreamNameBySubject(_a0 string, _a1 ...nats.JSOpt) (
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) (string, error)); ok {
 		return rf(_a0, _a1...)
 	}
-	if rf, ok := ret.Get(0).(func(string, ...nats.JSOpt) string); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.JSOpt) string); ok {
 		r0 = rf(_a0, _a1...)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, ...natsgo.JSOpt) error); ok {
 		r1 = rf(_a0, _a1...)
 	} else {
 		r1 = ret.Error(1)
@@ -2222,18 +2222,18 @@ type JetStreamContext_StreamNameBySubject_Call struct {
 
 // StreamNameBySubject is a helper method to define mock.On call
 //   - _a0 string
-//   - _a1 ...nats.JSOpt
+//   - _a1 ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) StreamNameBySubject(_a0 interface{}, _a1 ...interface{}) *JetStreamContext_StreamNameBySubject_Call {
 	return &JetStreamContext_StreamNameBySubject_Call{Call: _e.mock.On("StreamNameBySubject",
 		append([]interface{}{_a0}, _a1...)...)}
 }
 
-func (_c *JetStreamContext_StreamNameBySubject_Call) Run(run func(_a0 string, _a1 ...nats.JSOpt)) *JetStreamContext_StreamNameBySubject_Call {
+func (_c *JetStreamContext_StreamNameBySubject_Call) Run(run func(_a0 string, _a1 ...natsgo.JSOpt)) *JetStreamContext_StreamNameBySubject_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -2246,13 +2246,13 @@ func (_c *JetStreamContext_StreamNameBySubject_Call) Return(_a0 string, _a1 erro
 	return _c
 }
 
-func (_c *JetStreamContext_StreamNameBySubject_Call) RunAndReturn(run func(string, ...nats.JSOpt) (string, error)) *JetStreamContext_StreamNameBySubject_Call {
+func (_c *JetStreamContext_StreamNameBySubject_Call) RunAndReturn(run func(string, ...natsgo.JSOpt) (string, error)) *JetStreamContext_StreamNameBySubject_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // StreamNames provides a mock function with given fields: opts
-func (_m *JetStreamContext) StreamNames(opts ...nats.JSOpt) <-chan string {
+func (_m *JetStreamContext) StreamNames(opts ...natsgo.JSOpt) <-chan string {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2262,7 +2262,7 @@ func (_m *JetStreamContext) StreamNames(opts ...nats.JSOpt) <-chan string {
 	ret := _m.Called(_ca...)
 
 	var r0 <-chan string
-	if rf, ok := ret.Get(0).(func(...nats.JSOpt) <-chan string); ok {
+	if rf, ok := ret.Get(0).(func(...natsgo.JSOpt) <-chan string); ok {
 		r0 = rf(opts...)
 	} else {
 		if ret.Get(0) != nil {
@@ -2279,18 +2279,18 @@ type JetStreamContext_StreamNames_Call struct {
 }
 
 // StreamNames is a helper method to define mock.On call
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) StreamNames(opts ...interface{}) *JetStreamContext_StreamNames_Call {
 	return &JetStreamContext_StreamNames_Call{Call: _e.mock.On("StreamNames",
 		append([]interface{}{}, opts...)...)}
 }
 
-func (_c *JetStreamContext_StreamNames_Call) Run(run func(opts ...nats.JSOpt)) *JetStreamContext_StreamNames_Call {
+func (_c *JetStreamContext_StreamNames_Call) Run(run func(opts ...natsgo.JSOpt)) *JetStreamContext_StreamNames_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-0)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-0)
 		for i, a := range args[0:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(variadicArgs...)
@@ -2303,13 +2303,13 @@ func (_c *JetStreamContext_StreamNames_Call) Return(_a0 <-chan string) *JetStrea
 	return _c
 }
 
-func (_c *JetStreamContext_StreamNames_Call) RunAndReturn(run func(...nats.JSOpt) <-chan string) *JetStreamContext_StreamNames_Call {
+func (_c *JetStreamContext_StreamNames_Call) RunAndReturn(run func(...natsgo.JSOpt) <-chan string) *JetStreamContext_StreamNames_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Streams provides a mock function with given fields: opts
-func (_m *JetStreamContext) Streams(opts ...nats.JSOpt) <-chan *nats.StreamInfo {
+func (_m *JetStreamContext) Streams(opts ...natsgo.JSOpt) <-chan *natsgo.StreamInfo {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2318,12 +2318,12 @@ func (_m *JetStreamContext) Streams(opts ...nats.JSOpt) <-chan *nats.StreamInfo 
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 <-chan *nats.StreamInfo
-	if rf, ok := ret.Get(0).(func(...nats.JSOpt) <-chan *nats.StreamInfo); ok {
+	var r0 <-chan *natsgo.StreamInfo
+	if rf, ok := ret.Get(0).(func(...natsgo.JSOpt) <-chan *natsgo.StreamInfo); ok {
 		r0 = rf(opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan *nats.StreamInfo)
+			r0 = ret.Get(0).(<-chan *natsgo.StreamInfo)
 		}
 	}
 
@@ -2336,18 +2336,18 @@ type JetStreamContext_Streams_Call struct {
 }
 
 // Streams is a helper method to define mock.On call
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) Streams(opts ...interface{}) *JetStreamContext_Streams_Call {
 	return &JetStreamContext_Streams_Call{Call: _e.mock.On("Streams",
 		append([]interface{}{}, opts...)...)}
 }
 
-func (_c *JetStreamContext_Streams_Call) Run(run func(opts ...nats.JSOpt)) *JetStreamContext_Streams_Call {
+func (_c *JetStreamContext_Streams_Call) Run(run func(opts ...natsgo.JSOpt)) *JetStreamContext_Streams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-0)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-0)
 		for i, a := range args[0:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(variadicArgs...)
@@ -2355,18 +2355,18 @@ func (_c *JetStreamContext_Streams_Call) Run(run func(opts ...nats.JSOpt)) *JetS
 	return _c
 }
 
-func (_c *JetStreamContext_Streams_Call) Return(_a0 <-chan *nats.StreamInfo) *JetStreamContext_Streams_Call {
+func (_c *JetStreamContext_Streams_Call) Return(_a0 <-chan *natsgo.StreamInfo) *JetStreamContext_Streams_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *JetStreamContext_Streams_Call) RunAndReturn(run func(...nats.JSOpt) <-chan *nats.StreamInfo) *JetStreamContext_Streams_Call {
+func (_c *JetStreamContext_Streams_Call) RunAndReturn(run func(...natsgo.JSOpt) <-chan *natsgo.StreamInfo) *JetStreamContext_Streams_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // StreamsInfo provides a mock function with given fields: opts
-func (_m *JetStreamContext) StreamsInfo(opts ...nats.JSOpt) <-chan *nats.StreamInfo {
+func (_m *JetStreamContext) StreamsInfo(opts ...natsgo.JSOpt) <-chan *natsgo.StreamInfo {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2375,12 +2375,12 @@ func (_m *JetStreamContext) StreamsInfo(opts ...nats.JSOpt) <-chan *nats.StreamI
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 <-chan *nats.StreamInfo
-	if rf, ok := ret.Get(0).(func(...nats.JSOpt) <-chan *nats.StreamInfo); ok {
+	var r0 <-chan *natsgo.StreamInfo
+	if rf, ok := ret.Get(0).(func(...natsgo.JSOpt) <-chan *natsgo.StreamInfo); ok {
 		r0 = rf(opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan *nats.StreamInfo)
+			r0 = ret.Get(0).(<-chan *natsgo.StreamInfo)
 		}
 	}
 
@@ -2393,18 +2393,18 @@ type JetStreamContext_StreamsInfo_Call struct {
 }
 
 // StreamsInfo is a helper method to define mock.On call
-//   - opts ...nats.JSOpt
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) StreamsInfo(opts ...interface{}) *JetStreamContext_StreamsInfo_Call {
 	return &JetStreamContext_StreamsInfo_Call{Call: _e.mock.On("StreamsInfo",
 		append([]interface{}{}, opts...)...)}
 }
 
-func (_c *JetStreamContext_StreamsInfo_Call) Run(run func(opts ...nats.JSOpt)) *JetStreamContext_StreamsInfo_Call {
+func (_c *JetStreamContext_StreamsInfo_Call) Run(run func(opts ...natsgo.JSOpt)) *JetStreamContext_StreamsInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-0)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-0)
 		for i, a := range args[0:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
 		run(variadicArgs...)
@@ -2412,18 +2412,18 @@ func (_c *JetStreamContext_StreamsInfo_Call) Run(run func(opts ...nats.JSOpt)) *
 	return _c
 }
 
-func (_c *JetStreamContext_StreamsInfo_Call) Return(_a0 <-chan *nats.StreamInfo) *JetStreamContext_StreamsInfo_Call {
+func (_c *JetStreamContext_StreamsInfo_Call) Return(_a0 <-chan *natsgo.StreamInfo) *JetStreamContext_StreamsInfo_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *JetStreamContext_StreamsInfo_Call) RunAndReturn(run func(...nats.JSOpt) <-chan *nats.StreamInfo) *JetStreamContext_StreamsInfo_Call {
+func (_c *JetStreamContext_StreamsInfo_Call) RunAndReturn(run func(...natsgo.JSOpt) <-chan *natsgo.StreamInfo) *JetStreamContext_StreamsInfo_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Subscribe provides a mock function with given fields: subj, cb, opts
-func (_m *JetStreamContext) Subscribe(subj string, cb nats.MsgHandler, opts ...nats.SubOpt) (*nats.Subscription, error) {
+func (_m *JetStreamContext) Subscribe(subj string, cb natsgo.MsgHandler, opts ...natsgo.SubOpt) (*natsgo.Subscription, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2433,20 +2433,20 @@ func (_m *JetStreamContext) Subscribe(subj string, cb nats.MsgHandler, opts ...n
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.Subscription
+	var r0 *natsgo.Subscription
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, nats.MsgHandler, ...nats.SubOpt) (*nats.Subscription, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, natsgo.MsgHandler, ...natsgo.SubOpt) (*natsgo.Subscription, error)); ok {
 		return rf(subj, cb, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, nats.MsgHandler, ...nats.SubOpt) *nats.Subscription); ok {
+	if rf, ok := ret.Get(0).(func(string, natsgo.MsgHandler, ...natsgo.SubOpt) *natsgo.Subscription); ok {
 		r0 = rf(subj, cb, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.Subscription)
+			r0 = ret.Get(0).(*natsgo.Subscription)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, nats.MsgHandler, ...nats.SubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, natsgo.MsgHandler, ...natsgo.SubOpt) error); ok {
 		r1 = rf(subj, cb, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -2462,38 +2462,38 @@ type JetStreamContext_Subscribe_Call struct {
 
 // Subscribe is a helper method to define mock.On call
 //   - subj string
-//   - cb nats.MsgHandler
-//   - opts ...nats.SubOpt
+//   - cb natsgo.MsgHandler
+//   - opts ...natsgo.SubOpt
 func (_e *JetStreamContext_Expecter) Subscribe(subj interface{}, cb interface{}, opts ...interface{}) *JetStreamContext_Subscribe_Call {
 	return &JetStreamContext_Subscribe_Call{Call: _e.mock.On("Subscribe",
 		append([]interface{}{subj, cb}, opts...)...)}
 }
 
-func (_c *JetStreamContext_Subscribe_Call) Run(run func(subj string, cb nats.MsgHandler, opts ...nats.SubOpt)) *JetStreamContext_Subscribe_Call {
+func (_c *JetStreamContext_Subscribe_Call) Run(run func(subj string, cb natsgo.MsgHandler, opts ...natsgo.SubOpt)) *JetStreamContext_Subscribe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.SubOpt, len(args)-2)
+		variadicArgs := make([]natsgo.SubOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.SubOpt)
+				variadicArgs[i] = a.(natsgo.SubOpt)
 			}
 		}
-		run(args[0].(string), args[1].(nats.MsgHandler), variadicArgs...)
+		run(args[0].(string), args[1].(natsgo.MsgHandler), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_Subscribe_Call) Return(_a0 *nats.Subscription, _a1 error) *JetStreamContext_Subscribe_Call {
+func (_c *JetStreamContext_Subscribe_Call) Return(_a0 *natsgo.Subscription, _a1 error) *JetStreamContext_Subscribe_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_Subscribe_Call) RunAndReturn(run func(string, nats.MsgHandler, ...nats.SubOpt) (*nats.Subscription, error)) *JetStreamContext_Subscribe_Call {
+func (_c *JetStreamContext_Subscribe_Call) RunAndReturn(run func(string, natsgo.MsgHandler, ...natsgo.SubOpt) (*natsgo.Subscription, error)) *JetStreamContext_Subscribe_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SubscribeSync provides a mock function with given fields: subj, opts
-func (_m *JetStreamContext) SubscribeSync(subj string, opts ...nats.SubOpt) (*nats.Subscription, error) {
+func (_m *JetStreamContext) SubscribeSync(subj string, opts ...natsgo.SubOpt) (*natsgo.Subscription, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2503,20 +2503,20 @@ func (_m *JetStreamContext) SubscribeSync(subj string, opts ...nats.SubOpt) (*na
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.Subscription
+	var r0 *natsgo.Subscription
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, ...nats.SubOpt) (*nats.Subscription, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.SubOpt) (*natsgo.Subscription, error)); ok {
 		return rf(subj, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, ...nats.SubOpt) *nats.Subscription); ok {
+	if rf, ok := ret.Get(0).(func(string, ...natsgo.SubOpt) *natsgo.Subscription); ok {
 		r0 = rf(subj, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.Subscription)
+			r0 = ret.Get(0).(*natsgo.Subscription)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, ...nats.SubOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, ...natsgo.SubOpt) error); ok {
 		r1 = rf(subj, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -2532,18 +2532,18 @@ type JetStreamContext_SubscribeSync_Call struct {
 
 // SubscribeSync is a helper method to define mock.On call
 //   - subj string
-//   - opts ...nats.SubOpt
+//   - opts ...natsgo.SubOpt
 func (_e *JetStreamContext_Expecter) SubscribeSync(subj interface{}, opts ...interface{}) *JetStreamContext_SubscribeSync_Call {
 	return &JetStreamContext_SubscribeSync_Call{Call: _e.mock.On("SubscribeSync",
 		append([]interface{}{subj}, opts...)...)}
 }
 
-func (_c *JetStreamContext_SubscribeSync_Call) Run(run func(subj string, opts ...nats.SubOpt)) *JetStreamContext_SubscribeSync_Call {
+func (_c *JetStreamContext_SubscribeSync_Call) Run(run func(subj string, opts ...natsgo.SubOpt)) *JetStreamContext_SubscribeSync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.SubOpt, len(args)-1)
+		variadicArgs := make([]natsgo.SubOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.SubOpt)
+				variadicArgs[i] = a.(natsgo.SubOpt)
 			}
 		}
 		run(args[0].(string), variadicArgs...)
@@ -2551,18 +2551,18 @@ func (_c *JetStreamContext_SubscribeSync_Call) Run(run func(subj string, opts ..
 	return _c
 }
 
-func (_c *JetStreamContext_SubscribeSync_Call) Return(_a0 *nats.Subscription, _a1 error) *JetStreamContext_SubscribeSync_Call {
+func (_c *JetStreamContext_SubscribeSync_Call) Return(_a0 *natsgo.Subscription, _a1 error) *JetStreamContext_SubscribeSync_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_SubscribeSync_Call) RunAndReturn(run func(string, ...nats.SubOpt) (*nats.Subscription, error)) *JetStreamContext_SubscribeSync_Call {
+func (_c *JetStreamContext_SubscribeSync_Call) RunAndReturn(run func(string, ...natsgo.SubOpt) (*natsgo.Subscription, error)) *JetStreamContext_SubscribeSync_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateConsumer provides a mock function with given fields: stream, cfg, opts
-func (_m *JetStreamContext) UpdateConsumer(stream string, cfg *nats.ConsumerConfig, opts ...nats.JSOpt) (*nats.ConsumerInfo, error) {
+func (_m *JetStreamContext) UpdateConsumer(stream string, cfg *natsgo.ConsumerConfig, opts ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2572,20 +2572,20 @@ func (_m *JetStreamContext) UpdateConsumer(stream string, cfg *nats.ConsumerConf
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.ConsumerInfo
+	var r0 *natsgo.ConsumerInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, *nats.ConsumerConfig, ...nats.JSOpt) (*nats.ConsumerInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error)); ok {
 		return rf(stream, cfg, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(string, *nats.ConsumerConfig, ...nats.JSOpt) *nats.ConsumerInfo); ok {
+	if rf, ok := ret.Get(0).(func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) *natsgo.ConsumerInfo); ok {
 		r0 = rf(stream, cfg, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.ConsumerInfo)
+			r0 = ret.Get(0).(*natsgo.ConsumerInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, *nats.ConsumerConfig, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) error); ok {
 		r1 = rf(stream, cfg, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -2601,38 +2601,38 @@ type JetStreamContext_UpdateConsumer_Call struct {
 
 // UpdateConsumer is a helper method to define mock.On call
 //   - stream string
-//   - cfg *nats.ConsumerConfig
-//   - opts ...nats.JSOpt
+//   - cfg *natsgo.ConsumerConfig
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) UpdateConsumer(stream interface{}, cfg interface{}, opts ...interface{}) *JetStreamContext_UpdateConsumer_Call {
 	return &JetStreamContext_UpdateConsumer_Call{Call: _e.mock.On("UpdateConsumer",
 		append([]interface{}{stream, cfg}, opts...)...)}
 }
 
-func (_c *JetStreamContext_UpdateConsumer_Call) Run(run func(stream string, cfg *nats.ConsumerConfig, opts ...nats.JSOpt)) *JetStreamContext_UpdateConsumer_Call {
+func (_c *JetStreamContext_UpdateConsumer_Call) Run(run func(stream string, cfg *natsgo.ConsumerConfig, opts ...natsgo.JSOpt)) *JetStreamContext_UpdateConsumer_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-2)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
-		run(args[0].(string), args[1].(*nats.ConsumerConfig), variadicArgs...)
+		run(args[0].(string), args[1].(*natsgo.ConsumerConfig), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_UpdateConsumer_Call) Return(_a0 *nats.ConsumerInfo, _a1 error) *JetStreamContext_UpdateConsumer_Call {
+func (_c *JetStreamContext_UpdateConsumer_Call) Return(_a0 *natsgo.ConsumerInfo, _a1 error) *JetStreamContext_UpdateConsumer_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_UpdateConsumer_Call) RunAndReturn(run func(string, *nats.ConsumerConfig, ...nats.JSOpt) (*nats.ConsumerInfo, error)) *JetStreamContext_UpdateConsumer_Call {
+func (_c *JetStreamContext_UpdateConsumer_Call) RunAndReturn(run func(string, *natsgo.ConsumerConfig, ...natsgo.JSOpt) (*natsgo.ConsumerInfo, error)) *JetStreamContext_UpdateConsumer_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateStream provides a mock function with given fields: cfg, opts
-func (_m *JetStreamContext) UpdateStream(cfg *nats.StreamConfig, opts ...nats.JSOpt) (*nats.StreamInfo, error) {
+func (_m *JetStreamContext) UpdateStream(cfg *natsgo.StreamConfig, opts ...natsgo.JSOpt) (*natsgo.StreamInfo, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -2642,20 +2642,20 @@ func (_m *JetStreamContext) UpdateStream(cfg *nats.StreamConfig, opts ...nats.JS
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *nats.StreamInfo
+	var r0 *natsgo.StreamInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*nats.StreamConfig, ...nats.JSOpt) (*nats.StreamInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.StreamConfig, ...natsgo.JSOpt) (*natsgo.StreamInfo, error)); ok {
 		return rf(cfg, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(*nats.StreamConfig, ...nats.JSOpt) *nats.StreamInfo); ok {
+	if rf, ok := ret.Get(0).(func(*natsgo.StreamConfig, ...natsgo.JSOpt) *natsgo.StreamInfo); ok {
 		r0 = rf(cfg, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nats.StreamInfo)
+			r0 = ret.Get(0).(*natsgo.StreamInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*nats.StreamConfig, ...nats.JSOpt) error); ok {
+	if rf, ok := ret.Get(1).(func(*natsgo.StreamConfig, ...natsgo.JSOpt) error); ok {
 		r1 = rf(cfg, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -2670,32 +2670,32 @@ type JetStreamContext_UpdateStream_Call struct {
 }
 
 // UpdateStream is a helper method to define mock.On call
-//   - cfg *nats.StreamConfig
-//   - opts ...nats.JSOpt
+//   - cfg *natsgo.StreamConfig
+//   - opts ...natsgo.JSOpt
 func (_e *JetStreamContext_Expecter) UpdateStream(cfg interface{}, opts ...interface{}) *JetStreamContext_UpdateStream_Call {
 	return &JetStreamContext_UpdateStream_Call{Call: _e.mock.On("UpdateStream",
 		append([]interface{}{cfg}, opts...)...)}
 }
 
-func (_c *JetStreamContext_UpdateStream_Call) Run(run func(cfg *nats.StreamConfig, opts ...nats.JSOpt)) *JetStreamContext_UpdateStream_Call {
+func (_c *JetStreamContext_UpdateStream_Call) Run(run func(cfg *natsgo.StreamConfig, opts ...natsgo.JSOpt)) *JetStreamContext_UpdateStream_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]nats.JSOpt, len(args)-1)
+		variadicArgs := make([]natsgo.JSOpt, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
-				variadicArgs[i] = a.(nats.JSOpt)
+				variadicArgs[i] = a.(natsgo.JSOpt)
 			}
 		}
-		run(args[0].(*nats.StreamConfig), variadicArgs...)
+		run(args[0].(*natsgo.StreamConfig), variadicArgs...)
 	})
 	return _c
 }
 
-func (_c *JetStreamContext_UpdateStream_Call) Return(_a0 *nats.StreamInfo, _a1 error) *JetStreamContext_UpdateStream_Call {
+func (_c *JetStreamContext_UpdateStream_Call) Return(_a0 *natsgo.StreamInfo, _a1 error) *JetStreamContext_UpdateStream_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *JetStreamContext_UpdateStream_Call) RunAndReturn(run func(*nats.StreamConfig, ...nats.JSOpt) (*nats.StreamInfo, error)) *JetStreamContext_UpdateStream_Call {
+func (_c *JetStreamContext_UpdateStream_Call) RunAndReturn(run func(*natsgo.StreamConfig, ...natsgo.JSOpt) (*natsgo.StreamInfo, error)) *JetStreamContext_UpdateStream_Call {
 	_c.Call.Return(run)
 	return _c
 }

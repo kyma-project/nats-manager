@@ -4,14 +4,14 @@ import (
 	"errors"
 	"testing"
 
-	natsmanager "github.com/kyma-project/nats-manager/pkg/manager"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 
-	natsv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -22,9 +22,9 @@ func Test_handleNATSState(t *testing.T) {
 	testCases := []struct {
 		name                  string
 		givenStatefulSetReady bool
-		givenNATS             *natsv1alpha1.NATS
+		givenNATS             *nmapiv1alpha1.NATS
 		wantState             string
-		wantConditions        []metav1.Condition
+		wantConditions        []kmetav1.Condition
 		wantK8sEvents         []string
 	}{
 		{
@@ -34,20 +34,20 @@ func Test_handleNATSState(t *testing.T) {
 				testutils.WithNATSCRName("eventing-nats"),
 				testutils.WithNATSCRNamespace("kyma-system"),
 			),
-			wantState: natsv1alpha1.StateProcessing,
-			wantConditions: []metav1.Condition{
+			wantState: nmapiv1alpha1.StateProcessing,
+			wantConditions: []kmetav1.Condition{
 				{
-					Type:               string(natsv1alpha1.ConditionStatefulSet),
-					Status:             metav1.ConditionFalse,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonStatefulSetPending),
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetPending),
 					Message:            "",
 				},
 				{
-					Type:               string(natsv1alpha1.ConditionAvailable),
-					Status:             metav1.ConditionFalse,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonDeploying),
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeploying),
 					Message:            "",
 				},
 			},
@@ -62,20 +62,20 @@ func Test_handleNATSState(t *testing.T) {
 				testutils.WithNATSCRName("eventing-nats"),
 				testutils.WithNATSCRNamespace("kyma-system"),
 			),
-			wantState: natsv1alpha1.StateReady,
-			wantConditions: []metav1.Condition{
+			wantState: nmapiv1alpha1.StateReady,
+			wantConditions: []kmetav1.Condition{
 				{
-					Type:               string(natsv1alpha1.ConditionStatefulSet),
-					Status:             metav1.ConditionTrue,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonStatefulSetAvailable),
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
 					Message:            "StatefulSet is ready",
 				},
 				{
-					Type:               string(natsv1alpha1.ConditionAvailable),
-					Status:             metav1.ConditionTrue,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonDeployed),
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
 				},
 			},
@@ -112,7 +112,7 @@ func Test_handleNATSState(t *testing.T) {
 			gotNATS, err := testEnv.GetNATS(tc.givenNATS.Name, tc.givenNATS.Namespace)
 			require.NoError(t, err)
 			require.Equal(t, tc.wantState, gotNATS.Status.State)
-			require.True(t, natsv1alpha1.ConditionsEquals(tc.wantConditions, gotNATS.Status.Conditions))
+			require.True(t, nmapiv1alpha1.ConditionsEquals(tc.wantConditions, gotNATS.Status.Conditions))
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()
@@ -131,11 +131,11 @@ func Test_handleNATSReconcile(t *testing.T) {
 	testCases := []struct {
 		name                            string
 		givenStatefulSetReady           bool
-		givenNATS                       *natsv1alpha1.NATS
+		givenNATS                       *nmapiv1alpha1.NATS
 		givenDeployError                error
 		wantFinalizerCheckOnly          bool
 		wantState                       string
-		wantConditions                  []metav1.Condition
+		wantConditions                  []kmetav1.Condition
 		wantK8sEvents                   []string
 		wantDestinationRuleWatchStarted bool
 	}{
@@ -146,7 +146,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 				testutils.WithNATSCRName("eventing-nats"),
 				testutils.WithNATSCRNamespace("kyma-system"),
 			),
-			wantState:              natsv1alpha1.StateProcessing,
+			wantState:              nmapiv1alpha1.StateProcessing,
 			wantFinalizerCheckOnly: true,
 			wantK8sEvents:          []string{"Normal Processing Initializing NATS resource."},
 		},
@@ -159,20 +159,20 @@ func Test_handleNATSReconcile(t *testing.T) {
 				testutils.WithNATSCRFinalizer(NATSFinalizerName),
 			),
 			givenDeployError: errors.New("deploy error"),
-			wantState:        natsv1alpha1.StateError,
-			wantConditions: []metav1.Condition{
+			wantState:        nmapiv1alpha1.StateError,
+			wantConditions: []kmetav1.Condition{
 				{
-					Type:               string(natsv1alpha1.ConditionStatefulSet),
-					Status:             metav1.ConditionFalse,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonSyncFailError),
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonSyncFailError),
 					Message:            "",
 				},
 				{
-					Type:               string(natsv1alpha1.ConditionAvailable),
-					Status:             metav1.ConditionFalse,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonProcessingError),
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonProcessingError),
 					Message:            "deploy error",
 				},
 			},
@@ -190,20 +190,20 @@ func Test_handleNATSReconcile(t *testing.T) {
 				testutils.WithNATSCRFinalizer(NATSFinalizerName),
 			),
 			givenDeployError: nil,
-			wantState:        natsv1alpha1.StateReady,
-			wantConditions: []metav1.Condition{
+			wantState:        nmapiv1alpha1.StateReady,
+			wantConditions: []kmetav1.Condition{
 				{
-					Type:               string(natsv1alpha1.ConditionStatefulSet),
-					Status:             metav1.ConditionTrue,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonStatefulSetAvailable),
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
 					Message:            "StatefulSet is ready",
 				},
 				{
-					Type:               string(natsv1alpha1.ConditionAvailable),
-					Status:             metav1.ConditionTrue,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonDeployed),
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
 				},
 			},
@@ -221,20 +221,20 @@ func Test_handleNATSReconcile(t *testing.T) {
 				testutils.WithNATSCRFinalizer(NATSFinalizerName),
 			),
 			givenDeployError: nil,
-			wantState:        natsv1alpha1.StateReady,
-			wantConditions: []metav1.Condition{
+			wantState:        nmapiv1alpha1.StateReady,
+			wantConditions: []kmetav1.Condition{
 				{
-					Type:               string(natsv1alpha1.ConditionStatefulSet),
-					Status:             metav1.ConditionTrue,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonStatefulSetAvailable),
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
 					Message:            "StatefulSet is ready",
 				},
 				{
-					Type:               string(natsv1alpha1.ConditionAvailable),
-					Status:             metav1.ConditionTrue,
-					LastTransitionTime: metav1.Now(),
-					Reason:             string(natsv1alpha1.ConditionReasonDeployed),
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
 				},
 			},
@@ -283,8 +283,8 @@ func Test_handleNATSReconcile(t *testing.T) {
 			testEnv.natsManager.On("GenerateOverrides",
 				mock.Anything, mock.Anything, mock.Anything).Return(
 				map[string]interface{}{
-					natsmanager.IstioEnabledKey:   tc.wantDestinationRuleWatchStarted,
-					natsmanager.RotatePasswordKey: true, // do not recreate secret if it exists
+					nmmgr.IstioEnabledKey:   tc.wantDestinationRuleWatchStarted,
+					nmmgr.RotatePasswordKey: true, // do not recreate secret if it exists
 				},
 			)
 			if tc.wantDestinationRuleWatchStarted {
@@ -319,7 +319,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 			require.Equal(t, tc.wantK8sEvents, gotEvents)
 
 			// check further
-			require.True(t, natsv1alpha1.ConditionsEquals(tc.wantConditions, gotNATS.Status.Conditions))
+			require.True(t, nmapiv1alpha1.ConditionsEquals(tc.wantConditions, gotNATS.Status.Conditions))
 		})
 	}
 }
