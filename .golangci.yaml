@@ -209,6 +209,8 @@ linters-settings:
         alias: krbacv1
       - pkg: k8s.io/api/autoscaling/v1
         alias: kautoscalingv1
+      - pkg: github.com/kyma-project/nats-manager/internal/controller/cache
+        alias: nmctrlcache
 
   ireturn:
     allow:
