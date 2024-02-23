@@ -45,7 +45,6 @@ linters:
     - errchkjson
     - perfsprint
     - noctx
-    - godox
 
 linters-settings:
   gomoddirectives:

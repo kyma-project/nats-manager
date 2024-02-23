@@ -120,6 +120,7 @@ func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
 	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger,
 ) (kcontrollerruntime.Result, error) {
 	labelValue := nats.Name
+	//nolint: godox
 	// TODO: delete the following logic after migrating to modular Kyma
 	if nats.Name == "eventing-nats" {
 		labelValue = "eventing"
