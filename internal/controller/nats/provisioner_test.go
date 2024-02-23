@@ -15,6 +15,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
+var ErrDeployErrorMsg = errors.New("deploy error")
+
 func Test_handleNATSState(t *testing.T) {
 	t.Parallel()
 
@@ -158,7 +160,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 				testutils.WithNATSCRNamespace("kyma-system"),
 				testutils.WithNATSCRFinalizer(NATSFinalizerName),
 			),
-			givenDeployError: errors.New("deploy error"),
+			givenDeployError: ErrDeployErrorMsg,
 			wantState:        nmapiv1alpha1.StateError,
 			wantConditions: []kmetav1.Condition{
 				{

@@ -12,6 +12,12 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
+var (
+	ErrFailedToConvertStatusToMap   = errors.New("failed to convert status to map[string]interface")
+	ErrFailedToConvertMetadataToMap = errors.New("failed to convert metadata to map[string]interface")
+	ErrFailedToConvertSpecToMap     = errors.New("failed to convert spec to map[string]interface")
+)
+
 type (
 	Option     func(*unstructured.Unstructured) error
 	NATSOption func(*nmapiv1alpha1.NATS) error
@@ -45,7 +51,7 @@ func WithName(name string) Option {
 
 		metadata, ok := o.Object["metadata"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert metadata to map[string]interface")
+			return ErrFailedToConvertMetadataToMap
 		}
 		metadata["name"] = name
 		return nil
@@ -60,7 +66,7 @@ func WithNamespace(namespace string) Option {
 
 		metadata, ok := o.Object["metadata"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert metadata to map[string]interface")
+			return ErrFailedToConvertMetadataToMap
 		}
 		metadata["namespace"] = namespace
 		return nil
@@ -75,7 +81,7 @@ func WithSpecReplicas(replicas int) Option {
 
 		spec, ok := o.Object["spec"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert spec to map[string]interface")
+			return ErrFailedToConvertSpecToMap
 		}
 		spec["replicas"] = replicas
 		return nil
@@ -90,7 +96,7 @@ func WithStatefulSetStatusCurrentReplicas(replicas int) Option {
 
 		status, ok := o.Object["status"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert status to map[string]interface")
+			return ErrFailedToConvertStatusToMap
 		}
 		status["currentReplicas"] = replicas
 		return nil
@@ -105,7 +111,7 @@ func WithStatefulSetStatusUpdatedReplicas(replicas int) Option {
 
 		status, ok := o.Object["status"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert status to map[string]interface")
+			return ErrFailedToConvertStatusToMap
 		}
 		status["updatedReplicas"] = replicas
 		return nil
@@ -120,7 +126,7 @@ func WithStatefulSetStatusReadyReplicas(replicas int) Option {
 
 		status, ok := o.Object["status"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert status to map[string]interface")
+			return ErrFailedToConvertStatusToMap
 		}
 		status["readyReplicas"] = replicas
 		return nil

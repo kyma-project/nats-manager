@@ -24,7 +24,7 @@ type HelmRenderer struct {
 
 func NewHelmRenderer(chartPath string, logger *zap.SugaredLogger) (Renderer, error) {
 	if !file.DirExists(chartPath) {
-		return nil, fmt.Errorf("HELM chart directory '%s' not found", chartPath)
+		return nil, fmt.Errorf("HELM chart directory '%s' not found", chartPath) //nolint: goerr113
 	}
 
 	// load chart into memory

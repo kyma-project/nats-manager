@@ -36,7 +36,6 @@ linters:
     - tagalign
     - dupword
     - gomoddirectives
-    - goerr113
     - funlen
     - testifylint
     - bodyclose

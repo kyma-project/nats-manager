@@ -9,6 +9,8 @@ import (
 	"dario.cat/mergo"
 )
 
+var ErrFailedToConvertToNestedMap = errors.New("failed to convert to nestedMap to map[string]interface{}")
+
 func NewReleaseInstance(name, namespace string, istioEnabled bool,
 	configuration map[string]interface{},
 ) *ReleaseInstance {
@@ -71,7 +73,7 @@ func (c *ReleaseInstance) convertToNestedMap(key string, value interface{}) (map
 			var ok bool
 			lastNestedMap, ok = lastNestedMap[token].(map[string]interface{})
 			if !ok {
-				return result, errors.New("failed to convert to nestedMap to map[string]interface{}")
+				return result, ErrFailedToConvertToNestedMap
 			}
 		}
 	}

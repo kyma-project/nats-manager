@@ -10,8 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var ErrJetStreamErrorMsg = errors.New("JetStream error")
+
 func Test_StreamExists(t *testing.T) {
-	fakeError := errors.New("JetStream error")
+	fakeError := ErrJetStreamErrorMsg
 	tests := []struct {
 		name                 string
 		createMockNatsClient func() *natsClient
