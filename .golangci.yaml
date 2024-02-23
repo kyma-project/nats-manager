@@ -46,7 +46,6 @@ linters:
     - perfsprint
     - noctx
     - godox
-    - goconst
 
 linters-settings:
   gomoddirectives:
