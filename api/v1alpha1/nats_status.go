@@ -28,7 +28,9 @@ func (ns *NATSStatus) FindCondition(conditionType ConditionType) *kmetav1.Condit
 	return nil
 }
 
-func (ns *NATSStatus) UpdateConditionStatefulSet(status kmetav1.ConditionStatus, reason ConditionReason,
+func (ns *NATSStatus) UpdateConditionStatefulSet(
+	status kmetav1.ConditionStatus,
+	reason ConditionReason,
 	message string,
 ) {
 	condition := kmetav1.Condition{
@@ -41,7 +43,9 @@ func (ns *NATSStatus) UpdateConditionStatefulSet(status kmetav1.ConditionStatus,
 	meta.SetStatusCondition(&ns.Conditions, condition)
 }
 
-func (ns *NATSStatus) UpdateConditionAvailable(status kmetav1.ConditionStatus, reason ConditionReason,
+func (ns *NATSStatus) UpdateConditionAvailable(
+	status kmetav1.ConditionStatus,
+	reason ConditionReason,
 	message string,
 ) {
 	condition := kmetav1.Condition{
@@ -86,7 +90,9 @@ func (ns *NATSStatus) SetStateDeleting() {
 	ns.State = StateDeleting
 }
 
-func (ns *NATSStatus) UpdateConditionDeletion(status kmetav1.ConditionStatus, reason ConditionReason,
+func (ns *NATSStatus) UpdateConditionDeletion(
+	status kmetav1.ConditionStatus,
+	reason ConditionReason,
 	message string,
 ) {
 	condition := kmetav1.Condition{
