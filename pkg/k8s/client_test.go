@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/kyma-project/nats-manager/testutils"
@@ -17,6 +18,8 @@ import (
 )
 
 const testFieldManager = "nats-manager"
+
+var errPatchNotAllowed = errors.New("apply patches are not supported in the fake client")
 
 func Test_GetStatefulSet(t *testing.T) {
 	t.Parallel()
@@ -180,20 +183,11 @@ func Test_Delete(t *testing.T) {
 func Test_PatchApply(t *testing.T) {
 	t.Parallel()
 
-	// NOTE: In real k8s client, the kubeClient.PatchApply creates the resource
-	// if it does not exist on the cluster. But in the fake client the behaviour
-	// is not properly replicated. As mentioned: "ObjectMeta's `Generation` and
-	// `ResourceVersion` don't behave properly, Patch or Update operations that
-	// rely on these fields will fail, or give false positives." in docs
-	// https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/client/fake
-	// This scenario will be tested in integration tests with envTest pkg.
-
 	// define test cases
 	testCases := []struct {
 		name                   string
 		givenStatefulSet       *unstructured.Unstructured
 		givenUpdateStatefulSet *unstructured.Unstructured
-		wantReplicas           int
 	}{
 		{
 			name: "should update resource when exists in k8s",
@@ -203,7 +197,6 @@ func Test_PatchApply(t *testing.T) {
 			givenUpdateStatefulSet: testutils.NewNATSStatefulSetUnStruct(
 				testutils.WithSpecReplicas(3),
 			),
-			wantReplicas: 3,
 		},
 	}
 
@@ -226,14 +219,12 @@ func Test_PatchApply(t *testing.T) {
 			err := kubeClient.PatchApply(context.Background(), tc.givenUpdateStatefulSet)
 
 			// then
-			require.NoError(t, err)
-			// check that it should exist on k8s.
-			gotSTS, err := kubeClient.GetStatefulSet(context.Background(),
-				tc.givenStatefulSet.GetName(), tc.givenStatefulSet.GetNamespace())
-			require.NoError(t, err)
-			require.Equal(t, tc.givenUpdateStatefulSet.GetName(), gotSTS.Name)
-			require.Equal(t, tc.givenUpdateStatefulSet.GetNamespace(), gotSTS.Namespace)
-			require.Equal(t, int32(tc.wantReplicas), *gotSTS.Spec.Replicas)
+			// NOTE: The kubeClient.PatchApply is not supported in the fake client.
+			// (https://github.com/kubernetes/kubernetes/issues/115598)
+			// So in unit test we only check that the client.Patch with client.Apply
+			// is called or not.
+			// The real behaviour will be tested in integration tests with envTest pkg.
+			require.ErrorContains(t, err, errPatchNotAllowed.Error())
 		})
 	}
 }
