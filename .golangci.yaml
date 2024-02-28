@@ -32,7 +32,6 @@ linters:
     - unconvert
     - varnamelen
     - wrapcheck
-    - gomoddirectives
     - testifylint
     - containedctx
     - tagliatelle
