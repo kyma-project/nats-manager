@@ -23,7 +23,8 @@ const (
 )
 
 func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnabled bool,
-	rotatePassword bool) map[string]interface{} {
+	rotatePassword bool,
+) map[string]interface{} {
 	overrides := map[string]interface{}{
 		IstioEnabledKey:   istioEnabled,
 		RotatePasswordKey: rotatePassword,

@@ -23,7 +23,8 @@ const (
 )
 
 func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *nmapiv1alpha1.NATS,
-	log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
+	log *zap.SugaredLogger,
+) (kcontrollerruntime.Result, error) {
 	// skip reconciliation for deletion if the finalizer is not set.
 	if !r.containsFinalizer(nats) {
 		log.Debugf("skipped reconciliation for deletion as finalizer is not set.")
@@ -116,8 +117,10 @@ func (r *Reconciler) createAndConnectNatsClient(nats *nmapiv1alpha1.NATS) error 
 }
 
 func (r *Reconciler) deletePVCsAndRemoveFinalizer(ctx context.Context,
-	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
+	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger,
+) (kcontrollerruntime.Result, error) {
 	labelValue := nats.Name
+	//nolint: godox
 	// TODO: delete the following logic after migrating to modular Kyma
 	if nats.Name == "eventing-nats" {
 		labelValue = "eventing"

@@ -7,6 +7,11 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
+var (
+	ErrFailedToConvertMetadataToMap = errors.New("failed to convert metadata to map[string]interface")
+	ErrFailedToConvertLabelsToMap   = errors.New("failed to convert labels to map[string]interface")
+)
+
 type Option func(*unstructured.Unstructured) error
 
 // WithOwnerReference sets the OwnerReferences of a k8s Object.
@@ -18,7 +23,7 @@ func WithOwnerReference(nats nmapiv1alpha1.NATS) Option {
 
 		metadata, ok := o.Object["metadata"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert metadata to map[string]interface")
+			return ErrFailedToConvertMetadataToMap
 		}
 
 		metadata["ownerReferences"] = []map[string]interface{}{
@@ -44,7 +49,7 @@ func WithLabel(key, value string) Option {
 
 		metadata, ok := o.Object["metadata"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert metadata to map[string]interface")
+			return ErrFailedToConvertMetadataToMap
 		}
 
 		if _, exists := metadata["labels"]; !exists {
@@ -53,7 +58,7 @@ func WithLabel(key, value string) Option {
 
 		labels, ok := metadata["labels"].(map[string]interface{})
 		if !ok {
-			return errors.New("failed to convert labels to map[string]interface")
+			return ErrFailedToConvertLabelsToMap
 		}
 
 		labels[key] = value

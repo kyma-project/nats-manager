@@ -16,6 +16,8 @@ import (
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+var ErrTestErrorMsg = errors.New("test error")
+
 func Test_syncNATSStatus(t *testing.T) {
 	t.Parallel()
 
@@ -97,7 +99,7 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 				testutils.WithNATSCRStatusInitialized(),
 				testutils.WithNATSStateProcessing(),
 			),
-			givenError: errors.New("test error"),
+			givenError: ErrTestErrorMsg,
 			wantNATSStatus: nmapiv1alpha1.NATSStatus{
 				State: nmapiv1alpha1.StateError,
 				Conditions: []kmetav1.Condition{

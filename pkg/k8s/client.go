@@ -93,7 +93,8 @@ func (c *KubeClient) DestinationRuleCRDExists(ctx context.Context) (bool, error)
 }
 
 func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector string,
-	mustHaveNamePrefix, namespace string) error {
+	mustHaveNamePrefix, namespace string,
+) error {
 	// create a new labels.Selector object for the label selector
 	selector, err := labels.Parse(labelSelector)
 	if err != nil {

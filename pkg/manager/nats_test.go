@@ -16,6 +16,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+var (
+	ErrNATSStatefulSetNotFoundMsg = errors.New("NATS StatefulSet not found in manifests")
+	ErrFailedToDeployMsg          = errors.New("failed to deploy")
+	ErrFailedToDeleteMsg          = errors.New("failed to delete")
+)
+
 func Test_GenerateNATSResources(t *testing.T) {
 	t.Parallel()
 
@@ -106,7 +112,7 @@ func Test_DeployInstance(t *testing.T) {
 		},
 		{
 			name:      "should fail when k8s fails to deploy resource",
-			wantError: errors.New("failed to deploy"),
+			wantError: ErrFailedToDeployMsg,
 		},
 	}
 
@@ -171,7 +177,7 @@ func Test_DeleteInstance(t *testing.T) {
 		},
 		{
 			name:      "should fail when k8s fails to delete resource",
-			wantError: errors.New("failed to delete"),
+			wantError: ErrFailedToDeleteMsg,
 		},
 	}
 
@@ -235,7 +241,7 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 		{
 			name:             "should return error if no StatefulSet exists in manifests",
 			givenStatefulSet: nil,
-			wantError:        errors.New("NATS StatefulSet not found in manifests"),
+			wantError:        ErrNATSStatefulSetNotFoundMsg,
 		},
 		{
 			name: "should return not ready when CurrentReplicas is not as needed",

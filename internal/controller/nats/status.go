@@ -19,7 +19,8 @@ import (
 // syncNATSStatus syncs NATS status.
 // Returns the relevant error.
 func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
-	nats *nmapiv1alpha1.NATS, err error, log *zap.SugaredLogger) error {
+	nats *nmapiv1alpha1.NATS, err error, log *zap.SugaredLogger,
+) error {
 	// set error state in status
 	nats.Status.SetStateError()
 	nats.Status.UpdateConditionAvailable(kmetav1.ConditionFalse, nmapiv1alpha1.ConditionReasonProcessingError, err.Error())
@@ -30,7 +31,8 @@ func (r *Reconciler) syncNATSStatusWithErr(ctx context.Context,
 
 // syncNATSStatus syncs NATS status.
 func (r *Reconciler) syncNATSStatus(ctx context.Context,
-	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger) error {
+	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger,
+) error {
 	namespacedName := &ktypes.NamespacedName{
 		Name:      nats.Name,
 		Namespace: nats.Namespace,
@@ -52,7 +54,8 @@ func (r *Reconciler) syncNATSStatus(ctx context.Context,
 
 // updateStatus updates the status to k8s if modified.
 func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *nmapiv1alpha1.NATS,
-	logger *zap.SugaredLogger) error {
+	logger *zap.SugaredLogger,
+) error {
 	// compare the status taking into consideration lastTransitionTime in conditions
 	if oldNATS.Status.IsEqual(newNATS.Status) {
 		return nil

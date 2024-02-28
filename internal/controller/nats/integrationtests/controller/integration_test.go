@@ -630,7 +630,8 @@ func makeStatefulSetReady(t *testing.T, name, namespace string) {
 type deletionFunc func(env integration.TestEnvironment, natsName, namespace string) error
 
 func ensureK8sResourceDeletion(
-	t *testing.T, env integration.TestEnvironment, natsName, namespace string, fs ...deletionFunc) {
+	t *testing.T, env integration.TestEnvironment, natsName, namespace string, fs ...deletionFunc,
+) {
 	for _, f := range fs {
 		require.NoError(t, f(env, natsName, namespace))
 	}

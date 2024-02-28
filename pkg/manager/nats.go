@@ -11,6 +11,8 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 )
 
+var ErrNATSStatefulSetNotFound = fmt.Errorf("NATS StatefulSet not found in manifests")
+
 type NatsConfig struct {
 	ClusterSize int
 }
@@ -42,7 +44,8 @@ func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *
 }
 
 func (m NATSManager) GenerateNATSResources(instance *chart.ReleaseInstance,
-	opts ...Option) (*chart.ManifestResources, error) {
+	opts ...Option,
+) (*chart.ManifestResources, error) {
 	manifests, err := m.chartRenderer.RenderManifestAsUnstructured(instance)
 	if err == nil {
 		// apply options
@@ -80,7 +83,7 @@ func (m NATSManager) IsNATSStatefulSetReady(ctx context.Context, instance *chart
 	// get statefulSets from rendered manifests
 	statefulSets := instance.GetStatefulSets()
 	if len(statefulSets) == 0 {
-		return false, fmt.Errorf("NATS StatefulSet not found in manifests")
+		return false, ErrNATSStatefulSetNotFound
 	}
 
 	// fetch statefulSets from cluster and check if they are ready

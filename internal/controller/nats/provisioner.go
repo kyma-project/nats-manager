@@ -17,7 +17,8 @@ import (
 const RequeueTimeForStatusCheck = 10
 
 func (r *Reconciler) handleNATSReconcile(ctx context.Context,
-	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
+	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger,
+) (kcontrollerruntime.Result, error) {
 	log.Info("handling NATS reconciliation...")
 
 	// set status to processing
@@ -66,7 +67,8 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 // handleNATSState checks if NATS resources are ready.
 // It also syncs the NATS CR status.
 func (r *Reconciler) handleNATSState(ctx context.Context, nats *nmapiv1alpha1.NATS, instance *chart.ReleaseInstance,
-	log *zap.SugaredLogger) (kcontrollerruntime.Result, error) {
+	log *zap.SugaredLogger,
+) (kcontrollerruntime.Result, error) {
 	// Clear the url until the StatefulSet is ready.
 	nats.Status.ClearURL()
 

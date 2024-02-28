@@ -78,7 +78,8 @@ type TestEnvironment struct {
 
 //nolint:funlen // Used in testing
 func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
-	allowedNATSCR *nmapiv1alpha1.NATS) (*TestEnvironment, error) {
+	allowedNATSCR *nmapiv1alpha1.NATS,
+) (*TestEnvironment, error) {
 	var err error
 	// setup context
 	ctx := context.Background()
@@ -369,7 +370,8 @@ func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace st
 }
 
 func (env TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, namespace string,
-	labels map[string]string) {
+	labels map[string]string,
+) {
 	require.Eventually(t, func() bool {
 		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -389,7 +391,8 @@ func (env TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, nam
 }
 
 func (env TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name, namespace string,
-	annotations map[string]string) {
+	annotations map[string]string,
+) {
 	require.Eventually(t, func() bool {
 		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -631,7 +634,8 @@ func (env TestEnvironment) GetServiceFromK8s(name, namespace string) (*kcorev1.S
 }
 
 func (env TestEnvironment) GetPodDisruptionBudgetFromK8s(name,
-	namespace string) (*kapipolicyv1.PodDisruptionBudget, error) {
+	namespace string,
+) (*kapipolicyv1.PodDisruptionBudget, error) {
 	nn := ktypes.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
@@ -700,7 +704,8 @@ func (env TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) 
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.
 func (env TestEnvironment) GetNATSAssert(g *gomega.GomegaWithT,
-	nats *nmapiv1alpha1.NATS) gomega.AsyncAssertion {
+	nats *nmapiv1alpha1.NATS,
+) gomega.AsyncAssertion {
 	return g.Eventually(func() *nmapiv1alpha1.NATS {
 		gotNATS, err := env.GetNATSFromK8s(nats.Name, nats.Namespace)
 		if err != nil {

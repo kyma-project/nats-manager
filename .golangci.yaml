@@ -36,8 +36,6 @@ linters:
     - tagalign
     - dupword
     - gomoddirectives
-    - gofumpt
-    - goerr113
     - funlen
     - testifylint
     - bodyclose
@@ -47,8 +45,6 @@ linters:
     - errchkjson
     - perfsprint
     - noctx
-    - godox
-    - goconst
 
 linters-settings:
   gomoddirectives:

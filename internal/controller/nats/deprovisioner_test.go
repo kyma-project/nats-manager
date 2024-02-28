@@ -26,6 +26,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+var (
+	ErrConnectionErrorMsg = errors.New("connection cannot be established")
+	ErrUnexpectedErrorMsg = errors.New("unexpected error")
+	ErrInitErrorMsg       = errors.New("init error")
+	ErrDeleteErrorMsg     = errors.New("delete error")
+)
+
 func Test_handleNATSDeletion(t *testing.T) {
 	t.Parallel()
 
@@ -54,7 +61,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			givenWithNATSCreated: true,
 			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
-				natsClient.On("Init").Return(errors.New("connection cannot be established"))
+				natsClient.On("Init").Return(ErrConnectionErrorMsg)
 				natsClient.On("Close").Return()
 				return natsClient
 			},
@@ -69,7 +76,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			mockNatsClientFunc: func() nmnats.Client {
 				natsClient := new(mocks.Client)
 				natsClient.On("Init").Return(nil)
-				natsClient.On("GetStreams").Return(nil, errors.New("unexpected error"))
+				natsClient.On("GetStreams").Return(nil, ErrUnexpectedErrorMsg)
 				natsClient.On("Close").Return()
 				return natsClient
 			},
@@ -90,7 +97,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 						},
 					},
 				}, nil)
-				natsClient.On("ConsumersExist", mock.Anything).Return(false, errors.New("unexpected error"))
+				natsClient.On("ConsumersExist", mock.Anything).Return(false, ErrUnexpectedErrorMsg)
 				natsClient.On("Close").Return()
 				return natsClient
 			},
@@ -311,9 +318,9 @@ func Test_DeletePVCsAndRemoveFinalizer(t *testing.T) {
 				testutils.WithNATSCRFinalizer(NATSFinalizerName),
 			),
 			labelValue:     "test-nats",
-			deleteErr:      errors.New("delete error"),
+			deleteErr:      ErrDeleteErrorMsg,
 			expectedResult: kcontrollerruntime.Result{},
-			expectedErr:    errors.New("delete error"),
+			expectedErr:    ErrDeleteErrorMsg,
 		},
 	}
 
@@ -370,8 +377,8 @@ func Test_CreateAndConnectNatsClient(t *testing.T) {
 				testutils.WithNATSCRName("test-nats"),
 				testutils.WithNATSCRNamespace("test-namespace"),
 			),
-			initErr:     errors.New("init error"),
-			expectedErr: errors.New("init error"),
+			initErr:     ErrInitErrorMsg,
+			expectedErr: ErrInitErrorMsg,
 		},
 	}
 
@@ -383,7 +390,6 @@ func Test_CreateAndConnectNatsClient(t *testing.T) {
 			r.getNatsClient(tt.nats).(*mocks.Client).On("Init").Return(tt.initErr)
 
 			err := r.createAndConnectNatsClient(tt.nats)
-
 			if err != nil {
 				require.Equal(t, tt.expectedErr.Error(), err.Error())
 			}
