@@ -602,6 +602,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 }
 
 func makeStatefulSetReady(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		sts, err := testEnvironment.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -629,6 +630,7 @@ type deletionFunc func(env integration.TestEnvironment, natsName, namespace stri
 func ensureK8sResourceDeletion(
 	t *testing.T, env integration.TestEnvironment, natsName, namespace string, fs ...deletionFunc,
 ) {
+	t.Helper()
 	for _, f := range fs {
 		require.NoError(t, f(env, natsName, namespace))
 	}

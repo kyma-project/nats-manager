@@ -36,7 +36,6 @@ linters:
     - gomoddirectives
     - testifylint
     - containedctx
-    - thelper
     - tagliatelle
     - errchkjson
     - perfsprint

@@ -204,6 +204,7 @@ func Test_RenderManifestAsUnstructured(t *testing.T) {
 }
 
 func loadHelmChart(t *testing.T) *chart.Chart {
+	t.Helper()
 	helmChart, err := loader.Load(testChartDir)
 	require.NoError(t, err)
 	return helmChart

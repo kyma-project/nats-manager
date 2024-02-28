@@ -169,6 +169,7 @@ func Test_Overrides_Keys(t *testing.T) {
 }
 
 func getValueFromNestedMap(t *testing.T, key string, data map[string]interface{}) interface{} {
+	t.Helper()
 	tokens := strings.Split(key, ".")
 	lastNestedData := data
 	for depth, token := range tokens {

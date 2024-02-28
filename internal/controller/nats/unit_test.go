@@ -35,6 +35,7 @@ type MockedUnitTestEnvironment struct {
 }
 
 func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUnitTestEnvironment {
+	t.Helper()
 	// setup context
 	ctx := context.Background()
 
