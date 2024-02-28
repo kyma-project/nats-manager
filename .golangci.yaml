@@ -37,7 +37,6 @@ linters:
     - containedctx
     - tagliatelle
     - errchkjson
-    - perfsprint
     - noctx
 
 linters-settings:
