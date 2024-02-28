@@ -6,19 +6,17 @@ import (
 	"fmt"
 	"testing"
 
-	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
-	"go.uber.org/zap"
-
-	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
-	"github.com/kyma-project/nats-manager/pkg/nats/mocks"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
+	"github.com/kyma-project/nats-manager/pkg/nats/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	natsgo "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"

@@ -1,12 +1,11 @@
 package fixtures
 
 import (
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
 	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/testutils"
 )
 
 const (

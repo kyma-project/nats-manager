@@ -10,23 +10,26 @@ import (
 	"testing"
 	"time"
 
-	kapipolicyv1 "k8s.io/api/policy/v1"
-
-	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/dynamic"
-
-	kcorev1 "k8s.io/api/core/v1"
-
 	"github.com/avast/retry-go/v3"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
+	kcorev1 "k8s.io/api/core/v1"
+	kapipolicyv1 "k8s.io/api/policy/v1"
 	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/dynamic"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
@@ -35,13 +38,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
-	"github.com/kyma-project/nats-manager/testutils"
 )
 
 const (

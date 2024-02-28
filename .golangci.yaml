@@ -32,7 +32,6 @@ linters:
     - unconvert
     - varnamelen
     - wrapcheck
-    - gci
     - tagalign
     - dupword
     - gomoddirectives

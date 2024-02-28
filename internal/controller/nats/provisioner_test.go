@@ -4,10 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

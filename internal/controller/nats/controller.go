@@ -20,9 +20,12 @@ import (
 	"context"
 	"fmt"
 
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/events"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
-
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
@@ -34,11 +37,6 @@ import (
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 )
 
 const (

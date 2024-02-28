@@ -6,19 +6,17 @@ import (
 	"math/rand"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	kapiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 const (

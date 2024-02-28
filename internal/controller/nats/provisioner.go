@@ -4,14 +4,13 @@ import (
 	"context"
 	"time"
 
-	"go.uber.org/zap"
-	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	kcontrollerruntime "sigs.k8s.io/controller-runtime"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmctrlurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
 	"github.com/kyma-project/nats-manager/pkg/events"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"go.uber.org/zap"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
 )
 
 const RequeueTimeForStatusCheck = 10

@@ -5,6 +5,10 @@ import (
 	"os"
 	"testing"
 
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
+	"github.com/kyma-project/nats-manager/testutils/integration"
+	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
 	"github.com/onsi/gomega"
 	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
@@ -12,12 +16,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/testutils"
-	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
-
-	"github.com/kyma-project/nats-manager/testutils/integration"
 )
 
 const projectRootDir = "../../../../../"

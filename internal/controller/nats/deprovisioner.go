@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"go.uber.org/zap"
-	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	kcontrollerruntime "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmctrlurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
 	"github.com/kyma-project/nats-manager/pkg/events"
 	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
+	"go.uber.org/zap"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kcontrollerruntime "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (

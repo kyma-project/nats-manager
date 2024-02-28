@@ -1,6 +1,7 @@
 package cache
 
 import (
+	nmlabels "github.com/kyma-project/nats-manager/pkg/labels"
 	kappsv1 "k8s.io/api/apps/v1"
 	kautoscalingv1 "k8s.io/api/autoscaling/v1"
 	kcorev1 "k8s.io/api/core/v1"
@@ -10,8 +11,6 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	nmlabels "github.com/kyma-project/nats-manager/pkg/labels"
 )
 
 // New returns a cache with the cache-options applied, generade form the rest-config.

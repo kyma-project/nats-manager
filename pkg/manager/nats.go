@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"go.uber.org/zap"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	"go.uber.org/zap"
 )
 
 var ErrNATSStatefulSetNotFound = fmt.Errorf("NATS StatefulSet not found in manifests")

@@ -4,13 +4,12 @@ import (
 	"os"
 	"path/filepath"
 
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"k8s.io/client-go/kubernetes"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 func GetK8sClients() (*kubernetes.Clientset, client.Client, error) {
