@@ -64,7 +64,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				return natsClient
 			},
 			wantNATSStatusState: nmapiv1alpha1.StateDeleting,
-			wantK8sEvents:       []string{"Normal Deleting Deleting the NATS cluster."},
+			wantK8sEvents:       []string{"Normal Deleting the NATS cluster."},
 			wantResult:          kcontrollerruntime.Result{},
 		},
 		{
@@ -78,7 +78,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient.On("Close").Return()
 				return natsClient
 			},
-			wantK8sEvents: []string{"Normal Deleting Deleting the NATS cluster."},
+			wantK8sEvents: []string{"Normal Deleting the NATS cluster."},
 			wantResult:    kcontrollerruntime.Result{},
 		},
 		{
@@ -99,7 +99,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				natsClient.On("Close").Return()
 				return natsClient
 			},
-			wantK8sEvents: []string{"Normal Deleting Deleting the NATS cluster."},
+			wantK8sEvents: []string{"Normal Deleting the NATS cluster."},
 			wantResult:    kcontrollerruntime.Result{},
 		},
 		{
@@ -128,7 +128,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			},
 			wantFinalizerExists: true,
 			wantK8sEvents: []string{
-				"Normal Deleting Deleting the NATS cluster.",
+				"Normal Deleting the NATS cluster.",
 				"Warning DeletionError " + StreamExistsErrorMsg,
 			},
 			wantResult: kcontrollerruntime.Result{Requeue: true},
@@ -160,7 +160,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 			},
 			wantFinalizerExists: true,
 			wantK8sEvents: []string{
-				"Normal Deleting Deleting the NATS cluster.",
+				"Normal Deleting the NATS cluster.",
 				"Warning DeletionError " + ConsumerExistsErrorMsg,
 			},
 			wantResult: kcontrollerruntime.Result{Requeue: true},
@@ -184,7 +184,7 @@ func Test_handleNATSDeletion(t *testing.T) {
 				return natsClient
 			},
 			wantK8sEvents: []string{
-				"Normal Deleting Deleting the NATS cluster.",
+				"Normal Deleting the NATS cluster.",
 			},
 			wantResult: kcontrollerruntime.Result{},
 		},

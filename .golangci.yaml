@@ -33,7 +33,6 @@ linters:
     - varnamelen
     - wrapcheck
     - tagalign
-    - dupword
     - gomoddirectives
     - testifylint
     - containedctx
