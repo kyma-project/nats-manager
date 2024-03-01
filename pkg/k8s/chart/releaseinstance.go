@@ -4,9 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
 	"dario.cat/mergo"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 var ErrFailedToConvertToNestedMap = errors.New("failed to convert to nestedMap to map[string]interface{}")

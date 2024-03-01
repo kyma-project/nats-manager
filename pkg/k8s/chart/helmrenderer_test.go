@@ -7,13 +7,11 @@ import (
 	"testing"
 
 	"github.com/kyma-project/nats-manager/testutils"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
+	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
-
-	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 const (
@@ -206,6 +204,7 @@ func Test_RenderManifestAsUnstructured(t *testing.T) {
 }
 
 func loadHelmChart(t *testing.T) *chart.Chart {
+	t.Helper()
 	helmChart, err := loader.Load(testChartDir)
 	require.NoError(t, err)
 	return helmChart

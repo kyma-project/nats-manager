@@ -21,18 +21,9 @@ permissions:
   pull-requests: read
 
 jobs:
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.21"
-          cache: false
-      - uses: actions/checkout@v4
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: v1.55
-          args: --timeout=5m
+  code-linter:
+    name: "Run golangci-lint"
+    uses: kyma-project/eventing-tools/.github/workflows/lint-go-reusable.yml@main
+    with:
+      go-version: "1.22"
+      lint-config-uri: https://raw.githubusercontent.com/kyma-project/eventing-tools/abb93fa301d4b1aa07b46e5b01ffb0463f06e1bb/config/lint/.golangci.yaml

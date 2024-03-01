@@ -4,16 +4,15 @@ import (
 	"errors"
 	"testing"
 
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/testutils"
-	"github.com/stretchr/testify/require"
-	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var ErrTestErrorMsg = errors.New("test error")

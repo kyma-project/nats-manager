@@ -7,20 +7,17 @@ import (
 	"testing"
 	"time"
 
-	keventsv1 "k8s.io/api/events/v1"
-
-	"github.com/onsi/gomega"
-
-	onsigomegatypes "github.com/onsi/gomega/types"
-	"github.com/stretchr/testify/require"
-	kcorev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/kyma-project/nats-manager/testutils/integration"
 	nmtsmatchers "github.com/kyma-project/nats-manager/testutils/matchers/nats"
+	"github.com/onsi/gomega"
+	onsigomegatypes "github.com/onsi/gomega/types"
+	"github.com/stretchr/testify/require"
+	kcorev1 "k8s.io/api/core/v1"
+	keventsv1 "k8s.io/api/events/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 const projectRootDir = "../../../../../"
@@ -605,6 +602,7 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 }
 
 func makeStatefulSetReady(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		sts, err := testEnvironment.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -632,6 +630,7 @@ type deletionFunc func(env integration.TestEnvironment, natsName, namespace stri
 func ensureK8sResourceDeletion(
 	t *testing.T, env integration.TestEnvironment, natsName, namespace string, fs ...deletionFunc,
 ) {
+	t.Helper()
 	for _, f := range fs {
 		require.NoError(t, f(env, natsName, namespace))
 	}

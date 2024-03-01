@@ -3,13 +3,11 @@ package testutils
 import (
 	"errors"
 
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 var (

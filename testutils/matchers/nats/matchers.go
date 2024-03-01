@@ -3,13 +3,12 @@ package nats
 import (
 	"reflect"
 
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	onsigomegatypes "github.com/onsi/gomega/types"
 	kcorev1 "k8s.io/api/core/v1"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 )
 
 func HaveSpecJetsStreamMemStorage(ms nmapiv1alpha1.MemStorage) onsigomegatypes.GomegaMatcher {

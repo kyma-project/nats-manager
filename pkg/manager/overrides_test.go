@@ -5,13 +5,12 @@ import (
 	"strings"
 	"testing"
 
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	kcorev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/testutils"
 )
 
 func Test_GenerateOverrides(t *testing.T) {
@@ -170,6 +169,7 @@ func Test_Overrides_Keys(t *testing.T) {
 }
 
 func getValueFromNestedMap(t *testing.T, key string, data map[string]interface{}) interface{} {
+	t.Helper()
 	tokens := strings.Split(key, ".")
 	lastNestedData := data
 	for depth, token := range tokens {

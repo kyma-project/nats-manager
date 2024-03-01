@@ -20,10 +20,13 @@ import (
 	"flag"
 	"os"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmctrlcache "github.com/kyma-project/nats-manager/internal/controller/cache"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
+	"github.com/kyma-project/nats-manager/pkg/env"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -37,13 +40,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	nmctrlcache "github.com/kyma-project/nats-manager/internal/controller/cache"
-	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
-	"github.com/kyma-project/nats-manager/pkg/env"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
+	// to ensure that exec-entrypoint and run can make use of them.
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 const defaultMetricsPort = 9443

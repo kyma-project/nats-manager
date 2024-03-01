@@ -10,23 +10,26 @@ import (
 	"testing"
 	"time"
 
-	kapipolicyv1 "k8s.io/api/policy/v1"
-
-	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/dynamic"
-
-	kcorev1 "k8s.io/api/core/v1"
-
 	"github.com/avast/retry-go/v3"
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
+	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
+	kcorev1 "k8s.io/api/core/v1"
+	kapipolicyv1 "k8s.io/api/policy/v1"
 	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
+	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/dynamic"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
@@ -35,13 +38,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
-
-	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
-	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
-	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
-	"github.com/kyma-project/nats-manager/testutils"
 )
 
 const (
@@ -211,6 +207,7 @@ func (env TestEnvironment) CreateK8sResource(obj client.Object) error {
 }
 
 func (env TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace string) {
+	t.Helper()
 	if namespace == "default" {
 		return
 	}
@@ -220,10 +217,12 @@ func (env TestEnvironment) EnsureNamespaceCreation(t *testing.T, namespace strin
 }
 
 func (env TestEnvironment) EnsureK8sResourceCreated(t *testing.T, obj client.Object) {
+	t.Helper()
 	require.NoError(t, env.k8sClient.Create(env.Context, obj))
 }
 
 func (env TestEnvironment) EnsureK8sUnStructResourceCreated(t *testing.T, obj *unstructured.Unstructured) {
+	t.Helper()
 	require.NoError(t, env.k8sClient.Create(env.Context, obj))
 }
 
@@ -232,6 +231,7 @@ func (env TestEnvironment) CreateUnstructuredK8sResource(obj *unstructured.Unstr
 }
 
 func (env TestEnvironment) EnsureK8sResourceUpdated(t *testing.T, obj client.Object) {
+	t.Helper()
 	require.NoError(t, env.k8sClient.Update(env.Context, obj))
 }
 
@@ -251,10 +251,12 @@ func (env TestEnvironment) UpdatedNATSInK8s(nats *nmapiv1alpha1.NATS, options ..
 }
 
 func (env TestEnvironment) EnsureK8sResourceDeleted(t *testing.T, obj client.Object) {
+	t.Helper()
 	require.NoError(t, env.k8sClient.Delete(env.Context, obj))
 }
 
 func (env TestEnvironment) EnsureK8sConfigMapExists(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetConfigMapFromK8s(name, namespace)
 		return err == nil && result != nil
@@ -262,6 +264,7 @@ func (env TestEnvironment) EnsureK8sConfigMapExists(t *testing.T, name, namespac
 }
 
 func (env TestEnvironment) EnsureK8sSecretExists(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetSecretFromK8s(name, namespace)
 		return err == nil && result != nil
@@ -269,6 +272,7 @@ func (env TestEnvironment) EnsureK8sSecretExists(t *testing.T, name, namespace s
 }
 
 func (env TestEnvironment) EnsureK8sPodDisruptionBudgetExists(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetPodDisruptionBudgetFromK8s(name, namespace)
 		return err == nil && result != nil
@@ -276,6 +280,7 @@ func (env TestEnvironment) EnsureK8sPodDisruptionBudgetExists(t *testing.T, name
 }
 
 func (env TestEnvironment) EnsureK8sServiceExists(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetServiceFromK8s(name, namespace)
 		return err == nil && result != nil
@@ -283,6 +288,7 @@ func (env TestEnvironment) EnsureK8sServiceExists(t *testing.T, name, namespace 
 }
 
 func (env TestEnvironment) EnsureK8sDestinationRuleExists(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetDestinationRuleFromK8s(name, namespace)
 		return err == nil && result != nil
@@ -290,6 +296,7 @@ func (env TestEnvironment) EnsureK8sDestinationRuleExists(t *testing.T, name, na
 }
 
 func (env TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -301,6 +308,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetExists(t *testing.T, name, namesp
 }
 
 func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetPVCFromK8s(label, namespace)
 		if err != nil {
@@ -312,6 +320,7 @@ func (env TestEnvironment) EnsureK8sPVCExists(t *testing.T, label, namespace str
 }
 
 func (env TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		_, err := env.GetConfigMapFromK8s(name, namespace)
 		return err != nil && kapierrors.IsNotFound(err)
@@ -319,6 +328,7 @@ func (env TestEnvironment) EnsureK8sConfigMapNotFound(t *testing.T, name, namesp
 }
 
 func (env TestEnvironment) EnsureK8sSecretNotFound(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		_, err := env.GetSecretFromK8s(name, namespace)
 		return err != nil && kapierrors.IsNotFound(err)
@@ -326,6 +336,7 @@ func (env TestEnvironment) EnsureK8sSecretNotFound(t *testing.T, name, namespace
 }
 
 func (env TestEnvironment) EnsureK8sServiceNotFound(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		_, err := env.GetServiceFromK8s(name, namespace)
 		return err != nil && kapierrors.IsNotFound(err)
@@ -333,6 +344,7 @@ func (env TestEnvironment) EnsureK8sServiceNotFound(t *testing.T, name, namespac
 }
 
 func (env TestEnvironment) EnsureK8sDestinationRuleNotFound(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		_, err := env.GetDestinationRuleFromK8s(name, namespace)
 		return err != nil && kapierrors.IsNotFound(err)
@@ -340,6 +352,7 @@ func (env TestEnvironment) EnsureK8sDestinationRuleNotFound(t *testing.T, name, 
 }
 
 func (env TestEnvironment) EnsureK8sNATSNotFound(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		_, err := env.GetNATSFromK8s(name, namespace)
 		return err != nil && kapierrors.IsNotFound(err)
@@ -347,6 +360,7 @@ func (env TestEnvironment) EnsureK8sNATSNotFound(t *testing.T, name, namespace s
 }
 
 func (env TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		_, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -358,6 +372,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetNotFound(t *testing.T, name, name
 }
 
 func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace string) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		pvc, err := env.GetPVCFromK8s(name, namespace)
 		if err != nil {
@@ -372,6 +387,7 @@ func (env TestEnvironment) EnsureK8sPVCNotFound(t *testing.T, name, namespace st
 func (env TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, namespace string,
 	labels map[string]string,
 ) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -393,6 +409,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetHasLabels(t *testing.T, name, nam
 func (env TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name, namespace string,
 	annotations map[string]string,
 ) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		result, err := env.GetStatefulSetFromK8s(name, namespace)
 		if err != nil {
@@ -414,6 +431,7 @@ func (env TestEnvironment) EnsureK8sStatefulSetHasAnnotations(t *testing.T, name
 // EnsureNATSSpecClusterSizeReflected ensures that NATS CR Spec.cluster.size is reflected
 // in relevant k8s objects.
 func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
 		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
@@ -429,6 +447,7 @@ func (env TestEnvironment) EnsureNATSSpecClusterSizeReflected(t *testing.T, nats
 // EnsureNATSSpecResourcesReflected ensures that NATS CR Spec.resources is reflected
 // in relevant k8s objects.
 func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		stsName := testutils.GetStatefulSetName(nats)
 		result, err := env.GetStatefulSetFromK8s(stsName, nats.Namespace)
@@ -448,6 +467,7 @@ func (env TestEnvironment) EnsureNATSSpecResourcesReflected(t *testing.T, nats n
 // EnsureNATSSpecDebugTraceReflected ensures that NATS CR Spec.trace and Spec.debug is reflected
 // in relevant k8s objects.
 func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -472,6 +492,7 @@ func (env TestEnvironment) EnsureNATSSpecDebugTraceReflected(t *testing.T, nats 
 // EnsureNATSSpecFileStorageReflected ensures that NATS CR Spec.jetStream.fileStorage is reflected
 // in relevant k8s objects.
 func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -516,6 +537,7 @@ func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats
 // EnsureNATSSpecMemStorageReflected ensures that NATS CR Spec.jetStream.memStorage is reflected
 // in relevant k8s objects.
 func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats nmapiv1alpha1.NATS) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		// get NATS configMap.
 		result, err := env.GetConfigMapFromK8s(testutils.GetConfigMapName(nats), nats.Namespace)
@@ -537,6 +559,7 @@ func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats 
 }
 
 func (env TestEnvironment) EnsureURLInNATSStatus(t *testing.T, name, namespace string) {
+	t.Helper()
 	natsCR, err := env.GetNATSFromK8s(name, namespace)
 	require.NoError(t, err)
 	require.NotNil(t, natsCR)

@@ -4,19 +4,16 @@ import (
 	"context"
 	"testing"
 
-	kcorev1 "k8s.io/api/core/v1"
-
-	nmctrlmocks "github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
-
-	"k8s.io/apimachinery/pkg/runtime"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	nmctrlmocks "github.com/kyma-project/nats-manager/internal/controller/nats/mocks"
 	nmkchartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	nmmgrmocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
+	kcorev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -38,6 +35,7 @@ type MockedUnitTestEnvironment struct {
 }
 
 func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUnitTestEnvironment {
+	t.Helper()
 	// setup context
 	ctx := context.Background()
 
