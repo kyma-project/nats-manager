@@ -48,7 +48,7 @@ For information about the prerequisites, refer to [Development](./development.md
    make deploy IMG=$IMG
    ```
 
-6. To start the reconciliation process, apply the NATS Custom Resource. 
+6. To start the reconciliation process, apply the NATS custom resource.
 
    ```sh
    kubectl apply -f config/samples/eventing-nats-eval.yaml
