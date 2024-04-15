@@ -43,6 +43,4 @@ module-config.yaml
 
 .env.dev
 
-
-.golangci.*
 lint-report.json

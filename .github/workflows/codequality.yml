@@ -3,10 +3,17 @@ on:
   pull_request:
     branches:
       - main
+      - "release-**"
     paths-ignore:
       - "docs/**"
       - "**.md"
       - "sec-scanners-config.yaml"
+      - CODEOWNERS
+      - LICENSE
+      - LICENSES
+      - OWNERS
+      - OWNERS_ALIASES
+      - PROJECT
   push:
     branches:
       - main
@@ -19,11 +26,24 @@ permissions:
   contents: read
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
   pull-requests: read
+  # Optional: Allow write access to checks to allow the action to annotate code in the PR.
+  checks: write
 
 jobs:
   code-linter:
     name: "Run golangci-lint"
-    uses: kyma-project/eventing-tools/.github/workflows/lint-go-reusable.yml@main
-    with:
-      go-version: "1.22"
-      lint-config-uri: https://raw.githubusercontent.com/kyma-project/eventing-tools/abb93fa301d4b1aa07b46e5b01ffb0463f06e1bb/config/lint/.golangci.yaml
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4.0.0
+        with:
+          version: v1.57

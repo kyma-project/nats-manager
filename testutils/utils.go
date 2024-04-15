@@ -47,7 +47,7 @@ func GetRandString(length int) string {
 
 // GetRandK8sName returns a valid name for K8s objects.
 func GetRandK8sName(length int) string {
-	return fmt.Sprintf("name-%s", GetRandString(length))
+	return "name-" + GetRandString(length)
 }
 
 func NewNamespace(name string) *kcorev1.Namespace {

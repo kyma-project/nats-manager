@@ -216,7 +216,7 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 				}
 				require.True(t, nmapiv1alpha1.ConditionsEquals(wantConditions, gotNATS.Status.Conditions))
 
-				wantK8sEventMsg := fmt.Sprintf("Warning Forbidden %s", CreationNotAllowedMsg)
+				wantK8sEventMsg := "Warning Forbidden " + CreationNotAllowedMsg
 				wantK8sEvent := []string{
 					fmt.Sprintf(wantK8sEventMsg, givenAllowedNATS.Name, givenAllowedNATS.Namespace),
 				}
