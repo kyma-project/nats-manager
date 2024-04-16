@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -158,7 +157,7 @@ func Test_Overrides_Keys(t *testing.T) {
 	// run test cases
 	for key := range keysToTest {
 		key := key
-		t.Run(fmt.Sprintf("Testing key: %s", key), func(t *testing.T) {
+		t.Run("Testing key: "+key, func(t *testing.T) {
 			t.Parallel()
 
 			// when

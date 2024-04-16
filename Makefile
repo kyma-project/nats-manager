@@ -107,21 +107,22 @@ generate-and-test: vendor manifests generate fmt imports vet lint test;
 test: envtest ## Run only tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out
 
+
 .PHONY: lint
-lint: ## Check lint issues using `golangci-lint`
-	golangci-lint run --timeout 5m --config=./.golangci.yaml
+lint: golangci_lint
+	$(LOCALBIN)/golangci-lint run
+
+.PHONY: lint-fix
+lint-fix: golangci_lint
+	$(LOCALBIN)/golangci-lint run --fix
 
 .PHONY: lint-compact
 lint-compact: ## Check lint issues using `golangci-lint` in compact result format
-	golangci-lint run --timeout 5m --config=./.golangci.yaml --print-issued-lines=false
-
-.PHONY: lint-fix
-lint-fix: ## Check and fix lint issues using `golangci-lint`
-	golangci-lint run --fix --timeout 5m --config=./.golangci.yaml
+	$(LOCALBIN)/golangci-lint run --print-issued-lines=false
 
 .PHONY: lint-report
-lint-report: ## Check lint issues using `golangci-lint` then export them to a file, then print the list of linters used
-	golangci-lint run --timeout 5m --config=./.golangci.yaml --issues-exit-code 0 --out-format json > ./lint-report.json
+lint-report: golangci_lint ## Check lint issues using `golangci-lint` then export them to a file, then print the list of linters used
+	$(LOCALBIN)/golangci-lint run --issues-exit-code 0 --out-format json > ./lint-report.json
 
 .PHONY: lint-report-issue-category
 lint-report-issue-category: ## Get lint issues categories
@@ -237,6 +238,7 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
 CONTROLLER_TOOLS_VERSION ?= v0.14.0
+GOLANG_CI_LINT_VERSION ?= v1.57
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
@@ -258,6 +260,10 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	test -s $(LOCALBIN)/setup-envtest || GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+
+golangci_lint:
+	test -s $(LOCALBIN)/golangci-lint && $(LOCALBIN)/golangci-lint version | grep -q $(GOLANG_CI_LINT_VERSION) || \
+		GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANG_CI_LINT_VERSION)
 
 go-gen:
 	go generate ./...

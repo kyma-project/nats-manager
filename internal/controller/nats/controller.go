@@ -200,7 +200,7 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.N
 	log.Infof("Istio enabled on cluster: %t", istioExists)
 
 	// Check if NATS account secret exists.
-	accountSecretName := fmt.Sprintf("%s-secret", nats.Name)
+	accountSecretName := nats.Name + "-secret"
 	accountSecret, err := r.kubeClient.GetSecret(ctx, accountSecretName, nats.Namespace)
 	if err != nil && !kapierrors.IsNotFound(err) {
 		log.Errorf("Failed to fetch secret: %s", accountSecretName)

@@ -193,7 +193,7 @@ func (env TestEnvironment) TearDown() error {
 	sleepTime := 1 * time.Second
 	var err error
 	const retries = 20
-	for i := 0; i < retries; i++ {
+	for range retries {
 		if err = env.EnvTestInstance.Stop(); err == nil {
 			break
 		}
@@ -509,7 +509,7 @@ func (env TestEnvironment) EnsureNATSSpecFileStorageReflected(t *testing.T, nats
 		}
 
 		// check if file storage size is correctly defined in NATS config.
-		if !strings.Contains(natsConfigStr, fmt.Sprintf("max_file_store: %s", nats.Spec.FileStorage.Size.String())) {
+		if !strings.Contains(natsConfigStr, "max_file_store: "+nats.Spec.FileStorage.Size.String()) {
 			return false
 		}
 
@@ -554,7 +554,7 @@ func (env TestEnvironment) EnsureNATSSpecMemStorageReflected(t *testing.T, nats 
 		}
 
 		// check if mem storage size is correctly defined in NATS config.
-		return strings.Contains(natsConfigStr, fmt.Sprintf("max_memory_store: %s", nats.Spec.MemStorage.Size.String()))
+		return strings.Contains(natsConfigStr, "max_memory_store: "+nats.Spec.MemStorage.Size.String())
 	}, SmallTimeOut, SmallPollingInterval, "failed to ensure NATS CR Spec.jetStream.memStorage")
 }
 

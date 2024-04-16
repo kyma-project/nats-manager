@@ -2,7 +2,7 @@ package manager
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var ErrNATSStatefulSetNotFound = fmt.Errorf("NATS StatefulSet not found in manifests")
+var ErrNATSStatefulSetNotFound = errors.New("NATS StatefulSet not found in manifests")
 
 type NatsConfig struct {
 	ClusterSize int
