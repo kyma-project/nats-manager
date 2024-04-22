@@ -33,10 +33,15 @@ import (
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const (
@@ -227,6 +232,15 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.N
 func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 	r.ctrlManager = mgr
 	var err error
+
+	// define labelSelectorPredicate for NATS pods.
+	labelSelectorPredicate, err := predicate.LabelSelectorPredicate(
+		kmetav1.LabelSelector{MatchLabels: getNATSPodsMatchLabels()})
+	if err != nil {
+		return err
+	}
+
+	// setup controller.
 	r.controller, err = kcontrollerruntime.NewControllerManagedBy(mgr).
 		For(&nmapiv1alpha1.NATS{}).
 		Owns(&kappsv1.StatefulSet{}).              // watch for StatefulSets.
@@ -234,6 +248,22 @@ func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 		Owns(&kcorev1.ConfigMap{}).                // watch for ConfigMaps.
 		Owns(&kcorev1.Secret{}).                   // watch for Secrets.
 		Owns(&kapipolicyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
+		Watches(
+			&kcorev1.Pod{}, // watch for NATS Pods.
+			handler.EnqueueRequestsFromMapFunc(func(_ context.Context, obj client.Object) []reconcile.Request {
+				if r.allowedNATSCR == nil {
+					return []reconcile.Request{}
+				}
+				// Enqueue a reconcile request for the NATS resource.
+				return []reconcile.Request{
+					{NamespacedName: types.NamespacedName{
+						Namespace: r.allowedNATSCR.Namespace,
+						Name:      r.allowedNATSCR.Name,
+					}},
+				}
+			}),
+			builder.WithPredicates(labelSelectorPredicate),
+		).
 		Build(r)
 
 	return err

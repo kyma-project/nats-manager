@@ -34,6 +34,7 @@ func Test_handleNATSState(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRName("eventing-nats"),
 				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSClusterSize(1),
 			),
 			wantState: nmapiv1alpha1.StateProcessing,
 			wantConditions: []kmetav1.Condition{
@@ -51,6 +52,13 @@ func Test_handleNATSState(t *testing.T) {
 					Reason:             string(nmapiv1alpha1.ConditionReasonDeploying),
 					Message:            "",
 				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetPending),
+					Message:            "",
+				},
 			},
 			wantK8sEvents: []string{
 				"Normal Deploying NATS is being deployed, waiting for StatefulSet to get ready.",
@@ -62,6 +70,7 @@ func Test_handleNATSState(t *testing.T) {
 			givenNATS: testutils.NewNATSCR(
 				testutils.WithNATSCRName("eventing-nats"),
 				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSClusterSize(1),
 			),
 			wantState: nmapiv1alpha1.StateReady,
 			wantConditions: []kmetav1.Condition{
@@ -78,6 +87,13 @@ func Test_handleNATSState(t *testing.T) {
 					LastTransitionTime: kmetav1.Now(),
 					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonNotConfigured),
+					Message:            "NATS is not configured to run in cluster mode (i.e. spec.cluster.size < 3).",
 				},
 			},
 			wantK8sEvents: []string{
@@ -104,6 +120,8 @@ func Test_handleNATSState(t *testing.T) {
 			// define mocks behaviour
 			testEnv.natsManager.On("IsNATSStatefulSetReady",
 				mock.Anything, mock.Anything).Return(tc.givenStatefulSetReady, nil).Once()
+			testEnv.kubeClient.On("GetNumberOfAvailabilityZonesUsedByPods",
+				mock.Anything, mock.Anything, mock.Anything).Return(0, nil).Once()
 
 			// when
 			_, err := reconciler.handleNATSState(testEnv.Context, tc.givenNATS, releaseInstance, testEnv.Logger)
@@ -207,6 +225,13 @@ func Test_handleNATSReconcile(t *testing.T) {
 					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
 				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonNotConfigured),
+					Message:            "NATS is not configured to run in cluster mode (i.e. spec.cluster.size < 3).",
+				},
 			},
 			wantK8sEvents: []string{
 				"Normal Processing Initializing NATS resource.",
@@ -237,6 +262,13 @@ func Test_handleNATSReconcile(t *testing.T) {
 					LastTransitionTime: kmetav1.Now(),
 					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
 					Message:            "NATS is deployed",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonNotConfigured),
+					Message:            "NATS is not configured to run in cluster mode (i.e. spec.cluster.size < 3).",
 				},
 			},
 			wantDestinationRuleWatchStarted: true,
@@ -288,6 +320,9 @@ func Test_handleNATSReconcile(t *testing.T) {
 					nmmgr.RotatePasswordKey: true, // do not recreate secret if it exists
 				},
 			)
+			testEnv.kubeClient.On("GetNumberOfAvailabilityZonesUsedByPods",
+				mock.Anything, mock.Anything, mock.Anything).Return(tc.givenNATS.Spec.Cluster.Size, nil)
+
 			if tc.wantDestinationRuleWatchStarted {
 				testEnv.ctrlManager.On("GetCache").Return(nil)
 				testEnv.ctrlManager.On("GetRESTMapper").Return(testEnv.Client.RESTMapper())
