@@ -25,10 +25,6 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 - [Minimal CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/minimal.yaml#L1)
 - [Full spec CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/nats-full-spec.yaml#L1)
 
-## High availability
-
-NATS Servers are set up across different Availability Zones for uninterrupted operation and uptime. To achieve this, a minimum of three Kubernetes nodes must be distributed across at-least 3 Availability zones. Failure to meet this requirement will result in NATS Servers being scheduled within the same Availability zone, compromising high availability.
-
 ## Reference
 
 <!-- The table below was generated automatically -->
