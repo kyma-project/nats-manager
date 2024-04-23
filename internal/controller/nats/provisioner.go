@@ -3,6 +3,7 @@ package nats
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -126,18 +127,15 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *nmapiv1alpha1.NA
 			"NATS is not configured to run in cluster mode (i.e. spec.cluster.size < 3).")
 	case nats.Status.AvailabilityZonesUsed == nats.Spec.Cluster.Size:
 		// If the number of availability zones used by the pods is equal to the cluster size,
-		// then it means that all the pods are deployed in different availability zone.
-		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionTrue,
-			nmapiv1alpha1.ConditionReasonDeployed,
-			"NATS is deployed in different availability zones.")
-		events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeployed,
-			"NATS is deployed in different availability zones.")
+		// then it means that all the pods are deployed in different availability zone.\
+		msg := "NATS is deployed in different availability zones."
+		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionTrue, nmapiv1alpha1.ConditionReasonDeployed, msg)
+		events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeployed, msg)
 	default:
-		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionFalse,
-			nmapiv1alpha1.ConditionReasonNotConfigured,
-			"NATS is not deployed in different availability zones.")
-		events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonNotConfigured,
-			"NATS is not deployed in different availability zones.")
+		msg := fmt.Sprintf("NATS is not currently using enough "+
+			"availability zones (Recommended: 3, current: %d).", nats.Status.AvailabilityZonesUsed)
+		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionFalse, nmapiv1alpha1.ConditionReasonUnknown, msg)
+		events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonNotConfigured, msg)
 
 		// set the state to warning.
 		nats.Status.SetStateWarning()

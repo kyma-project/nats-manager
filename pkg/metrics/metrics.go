@@ -6,13 +6,14 @@ import (
 )
 
 const (
+	metricNamePrefix = "nats_manager_"
 	// availabilityZonesUsedMetricKey name of the availability zones used metric.
-	availabilityZonesUsedMetricKey = "nats_manager_availability_zones_used"
+	availabilityZonesUsedMetricKey = metricNamePrefix + "availability_zones_used_count"
 	// availabilityZonesUsedHelp help text for the availability zones used metric.
 	availabilityZonesUsedHelp = "The number of availability zones used by NATS Pods."
 
 	// clusterSizeMetricKey name of the cluster size metric.
-	clusterSizeMetricKey = "nats_manager_cr_cluster_size"
+	clusterSizeMetricKey = metricNamePrefix + "cr_nats_nodes_count"
 	// clusterSizeMetricHelp help text for the cluster size metric.
 	clusterSizeMetricHelp = "The cluster size configured in the NATS CR."
 )
@@ -38,6 +39,7 @@ type PrometheusCollector struct {
 // NewPrometheusCollector a new instance of Collector.
 func NewPrometheusCollector() Collector {
 	return &PrometheusCollector{
+		//nolint:promlinter // This is a count which can go up or down.
 		availabilityZonesUsed: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: availabilityZonesUsedMetricKey,
@@ -45,6 +47,7 @@ func NewPrometheusCollector() Collector {
 			},
 			nil,
 		),
+		//nolint:promlinter // This is a count which can go up or down.
 		clusterSize: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Name: clusterSizeMetricKey,

@@ -53,6 +53,7 @@ const (
 	ConditionReasonManifestError        ConditionReason = "InvalidManifests"
 	ConditionReasonDeletionError        ConditionReason = "DeletionError"
 	ConditionReasonNotConfigured        ConditionReason = "NotConfigured"
+	ConditionReasonUnknown              ConditionReason = "Unknown"
 )
 
 /*
