@@ -23,6 +23,9 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 ) (kcontrollerruntime.Result, error) {
 	log.Info("handling NATS reconciliation...")
 
+	// record metric.
+	r.collector.RecordClusterSizeMetric(nats.Spec.Cluster.Size)
+
 	// set status to processing
 	nats.Status.Initialize()
 	events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonProcessing, "Initializing NATS resource.")
@@ -100,6 +103,9 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *nmapiv1alpha1.NA
 	// sync status for AvailabilityZones.
 	nats.Status.AvailabilityZonesUsed, err = r.kubeClient.GetNumberOfAvailabilityZonesUsedByPods(ctx,
 		nats.GetNamespace(), getNATSPodsMatchLabels())
+
+	// record metric.
+	r.collector.RecordAvailabilityZonesUsedMetric(nats.Status.AvailabilityZonesUsed)
 
 	switch {
 	case err != nil:

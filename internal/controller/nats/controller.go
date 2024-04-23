@@ -19,6 +19,7 @@ package nats
 import (
 	"context"
 	"fmt"
+	"github.com/kyma-project/nats-manager/internal/metrics"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/events"
@@ -70,6 +71,7 @@ type Reconciler struct {
 	ctrlManager                 kcontrollerruntime.Manager
 	destinationRuleWatchStarted bool
 	allowedNATSCR               *nmapiv1alpha1.NATS
+	collector                   metrics.Collector
 }
 
 func NewReconciler(
@@ -81,6 +83,7 @@ func NewReconciler(
 	recorder record.EventRecorder,
 	natsManager nmmgr.Manager,
 	allowedNATSCR *nmapiv1alpha1.NATS,
+	collector metrics.Collector,
 ) *Reconciler {
 	return &Reconciler{
 		Client:                      client,
@@ -93,6 +96,7 @@ func NewReconciler(
 		natsManager:                 natsManager,
 		destinationRuleWatchStarted: false,
 		allowedNATSCR:               allowedNATSCR,
+		collector:                   collector,
 		controller:                  nil,
 	}
 }

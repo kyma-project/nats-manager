@@ -24,6 +24,10 @@ const (
 func (r *Reconciler) handleNATSDeletion(ctx context.Context, nats *nmapiv1alpha1.NATS,
 	log *zap.SugaredLogger,
 ) (kcontrollerruntime.Result, error) {
+	// reset metrics.
+	r.collector.ResetAvailabilityZonesUsedMetric()
+	r.collector.ResetClusterSizeMetric()
+
 	// skip reconciliation for deletion if the finalizer is not set.
 	if !r.containsFinalizer(nats) {
 		log.Debugf("skipped reconciliation for deletion as finalizer is not set.")

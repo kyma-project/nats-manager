@@ -18,6 +18,7 @@ package main //nolint:cyclop // main function needs to initialize many objects
 
 import (
 	"flag"
+	"github.com/kyma-project/nats-manager/internal/metrics"
 	"os"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -150,6 +151,9 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 
 	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
+	collector := metrics.NewPrometheusCollector()
+	collector.RegisterMetrics()
+
 	// create NATS reconciler instance
 	natsReconciler := nmctrl.NewReconciler(
 		mgr.GetClient(),
@@ -165,6 +169,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 				Namespace: envConfigs.NATSCRNamespace,
 			},
 		},
+		collector,
 	)
 
 	if err = (natsReconciler).SetupWithManager(mgr); err != nil {

@@ -2,6 +2,7 @@ package nats
 
 import (
 	"context"
+	"github.com/kyma-project/nats-manager/internal/metrics"
 	"testing"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -60,6 +61,9 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	mockController := new(nmctrlmocks.Controller)
 	mockManager := new(nmctrlmocks.Manager)
 
+	// setup mocks.
+	collector := metrics.NewPrometheusCollector()
+
 	// setup reconciler
 	reconciler := NewReconciler(
 		fakeClient,
@@ -70,6 +74,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		recorder,
 		natsManager,
 		nil,
+		collector,
 	)
 	reconciler.controller = mockController
 	reconciler.ctrlManager = mockManager

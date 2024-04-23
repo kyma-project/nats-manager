@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"fmt"
+	"github.com/kyma-project/nats-manager/internal/metrics"
 	"log"
 	"path/filepath"
 	"reflect"
@@ -143,6 +144,10 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	// create NATS manager instance
 	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
+	// create metrics collector.
+	collector := metrics.NewPrometheusCollector()
+	collector.RegisterMetrics()
+
 	// setup reconciler
 	natsReconciler := nmctrl.NewReconciler(
 		ctrlMgr.GetClient(),
@@ -153,6 +158,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		recorder,
 		natsManager,
 		allowedNATSCR,
+		collector,
 	)
 	if err = (natsReconciler).SetupWithManager(ctrlMgr); err != nil {
 		return nil, err
