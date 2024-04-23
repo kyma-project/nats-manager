@@ -17,9 +17,9 @@ func (_m *Collector) EXPECT() *Collector_Expecter {
 	return &Collector_Expecter{mock: &_m.Mock}
 }
 
-// RecordAvailabilityZonesUsedMetric provides a mock function with given fields: availabilityZonesUsed
-func (_m *Collector) RecordAvailabilityZonesUsedMetric(availabilityZonesUsed int) {
-	_m.Called(availabilityZonesUsed)
+// RecordAvailabilityZonesUsedMetric provides a mock function with given fields: _a0
+func (_m *Collector) RecordAvailabilityZonesUsedMetric(_a0 int) {
+	_m.Called(_a0)
 }
 
 // Collector_RecordAvailabilityZonesUsedMetric_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RecordAvailabilityZonesUsedMetric'
@@ -28,12 +28,12 @@ type Collector_RecordAvailabilityZonesUsedMetric_Call struct {
 }
 
 // RecordAvailabilityZonesUsedMetric is a helper method to define mock.On call
-//   - availabilityZonesUsed int
-func (_e *Collector_Expecter) RecordAvailabilityZonesUsedMetric(availabilityZonesUsed interface{}) *Collector_RecordAvailabilityZonesUsedMetric_Call {
-	return &Collector_RecordAvailabilityZonesUsedMetric_Call{Call: _e.mock.On("RecordAvailabilityZonesUsedMetric", availabilityZonesUsed)}
+//   - _a0 int
+func (_e *Collector_Expecter) RecordAvailabilityZonesUsedMetric(_a0 interface{}) *Collector_RecordAvailabilityZonesUsedMetric_Call {
+	return &Collector_RecordAvailabilityZonesUsedMetric_Call{Call: _e.mock.On("RecordAvailabilityZonesUsedMetric", _a0)}
 }
 
-func (_c *Collector_RecordAvailabilityZonesUsedMetric_Call) Run(run func(availabilityZonesUsed int)) *Collector_RecordAvailabilityZonesUsedMetric_Call {
+func (_c *Collector_RecordAvailabilityZonesUsedMetric_Call) Run(run func(_a0 int)) *Collector_RecordAvailabilityZonesUsedMetric_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(int))
 	})
@@ -50,9 +50,9 @@ func (_c *Collector_RecordAvailabilityZonesUsedMetric_Call) RunAndReturn(run fun
 	return _c
 }
 
-// RecordClusterSizeMetric provides a mock function with given fields: clusterSize
-func (_m *Collector) RecordClusterSizeMetric(clusterSize int) {
-	_m.Called(clusterSize)
+// RecordClusterSizeMetric provides a mock function with given fields: _a0
+func (_m *Collector) RecordClusterSizeMetric(_a0 int) {
+	_m.Called(_a0)
 }
 
 // Collector_RecordClusterSizeMetric_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RecordClusterSizeMetric'
@@ -61,12 +61,12 @@ type Collector_RecordClusterSizeMetric_Call struct {
 }
 
 // RecordClusterSizeMetric is a helper method to define mock.On call
-//   - clusterSize int
-func (_e *Collector_Expecter) RecordClusterSizeMetric(clusterSize interface{}) *Collector_RecordClusterSizeMetric_Call {
-	return &Collector_RecordClusterSizeMetric_Call{Call: _e.mock.On("RecordClusterSizeMetric", clusterSize)}
+//   - _a0 int
+func (_e *Collector_Expecter) RecordClusterSizeMetric(_a0 interface{}) *Collector_RecordClusterSizeMetric_Call {
+	return &Collector_RecordClusterSizeMetric_Call{Call: _e.mock.On("RecordClusterSizeMetric", _a0)}
 }
 
-func (_c *Collector_RecordClusterSizeMetric_Call) Run(run func(clusterSize int)) *Collector_RecordClusterSizeMetric_Call {
+func (_c *Collector_RecordClusterSizeMetric_Call) Run(run func(_a0 int)) *Collector_RecordClusterSizeMetric_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(int))
 	})

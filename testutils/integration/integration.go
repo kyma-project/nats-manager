@@ -3,7 +3,6 @@ package integration
 import (
 	"context"
 	"fmt"
-	"github.com/kyma-project/nats-manager/internal/metrics"
 	"log"
 	"path/filepath"
 	"reflect"
@@ -17,6 +16,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/pkg/metrics"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"

@@ -9,7 +9,7 @@ const (
 	// availabilityZonesUsedMetricKey name of the availability zones used metric.
 	availabilityZonesUsedMetricKey = "nats_manager_availability_zones_used"
 	// availabilityZonesUsedHelp help text for the availability zones used metric.
-	availabilityZonesUsedHelp = "The number of availability zones used used by NATS Pods."
+	availabilityZonesUsedHelp = "The number of availability zones used by NATS Pods."
 
 	// clusterSizeMetricKey name of the cluster size metric.
 	clusterSizeMetricKey = "nats_manager_cr_cluster_size"

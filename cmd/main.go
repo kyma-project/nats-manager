@@ -18,7 +18,6 @@ package main //nolint:cyclop // main function needs to initialize many objects
 
 import (
 	"flag"
-	"github.com/kyma-project/nats-manager/internal/metrics"
 	"os"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
@@ -28,6 +27,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/pkg/metrics"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"

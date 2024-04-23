@@ -19,13 +19,13 @@ package nats
 import (
 	"context"
 	"fmt"
-	"github.com/kyma-project/nats-manager/internal/metrics"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/events"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/pkg/metrics"
 	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
