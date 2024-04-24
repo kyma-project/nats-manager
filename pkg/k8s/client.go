@@ -23,6 +23,8 @@ import (
 // Perform a compile time check.
 var _ Client = &KubeClient{}
 
+// nolint: interfacebloat // this interface is wrapper for the k8s client, therefore it has many methods.
+//
 //go:generate go run github.com/vektra/mockery/v2 --name=Client --outpkg=mocks --case=underscore
 type Client interface {
 	PatchApply(context.Context, *unstructured.Unstructured) error
@@ -32,6 +34,7 @@ type Client interface {
 	GetCRD(context.Context, string) (*kapiextv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
 	DeletePVCsWithLabel(context.Context, string, string, string) error
+	GetNode(context.Context, string) (*kcorev1.Node, error)
 	GetNodeZone(context.Context, string) (string, error)
 	GetPodsByLabels(context.Context, string, map[string]string) (*kcorev1.PodList, error)
 	GetNumberOfAvailabilityZonesUsedByPods(context.Context, string, map[string]string) (int, error)

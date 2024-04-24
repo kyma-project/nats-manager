@@ -71,6 +71,37 @@ func WithNamespace(namespace string) Option {
 	}
 }
 
+func WithLabels(labels map[string]string) Option {
+	return func(o *unstructured.Unstructured) error {
+		if _, exists := o.Object["metadata"]; !exists {
+			o.Object["metadata"] = make(map[string]interface{})
+		}
+
+		metadata, ok := o.Object["metadata"].(map[string]interface{})
+		if !ok {
+			return ErrFailedToConvertMetadataToMap
+		}
+
+		metadata["labels"] = labels
+		return nil
+	}
+}
+
+func WithSpecNodeName(nodeName string) Option {
+	return func(o *unstructured.Unstructured) error {
+		if _, exists := o.Object["spec"]; !exists {
+			o.Object["spec"] = make(map[string]interface{})
+		}
+
+		spec, ok := o.Object["spec"].(map[string]interface{})
+		if !ok {
+			return ErrFailedToConvertSpecToMap
+		}
+		spec["nodeName"] = nodeName
+		return nil
+	}
+}
+
 func WithSpecReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["spec"]; !exists {

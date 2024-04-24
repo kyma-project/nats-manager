@@ -19,7 +19,10 @@ import (
 
 const testFieldManager = "nats-manager"
 
-var errPatchNotAllowed = errors.New("apply patches are not supported in the fake client")
+var (
+	errPatchNotAllowed = errors.New("apply patches are not supported in the fake client")
+	errNotFound        = errors.New("not found")
+)
 
 func Test_GetStatefulSet(t *testing.T) {
 	t.Parallel()
@@ -406,6 +409,311 @@ func Test_DeletePVCsWithLabel(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 			}
+		})
+	}
+}
+
+func Test_GetNode(t *testing.T) {
+	t.Parallel()
+
+	// define test cases
+	testCases := []struct {
+		name              string
+		givenNode         *unstructured.Unstructured
+		wantNotFoundError bool
+	}{
+		{
+			name:              "should return not found error when Node is missing in k8s",
+			givenNode:         testutils.NewNodeUnStruct(),
+			wantNotFoundError: true,
+		},
+		{
+			name:              "should return correct Node from k8s",
+			givenNode:         testutils.NewNodeUnStruct(),
+			wantNotFoundError: false,
+		},
+	}
+
+	// run test cases
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// given
+			fakeClientBuilder := fake.NewClientBuilder()
+
+			var objs []client.Object
+			if !tc.wantNotFoundError {
+				objs = append(objs, tc.givenNode)
+			}
+			fakeClient := fakeClientBuilder.WithObjects(objs...).Build()
+
+			kubeClient := NewKubeClient(fakeClient, nil, testFieldManager)
+
+			// when
+			gotNode, err := kubeClient.GetNode(context.Background(), tc.givenNode.GetName())
+
+			// then
+			if tc.wantNotFoundError {
+				require.Error(t, err)
+				require.True(t, kapierrors.IsNotFound(err))
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.givenNode.GetName(), gotNode.Name)
+			}
+		})
+	}
+}
+
+func Test_GetNodeZone(t *testing.T) {
+	t.Parallel()
+
+	givenLabels := map[string]string{nodeZoneLabelKey: "east-us-1"}
+
+	// define test cases
+	testCases := []struct {
+		name               string
+		givenNode          *unstructured.Unstructured
+		givenNodeExists    bool
+		givenExistsInCache bool
+		wantZone           string
+		wantError          error
+	}{
+		{
+			name:            "should return not found error when Node is missing in k8s",
+			givenNode:       testutils.NewNodeUnStruct(),
+			givenNodeExists: false,
+			wantError:       errNotFound,
+		},
+		{
+			name:            "should return zone label missing error when Node do have the zone label",
+			givenNode:       testutils.NewNodeUnStruct(), // zone label is not set.
+			givenNodeExists: true,
+			wantError:       ErrNodeZoneLabelMissing,
+		},
+		{
+			name:               "should return correct Node Zone from k8s when cache is empty",
+			givenNode:          testutils.NewNodeUnStruct(testutils.WithLabels(givenLabels)),
+			givenNodeExists:    true,
+			givenExistsInCache: false,
+			wantZone:           givenLabels[nodeZoneLabelKey],
+		},
+		{
+			name:               "should return correct Node Zone from cache",
+			givenNode:          testutils.NewNodeUnStruct(), // zone label is not set, so the value should come from cache.
+			givenNodeExists:    false,
+			givenExistsInCache: true,
+			wantZone:           givenLabels[nodeZoneLabelKey],
+		},
+	}
+
+	// run test cases
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// given
+			fakeClientBuilder := fake.NewClientBuilder()
+
+			var objs []client.Object
+			if tc.givenNodeExists {
+				objs = append(objs, tc.givenNode)
+			}
+			fakeClient := fakeClientBuilder.WithObjects(objs...).Build()
+
+			kubeClient := NewKubeClient(fakeClient, nil, testFieldManager)
+
+			if tc.givenExistsInCache {
+				kcStruct, ok := kubeClient.(*KubeClient)
+				require.True(t, ok)
+				kcStruct.nodesZoneCache.Set(tc.givenNode.GetName(), givenLabels[nodeZoneLabelKey], nodesZoneTTL)
+			}
+
+			// when
+			gotNodeZone, err := kubeClient.GetNodeZone(context.Background(), tc.givenNode.GetName())
+
+			// then
+			if tc.wantError != nil {
+				require.Error(t, err)
+				require.ErrorContains(t, err, tc.wantError.Error())
+				return
+			}
+
+			require.NoError(t, err)
+			require.Equal(t, givenLabels[nodeZoneLabelKey], gotNodeZone)
+
+			// check cache entry.
+			kcStruct, ok := kubeClient.(*KubeClient)
+			require.True(t, ok)
+			require.True(t, kcStruct.nodesZoneCache.Has(tc.givenNode.GetName()))
+			item := kcStruct.nodesZoneCache.Get(tc.givenNode.GetName())
+			require.Equal(t, tc.wantZone, item.Value())
+		})
+	}
+}
+
+func Test_GetPodsByLabels(t *testing.T) {
+	t.Parallel()
+
+	// given
+	givenNamespace := "test-namespace1"
+	givenLabels := map[string]string{"app.kubernetes.io/managed-by": "nats-manager"}
+
+	givenPods := []client.Object{
+		testutils.NewPodUnStruct(
+			testutils.WithName("pod1"),
+			testutils.WithNamespace(givenNamespace),
+			testutils.WithLabels(givenLabels)),
+		testutils.NewPodUnStruct(
+			testutils.WithName("pod2"),
+			testutils.WithNamespace(givenNamespace),
+			testutils.WithLabels(givenLabels)),
+		testutils.NewPodUnStruct(
+			testutils.WithName("pod3"),
+			testutils.WithNamespace(givenNamespace),
+			// no labels in pod3.
+		),
+	}
+
+	fakeClientBuilder := fake.NewClientBuilder()
+	fakeClient := fakeClientBuilder.WithObjects(givenPods...).Build()
+	kubeClient := NewKubeClient(fakeClient, nil, testFieldManager)
+
+	// when
+	gotPodList, err := kubeClient.GetPodsByLabels(context.Background(), givenNamespace, givenLabels)
+
+	// then
+	require.NoError(t, err)
+	// should return only the pods with the given labels.
+	require.Len(t, gotPodList.Items, 2)
+}
+
+func Test_GetNumberOfAvailabilityZonesUsedByPods(t *testing.T) {
+	t.Parallel()
+
+	givenNamespace := "test-namespace1"
+	givenPodLabels := map[string]string{"app.kubernetes.io/managed-by": "nats-manager"}
+
+	givenNodes := []client.Object{
+		testutils.NewNodeUnStruct(
+			testutils.WithName("node1"),
+			testutils.WithLabels(map[string]string{nodeZoneLabelKey: "east-us-1"}),
+		),
+		testutils.NewNodeUnStruct(
+			testutils.WithName("node2"),
+			testutils.WithLabels(map[string]string{nodeZoneLabelKey: "east-us-2"}),
+		),
+		testutils.NewNodeUnStruct(
+			testutils.WithName("node3"),
+			testutils.WithLabels(map[string]string{nodeZoneLabelKey: "east-us-3"}),
+		),
+	}
+
+	// define test cases
+	testCases := []struct {
+		name           string
+		givenPods      []client.Object
+		wantZonesCount int
+	}{
+		{
+			name: "should return 3 when all 3 pods are in different zones",
+			givenPods: []client.Object{
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod1"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node1"),
+				),
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod2"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node2"),
+				),
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod3"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node3"),
+				),
+			},
+			wantZonesCount: 3,
+		},
+		{
+			name: "should return 1 when all 3 pods are in same zone",
+			givenPods: []client.Object{
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod1"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node1"),
+				),
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod2"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node1"),
+				),
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod3"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node1"),
+				),
+			},
+			wantZonesCount: 1,
+		},
+		{
+			name: "should return 2 when 2 of 3 pods are in same zone",
+			givenPods: []client.Object{
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod1"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node1"),
+				),
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod2"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node1"),
+				),
+				testutils.NewPodUnStruct(
+					testutils.WithName("pod3"),
+					testutils.WithNamespace(givenNamespace),
+					testutils.WithLabels(givenPodLabels),
+					testutils.WithSpecNodeName("node3"),
+				),
+			},
+			wantZonesCount: 2,
+		},
+	}
+
+	// run test cases
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			// given
+			fakeClientBuilder := fake.NewClientBuilder()
+
+			var objs []client.Object
+			objs = append(objs, givenNodes...)
+			objs = append(objs, tc.givenPods...)
+			fakeClient := fakeClientBuilder.WithObjects(objs...).Build()
+
+			kubeClient := NewKubeClient(fakeClient, nil, testFieldManager)
+
+			// when
+			gotZonesCount, err := kubeClient.GetNumberOfAvailabilityZonesUsedByPods(context.Background(),
+				givenNamespace, givenPodLabels)
+
+			// then
+			require.NoError(t, err)
+			require.Equal(t, tc.wantZonesCount, gotZonesCount)
 		})
 	}
 }

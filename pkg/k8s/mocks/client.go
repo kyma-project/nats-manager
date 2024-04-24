@@ -240,6 +240,65 @@ func (_c *Client_GetCRD_Call) RunAndReturn(run func(context.Context, string) (*v
 	return _c
 }
 
+// GetNode provides a mock function with given fields: _a0, _a1
+func (_m *Client) GetNode(_a0 context.Context, _a1 string) (*corev1.Node, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetNode")
+	}
+
+	var r0 *corev1.Node
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*corev1.Node, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *corev1.Node); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*corev1.Node)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Client_GetNode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetNode'
+type Client_GetNode_Call struct {
+	*mock.Call
+}
+
+// GetNode is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 string
+func (_e *Client_Expecter) GetNode(_a0 interface{}, _a1 interface{}) *Client_GetNode_Call {
+	return &Client_GetNode_Call{Call: _e.mock.On("GetNode", _a0, _a1)}
+}
+
+func (_c *Client_GetNode_Call) Run(run func(_a0 context.Context, _a1 string)) *Client_GetNode_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *Client_GetNode_Call) Return(_a0 *corev1.Node, _a1 error) *Client_GetNode_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Client_GetNode_Call) RunAndReturn(run func(context.Context, string) (*corev1.Node, error)) *Client_GetNode_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetNodeZone provides a mock function with given fields: _a0, _a1
 func (_m *Client) GetNodeZone(_a0 context.Context, _a1 string) (string, error) {
 	ret := _m.Called(_a0, _a1)
