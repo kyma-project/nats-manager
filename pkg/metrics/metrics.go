@@ -28,6 +28,8 @@ type Collector interface {
 	RecordClusterSizeMetric(int)
 	ResetAvailabilityZonesUsedMetric()
 	ResetClusterSizeMetric()
+	GetAvailabilityZonesUsedMetric() (prometheus.Gauge, error)
+	GetClusterSizeMetric() (prometheus.Gauge, error)
 }
 
 // PrometheusCollector implements the prometheus.Collector interface.
@@ -90,4 +92,12 @@ func (p *PrometheusCollector) ResetAvailabilityZonesUsedMetric() {
 
 func (p *PrometheusCollector) ResetClusterSizeMetric() {
 	p.clusterSize.Reset()
+}
+
+func (p *PrometheusCollector) GetAvailabilityZonesUsedMetric() (prometheus.Gauge, error) {
+	return p.availabilityZonesUsed.GetMetricWithLabelValues()
+}
+
+func (p *PrometheusCollector) GetClusterSizeMetric() (prometheus.Gauge, error) {
+	return p.clusterSize.GetMetricWithLabelValues()
 }

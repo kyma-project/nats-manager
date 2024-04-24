@@ -13,6 +13,7 @@ require (
 	github.com/nats-io/nats.go v1.33.1
 	github.com/onsi/gomega v1.31.1
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_golang v1.18.0
 	github.com/stretchr/testify v1.9.0
 	github.com/vektra/mockery/v2 v2.42.0
 	go.uber.org/zap v1.27.0
@@ -127,7 +128,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.18.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect

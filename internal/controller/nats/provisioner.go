@@ -90,6 +90,10 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *nmapiv1alpha1.NA
 
 	if !isSTSReady {
 		nats.Status.SetWaitingStateForStatefulSet()
+		nats.Status.AvailabilityZonesUsed = 0
+		// record metric.
+		r.collector.RecordAvailabilityZonesUsedMetric(nats.Status.AvailabilityZonesUsed)
+		// publish k8s event.
 		events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeploying,
 			"NATS is being deployed, waiting for StatefulSet to get ready.")
 		r.logger.Info("Reconciliation successful: waiting for STS to get ready...")
@@ -117,7 +121,8 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *nmapiv1alpha1.NA
 		// if zone information is missing, then it is not possible to determine if the pods
 		// are deployed in different availability zones. So we will not set the state to warning.
 		if !errors.Is(err, k8s.ErrNodeZoneLabelMissing) {
-			return kcontrollerruntime.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
+			nats.Status.State = nmapiv1alpha1.StateError
+			return kcontrollerruntime.Result{}, errors.Join(err, r.syncNATSStatus(ctx, nats, log))
 		}
 	case nats.Spec.Cluster.Size < nmmgr.MinClusterSize:
 		// if cluster size is less than 3, then it NATS is not in cluster mode.

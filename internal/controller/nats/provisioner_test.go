@@ -5,28 +5,36 @@ import (
 	"testing"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"github.com/kyma-project/nats-manager/testutils"
+	ptestutil "github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-var ErrDeployErrorMsg = errors.New("deploy error")
+var (
+	ErrDeployErrorMsg = errors.New("deploy error")
+	ErrUnknownMsg     = errors.New("unknown")
+)
 
 func Test_handleNATSState(t *testing.T) {
 	t.Parallel()
 
 	// define test cases
 	testCases := []struct {
-		name                  string
-		givenStatefulSetReady bool
-		givenNATS             *nmapiv1alpha1.NATS
-		wantState             string
-		wantConditions        []kmetav1.Condition
-		wantK8sEvents         []string
+		name                        string
+		givenStatefulSetReady       bool
+		givenNATS                   *nmapiv1alpha1.NATS
+		givenAvailabilityZones      int
+		givenAvailabilityZonesError error
+		wantState                   string
+		wantConditions              []kmetav1.Condition
+		wantK8sEvents               []string
+		wantError                   error
 	}{
 		{
 			name:                  "should set correct status when StatefulSet is not ready",
@@ -36,7 +44,9 @@ func Test_handleNATSState(t *testing.T) {
 				testutils.WithNATSCRNamespace("kyma-system"),
 				testutils.WithNATSClusterSize(1),
 			),
-			wantState: nmapiv1alpha1.StateProcessing,
+			givenAvailabilityZones:      0,
+			givenAvailabilityZonesError: nil,
+			wantState:                   nmapiv1alpha1.StateProcessing,
 			wantConditions: []kmetav1.Condition{
 				{
 					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
@@ -72,7 +82,9 @@ func Test_handleNATSState(t *testing.T) {
 				testutils.WithNATSCRNamespace("kyma-system"),
 				testutils.WithNATSClusterSize(1),
 			),
-			wantState: nmapiv1alpha1.StateReady,
+			givenAvailabilityZones:      0,
+			givenAvailabilityZonesError: nil,
+			wantState:                   nmapiv1alpha1.StateReady,
 			wantConditions: []kmetav1.Condition{
 				{
 					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
@@ -100,6 +112,165 @@ func Test_handleNATSState(t *testing.T) {
 				"Normal Deployed StatefulSet is ready and NATS is deployed.",
 			},
 		},
+		{
+			name:                  "should set correct AvailabilityZones condition when availability zones < 3",
+			givenStatefulSetReady: true,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRName("eventing-nats"),
+				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSClusterSize(3),
+			),
+			givenAvailabilityZones:      2,
+			givenAvailabilityZonesError: nil,
+			wantState:                   nmapiv1alpha1.StateWarning,
+			wantConditions: []kmetav1.Condition{
+				{
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
+					Message:            "StatefulSet is ready",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
+					Message:            "NATS is deployed",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonUnknown),
+					Message: "NATS is not currently using enough availability " +
+						"zones (Recommended: 3, current: 2).",
+				},
+			},
+			wantK8sEvents: []string{
+				"Normal Deployed StatefulSet is ready and NATS is deployed.",
+				"Warning NotConfigured NATS is not currently using enough availability " +
+					"zones (Recommended: 3, current: 2).",
+			},
+		},
+		{
+			name:                  "should set correct AvailabilityZones condition when availability zones == 3",
+			givenStatefulSetReady: true,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRName("eventing-nats"),
+				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSClusterSize(3),
+			),
+			givenAvailabilityZones:      3,
+			givenAvailabilityZonesError: nil,
+			wantState:                   nmapiv1alpha1.StateReady,
+			wantConditions: []kmetav1.Condition{
+				{
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
+					Message:            "StatefulSet is ready",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
+					Message:            "NATS is deployed",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
+					Message:            "NATS is deployed in different availability zones.",
+				},
+			},
+			wantK8sEvents: []string{
+				"Normal Deployed StatefulSet is ready and NATS is deployed.",
+				"Normal Deployed NATS is deployed in different availability zones.",
+			},
+		},
+		{
+			name:                  "should set correct AvailabilityZones condition when get availability zones returns ErrNodeZoneLabelMissing error",
+			givenStatefulSetReady: true,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRName("eventing-nats"),
+				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSClusterSize(3),
+			),
+			givenAvailabilityZones:      0,
+			givenAvailabilityZonesError: k8s.ErrNodeZoneLabelMissing,
+			wantState:                   nmapiv1alpha1.StateReady,
+			wantConditions: []kmetav1.Condition{
+				{
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
+					Message:            "StatefulSet is ready",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
+					Message:            "NATS is deployed",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonProcessingError),
+					Message:            k8s.ErrNodeZoneLabelMissing.Error(),
+				},
+			},
+			wantK8sEvents: []string{
+				"Normal Deployed StatefulSet is ready and NATS is deployed.",
+				"Warning FailedProcessing zone label missing",
+			},
+		},
+		{
+			name:                  "should set state to error when get availability zones returns unknown error",
+			givenStatefulSetReady: true,
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRName("eventing-nats"),
+				testutils.WithNATSCRNamespace("kyma-system"),
+				testutils.WithNATSClusterSize(3),
+			),
+			givenAvailabilityZones:      0,
+			givenAvailabilityZonesError: ErrUnknownMsg,
+			wantError:                   ErrUnknownMsg,
+			wantState:                   nmapiv1alpha1.StateError,
+			wantConditions: []kmetav1.Condition{
+				{
+					Type:               string(nmapiv1alpha1.ConditionStatefulSet),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonStatefulSetAvailable),
+					Message:            "StatefulSet is ready",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailable),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
+					Message:            "NATS is deployed",
+				},
+				{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionFalse,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonProcessingError),
+					Message:            ErrUnknownMsg.Error(),
+				},
+			},
+			wantK8sEvents: []string{
+				"Normal Deployed StatefulSet is ready and NATS is deployed.",
+				"Warning FailedProcessing unknown",
+			},
+		},
 	}
 
 	// run test cases
@@ -121,17 +292,29 @@ func Test_handleNATSState(t *testing.T) {
 			testEnv.natsManager.On("IsNATSStatefulSetReady",
 				mock.Anything, mock.Anything).Return(tc.givenStatefulSetReady, nil).Once()
 			testEnv.kubeClient.On("GetNumberOfAvailabilityZonesUsedByPods",
-				mock.Anything, mock.Anything, mock.Anything).Return(0, nil).Once()
+				mock.Anything, mock.Anything, mock.Anything).Return(tc.givenAvailabilityZones,
+				tc.givenAvailabilityZonesError).Once()
 
 			// when
 			_, err := reconciler.handleNATSState(testEnv.Context, tc.givenNATS, releaseInstance, testEnv.Logger)
 
 			// then
-			require.NoError(t, err)
+			if tc.wantError != nil {
+				require.Error(t, err)
+				require.ErrorContains(t, tc.wantError, err.Error())
+			} else {
+				require.NoError(t, err)
+			}
 			gotNATS, err := testEnv.GetNATS(tc.givenNATS.Name, tc.givenNATS.Namespace)
 			require.NoError(t, err)
 			require.Equal(t, tc.wantState, gotNATS.Status.State)
+			require.Equal(t, tc.givenAvailabilityZones, gotNATS.Status.AvailabilityZonesUsed)
 			require.True(t, nmapiv1alpha1.ConditionsEquals(tc.wantConditions, gotNATS.Status.Conditions))
+
+			// check metrics.
+			gotZonesMetric, err := reconciler.collector.GetAvailabilityZonesUsedMetric()
+			require.NoError(t, err)
+			require.Equal(t, float64(tc.givenAvailabilityZones), ptestutil.ToFloat64(gotZonesMetric))
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()
@@ -349,6 +532,11 @@ func Test_handleNATSReconcile(t *testing.T) {
 
 			require.Equal(t, tc.wantDestinationRuleWatchStarted, reconciler.destinationRuleWatchStarted)
 			require.Equal(t, tc.wantState, gotNATS.Status.State)
+
+			// check metrics.
+			gotClusterSizeMetric, err := reconciler.collector.GetClusterSizeMetric()
+			require.Equal(t, float64(tc.givenNATS.Spec.Cluster.Size), ptestutil.ToFloat64(gotClusterSizeMetric))
+			require.NoError(t, err)
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()
