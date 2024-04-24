@@ -148,6 +148,15 @@ func NewPodUnStruct(opts ...Option) *unstructured.Unstructured {
 				"name":      "test1",
 				"namespace": "test1",
 			},
+			"spec": map[string]interface{}{
+				"containers": []map[string]interface{}{
+					{
+						"name":            "test1",
+						"image":           "test1",
+						"imagePullPolicy": "IfNotPresent",
+					},
+				},
+			},
 		},
 	}
 

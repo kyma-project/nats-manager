@@ -120,6 +120,13 @@ func HaveStatusError() onsigomegatypes.GomegaMatcher {
 		}, gomega.Equal(nmapiv1alpha1.StateError))
 }
 
+func HaveStatusWarning() onsigomegatypes.GomegaMatcher {
+	return gomega.WithTransform(
+		func(n *nmapiv1alpha1.NATS) string {
+			return n.Status.State
+		}, gomega.Equal(nmapiv1alpha1.StateWarning))
+}
+
 func HaveCondition(condition kmetav1.Condition) onsigomegatypes.GomegaMatcher {
 	return gomega.WithTransform(
 		func(n *nmapiv1alpha1.NATS) []kmetav1.Condition {
