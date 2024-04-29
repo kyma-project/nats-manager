@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/jellydator/ttlcache/v3"
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	kapiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -41,7 +39,6 @@ type Client interface {
 }
 
 const (
-	nodesZoneTTL     = 10 * time.Hour
 	nodeZoneLabelKey = "topology.kubernetes.io/zone"
 )
 
@@ -51,21 +48,15 @@ type KubeClient struct {
 	client         client.Client
 	clientset      kapiextclientset.Interface
 	fieldManager   string
-	nodesZoneCache *ttlcache.Cache[string, string]
+	nodesZoneCache map[string]string
 }
 
 func NewKubeClient(client client.Client, clientset kapiextclientset.Interface, fieldManager string) Client {
-	// initialize the cache for the nodes zone information.
-	nodesZoneCache := ttlcache.New[string, string](
-		ttlcache.WithTTL[string, string](nodesZoneTTL),
-		ttlcache.WithDisableTouchOnHit[string, string](),
-	)
-
 	return &KubeClient{
 		client:         client,
 		clientset:      clientset,
 		fieldManager:   fieldManager,
-		nodesZoneCache: nodesZoneCache,
+		nodesZoneCache: make(map[string]string),
 	}
 }
 
@@ -163,15 +154,10 @@ func (c *KubeClient) GetNode(ctx context.Context, name string) (*kcorev1.Node, e
 // GetNodeZone returns the zone information of the node.
 // It caches the zone information of the node for a certain duration.
 func (c *KubeClient) GetNodeZone(ctx context.Context, name string) (string, error) {
-	// delete expired entries from the cache.
-	c.nodesZoneCache.DeleteExpired()
-
 	// check if the zone information is already in the cache.
-	if c.nodesZoneCache.Has(name) {
-		item := c.nodesZoneCache.Get(name)
-		if item.Value() != "" {
-			return item.Value(), nil
-		}
+	cacheValue, ok := c.nodesZoneCache[name]
+	if ok && cacheValue != "" {
+		return cacheValue, nil
 	}
 
 	// get the node from kubernetes.
@@ -187,7 +173,7 @@ func (c *KubeClient) GetNodeZone(ctx context.Context, name string) (string, erro
 	}
 
 	// set the zone information in the cache.
-	c.nodesZoneCache.Set(name, zone, nodesZoneTTL)
+	c.nodesZoneCache[name] = zone
 
 	// return the zone information.
 	return zone, nil

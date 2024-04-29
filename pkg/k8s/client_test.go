@@ -528,7 +528,7 @@ func Test_GetNodeZone(t *testing.T) {
 			if tc.givenExistsInCache {
 				kcStruct, ok := kubeClient.(*KubeClient)
 				require.True(t, ok)
-				kcStruct.nodesZoneCache.Set(tc.givenNode.GetName(), givenLabels[nodeZoneLabelKey], nodesZoneTTL)
+				kcStruct.nodesZoneCache[tc.givenNode.GetName()] = givenLabels[nodeZoneLabelKey]
 			}
 
 			// when
@@ -547,9 +547,9 @@ func Test_GetNodeZone(t *testing.T) {
 			// check cache entry.
 			kcStruct, ok := kubeClient.(*KubeClient)
 			require.True(t, ok)
-			require.True(t, kcStruct.nodesZoneCache.Has(tc.givenNode.GetName()))
-			item := kcStruct.nodesZoneCache.Get(tc.givenNode.GetName())
-			require.Equal(t, tc.wantZone, item.Value())
+			gotValue, ok := kcStruct.nodesZoneCache[tc.givenNode.GetName()]
+			require.True(t, ok)
+			require.Equal(t, tc.wantZone, gotValue)
 		})
 	}
 }
