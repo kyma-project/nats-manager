@@ -52,6 +52,14 @@ func TestMain(m *testing.M) {
 			testutils.WithName("node3"),
 			testutils.WithLabels(map[string]string{nodeZoneLabelKey: "east-us-3"}),
 		),
+		testutils.NewNodeUnStruct(
+			testutils.WithName("node4"),
+			testutils.WithLabels(map[string]string{nodeZoneLabelKey: "east-us-4"}),
+		),
+		testutils.NewNodeUnStruct(
+			testutils.WithName("node5"),
+			testutils.WithLabels(map[string]string{nodeZoneLabelKey: "east-us-5"}),
+		),
 	}
 
 	nodesList, err := testEnvironment.GetNodesFromK8s()
@@ -168,6 +176,25 @@ func Test_DifferentAvailabilityZones(t *testing.T) {
 					Reason:             string(nmapiv1alpha1.ConditionReasonUnknown),
 					Message: "NATS is not currently using enough availability " +
 						"zones (Recommended: 3, current: 2).",
+				}),
+			),
+		},
+		{
+			name: "ConditionAvailabilityZones should have true status when availability zones > 3",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSCRDefaults(),
+				testutils.WithNATSClusterSize(5),
+			),
+			givenStatefulSetReady: true,
+			givenNATSPodsNodes:    []string{"node1", "node2", "node3", "node4", "node5"},
+			wantMatches: gomega.And(
+				nmtsmatchers.HaveStatusReady(),
+				nmtsmatchers.HaveCondition(kmetav1.Condition{
+					Type:               string(nmapiv1alpha1.ConditionAvailabilityZones),
+					Status:             kmetav1.ConditionTrue,
+					LastTransitionTime: kmetav1.Now(),
+					Reason:             string(nmapiv1alpha1.ConditionReasonDeployed),
+					Message:            "NATS is deployed in different availability zones.",
 				}),
 			),
 		},
