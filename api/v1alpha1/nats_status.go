@@ -58,6 +58,21 @@ func (ns *NATSStatus) UpdateConditionAvailable(
 	meta.SetStatusCondition(&ns.Conditions, condition)
 }
 
+func (ns *NATSStatus) UpdateConditionAvailabilityZones(
+	status kmetav1.ConditionStatus,
+	reason ConditionReason,
+	message string,
+) {
+	condition := kmetav1.Condition{
+		Type:               string(ConditionAvailabilityZones),
+		Status:             status,
+		LastTransitionTime: kmetav1.Now(),
+		Reason:             string(reason),
+		Message:            message,
+	}
+	meta.SetStatusCondition(&ns.Conditions, condition)
+}
+
 func (ns *NATSStatus) SetStateReady() {
 	ns.State = StateReady
 	ns.UpdateConditionStatefulSet(kmetav1.ConditionTrue,
@@ -78,6 +93,8 @@ func (ns *NATSStatus) SetWaitingStateForStatefulSet() {
 	ns.UpdateConditionStatefulSet(kmetav1.ConditionFalse,
 		ConditionReasonStatefulSetPending, "")
 	ns.UpdateConditionAvailable(kmetav1.ConditionFalse, ConditionReasonDeploying, "")
+	ns.UpdateConditionAvailabilityZones(kmetav1.ConditionFalse,
+		ConditionReasonStatefulSetPending, "")
 }
 
 func (ns *NATSStatus) SetStateError() {

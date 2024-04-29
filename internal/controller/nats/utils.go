@@ -28,3 +28,11 @@ func (r *Reconciler) removeFinalizer(ctx context.Context, nats *nmapiv1alpha1.NA
 
 	return kcontrollerruntime.Result{}, nil
 }
+
+func getNATSPodsMatchLabels() map[string]string {
+	return map[string]string{
+		"app.kubernetes.io/instance": "eventing",
+		"app.kubernetes.io/name":     "nats",
+		"kyma-project.io/dashboard":  "eventing",
+	}
+}

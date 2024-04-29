@@ -36,9 +36,10 @@ const (
 	StateDeleting   string = "Deleting"
 	StateWarning    string = "Warning"
 
-	ConditionAvailable   ConditionType = "Available"
-	ConditionStatefulSet ConditionType = "StatefulSet"
-	ConditionDeleted     ConditionType = "Deleted"
+	ConditionAvailable         ConditionType = "Available"
+	ConditionStatefulSet       ConditionType = "StatefulSet"
+	ConditionDeleted           ConditionType = "Deleted"
+	ConditionAvailabilityZones ConditionType = "AvailabilityZones"
 
 	ConditionReasonProcessing           ConditionReason = "Processing"
 	ConditionReasonDeploying            ConditionReason = "Deploying"
@@ -51,6 +52,8 @@ const (
 	ConditionReasonSyncFailError        ConditionReason = "FailedToSyncResources"
 	ConditionReasonManifestError        ConditionReason = "InvalidManifests"
 	ConditionReasonDeletionError        ConditionReason = "DeletionError"
+	ConditionReasonNotConfigured        ConditionReason = "NotConfigured"
+	ConditionReasonUnknown              ConditionReason = "Unknown"
 )
 
 /*
@@ -75,6 +78,7 @@ undefined they will be interpreted as "" and result in 0 instead of being replac
 
 // NATS is the Schema for the NATS API.
 // +kubebuilder:object:root=true
+// +kubebuilder:resource:path=nats
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
@@ -89,9 +93,10 @@ type NATS struct {
 
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
-	State      string              `json:"state"`
-	URL        string              `json:"url,omitempty"`
-	Conditions []kmetav1.Condition `json:"conditions,omitempty"`
+	State                 string              `json:"state"`
+	URL                   string              `json:"url,omitempty"`
+	AvailabilityZonesUsed int                 `json:"availabilityZonesUsed,omitempty"`
+	Conditions            []kmetav1.Condition `json:"conditions,omitempty"`
 }
 
 // NATSSpec defines the desired state of NATS.

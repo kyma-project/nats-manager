@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	kappsv1 "k8s.io/api/apps/v1"
@@ -19,6 +21,8 @@ import (
 // Perform a compile time check.
 var _ Client = &KubeClient{}
 
+// nolint: interfacebloat // this interface is wrapper for the k8s client, therefore it has many methods.
+//
 //go:generate go run github.com/vektra/mockery/v2 --name=Client --outpkg=mocks --case=underscore
 type Client interface {
 	PatchApply(context.Context, *unstructured.Unstructured) error
@@ -28,19 +32,31 @@ type Client interface {
 	GetCRD(context.Context, string) (*kapiextv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
 	DeletePVCsWithLabel(context.Context, string, string, string) error
+	GetNode(context.Context, string) (*kcorev1.Node, error)
+	GetNodeZone(context.Context, string) (string, error)
+	GetPodsByLabels(context.Context, string, map[string]string) (*kcorev1.PodList, error)
+	GetNumberOfAvailabilityZonesUsedByPods(context.Context, string, map[string]string) (int, error)
 }
 
+const (
+	nodeZoneLabelKey = "topology.kubernetes.io/zone"
+)
+
+var ErrNodeZoneLabelMissing = errors.New("zone label missing")
+
 type KubeClient struct {
-	client       client.Client
-	clientset    kapiextclientset.Interface
-	fieldManager string
+	client         client.Client
+	clientset      kapiextclientset.Interface
+	fieldManager   string
+	nodesZoneCache map[string]string
 }
 
 func NewKubeClient(client client.Client, clientset kapiextclientset.Interface, fieldManager string) Client {
 	return &KubeClient{
-		client:       client,
-		clientset:    clientset,
-		fieldManager: fieldManager,
+		client:         client,
+		clientset:      clientset,
+		fieldManager:   fieldManager,
+		nodesZoneCache: make(map[string]string),
 	}
 }
 
@@ -125,4 +141,82 @@ func (c *KubeClient) DeletePVCsWithLabel(ctx context.Context, labelSelector stri
 		}
 	}
 	return nil
+}
+
+func (c *KubeClient) GetNode(ctx context.Context, name string) (*kcorev1.Node, error) {
+	node := &kcorev1.Node{}
+	if err := c.client.Get(ctx, ktypes.NamespacedName{Name: name}, node); err != nil {
+		return nil, err
+	}
+	return node, nil
+}
+
+// GetNodeZone returns the zone information of the node.
+// It caches the zone information of the node for a certain duration.
+func (c *KubeClient) GetNodeZone(ctx context.Context, name string) (string, error) {
+	// check if the zone information is already in the cache.
+	cacheValue, ok := c.nodesZoneCache[name]
+	if ok && cacheValue != "" {
+		return cacheValue, nil
+	}
+
+	// get the node from kubernetes.
+	node, err := c.GetNode(ctx, name)
+	if err != nil {
+		return "", err
+	}
+
+	// extract the zone information.
+	zone, ok := node.Labels[nodeZoneLabelKey]
+	if !ok || zone == "" {
+		return "", fmt.Errorf("%w : label: %s, node: %s", ErrNodeZoneLabelMissing, nodeZoneLabelKey, name)
+	}
+
+	// set the zone information in the cache.
+	c.nodesZoneCache[name] = zone
+
+	// return the zone information.
+	return zone, nil
+}
+
+func (c *KubeClient) GetPodsByLabels(ctx context.Context, namespace string,
+	matchLabels map[string]string,
+) (*kcorev1.PodList, error) {
+	podList := &kcorev1.PodList{}
+	err := c.client.List(ctx, podList, &client.ListOptions{
+		Namespace:     namespace,
+		LabelSelector: labels.Set(matchLabels).AsSelector(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return podList, nil
+}
+
+func (c *KubeClient) GetNumberOfAvailabilityZonesUsedByPods(ctx context.Context,
+	namespace string, matchLabels map[string]string,
+) (int, error) {
+	// get pods from cluster.
+	podsList, err := c.GetPodsByLabels(ctx, namespace, matchLabels)
+	if err != nil {
+		return 0, err
+	}
+
+	// map to keep unique values of zones of pods.
+	podZonesSet := map[string]bool{}
+
+	// extract names of zones of pods.
+	for _, pod := range podsList.Items {
+		if pod.Spec.NodeName != "" {
+			zone, err := c.GetNodeZone(ctx, pod.Spec.NodeName)
+			if err != nil {
+				return 0, err
+			}
+
+			// add to map.
+			podZonesSet[zone] = true
+		}
+	}
+
+	return len(podZonesSet), nil
 }

@@ -13,6 +13,7 @@ import (
 	onsigomegatypes "github.com/onsi/gomega/types"
 	"github.com/stretchr/testify/require"
 	kcorev1 "k8s.io/api/core/v1"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -311,7 +312,11 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 			testEnvironment.GetNATSAssert(g, tc.givenNATS).Should(tc.wantMatches)
 
 			// when
-			err := testEnvironment.UpdatedNATSInK8s(tc.givenNATS, tc.givenUpdates...)
+			var err error
+			require.Eventually(t, func() bool {
+				err = testEnvironment.UpdatedNATSInK8s(tc.givenNATS, tc.givenUpdates...)
+				return !kapierrors.IsConflict(err)
+			}, integration.SmallTimeOut, integration.SmallPollingInterval, "failed to update NATS CR")
 
 			// then
 			if tc.wantErrMsg == noError {

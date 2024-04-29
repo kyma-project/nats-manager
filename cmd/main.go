@@ -27,6 +27,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/pkg/metrics"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	kapiextclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -150,6 +151,9 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 
 	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
+	collector := metrics.NewPrometheusCollector()
+	collector.RegisterMetrics()
+
 	// create NATS reconciler instance
 	natsReconciler := nmctrl.NewReconciler(
 		mgr.GetClient(),
@@ -165,6 +169,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 				Namespace: envConfigs.NATSCRNamespace,
 			},
 		},
+		collector,
 	)
 
 	if err = (natsReconciler).SetupWithManager(mgr); err != nil {

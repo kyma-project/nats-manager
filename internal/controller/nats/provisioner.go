@@ -2,12 +2,16 @@ package nats
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmctrlurl "github.com/kyma-project/nats-manager/internal/controller/nats/url"
 	"github.com/kyma-project/nats-manager/pkg/events"
+	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
+	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
 	"go.uber.org/zap"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"
@@ -19,6 +23,9 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 	nats *nmapiv1alpha1.NATS, log *zap.SugaredLogger,
 ) (kcontrollerruntime.Result, error) {
 	log.Info("handling NATS reconciliation...")
+
+	// record metric.
+	r.collector.RecordClusterSizeMetric(nats.Spec.Cluster.Size)
 
 	// set status to processing
 	nats.Status.Initialize()
@@ -81,16 +88,62 @@ func (r *Reconciler) handleNATSState(ctx context.Context, nats *nmapiv1alpha1.NA
 		return kcontrollerruntime.Result{}, r.syncNATSStatusWithErr(ctx, nats, err, log)
 	}
 
-	if isSTSReady {
-		nats.Status.SetStateReady()
-		nats.Status.SetURL(nmctrlurl.Format(nats.Name, nats.Namespace))
-		events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeployed, "StatefulSet is ready and NATS is deployed.")
-	} else {
+	if !isSTSReady {
 		nats.Status.SetWaitingStateForStatefulSet()
+		nats.Status.AvailabilityZonesUsed = 0
+		// record metric.
+		r.collector.RecordAvailabilityZonesUsedMetric(nats.Status.AvailabilityZonesUsed)
+		// publish k8s event.
 		events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeploying,
 			"NATS is being deployed, waiting for StatefulSet to get ready.")
 		r.logger.Info("Reconciliation successful: waiting for STS to get ready...")
 		return kcontrollerruntime.Result{RequeueAfter: RequeueTimeForStatusCheck * time.Second}, r.syncNATSStatus(ctx, nats, log)
+	}
+
+	// set status to ready.
+	nats.Status.SetStateReady()
+	nats.Status.SetURL(nmctrlurl.Format(nats.Name, nats.Namespace))
+	events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeployed, "StatefulSet is ready and NATS is deployed.")
+
+	// sync status for AvailabilityZones.
+	nats.Status.AvailabilityZonesUsed, err = r.kubeClient.GetNumberOfAvailabilityZonesUsedByPods(ctx,
+		nats.GetNamespace(), getNATSPodsMatchLabels())
+
+	// record metric.
+	r.collector.RecordAvailabilityZonesUsedMetric(nats.Status.AvailabilityZonesUsed)
+
+	switch {
+	case err != nil:
+		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionFalse,
+			nmapiv1alpha1.ConditionReasonProcessingError, err.Error())
+		events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonProcessingError,
+			err.Error())
+		// if zone information is missing, then it is not possible to determine if the pods
+		// are deployed in different availability zones. So we will not set the state to warning.
+		if !errors.Is(err, k8s.ErrNodeZoneLabelMissing) {
+			nats.Status.State = nmapiv1alpha1.StateError
+			return kcontrollerruntime.Result{}, errors.Join(err, r.syncNATSStatus(ctx, nats, log))
+		}
+	case nats.Spec.Cluster.Size < nmmgr.MinClusterSize:
+		// if cluster size is less than 3, then it NATS is not in cluster mode.
+		// Therefore, availability zones do not matter.
+		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionFalse,
+			nmapiv1alpha1.ConditionReasonNotConfigured,
+			"NATS is not configured to run in cluster mode (i.e. spec.cluster.size < 3).")
+	case nats.Status.AvailabilityZonesUsed == nats.Spec.Cluster.Size:
+		// If the number of availability zones used by the pods is equal to the cluster size,
+		// then it means that all the pods are deployed in different availability zone.\
+		msg := "NATS is deployed in different availability zones."
+		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionTrue, nmapiv1alpha1.ConditionReasonDeployed, msg)
+		events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonDeployed, msg)
+	default:
+		msg := fmt.Sprintf("NATS is not currently using enough "+
+			"availability zones (Recommended: 3, current: %d).", nats.Status.AvailabilityZonesUsed)
+		nats.Status.UpdateConditionAvailabilityZones(kmetav1.ConditionFalse, nmapiv1alpha1.ConditionReasonUnknown, msg)
+		events.Warn(r.recorder, nats, nmapiv1alpha1.ConditionReasonNotConfigured, msg)
+
+		// set the state to warning.
+		nats.Status.SetStateWarning()
 	}
 
 	r.logger.Info("Reconciliation successful")

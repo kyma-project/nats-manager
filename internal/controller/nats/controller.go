@@ -25,6 +25,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/pkg/metrics"
 	nmnats "github.com/kyma-project/nats-manager/pkg/nats"
 	"go.uber.org/zap"
 	kappsv1 "k8s.io/api/apps/v1"
@@ -33,10 +34,15 @@ import (
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	kcontrollerruntime "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const (
@@ -65,6 +71,7 @@ type Reconciler struct {
 	ctrlManager                 kcontrollerruntime.Manager
 	destinationRuleWatchStarted bool
 	allowedNATSCR               *nmapiv1alpha1.NATS
+	collector                   metrics.Collector
 }
 
 func NewReconciler(
@@ -76,6 +83,7 @@ func NewReconciler(
 	recorder record.EventRecorder,
 	natsManager nmmgr.Manager,
 	allowedNATSCR *nmapiv1alpha1.NATS,
+	collector metrics.Collector,
 ) *Reconciler {
 	return &Reconciler{
 		Client:                      client,
@@ -88,6 +96,7 @@ func NewReconciler(
 		natsManager:                 natsManager,
 		destinationRuleWatchStarted: false,
 		allowedNATSCR:               allowedNATSCR,
+		collector:                   collector,
 		controller:                  nil,
 	}
 }
@@ -107,6 +116,8 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch
 //+kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=list;delete;watch
 // +kubebuilder:rbac:groups="",resources=events,verbs=create;patch
+//+kubebuilder:rbac:groups="",resources=pods,verbs=list;watch;get
+//+kubebuilder:rbac:groups="",resources=nodes,verbs=list;watch;get
 //+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
 //+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
 //+kubebuilder:rbac:groups="policy",resources=poddisruptionbudgets,verbs=list;watch
@@ -227,6 +238,15 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.N
 func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 	r.ctrlManager = mgr
 	var err error
+
+	// define labelSelectorPredicate for NATS pods.
+	labelSelectorPredicate, err := predicate.LabelSelectorPredicate(
+		kmetav1.LabelSelector{MatchLabels: getNATSPodsMatchLabels()})
+	if err != nil {
+		return err
+	}
+
+	// setup controller.
 	r.controller, err = kcontrollerruntime.NewControllerManagedBy(mgr).
 		For(&nmapiv1alpha1.NATS{}).
 		Owns(&kappsv1.StatefulSet{}).              // watch for StatefulSets.
@@ -234,6 +254,22 @@ func (r *Reconciler) SetupWithManager(mgr kcontrollerruntime.Manager) error {
 		Owns(&kcorev1.ConfigMap{}).                // watch for ConfigMaps.
 		Owns(&kcorev1.Secret{}).                   // watch for Secrets.
 		Owns(&kapipolicyv1.PodDisruptionBudget{}). // watch for PodDisruptionBudgets.
+		Watches(
+			&kcorev1.Pod{}, // watch for NATS Pods.
+			handler.EnqueueRequestsFromMapFunc(func(_ context.Context, obj client.Object) []reconcile.Request {
+				if r.allowedNATSCR == nil {
+					return []reconcile.Request{}
+				}
+				// Enqueue a reconcile request for the NATS resource.
+				return []reconcile.Request{
+					{NamespacedName: types.NamespacedName{
+						Namespace: r.allowedNATSCR.Namespace,
+						Name:      r.allowedNATSCR.Name,
+					}},
+				}
+			}),
+			builder.WithPredicates(labelSelectorPredicate),
+		).
 		Build(r)
 
 	return err

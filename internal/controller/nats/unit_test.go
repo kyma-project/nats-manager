@@ -9,6 +9,7 @@ import (
 	nmkchartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
 	nmmgrmocks "github.com/kyma-project/nats-manager/pkg/manager/mocks"
+	"github.com/kyma-project/nats-manager/pkg/metrics"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -60,6 +61,9 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	mockController := new(nmctrlmocks.Controller)
 	mockManager := new(nmctrlmocks.Manager)
 
+	// setup mocks.
+	collector := metrics.NewPrometheusCollector()
+
 	// setup reconciler
 	reconciler := NewReconciler(
 		fakeClient,
@@ -70,6 +74,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		recorder,
 		natsManager,
 		nil,
+		collector,
 	)
 	reconciler.controller = mockController
 	reconciler.ctrlManager = mockManager

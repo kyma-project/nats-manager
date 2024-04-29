@@ -202,6 +202,41 @@ func Test_UpdateConditionAvailable(t *testing.T) {
 	})
 }
 
+func Test_UpdateConditionAvailabilityZones(t *testing.T) {
+	t.Parallel()
+
+	t.Run("should update the AvailabilityZones condition", func(t *testing.T) {
+		t.Parallel()
+
+		// given
+		natsStatus1 := &NATSStatus{
+			Conditions: []kmetav1.Condition{
+				{
+					Type:    string(ConditionAvailabilityZones),
+					Status:  kmetav1.ConditionFalse,
+					Reason:  "",
+					Message: "",
+				},
+			},
+			State: StateReady,
+		}
+
+		givenStatus := kmetav1.ConditionTrue
+		givenReason := ConditionReasonProcessing
+		givenMessage := "testxyz"
+
+		// when
+		natsStatus1.UpdateConditionAvailabilityZones(givenStatus, givenReason, givenMessage)
+
+		// then
+		gotCondition := natsStatus1.Conditions[0]
+		require.Equal(t, string(ConditionAvailabilityZones), gotCondition.Type)
+		require.Equal(t, givenStatus, gotCondition.Status)
+		require.Equal(t, string(givenReason), gotCondition.Reason)
+		require.Equal(t, givenMessage, gotCondition.Message)
+	})
+}
+
 func Test_SetStateReady(t *testing.T) {
 	t.Parallel()
 
@@ -307,6 +342,14 @@ func Test_SetWaitingStateForStatefulSet(t *testing.T) {
 			LastTransitionTime: currentTime,
 		}
 
+		expectedAvailabilityZonesCondition := &kmetav1.Condition{
+			Type:               string(ConditionAvailabilityZones),
+			Status:             kmetav1.ConditionFalse,
+			Reason:             string(ConditionReasonStatefulSetPending),
+			Message:            "",
+			LastTransitionTime: currentTime,
+		}
+
 		// when
 		natsStatus1.SetWaitingStateForStatefulSet()
 
@@ -323,6 +366,12 @@ func Test_SetWaitingStateForStatefulSet(t *testing.T) {
 		require.NotNil(t, availableCondition)
 		availableCondition.LastTransitionTime = currentTime
 		require.Equal(t, expectedAvailableCondition, availableCondition)
+
+		// compare ConditionAvailabilityZones
+		availableZonesCondition := natsStatus1.FindCondition(ConditionAvailabilityZones)
+		require.NotNil(t, availableZonesCondition)
+		availableZonesCondition.LastTransitionTime = currentTime
+		require.Equal(t, expectedAvailabilityZonesCondition, availableZonesCondition)
 	})
 }
 

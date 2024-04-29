@@ -14,6 +14,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/nats/mocks"
 	"github.com/kyma-project/nats-manager/testutils"
 	natsgo "github.com/nats-io/nats.go"
+	ptestutil "github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -218,6 +219,10 @@ func Test_handleNATSDeletion(t *testing.T) {
 			testEnv := NewMockedUnitTestEnvironment(t, objs...)
 			reconciler := testEnv.Reconciler
 
+			// set values in metrics, which should be reset by the method.
+			reconciler.collector.RecordAvailabilityZonesUsedMetric(5)
+			reconciler.collector.RecordClusterSizeMetric(5)
+
 			nats := givenNats.DeepCopy()
 
 			// define mocks behaviour
@@ -265,6 +270,15 @@ func Test_handleNATSDeletion(t *testing.T) {
 				require.NotNil(t, gotCondition)
 				require.True(t, nmapiv1alpha1.ConditionEquals(*gotCondition, *tc.wantCondition))
 			}
+
+			// check that metrics are reset.
+			gotAZMetric, err := reconciler.collector.GetAvailabilityZonesUsedMetric()
+			require.NoError(t, err)
+			require.Equal(t, 0.0, ptestutil.ToFloat64(gotAZMetric))
+
+			gotSizeMetric, err := reconciler.collector.GetClusterSizeMetric()
+			require.NoError(t, err)
+			require.Equal(t, 0.0, ptestutil.ToFloat64(gotSizeMetric))
 
 			// check k8s events
 			gotEvents := testEnv.GetK8sEvents()

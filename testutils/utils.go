@@ -120,6 +120,54 @@ func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 	return obj
 }
 
+func NewNodeUnStruct(opts ...Option) *unstructured.Unstructured {
+	obj := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       "Node",
+			"apiVersion": "v1",
+			"metadata": map[string]interface{}{
+				"name": "test1",
+			},
+		},
+	}
+
+	for _, opt := range opts {
+		if err := opt(obj); err != nil {
+			log.Fatal(err)
+		}
+	}
+	return obj
+}
+
+func NewPodUnStruct(opts ...Option) *unstructured.Unstructured {
+	obj := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       "Pod",
+			"apiVersion": "v1",
+			"metadata": map[string]interface{}{
+				"name":      "test1",
+				"namespace": "test1",
+			},
+			"spec": map[string]interface{}{
+				"containers": []map[string]interface{}{
+					{
+						"name":            "test1",
+						"image":           "test1",
+						"imagePullPolicy": "IfNotPresent",
+					},
+				},
+			},
+		},
+	}
+
+	for _, opt := range opts {
+		if err := opt(obj); err != nil {
+			log.Fatal(err)
+		}
+	}
+	return obj
+}
+
 func NewSecret(opts ...Option) *kcorev1.Secret {
 	sampleSecret := kcorev1.Secret{}
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(

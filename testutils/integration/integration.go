@@ -16,6 +16,7 @@ import (
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
+	"github.com/kyma-project/nats-manager/pkg/metrics"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
@@ -63,9 +64,9 @@ type TestEnvironment struct {
 	EnvTestInstance  *envtest.Environment
 	k8sClient        client.Client
 	K8sDynamicClient *dynamic.DynamicClient
-	KubeClient       *k8s.Client
-	ChartRenderer    *chart.Renderer
-	NATSManager      *nmmgr.Manager
+	KubeClient       k8s.Client
+	ChartRenderer    chart.Renderer
+	NATSManager      nmmgr.Manager
 	Reconciler       *nmctrl.Reconciler
 	Logger           *zap.SugaredLogger
 	Recorder         *record.EventRecorder
@@ -143,6 +144,10 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	// create NATS manager instance
 	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
 
+	// create metrics collector.
+	collector := metrics.NewPrometheusCollector()
+	collector.RegisterMetrics()
+
 	// setup reconciler
 	natsReconciler := nmctrl.NewReconciler(
 		ctrlMgr.GetClient(),
@@ -153,6 +158,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		recorder,
 		natsManager,
 		allowedNATSCR,
+		collector,
 	)
 	if err = (natsReconciler).SetupWithManager(ctrlMgr); err != nil {
 		return nil, err
@@ -173,12 +179,12 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		Context:          ctx,
 		k8sClient:        k8sClient,
 		K8sDynamicClient: dynamicClient,
-		KubeClient:       &kubeClient,
-		ChartRenderer:    &helmRenderer,
+		KubeClient:       kubeClient,
+		ChartRenderer:    helmRenderer,
 		Reconciler:       natsReconciler,
 		Logger:           sugaredLogger,
 		Recorder:         &recorder,
-		NATSManager:      &natsManager,
+		NATSManager:      natsManager,
 		EnvTestInstance:  testEnv,
 		TestCancelFn:     cancelCtx,
 	}, nil
@@ -723,6 +729,11 @@ func (env TestEnvironment) DeleteSecretFromK8s(name, namespace string) error {
 func (env TestEnvironment) DeleteDestinationRuleFromK8s(name, namespace string) error {
 	return env.K8sDynamicClient.Resource(testutils.GetDestinationRuleGVR()).Namespace(
 		namespace).Delete(env.Context, name, kmetav1.DeleteOptions{})
+}
+
+func (env TestEnvironment) GetNodesFromK8s() (*kcorev1.NodeList, error) {
+	nodesList := &kcorev1.NodeList{}
+	return nodesList, env.k8sClient.List(context.Background(), nodesList, &client.ListOptions{})
 }
 
 // GetNATSAssert fetches a NATS from k8s and allows making assertions on it.

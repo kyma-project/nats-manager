@@ -34,6 +34,7 @@ func applySelectors(options cache.Options) cache.Options {
 		&krbacv1.ClusterRoleBinding{}:             managedByNATS,
 		&kautoscalingv1.HorizontalPodAutoscaler{}: managedByNATS,
 		&kapipolicyv1.PodDisruptionBudget{}:       managedByNATS,
+		&kcorev1.Pod{}:                            managedByNATS,
 	}
 	return options
 }
