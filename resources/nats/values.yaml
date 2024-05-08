@@ -20,6 +20,10 @@ global:
       name: natsio/prometheus-nats-exporter
       version: 0.14.0
       directory: prod/external
+    alpine:
+      name: alpine
+      version: 3.19.1
+      directory: prod/external
 
   jetstream:
     # Storage type of the stream, memory or file.
