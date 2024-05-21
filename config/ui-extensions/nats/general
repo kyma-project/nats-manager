@@ -11,5 +11,5 @@ features:
     disableCreate: false
     disableDelete: false
 description: >-
-  {{[NATS CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/default.yaml)}}
-  specifies NATS module.
+  {{[NATS custom resource](https://kyma-project.io/#/nats-manager/user/02-configuration)}}
+  configures the NATS module.
