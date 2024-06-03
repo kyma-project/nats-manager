@@ -27,7 +27,7 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 
 ## High availability
 
-NATS Servers are set up across different Availability Zones for uninterrupted operation and uptime. To achieve this, a minimum of three Kubernetes nodes must be distributed across at-least 3 Availability zones. Failure to meet this requirement will result in NATS Servers being scheduled within the same Availability zone, compromising high availability.
+NATS Servers are set up across different availability zones for uninterrupted operation and uptime. To achieve this, a minimum of three Kubernetes Nodes must be distributed across at least three availability zones. If this requirement is not met, high availability is compromised because NATS Servers would then be scheduled within the same Availability zone.
 
 ## Reference
 
