@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -84,32 +85,42 @@ func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 	}
 
 	// define label selector for "managed-by".
-	labelSelectorPredicate, err := predicate.LabelSelectorPredicate(
-		kmetav1.LabelSelector{
-			MatchLabels: map[string]string{
-				ManagedByLabelKey: ManagedByLabelValue,
-			},
-		})
+	selector, err := kmetav1.LabelSelectorAsSelector(&kmetav1.LabelSelector{
+		MatchLabels: map[string]string{
+			ManagedByLabelKey: ManagedByLabelValue,
+		},
+	})
 	if err != nil {
 		return err
 	}
+	labelSelectorPredicate := predicate.NewTypedPredicateFuncs[*unstructured.Unstructured](
+		func(o *unstructured.Unstructured) bool {
+			return selector.Matches(labels.Set(o.GetLabels()))
+		},
+	)
 
 	// define ignore creation predicate
-	ignoreCreationPredicate := predicate.Funcs{
-		CreateFunc: func(e event.CreateEvent) bool {
+	ignoreCreationPredicate := predicate.TypedFuncs[*unstructured.Unstructured]{
+		CreateFunc: func(e event.TypedCreateEvent[*unstructured.Unstructured]) bool {
 			logger.Debugw("Ignoring create event for DestinationRule", "name", e.Object.GetName(),
 				"namespace", e.Object.GetNamespace(), "kind", e.Object.GetObjectKind())
 			return false
 		},
 	}
 
-	// start watcher for DestinationRules.
-	return r.controller.Watch(
-		source.Kind(r.ctrlManager.GetCache(), destinationRuleType),
-		handler.EnqueueRequestForOwner(r.scheme, r.ctrlManager.GetRESTMapper(),
-			&nmapiv1alpha1.NATS{}, handler.OnlyControllerOwner()),
-		labelSelectorPredicate,
-		predicate.ResourceVersionChangedPredicate{},
-		ignoreCreationPredicate,
+	// define handler.
+	objectHandler := handler.TypedEnqueueRequestForOwner[*unstructured.Unstructured](r.scheme,
+		r.ctrlManager.GetRESTMapper(),
+		destinationRuleType,
+		handler.OnlyControllerOwner(),
 	)
+
+	return r.controller.Watch(
+		source.Kind(
+			r.ctrlManager.GetCache(),
+			destinationRuleType,
+			objectHandler,
+			labelSelectorPredicate,
+			ignoreCreationPredicate,
+		))
 }
