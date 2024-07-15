@@ -111,7 +111,7 @@ func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 	// define handler.
 	objectHandler := handler.TypedEnqueueRequestForOwner[*unstructured.Unstructured](r.scheme,
 		r.ctrlManager.GetRESTMapper(),
-		destinationRuleType,
+		&nmapiv1alpha1.NATS{},
 		handler.OnlyControllerOwner(),
 	)
 
