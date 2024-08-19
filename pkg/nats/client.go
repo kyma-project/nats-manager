@@ -110,6 +110,8 @@ func (c *natsClient) Close() {
 	}
 }
 
+//go:generate go run github.com/vektra/mockery/v2 --name=Conn --outpkg=mocks --case=underscore
+//go:generate go run github.com/vektra/mockery/v2 --name=JetStreamContext --dir=../../vendor/github.com/nats-io/nats.go --outpkg=mocks --case=underscore
 type Conn interface {
 	Status() nats.Status
 	JetStream() (nats.JetStreamContext, error)
