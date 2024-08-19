@@ -149,6 +149,8 @@ linters-settings:
         alias: kscheme
       - pkg: sigs.k8s.io/controller-runtime
         alias: kcontrollerruntime
+      - pkg: "sigs.k8s.io/controller-runtime/pkg/reconcile"
+        alias: kcontrollerruntimereconcile
       - pkg: github.com/onsi/gomega/types
         alias: onsigomegatypes
       - pkg: sigs.k8s.io/controller-runtime/pkg/log
@@ -165,6 +167,8 @@ linters-settings:
         alias: klogzap
       - pkg: github.com/kyma-project/nats-manager/pkg/k8s/mocks
         alias: nmkmocks
+      - pkg: github.com/kyma-project/nats-manager/pkg/nats/mocks
+        alias: nmnatsmocks
       - pkg: k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
         alias: kapiextv1
       - pkg: k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
