@@ -12,7 +12,7 @@ require (
 	github.com/nats-io/nats.go v1.37.0
 	github.com/onsi/gomega v1.34.2
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.20.3
+	github.com/prometheus/client_golang v1.20.4
 	github.com/stretchr/testify v1.9.0
 	github.com/vektra/mockery/v2 v2.46.0
 	go.uber.org/zap v1.27.0
@@ -21,7 +21,7 @@ require (
 	k8s.io/api v0.31.1
 	k8s.io/apiextensions-apiserver v0.31.1
 	k8s.io/apimachinery v0.31.1
-	k8s.io/cli-runtime v0.31.0
+	k8s.io/cli-runtime v0.31.1
 	k8s.io/client-go v0.31.1
 	k8s.io/utils v0.0.0-20240902221715-702e33fdd3c3
 	sigs.k8s.io/controller-runtime v0.19.0
