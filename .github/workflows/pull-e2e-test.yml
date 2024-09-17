@@ -139,3 +139,64 @@ jobs:
         if: failure()
         run: |
           kubectl get nats --all-namespaces
+
+  e2e-upgrade: # This job tests the upgrade of NATS module from latest image of the main branch to the current commit.
+    name: e2e-upgrade
+    needs: [ wait-for-build-job ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Go dependencies
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "./go.mod"
+          check-latest: true
+          cache-dependency-path: "./go.sum"
+
+      - run: go version
+
+      - name: Install k3d tools
+        run: |
+          make -C hack/ci/ install-k3d-tools
+
+      - name: Install Kyma CLI & setup k3d cluster using kyma CLI
+        run: |
+          make kyma
+          make -C hack/ci/ create-k3d
+          kubectl version
+          kubectl cluster-info
+
+      - name: Install latest NATS manager from main branch
+        run: |
+          make -C hack/ci/ create-kyma-system-ns
+          make deploy IMG=europe-docker.pkg.dev/kyma-project/prod/nats-manager:main
+
+      - name: Setup & test NATS CR
+        run: |
+          make e2e-setup
+
+      - name: Install the new NATS manager from current commit
+        run: |
+          make deploy IMG=${DOCKER_IMAGE}
+
+      - name: Wait for new changes to be reflected
+        # Waits for NATS-manager image to be updated and NATS CR readiness.
+        run: |
+          export MANAGER_IMAGE=${DOCKER_IMAGE}
+          make e2e-setup
+
+      - name: Run NATS bench
+        run: |
+          go install github.com/nats-io/natscli/nats@latest
+          export PATH=$HOME/go/bin:$PATH
+          make e2e-bench
+
+      - name: Test NATS-server
+        run: |
+          make e2e-nats-server
+
+      - name: Cleanup NATS CR
+        run: |
+          make e2e-cleanup
