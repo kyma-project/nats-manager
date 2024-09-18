@@ -40,6 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GIT_BOT_TOKEN }} # creating git tag using bot token because GITHUB_TOKEN would not trigger build workflow (https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
 
       - name: Create changelog
         env:
@@ -54,13 +55,12 @@ jobs:
           RELEASE_ID=$(./.github/scripts/create_draft_release.sh ${{ github.event.inputs.version }}) # this will use the CHANGELOG.md from the step 'Create changelog'
           echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
-      - name: Trigger 'release-nats-manager-build' prow job
+      - name: Add lightweight tag to trigger release build job
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_BOT_TOKEN }} # creating git tag using bot token because GITHUB_TOKEN would not trigger build workflow (https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
         run: |
           git tag ${{ github.event.inputs.version }}
           git push origin ${{ github.event.inputs.version }}
-
-      - name: Wait for 'release-nats-manager-build'
-        run: ./.github/scripts/check-prow-build-job.sh ${{ github.ref_name }} 600 10 30
 
       - name: Create and upload nats-manager.yaml and nats-default-cr.yaml
         env:
@@ -71,9 +71,45 @@ jobs:
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
 
+  wait-for-build-job:
+    name: Wait for build job
+    needs: [ create-draft ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout eventing-tools
+        uses: actions/checkout@v4
+        with:
+          repository: 'kyma-project/eventing-tools'
+          path: 'kyma-project/eventing-tools'
+          ref: main
+          sparse-checkout: 'scripts/wait-for-commit-check'
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install requirements
+        run: |
+          pip install -r $GITHUB_WORKSPACE/kyma-project/eventing-tools/scripts/wait-for-commit-check/requirements.txt
+
+      - name: wait for build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY_FULL_NAME: ${{ github.repository_owner }}/nats-manager
+          GIT_REF: ${{ github.event.inputs.version }}
+          # The re-usable image-builder workflow from neighbors appends the "Build image" suffix to the check run name.
+          GIT_CHECK_RUN_NAME: "build-${{ github.event.inputs.version }} / Build image"
+          INTERVAL: 60
+          TIMEOUT: 900
+        run: |
+          python $GITHUB_WORKSPACE/kyma-project/eventing-tools/scripts/wait-for-commit-check/run.py
+
   publish-release:
     name: Publish release
-    needs: [verify-release-status, create-draft]
+    needs: [verify-release-status, create-draft, wait-for-build-job]
     runs-on: ubuntu-latest
 
     steps:
