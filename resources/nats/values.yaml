@@ -292,7 +292,7 @@ affinity:
 # Annotations to add to the NATS pods
 # ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 podAnnotations: {
-  sidecar.istio.io/inject: "false"
+  sidecar.istio.io/inject: "true"
 }
 
 # Annotations to add to the NATS StatefulSet
