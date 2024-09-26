@@ -108,6 +108,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resourceNames=eventing-nats-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="apps",resourceNames=eventing-nats,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="networking.istio.io",resourceNames=eventing-nats,resources=destinationrules,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="security.istio.io",resourceNames=eventing-nats,resources=peerauthentications,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="policy",resourceNames=eventing-nats,resources=poddisruptionbudgets,verbs=get;list;watch;update;patch;create;delete
 
 // RBAC permissions by resource
@@ -120,6 +121,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resources=nodes,verbs=list;watch;get
 //+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=list;watch
 //+kubebuilder:rbac:groups="networking.istio.io",resources=destinationrules,verbs=list;watch
+//+kubebuilder:rbac:groups="security.istio.io",resources=peerauthentications,verbs=list;watch
 //+kubebuilder:rbac:groups="policy",resources=poddisruptionbudgets,verbs=list;watch
 
 //nolint:lll
