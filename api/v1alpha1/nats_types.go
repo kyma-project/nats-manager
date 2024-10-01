@@ -80,6 +80,7 @@ undefined they will be interpreted as "" and result in 0 instead of being replac
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=nats
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:categories={kyma,kyma-modules,kyma-nats}
 // +kubebuilder:printcolumn:name="State",type="string",JSONPath=".status.state",description="State of NATS deployment"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource"
 type NATS struct {
