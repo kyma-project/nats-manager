@@ -12,7 +12,7 @@ metadata:
   {{- end }}
 spec:
   mtls:
-    mode: {{ .Values.istio.tls.mode }}
+    mode: STRICT
   selector:
     matchLabels:
       {{- include "nats.selectorLabels" . | nindent 6 }}

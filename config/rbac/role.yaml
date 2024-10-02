@@ -120,13 +120,6 @@ rules:
   - list
   - watch
 - apiGroups:
-  - security.istio.io
-  resources:
-  - peerauthentications
-  verbs:
-  - list
-  - watch
-- apiGroups:
   - networking.istio.io
   resourceNames:
   - eventing-nats
@@ -139,6 +132,13 @@ rules:
   - list
   - patch
   - update
+  - watch
+- apiGroups:
+  - security.istio.io
+  resources:
+  - peerauthentications
+  verbs:
+  - list
   - watch
 - apiGroups:
   - security.istio.io
