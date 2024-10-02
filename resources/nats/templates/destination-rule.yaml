@@ -14,5 +14,5 @@ spec:
   host: {{ include "nats.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   trafficPolicy:
     tls:
-      mode: DISABLE
+      mode: ISTIO_MUTUAL
 {{- end }}

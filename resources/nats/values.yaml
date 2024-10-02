@@ -61,6 +61,8 @@ containerSecurityContext:
 ###############################
 istio:
   enabled: true
+  tls:
+    mode: PERMISSIVE
 
 ###############################
 #                             #
