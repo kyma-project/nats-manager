@@ -1,6 +1,6 @@
 {{- if .Values.istio.enabled }}
-apiVersion: networking.istio.io/v1alpha3
-kind: DestinationRule
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
 metadata:
   name: {{ include "nats.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
@@ -11,8 +11,9 @@ metadata:
     {{- toYaml .Values.commonAnnotations | nindent 4 }}
   {{- end }}
 spec:
-  host: {{ include "nats.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-  trafficPolicy:
-    tls:
-      mode: ISTIO_MUTUAL
+  mtls:
+    mode: STRICT
+  selector:
+    matchLabels:
+      {{- include "nats.selectorLabels" . | nindent 6 }}
 {{- end }}
