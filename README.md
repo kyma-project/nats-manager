@@ -14,7 +14,7 @@ This project aims to follow the [Kubernetes Operator pattern](https://kubernetes
 
 It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/), which provide a reconcile function responsible for synchronizing resources until the desired state is reached in the cluster.
 
-This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io), and all the Kubebuilder [`makefile` helpers](https://book.kubebuilder.io/reference/makefile-helpers.html) can be used.
+This project is scaffolded using [Kubebuilder](https://book.kubebuilder.io).
 
 ## Installation
 
