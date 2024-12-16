@@ -2,21 +2,11 @@ linters:
   enable-all: true
   disable:
     - contextcheck # too many false positives
-    - deadcode # deprecated (since v1.49.0) and replaced by 'unused'
     - depguard # checks if package imports are whitelisted
-    - exhaustivestruct # deprecated (since v1.46.0) and replaced by 'exhaustruct'
     - exhaustruct # TODO enable and fix, use regex to exclude certain cases
-    - golint # deprecated (since v1.41.0) and replaced by 'revive'
-    - ifshort # deprecated (since v1.48.0)
-    - interfacer # deprecated (since v1.38.0)
     - lll
-    - maligned # deprecated (since v1.38.0)
     - nlreturn # too strict and mostly code is not more readable
-    - nosnakecase # deprecated (since v1.48.1) and replaced by 'revive'
-    - scopelint # deprecated (since v1.39.0) and replaced by 'exportloopref'
-    - structcheck # deprecated (since v1.49.0) and replaced by 'unused'
     - sqlclosecheck # not needed for this project
-    - varcheck # deprecated (since v1.49.0) and replaced by 'unused'
     - wsl # too strict and mostly code is not more readable
     - dupl
     - forcetypeassert
