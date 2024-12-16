@@ -8,15 +8,17 @@ func Retry(attempts int, interval time.Duration, fn func() error) error {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	var err error
-	for range ticker.C {
+
+	for attempts > 0 {
+		<-ticker.C // Wait for the ticker interval.
 		attempts--
 		err = fn()
-		if err == nil || attempts == 0 {
-			return err
+		if err == nil {
+			return nil
 		}
 	}
-	// Return nil if all attempts fail.
-	return nil
+	// Return the err if all attempts fail.
+	return err
 }
 
 func RetryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)) (*T, error) {
@@ -24,11 +26,13 @@ func RetryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 	defer ticker.Stop()
 	var err error
 	var obj *T
-	for range ticker.C {
+
+	for attempts > 0 {
+		<-ticker.C // Wait for the ticker interval.
 		attempts--
 		obj, err = fn()
-		if err == nil || attempts == 0 {
-			return obj, err
+		if err == nil {
+			return obj, nil
 		}
 	}
 	// Return nil object if all attempts fail.
