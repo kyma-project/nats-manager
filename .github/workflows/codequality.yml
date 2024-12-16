@@ -48,4 +48,4 @@ jobs:
           GOGC: "90" # Garbage collection limit to avoid OOM errors
         uses: golangci/golangci-lint-action@v6.1.1
         with:
-          version: v1.60.3
+          version: v1.62
