@@ -10,7 +10,7 @@ func Retry(attempts int, interval time.Duration, fn func() error) error {
 	var err error
 
 	for attempts > 0 {
-		<-ticker.C
+		<-ticker.C // Wait for the ticker interval.
 		attempts--
 		err = fn()
 		if err == nil {
@@ -28,7 +28,7 @@ func RetryGet[T any](attempts int, interval time.Duration, fn func() (*T, error)
 	var obj *T
 
 	for attempts > 0 {
-		<-ticker.C
+		<-ticker.C // Wait for the ticker interval.
 		attempts--
 		obj, err = fn()
 		if err == nil {
