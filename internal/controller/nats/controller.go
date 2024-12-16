@@ -56,7 +56,6 @@ const (
 
 // Reconciler reconciles a NATS object.
 //
-//go:generate go run github.com/vektra/mockery/v2 --name=Controller --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/controller --outpkg=mocks --case=underscore
 //go:generate go run github.com/vektra/mockery/v2 --name=Manager --dir=../../../vendor/sigs.k8s.io/controller-runtime/pkg/manager --outpkg=mocks --case=underscore
 type Reconciler struct {
 	client.Client
@@ -132,7 +131,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req kcontrollerruntime.Reque
 	r.logger.Info("Reconciliation triggered")
 	// fetch latest subscription object
 	currentNats := &nmapiv1alpha1.NATS{}
-	if err := r.Get(ctx, req.NamespacedName, currentNats); err != nil {
+	if err := r.Client.Get(ctx, req.NamespacedName, currentNats); err != nil {
 		return kcontrollerruntime.Result{}, client.IgnoreNotFound(err)
 	}
 

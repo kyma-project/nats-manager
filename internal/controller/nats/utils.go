@@ -14,7 +14,7 @@ func (r *Reconciler) containsFinalizer(nats *nmapiv1alpha1.NATS) bool {
 
 func (r *Reconciler) addFinalizer(ctx context.Context, nats *nmapiv1alpha1.NATS) (kcontrollerruntime.Result, error) {
 	controllerutil.AddFinalizer(nats, NATSFinalizerName)
-	if err := r.Update(ctx, nats); err != nil {
+	if err := r.Client.Update(ctx, nats); err != nil {
 		return kcontrollerruntime.Result{}, err
 	}
 	return kcontrollerruntime.Result{}, nil
@@ -22,7 +22,7 @@ func (r *Reconciler) addFinalizer(ctx context.Context, nats *nmapiv1alpha1.NATS)
 
 func (r *Reconciler) removeFinalizer(ctx context.Context, nats *nmapiv1alpha1.NATS) (kcontrollerruntime.Result, error) {
 	controllerutil.RemoveFinalizer(nats, NATSFinalizerName)
-	if err := r.Update(ctx, nats); err != nil {
+	if err := r.Client.Update(ctx, nats); err != nil {
 		return kcontrollerruntime.Result{}, err
 	}
 

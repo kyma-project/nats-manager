@@ -62,7 +62,7 @@ func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *nmapiv1
 	}
 
 	// update the status for nats resource
-	if err := r.Status().Update(ctx, newNATS); err != nil {
+	if err := r.Client.Status().Update(ctx, newNATS); err != nil {
 		return err
 	}
 
