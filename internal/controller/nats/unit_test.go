@@ -19,6 +19,7 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 // MockedUnitTestEnvironment provides mocked resources for unit tests.
@@ -58,7 +59,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 	chartRenderer := new(nmkchartmocks.Renderer)
 	kubeClient := new(nmkmocks.Client)
 	natsManager := new(nmmgrmocks.Manager)
-	mockController := new(nmctrlmocks.Controller)
+	mockController := new(nmctrlmocks.TypedController[reconcile.Request])
 	mockManager := new(nmctrlmocks.Manager)
 
 	// setup mocks.
@@ -85,7 +86,7 @@ func NewMockedUnitTestEnvironment(t *testing.T, objs ...client.Object) *MockedUn
 		kubeClient:    kubeClient,
 		chartRenderer: chartRenderer,
 		Reconciler:    reconciler,
-		controller:    mockController,
+		controller:    (*nmctrlmocks.Controller)(mockController),
 		Logger:        sugaredLogger,
 		Recorder:      recorder,
 		natsManager:   natsManager,

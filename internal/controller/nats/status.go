@@ -10,6 +10,7 @@ import (
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -104,12 +105,17 @@ func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 	}
 
 	// start watcher for DestinationRules.
+	resourceHandler := handler.EnqueueRequestForOwner(r.scheme, r.ctrlManager.GetRESTMapper(),
+		&nmapiv1alpha1.NATS{}, handler.OnlyControllerOwner())
+
 	return r.controller.Watch(
-		source.Kind(r.ctrlManager.GetCache(), destinationRuleType),
-		handler.EnqueueRequestForOwner(r.scheme, r.ctrlManager.GetRESTMapper(),
-			&nmapiv1alpha1.NATS{}, handler.OnlyControllerOwner()),
-		labelSelectorPredicate,
-		predicate.ResourceVersionChangedPredicate{},
-		ignoreCreationPredicate,
+		source.Kind[client.Object](
+			r.ctrlManager.GetCache(),
+			destinationRuleType,
+			resourceHandler,
+			labelSelectorPredicate,
+			predicate.ResourceVersionChangedPredicate{},
+			ignoreCreationPredicate,
+		),
 	)
 }
