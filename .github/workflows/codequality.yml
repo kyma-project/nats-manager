@@ -44,6 +44,8 @@ jobs:
           go-version-file: go.mod
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4.0.0
+        env:
+          GOGC: "90" # Garbage collection limit to avoid OOM errors
+        uses: golangci/golangci-lint-action@v6.1.1
         with:
-          version: v1.57
+          version: v1.62

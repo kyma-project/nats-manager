@@ -12,7 +12,7 @@ This document contains tips and tricks to common problems with the NATS Manager 
 
 **Cause:** The namespace of the Deployment does not exist yet.
 
-**Remedy:** Create the namespace.
+**Solution:** Create the namespace.
 
    ```sh
    kubectl create ns kyma-system

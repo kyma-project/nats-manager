@@ -1,9 +1,9 @@
 # Build the manager binary
-FROM europe-docker.pkg.dev/kyma-project/prod/external/golang:1.22.2-alpine3.19 as builder
+FROM europe-docker.pkg.dev/kyma-project/prod/external/library/golang:1.23.4-alpine3.20 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
-WORKDIR /workspace
+WORKDIR /app
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
@@ -31,8 +31,8 @@ FROM gcr.io/distroless/static:nonroot
 LABEL source = git@github.com:kyma-project/nats-manager.git
 
 WORKDIR /
-COPY --from=builder /workspace/manager .
-COPY --from=builder /workspace/resources/nats resources/nats
+COPY --from=builder /app/manager .
+COPY --from=builder /app/resources/nats resources/nats
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]

@@ -15,7 +15,43 @@ on:
       - "sec-scanners-config.yaml"
 
 jobs:
+  wait-for-build-job:
+    name: Wait for build job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout eventing-tools
+        uses: actions/checkout@v4
+        with:
+          repository: 'kyma-project/eventing-tools'
+          path: 'kyma-project/eventing-tools'
+          ref: main
+          sparse-checkout: 'scripts/wait-for-commit-check'
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install requirements
+        run: |
+          pip install -r $GITHUB_WORKSPACE/kyma-project/eventing-tools/scripts/wait-for-commit-check/requirements.txt
+
+      - name: Wait for build job
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY_FULL_NAME: ${{ github.repository_owner }}/nats-manager
+          GIT_REF: "${{ github.sha }}"
+          # The re-usable image-builder workflow from neighbors appends the "Build image" suffix to the check run name.
+          GIT_CHECK_RUN_NAME: "build / Build image"
+          INTERVAL: 60
+          TIMEOUT: 900
+        run: |
+          python $GITHUB_WORKSPACE/kyma-project/eventing-tools/scripts/wait-for-commit-check/run.py
+
   e2e-upgrade: # This job tests the upgrade of NATS module from latest release from fast channel to current commit.
+    needs: [ wait-for-build-job ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,19 +85,6 @@ jobs:
       - name: Setup & test NATS CR
         run: |
           make e2e-setup
-
-      - name: Wait for the 'post-nats-manager-build' job to succeed
-        uses: kyma-project/wait-for-commit-status-action@2b3ffe09af8b6f40e1213d5fb7f91a7bd41ffb20
-        with:
-          context: "post-nats-manager-build"
-          commit_ref: "${{ github.sha }}"
-          timeout: 600000 # 10 minutes in milliseconds
-          # The check interval is kept long otherwise it will exhaust the GitHub rate limit (More info: https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limiting)
-          check_interval: 60000 # 1 minute in milliseconds
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          GITHUB_OWNER: "${{ github.repository_owner }}"
-          GITHUB_REPO: "nats-manager"
 
       - name: Install the new NATS manager from current commit
         env:

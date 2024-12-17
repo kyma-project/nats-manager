@@ -5,14 +5,10 @@ import (
 	"testing"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
-	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 var ErrTestErrorMsg = errors.New("test error")
@@ -223,21 +219,10 @@ func Test_watchDestinationRule(t *testing.T) {
 	testEnv := NewMockedUnitTestEnvironment(t)
 	reconciler := testEnv.Reconciler
 
-	destinationRuleType := &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"kind":       k8s.DestinationRuleKind,
-			"apiVersion": k8s.DestinationRuleAPIVersion,
-		},
-	}
-
 	// define mock behaviour
 	testEnv.ctrlManager.On("GetCache").Return(nil)
 	testEnv.ctrlManager.On("GetRESTMapper").Return(testEnv.Client.RESTMapper())
 	testEnv.controller.On("Watch",
-		source.Kind(nil, destinationRuleType),
-		mock.Anything,
-		mock.Anything,
-		predicate.ResourceVersionChangedPredicate{},
 		mock.Anything,
 	).Return(nil).Once()
 

@@ -237,8 +237,8 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
-CONTROLLER_TOOLS_VERSION ?= v0.14.0
-GOLANG_CI_LINT_VERSION ?= v1.57
+CONTROLLER_TOOLS_VERSION ?= v0.16.1
+GOLANG_CI_LINT_VERSION ?= v1.62
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
