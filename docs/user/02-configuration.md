@@ -57,25 +57,23 @@ For high availability, the NATS servers must be set up across different availabi
 | **logging.&#x200b;debug**  | boolean | Debug allows debug logging. |
 | **logging.&#x200b;trace**  | boolean | Trace allows trace logging. |
 | **resources**  | object | Resources defines resources for NATS. |
-| **resources.&#x200b;claims**  | \[\]object | Claims lists the names of resources, defined in spec.resourceClaims,
-that are used by this container.
-
-This is an alpha field and requires enabling the
-DynamicResourceAllocation feature gate.
-
-This field is immutable. It can only be set for containers. |
-| **resources.&#x200b;claims.&#x200b;name** (required) | string | Name must match the name of one entry in Pod.spec.resourceClaims of
-the Pod where this field is used. It makes that resource available
-inside a container. |
-| **resources.&#x200b;claims.&#x200b;request**  | string | Request is the name chosen for a request in the referenced claim.
-If empty, everything from the claim is made available, otherwise
-only the result of this request. |
-| **resources.&#x200b;limits**  | map\[string\]\{integer or string\} | Limits describes the maximum amount of compute resources allowed.
-More info: <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/> |
-| **resources.&#x200b;requests**  | map\[string\]\{integer or string\} | Requests describes the minimum amount of compute resources required.
-If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-otherwise to an implementation-defined value. Requests cannot exceed Limits.
-More info: <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/> |
+| **resources.&#x200b;claims**  | \[\]object | Claims lists the names of resources, defined in spec.resourceClaims, |
+| | | that are used by this container. |
+| | | This is an alpha field and requires enabling the |
+| | | DynamicResourceAllocation feature gate. |
+| | | This field is immutable. It can only be set for containers. |
+| **resources.&#x200b;claims.&#x200b;name** (required) | string | Name must match the name of one entry in Pod.spec.resourceClaims of |
+| | | the Pod where this field is used. It makes that resource available |
+| | | inside a container. |
+| **resources.&#x200b;claims.&#x200b;request**  | string | Request is the name chosen for a request in the referenced claim. |
+| | | If empty, everything from the claim is made available, otherwise |
+| | | only the result of this request. |
+| **resources.&#x200b;limits**  | map\[string\]\{integer or string\} | Limits describes the maximum amount of compute resources allowed. |
+| | | More info: <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/> |
+| **resources.&#x200b;requests**  | map\[string\]\{integer or string\} | Requests describes the minimum amount of compute resources required. |
+| | | If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, |
+| | | otherwise to an implementation-defined value. Requests cannot exceed Limits.|
+| | | More info: <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/> |
 
 **Status:**
 
