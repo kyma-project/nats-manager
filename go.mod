@@ -8,7 +8,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-logr/logr v1.4.2
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/nats-io/nats-server/v2 v2.10.23
+	github.com/nats-io/nats-server/v2 v2.10.24
 	github.com/nats-io/nats.go v1.37.0
 	github.com/onsi/gomega v1.36.1
 	github.com/pkg/errors v0.9.1
@@ -119,8 +119,8 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
-	github.com/nats-io/jwt/v2 v2.5.8 // indirect
-	github.com/nats-io/nkeys v0.4.8 // indirect
+	github.com/nats-io/jwt/v2 v2.7.3 // indirect
+	github.com/nats-io/nkeys v0.4.9 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
