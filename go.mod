@@ -8,13 +8,13 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-logr/logr v1.4.2
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/nats-io/nats-server/v2 v2.10.24
+	github.com/nats-io/nats-server/v2 v2.10.25
 	github.com/nats-io/nats.go v1.38.0
 	github.com/onsi/gomega v1.36.2
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.20.5
 	github.com/stretchr/testify v1.10.0
-	github.com/vektra/mockery/v2 v2.50.4
+	github.com/vektra/mockery/v2 v2.51.1
 	go.uber.org/zap v1.27.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.17.0
@@ -24,7 +24,7 @@ require (
 	k8s.io/cli-runtime v0.32.1
 	k8s.io/client-go v0.32.1
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
-	sigs.k8s.io/controller-runtime v0.20.0
+	sigs.k8s.io/controller-runtime v0.20.1
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -153,15 +153,15 @@ require (
 	go.opentelemetry.io/otel/metric v1.28.0 // indirect
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
+	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/term v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/time v0.8.0 // indirect
+	golang.org/x/time v0.9.0 // indirect
 	golang.org/x/tools v0.28.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240826202546-f6391c0de4c7 // indirect
