@@ -46,6 +46,6 @@ jobs:
       - name: golangci-lint
         env:
           GOGC: "90" # Garbage collection limit to avoid OOM errors
-        uses: golangci/golangci-lint-action@v6.2.0
+        uses: golangci/golangci-lint-action@v6.5.0
         with:
           version: v1.62
