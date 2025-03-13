@@ -222,6 +222,8 @@ linters-settings:
   wrapcheck:
     ignorePackageGlobs:
 issues:
+  exclude-files:
+    - zz_generated.deepcopy.go
   exclude-rules:
     - path: "_test\\.go"
       linters:
@@ -238,5 +240,3 @@ output:
   sort-results: true
 run:
   timeout: 15m
-  skip-files:
-    - zz_generated.deepcopy.go
