@@ -219,8 +219,7 @@ linters-settings:
       - Client
       - client.Object
       - (or|er)$
-  wrapcheck:
-    ignorePackageGlobs:
+
 issues:
   exclude-files:
     - zz_generated.deepcopy.go
