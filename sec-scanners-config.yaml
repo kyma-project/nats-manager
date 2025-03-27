@@ -1,6 +1,7 @@
 module-name: nats
 kind: kyma
-rc-tag: 1.2.2
+# The rc-tag (release candidate tag) marks the tag of the image that needs to be scanned before it can be released.
+# Remove the rc-tag field after a successful release.
 bdba:
   - europe-docker.pkg.dev/kyma-project/prod/nats-manager:1.2.2
   - europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.14.0
