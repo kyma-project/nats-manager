@@ -1,6 +1,5 @@
 module-name: nats
 kind: kyma
-rc-tag: 1.2.2
 bdba:
   - europe-docker.pkg.dev/kyma-project/prod/nats-manager:1.2.2
   - europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.14.0
