@@ -1,7 +1,6 @@
 module github.com/kyma-project/nats-manager
 
 go 1.24.0
-
 require (
 	dario.cat/mergo v1.0.1
 	github.com/avast/retry-go/v3 v3.1.1
@@ -24,7 +23,7 @@ require (
 	k8s.io/cli-runtime v0.32.2
 	k8s.io/client-go v0.32.2
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
-	sigs.k8s.io/controller-runtime v0.20.2
+	sigs.k8s.io/controller-runtime v0.20.4
 	sigs.k8s.io/yaml v1.4.0
 )
 
