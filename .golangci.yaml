@@ -33,7 +33,7 @@ linters:
     # TODO re-enable:
     - err113
     - funcorder
-    - staticcheckn
+    - staticcheck
     - usetesting
   settings:
     cyclop:
