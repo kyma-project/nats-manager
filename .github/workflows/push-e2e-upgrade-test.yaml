@@ -104,7 +104,7 @@ jobs:
 
       - name: Run NATS bench
         run: |
-          go install github.com/nats-io/natscli/nats@v0.1.6
+          make install-natscli
           export PATH=$HOME/go/bin:$PATH
           make e2e-bench
 
