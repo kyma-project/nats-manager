@@ -296,10 +296,8 @@ $(KYMA):
 	chmod 0100 $(KYMA)
 	${KYMA} version -c
 
-NATS_CLI_VERSION ?= v0.1.6
-
 .PHONY: install-natscli
-install-natscli: go install github.com/nats-io/natscli/nats@v$(NATS_CLI_VERSION) ## Install natscli locally if necessary.
+install-natscli: go install github.com/nats-io/natscli/nats@v0.1.6
 
 # e2e testing is done here
 .PHONY: e2e-setup
