@@ -38,3 +38,4 @@ CURL_RESPONSE=$(curl -L \
 
 # Return the draft release id.
 echo "$(echo $CURL_RESPONSE | jq -r ".id")"
+echo $CURL_RESPONSE
