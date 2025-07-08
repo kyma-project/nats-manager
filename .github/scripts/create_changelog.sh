@@ -57,6 +57,7 @@ fi
 
 # Append link to the full-changelog this changelog.
 echo -e "\n**Full changelog**: https://github.com/$REPOSITORY/compare/${PREVIOUS_RELEASE}...${RELEASE_TAG}" >>${CHANGELOG_FILE}
+echo -e "\n**Full changelog**: https://github.com/$REPOSITORY/compare/${PREVIOUS_RELEASE}...${RELEASE_TAG}"
 
 # Cleanup the NEW_CONTRIB file.
 rm ${NEW_CONTRIB} || echo "cleaned up"
