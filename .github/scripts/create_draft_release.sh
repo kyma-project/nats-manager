@@ -36,6 +36,5 @@ CURL_RESPONSE=$(curl -L \
 	${GITHUB_URL}/releases \
 	-d "$JSON_PAYLOAD")
 
-echo $CURL_RESPONSE
 # Return the draft release id.
 echo "$(echo $CURL_RESPONSE | jq -r ".id")"
