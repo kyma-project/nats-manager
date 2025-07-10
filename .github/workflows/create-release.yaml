@@ -1,5 +1,6 @@
 name: "Create release"
 
+permissions: write-all
 on:
   workflow_dispatch:
     inputs:
@@ -73,23 +74,23 @@ jobs:
 
   wait-for-build-job:
     name: Wait for build job
-    needs: [ create-draft ]
+    needs: [create-draft]
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout eventing-tools
         uses: actions/checkout@v4
         with:
-          repository: 'kyma-project/eventing-tools'
-          path: 'kyma-project/eventing-tools'
+          repository: "kyma-project/eventing-tools"
+          path: "kyma-project/eventing-tools"
           ref: main
-          sparse-checkout: 'scripts/wait-for-commit-check'
+          sparse-checkout: "scripts/wait-for-commit-check"
 
       - name: Setup python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip'
+          python-version: "3.10"
+          cache: "pip"
 
       - name: Install requirements
         run: |
