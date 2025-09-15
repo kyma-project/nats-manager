@@ -1,4 +1,4 @@
-# Configuration
+# NATS Custom Resource
 
 The CustomResourceDefinition (CRD) `nats.operator.kyma-project.io` describes the the NATS custom resource (CR) in detail.
 To show the current CRD, run the following command:
