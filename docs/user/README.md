@@ -4,7 +4,7 @@ Use the NATS module to manage and configure the message-oriented middleware call
 
 ## What is NATS?
 
-NATS is an infrastructure that enables the exchange of data in form of messages. One of the NATS features is JetStream. JetStream is a distributed persistence system providing more functionalities and higher qualities of service on top of 'Core NATS'.
+NATS is an infrastructure that enables the exchange of data in form of messages. One of the NATS features is JetStream. JetStream is a distributed persistence system providing more functionalities and higher qualities of service on top of `Core NATS`.
 
 The NATS module ships the NATS Manager, which is responsible for managing the lifecycle of a [NATS JetStream](https://docs.nats.io/nats-concepts/jetstream) deployment. It observes the state of the NATS cluster and reconciles its state according to the desired state.
 
@@ -14,7 +14,12 @@ Kyma Eventing can use NATS as a backend to process events and send them to subsc
 
 ## Features
 
-* JetStream
+* Automated NATS JetStream Deployment: Deploys a production-ready NATS JetStream cluster without manual setup.
+* Zero-Configuration Backend for Kyma Eventing: When you add the Eventing module, it automatically discovers and uses a NATS instance as its default messaging backend, requiring no manual integration.
+* Persistent Messaging: Use file-based storage to ensure messages are retained even if a pod restarts. Memory-based storage is also available for higher throughput scenarios.
+* High Availability: Automatically distributes NATS server nodes across availability zones to protect against node or zonal failures.
+* Declarative Configuration: Manage your NATS cluster configuration, including cluster size and storage options, through a simple Kubernetes CR.
+* Configurable Resource Allocation: Define specific CPU and memory requests and limits for the NATS pods to fit your cluster's capacity.
 
 ## Architecture
 
@@ -31,7 +36,7 @@ Kyma Eventing can use NATS as a backend to process events and send them to subsc
 
 3. The Controller reacts to changes of the NATS CR to adapt the resources mentioned above to the desired state.
 
-4. When resources are changed or deleted, the controller reacts by restoring the defaults according to the NATS CR.
+4. When resources are changed or deleted, the Controller reacts by restoring the defaults according to the NATS CR.
 Thus, if you want to change the resources, you must edit the NATS CR; you cannot change the resources directly.
 
 ### NATS Manager
