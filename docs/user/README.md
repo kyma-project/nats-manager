@@ -15,13 +15,14 @@ Kyma Eventing can use NATS as a backend to process events and send them to subsc
 ## Features
 
 * Automated NATS JetStream Deployment: Deploys a production-ready NATS JetStream cluster without manual setup.
-* Zero-Configuration Backend for Kyma Eventing: When you add the Eventing module, it automatically discovers and uses a NATS instance as its default messaging backend, requiring no manual integration.
 * Persistent Messaging: Use file-based storage to ensure messages are retained even if a pod restarts. Memory-based storage is also available for higher throughput scenarios.
-* High Availability: Automatically distributes NATS server nodes across availability zones to protect against node or zonal failures.
 * Declarative Configuration: Manage your NATS cluster configuration, including cluster size and storage options, through a simple Kubernetes CR.
 * Configurable Resource Allocation: Define specific CPU and memory requests and limits for the NATS pods to fit your cluster's capacity.
+* Seamless integration with the Eveniting module.
 
 ## Architecture
+
+The NATS module uses a [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)-based architecture.
 
 ![NATS Module Architecture](./assets/nats-module-architecture.drawio.svg)
 
@@ -36,12 +37,9 @@ Kyma Eventing can use NATS as a backend to process events and send them to subsc
 
 3. The Controller reacts to changes of the NATS CR to adapt the resources mentioned above to the desired state.
 
-4. When resources are changed or deleted, the Controller reacts by restoring the defaults according to the NATS CR.
-Thus, if you want to change the resources, you must edit the NATS CR; you cannot change the resources directly.
-
 ### NATS Manager
 
-The Kyma NATS module ships the NATS Manager. The NATS Manager is responsible for starting the Controller which creates, watches, and reconciles the relevant resources.
+The NATS Manager. The NATS Manager is responsible for starting the Controller which creates, watches, and reconciles the relevant resources.
 
 ## API/Custom Resource Definitions
 

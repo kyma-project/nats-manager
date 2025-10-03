@@ -329,4 +329,4 @@ $(TABLE_GEN): $(LOCALBIN)
 
 .PHONY: crd-docs-gen
 crd-docs-gen: tablegen ## Generates CRD spec into docs folder
-	${TABLE_GEN} --crd-filename ./config/crd/bases/operator.kyma-project.io_nats.yaml --md-filename ./docs/user/02-configuration.md
+	${TABLE_GEN} --crd-filename ./config/crd/bases/operator.kyma-project.io_nats.yaml --md-filename ./docs/user/01-05-nats-custom-resource.md
