@@ -1,6 +1,7 @@
 # NATS Custom Resource
 
 The CustomResourceDefinition (CRD) `nats.operator.kyma-project.io` describes the the NATS custom resource (CR) in detail.
+
 To show the current CRD, run the following command:
 
    ```shell
@@ -24,10 +25,6 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 - [Default CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/default.yaml#L1)
 - [Minimal CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/minimal.yaml#L1)
 - [Full spec CR](https://github.com/kyma-project/nats-manager/blob/main/config/samples/nats-full-spec.yaml#L1)
-
-## High availability
-
-For high availability, the NATS servers must be set up across different availability zones for uninterrupted operation and uptime. NATS Manager deploys the NATS servers in the availability zones where your Kubernetes cluster has Nodes. If the Kubernetes cluster has Nodes distributed across at least three availability zones, NATS Manager automatically distributes the NATS servers across these availability zones. If the Kubernetes cluster doesn’t have Nodes distributed across at least three availability zones, high availability is compromised.
 
 ## Reference
 

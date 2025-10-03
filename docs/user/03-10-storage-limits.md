@@ -1,4 +1,4 @@
-# NATS Pods in the Unhealty State
+# NATS Pods in the Unhealty State Due to Storage Limits
 
 ## Symptom
 

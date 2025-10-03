@@ -12,6 +12,9 @@ For more information about NATS and NATS JetStream, see the [official NATS docum
 
 Kyma Eventing can use NATS as a backend to process events and send them to subscribers.
 
+> [!WARNING]
+> Reaching the storage size limits may cause NATS module to misbehave. For more information, see [NATS Pods in the Unhealty State Due to Storage Limits](./03-10-storage-limits.md).
+
 ## Features
 
 * Automated NATS JetStream Deployment: Deploys a production-ready NATS JetStream cluster without manual setup.
@@ -19,6 +22,10 @@ Kyma Eventing can use NATS as a backend to process events and send them to subsc
 * Declarative Configuration: Manage your NATS cluster configuration, including cluster size and storage options, through a simple Kubernetes CR.
 * Configurable Resource Allocation: Define specific CPU and memory requests and limits for the NATS pods to fit your cluster's capacity.
 * Seamless integration with the Eveniting module.
+
+### High Availability
+
+For high availability, the NATS servers must be set up across different availability zones for uninterrupted operation and uptime. NATS Manager deploys the NATS servers in the availability zones where your Kubernetes cluster has Nodes. If the Kubernetes cluster has Nodes distributed across at least three availability zones, NATS Manager automatically distributes the NATS servers across these availability zones. If the Kubernetes cluster doesn’t have Nodes distributed across at least three availability zones, high availability is compromised.
 
 ## Architecture
 
