@@ -12,8 +12,8 @@ Accessing certain resources in NATS requires [`system_account` privileges](https
    kubectl get secrets -n kyma-system eventing-nats-secret -ogo-template='{{index .data "resolver.conf"|base64decode}}'| grep 'user:' | tr -d '{}'
    ```
 
-   > [!NOTE]
-   > The secret name is `{your_NATS_CR_name}-secret`. If you change the default `eventing-nats` value of the **NATS.name** paramater, you must also adjust the command.
+> [!NOTE]
+> The secret name is `{your_NATS_CR_name}-secret`. If you change the default `eventing-nats` value of the **NATS.name** paramater, you must also adjust the command.
    
    ### Result
 
