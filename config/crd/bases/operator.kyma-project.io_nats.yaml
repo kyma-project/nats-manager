@@ -79,12 +79,12 @@ spec:
               cluster:
                 default:
                   size: 3
-                description: Cluster defines configurations that are specific to NATS
+                description: Defines configurations that are specific to NATS
                   clusters.
                 properties:
                   size:
                     default: 3
-                    description: Size of a NATS cluster, i.e. number of NATS nodes.
+                    description: Size of a NATS cluster, such as, number of NATS nodes.
                     minimum: 1
                     type: integer
                     x-kubernetes-validations:
@@ -124,7 +124,7 @@ spec:
                           rule: self == oldSelf
                       storageClassName:
                         default: default
-                        description: StorageClassName defines the file storage class
+                        description: Defines the file storage class.
                           name.
                         type: string
                         x-kubernetes-validations:
@@ -150,7 +150,7 @@ spec:
                         - type: integer
                         - type: string
                         default: 1Gi
-                        description: Size defines the mem.
+                        description: Defines the memory storage size.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                     type: object
@@ -164,22 +164,22 @@ spec:
               labels:
                 additionalProperties:
                   type: string
-                description: Labels allows to add Labels to NATS.
+                description: Allows you to add labels to NATS.
                 type: object
               logging:
                 default:
                   debug: false
                   trace: false
-                description: JetStream defines configurations that are specific to
+                description: Defines configurations that are specific to
                   NATS logging in NATS.
                 properties:
                   debug:
                     default: false
-                    description: Debug allows debug logging.
+                    description: Allows you to debug logging.
                     type: boolean
                   trace:
                     default: false
-                    description: Trace allows trace logging.
+                    description: Allows you to trace logging.
                     type: boolean
                 type: object
               resources:
@@ -190,10 +190,10 @@ spec:
                   requests:
                     cpu: 40m
                     memory: 64Mi
-                description: Resources defines resources for NATS.
+                description: Defines resources for NATS.
                 properties:
                   claims:
-                    description: Claims lists the resources used by this container.
+                    description: Lists the resources used by this container.
                       This is an alpha field and requires enabling the
                       DynamicResourceAllocation feature gate.
                       This field is immutable. It can only be set for containers.
@@ -207,7 +207,7 @@ spec:
                           type: string
                         request:
                           description: The name chosen for a request in the referenced claim.
-                            If empty, everything from the claim is made available, otherwise
+                            If empty, everything from the claim is made available; otherwise,
                             only the result of this request.
                           type: string
                       required:
@@ -234,7 +234,7 @@ spec:
                       - type: string
                       pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                       x-kubernetes-int-or-string: true
-                    description: Requests describes the minimum amount of compute resources required.
+                    description: Describes the minimum amount of compute resources required.
                       If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
                       otherwise to an implementation-defined value. Requests cannot exceed Limits.
                       See also https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/.
@@ -242,14 +242,14 @@ spec:
                 type: object
             type: object
           status:
-            description: NATSStatus defines the observed state of NATS.
+            description: Defines the observed state of NATS.
             properties:
               availabilityZonesUsed:
                 type: integer
               conditions:
                 items:
-                  description: Condition contains details for one aspect of the current
-                    state of this API Resource.
+                  description: Contains details for one aspect of the current
+                    state of this API resource.
                   properties:
                     lastTransitionTime:
                       description: The last time the condition transitioned from one status to another.
@@ -263,7 +263,7 @@ spec:
                       type: string
                     observedGeneration:
                       description: Represents the **.metadata.generation** that the condition was set based upon.
-                        For instance, if **.metadata.generation*** is currently 12, but the **.status.conditions[x].observedGeneration** is 9, the condition is out of date
+                        For instance, if **.metadata.generation** is currently 12, but the **.status.conditions[x].observedGeneration** is 9, the condition is out of date
                         with respect to the current state of the instance.
                       format: int64
                       minimum: 0

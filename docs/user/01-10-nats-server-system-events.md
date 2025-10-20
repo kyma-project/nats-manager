@@ -13,7 +13,7 @@ Accessing certain resources in NATS requires [`system_account` privileges](https
    ```
 
 > [!NOTE]
-> The secret name is `{your_NATS_CR_name}-secret`. If you change the default `eventing-nats` value of the **NATS.name** paramater, you must also adjust the command.
+> The Secret name is `{your_NATS_CR_name}-secret`. If you change the default `eventing-nats` value of the **NATS.name** paramater, you must also adjust the command.
    
    ### Result
 
@@ -23,12 +23,14 @@ Accessing certain resources in NATS requires [`system_account` privileges](https
    user: admin, password: <your password>
    ```
 
-2. Access the NATS server with the [nats-cli tool](https://github.com/nats-io/natscli), forward its port:
+2. To access the NATS server with the [nats-cli tool](https://github.com/nats-io/natscli), forward its port:
 
    ```bash
    kubectl port-forward -n kyma-system svc/eventing-nats 4222
+   ```
 
-3. Send your NATS commands, pass the credentials:
+3. To send your NATS commands, pass the credentials:
 
    ```bash
    nats server info --user admin --password <your password>
+   ```
