@@ -13,7 +13,7 @@ For more information about NATS and NATS JetStream, see the [official NATS docum
 Kyma Eventing can use NATS as a backend to process events and send them to subscribers.
 
 > [!WARNING]
-> Reaching the storage size limits may cause NATS module to misbehave. For more information, see [the troubleshooting guide](TBD).
+> Reaching the storage size limits may cause NATS module to misbehave. For more information, see NATS Backend Storage Is Full.
 
 ## Features
 
