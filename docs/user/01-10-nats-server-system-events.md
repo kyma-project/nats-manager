@@ -2,7 +2,7 @@
 
 ## Context
 
-Accessing certain resources in NATS requires [`system_account` privileges](https://docs.nats.io/running-a-nats-service/configuration/sys_accounts). Kyma automatically generates a `system account` user using a Secret dubbed `eventing-nats-secret` in the `kyma-system` namespace.
+Accessing certain resources in NATS requires [system account privileges](https://docs.nats.io/running-a-nats-service/configuration/sys_accounts). Kyma automatically generates a `system account` user using a Secret named `eventing-nats-secret` in the `kyma-system` namespace.
 
 ## Procedure
 
@@ -13,11 +13,11 @@ Accessing certain resources in NATS requires [`system_account` privileges](https
    ```
 
 > [!NOTE]
-> The Secret name is `{your_NATS_CR_name}-secret`. If you change the default `eventing-nats` value of the **NATS.name** paramater, you must also adjust the command.
+> The Secret name is `{your_NATS_CR_name}-secret`. If you change the default `eventing-nats` value of the **NATS.name** parameter, you must also adjust the command.
    
    ### Result
 
-   You get the credentials for the `system account` user in the following format:
+   You receive the credentials for the `system account` user in the following format:
 
    ```bash
    user: admin, password: <your password>
