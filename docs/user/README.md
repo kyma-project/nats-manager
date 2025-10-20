@@ -13,7 +13,7 @@ For more information about NATS and NATS JetStream, see the [official NATS docum
 Kyma Eventing can use NATS as a backend to process events and send them to subscribers.
 
 > [!WARNING]
-> Reaching the storage size limits may cause NATS module to misbehave. For more information, see [NATS Pods in the Unhealty State Due to Storage Limits](./03-10-storage-limits.md).
+> Reaching the storage size limits may cause NATS module to misbehave. For more information, see [the troubleshooting guide](TBD).
 
 ## Features
 
@@ -43,10 +43,11 @@ The NATS module uses a [Kubernetes operator](https://kubernetes.io/docs/concepts
   - DestinationRule (dr)
 
 3. The Controller reacts to changes of the NATS CR to adapt the resources mentioned above to the desired state.
+4. The Controller creates or deletes the NATS server.
 
 ### NATS Manager
 
-The NATS Manager. The NATS Manager is responsible for starting the Controller which creates, watches, and reconciles the relevant resources.
+The NATS Manager is responsible for starting the Controller which creates, watches, and reconciles the relevant resources.
 
 ## API/Custom Resource Definitions
 
