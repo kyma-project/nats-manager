@@ -69,22 +69,22 @@ spec:
                 requests:
                   cpu: 40m
                   memory: 64Mi
-            description: Defines the desired state of NATS.
+            description: NATSSpec defines the desired state of NATS.
             properties:
               annotations:
                 additionalProperties:
                   type: string
-                description: Allows to add annotations to NATS.
+                description: Annotations allows to add annotations to NATS.
                 type: object
               cluster:
                 default:
                   size: 3
-                description: Defines configurations that are specific to NATS
+                description: Cluster defines configurations that are specific to NATS
                   clusters.
                 properties:
                   size:
                     default: 3
-                    description: Size of a NATS cluster, such as, number of NATS nodes.
+                    description: Size of a NATS cluster, i.e. number of NATS nodes.
                     minimum: 1
                     type: integer
                     x-kubernetes-validations:
@@ -101,14 +101,14 @@ spec:
                   memStorage:
                     enabled: true
                     size: 1Gi
-                description: Defines configurations that are specific to
+                description: JetStream defines configurations that are specific to
                   NATS JetStream.
                 properties:
                   fileStorage:
                     default:
                       size: 1Gi
                       storageClassName: default
-                    description: Defines configurations to file storage
+                    description: FileStorage defines configurations to file storage
                       in NATS JetStream.
                     properties:
                       size:
@@ -116,7 +116,7 @@ spec:
                         - type: integer
                         - type: string
                         default: 1Gi
-                        description: Defines the file storage size.
+                        description: Size defines the file storage size.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                         x-kubernetes-validations:
@@ -124,7 +124,7 @@ spec:
                           rule: self == oldSelf
                       storageClassName:
                         default: default
-                        description: Defines the file storage class.
+                        description: StorageClassName defines the file storage class
                           name.
                         type: string
                         x-kubernetes-validations:
@@ -138,7 +138,7 @@ spec:
                     default:
                       enabled: true
                       size: 1Gi
-                    description: Defines configurations to memory storage
+                    description: MemStorage defines configurations to memory storage
                       in NATS JetStream.
                     properties:
                       enabled:
@@ -150,7 +150,7 @@ spec:
                         - type: integer
                         - type: string
                         default: 1Gi
-                        description: Defines the memory storage size.
+                        description: Size defines the mem.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                     type: object
@@ -164,22 +164,22 @@ spec:
               labels:
                 additionalProperties:
                   type: string
-                description: Allows you to add labels to NATS.
+                description: Labels allows to add Labels to NATS.
                 type: object
               logging:
                 default:
                   debug: false
                   trace: false
-                description: Defines configurations that are specific to
+                description: JetStream defines configurations that are specific to
                   NATS logging in NATS.
                 properties:
                   debug:
                     default: false
-                    description: Allows you to debug logging.
+                    description: Debug allows debug logging.
                     type: boolean
                   trace:
                     default: false
-                    description: Allows you to trace logging.
+                    description: Trace allows trace logging.
                     type: boolean
                 type: object
               resources:
@@ -190,24 +190,30 @@ spec:
                   requests:
                     cpu: 40m
                     memory: 64Mi
-                description: Defines resources for NATS.
+                description: Resources defines resources for NATS.
                 properties:
                   claims:
-                    description: Lists the resources used by this container.
+                    description: |-
+                      Claims lists the names of resources, defined in spec.resourceClaims,
+                      that are used by this container.
+
                       This is an alpha field and requires enabling the
                       DynamicResourceAllocation feature gate.
+
                       This field is immutable. It can only be set for containers.
                     items:
                       description: ResourceClaim references one entry in PodSpec.ResourceClaims.
                       properties:
                         name:
-                          description: The name must match the name of one entry in **pod.spec.resourceClaims** of
+                          description: |-
+                            Name must match the name of one entry in pod.spec.resourceClaims of
                             the Pod where this field is used. It makes that resource available
                             inside a container.
                           type: string
                         request:
-                          description: The name chosen for a request in the referenced claim.
-                            If empty, everything from the claim is made available; otherwise,
+                          description: |-
+                            Request is the name chosen for a request in the referenced claim.
+                            If empty, everything from the claim is made available, otherwise
                             only the result of this request.
                           type: string
                       required:
@@ -224,8 +230,9 @@ spec:
                       - type: string
                       pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                       x-kubernetes-int-or-string: true
-                    description: Describes the maximum amount of compute resources allowed.
-                      See also https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/.
+                    description: |-
+                      Limits describes the maximum amount of compute resources allowed.
+                      More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
                     type: object
                   requests:
                     additionalProperties:
@@ -234,42 +241,47 @@ spec:
                       - type: string
                       pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                       x-kubernetes-int-or-string: true
-                    description: Describes the minimum amount of compute resources required.
+                    description: |-
+                      Requests describes the minimum amount of compute resources required.
                       If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
                       otherwise to an implementation-defined value. Requests cannot exceed Limits.
-                      See also https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/.
+                      More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
                     type: object
                 type: object
             type: object
           status:
-            description: Defines the observed state of NATS.
+            description: NATSStatus defines the observed state of NATS.
             properties:
               availabilityZonesUsed:
                 type: integer
               conditions:
                 items:
-                  description: Contains details for one aspect of the current
-                    state of this API resource.
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
                   properties:
                     lastTransitionTime:
-                      description: The last time the condition transitioned from one status to another.
-                        This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about the transition.
+                      description: |-
+                        message is a human readable message indicating details about the transition.
                         This may be an empty string.
                       maxLength: 32768
                       type: string
                     observedGeneration:
-                      description: Represents the **.metadata.generation** that the condition was set based upon.
-                        For instance, if **.metadata.generation** is currently 12, but the **.status.conditions[x].observedGeneration** is 9, the condition is out of date
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
                         with respect to the current state of the instance.
                       format: int64
                       minimum: 0
                       type: integer
                     reason:
-                      description: Contains a programmatic identifier indicating the reason for the condition's last transition.
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
                         Producers of specific condition types may define expected values and meanings for this field,
                         and whether the values are considered a guaranteed API.
                         The value should be a CamelCase string.
@@ -279,14 +291,14 @@ spec:
                       pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
                       type: string
                     status:
-                      description: The status of the condition. Either `True`, `False`, or `Unknown`.
+                      description: status of the condition, one of True, False, Unknown.
                       enum:
                       - "True"
                       - "False"
                       - Unknown
                       type: string
                     type:
-                      description: The type of the condition in CamelCase or in foo.example.com/CamelCase.
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
                       maxLength: 316
                       pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
                       type: string
