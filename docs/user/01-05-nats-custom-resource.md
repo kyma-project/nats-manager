@@ -39,39 +39,61 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 
 | Parameter | Type | Description |
 | ---- | ----------- | ---- |
-| **annotations**  | map\[string\]string | Allows to add annotations to NATS. |
-| **cluster**  | object | Defines configurations that are specific to NATS clusters. |
-| **cluster.&#x200b;size**  | integer | Size of a NATS cluster, such as, number of NATS nodes. |
-| **jetStream**  | object | Defines configurations that are specific to NATS JetStream. |
-| **jetStream.&#x200b;fileStorage**  | object | Defines configurations to file storage in NATS JetStream. |
-| **jetStream.&#x200b;fileStorage.&#x200b;size**  | \{integer or string\} | Defines the file storage size. |
-| **jetStream.&#x200b;fileStorage.&#x200b;storageClassName**  | string | Defines the file storage class. name. |
-| **jetStream.&#x200b;memStorage**  | object | Defines configurations to memory storage in NATS JetStream. |
+| **annotations**  | map\[string\]string | Annotations allows to add annotations to NATS. |
+| **cluster**  | object | Cluster defines configurations that are specific to NATS clusters. |
+| **cluster.&#x200b;size**  | integer | Size of a NATS cluster, i.e. number of NATS nodes. |
+| **jetStream**  | object | JetStream defines configurations that are specific to NATS JetStream. |
+| **jetStream.&#x200b;fileStorage**  | object | FileStorage defines configurations to file storage in NATS JetStream. |
+| **jetStream.&#x200b;fileStorage.&#x200b;size**  | \{integer or string\} | Size defines the file storage size. |
+| **jetStream.&#x200b;fileStorage.&#x200b;storageClassName**  | string | StorageClassName defines the file storage class name. |
+| **jetStream.&#x200b;memStorage**  | object | MemStorage defines configurations to memory storage in NATS JetStream. |
 | **jetStream.&#x200b;memStorage.&#x200b;enabled**  | boolean | Enabled allows the enablement of memory storage. |
-| **jetStream.&#x200b;memStorage.&#x200b;size**  | \{integer or string\} | Defines the memory storage size. |
-| **labels**  | map\[string\]string | Allows you to add labels to NATS. |
-| **logging**  | object | Defines configurations that are specific to NATS logging in NATS. |
-| **logging.&#x200b;debug**  | boolean | Allows you to debug logging. |
-| **logging.&#x200b;trace**  | boolean | Allows you to trace logging. |
-| **resources**  | object | Defines resources for NATS. |
-| **resources.&#x200b;claims**  | \[\]object | Lists the resources used by this container. This is an alpha field and requires enabling the DynamicResourceAllocation feature gate. This field is immutable. It can only be set for containers. |
-| **resources.&#x200b;claims.&#x200b;name** (required) | string | The name must match the name of one entry in **pod.spec.resourceClaims** of the Pod where this field is used. It makes that resource available inside a container. |
-| **resources.&#x200b;claims.&#x200b;request**  | string | The name chosen for a request in the referenced claim. If empty, everything from the claim is made available; otherwise, only the result of this request. |
-| **resources.&#x200b;limits**  | map\[string\]\{integer or string\} | Describes the maximum amount of compute resources allowed. See also https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/. |
-| **resources.&#x200b;requests**  | map\[string\]\{integer or string\} | Describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. See also https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/. |
+| **jetStream.&#x200b;memStorage.&#x200b;size**  | \{integer or string\} | Size defines the mem. |
+| **labels**  | map\[string\]string | Labels allows to add Labels to NATS. |
+| **logging**  | object | JetStream defines configurations that are specific to NATS logging in NATS. |
+| **logging.&#x200b;debug**  | boolean | Debug allows debug logging. |
+| **logging.&#x200b;trace**  | boolean | Trace allows trace logging. |
+| **resources**  | object | Resources defines resources for NATS. |
+| **resources.&#x200b;claims**  | \[\]object | Claims lists the names of resources, defined in spec.resourceClaims,
+that are used by this container.
+
+This is an alpha field and requires enabling the
+DynamicResourceAllocation feature gate.
+
+This field is immutable. It can only be set for containers. |
+| **resources.&#x200b;claims.&#x200b;name** (required) | string | Name must match the name of one entry in pod.spec.resourceClaims of
+the Pod where this field is used. It makes that resource available
+inside a container. |
+| **resources.&#x200b;claims.&#x200b;request**  | string | Request is the name chosen for a request in the referenced claim.
+If empty, everything from the claim is made available, otherwise
+only the result of this request. |
+| **resources.&#x200b;limits**  | map\[string\]\{integer or string\} | Limits describes the maximum amount of compute resources allowed.
+More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| **resources.&#x200b;requests**  | map\[string\]\{integer or string\} | Requests describes the minimum amount of compute resources required.
+If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+otherwise to an implementation-defined value. Requests cannot exceed Limits.
+More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 
 **Status:**
 
 | Parameter | Type | Description |
 | ---- | ----------- | ---- |
 | **availabilityZonesUsed**  | integer |  |
-| **conditions**  | \[\]object | Contains details for one aspect of the current state of this API resource. |
-| **conditions.&#x200b;lastTransitionTime** (required) | string | The last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable. |
-| **conditions.&#x200b;message** (required) | string | A human readable message indicating details about the transition. This may be an empty string. |
-| **conditions.&#x200b;observedGeneration**  | integer | Represents the **.metadata.generation** that the condition was set based upon. For instance, if **.metadata.generation** is currently 12, but the **.status.conditions[x].observedGeneration** is 9, the condition is out of date with respect to the current state of the instance. |
-| **conditions.&#x200b;reason** (required) | string | Contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty. |
-| **conditions.&#x200b;status** (required) | string | The status of the condition. Either `True`, `False`, or `Unknown`. |
-| **conditions.&#x200b;type** (required) | string | The type of the condition in CamelCase or in foo.example.com/CamelCase. |
+| **conditions**  | \[\]object | Condition contains details for one aspect of the current state of this API Resource. |
+| **conditions.&#x200b;lastTransitionTime** (required) | string | lastTransitionTime is the last time the condition transitioned from one status to another.
+This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable. |
+| **conditions.&#x200b;message** (required) | string | message is a human readable message indicating details about the transition.
+This may be an empty string. |
+| **conditions.&#x200b;observedGeneration**  | integer | observedGeneration represents the .metadata.generation that the condition was set based upon.
+For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+with respect to the current state of the instance. |
+| **conditions.&#x200b;reason** (required) | string | reason contains a programmatic identifier indicating the reason for the condition's last transition.
+Producers of specific condition types may define expected values and meanings for this field,
+and whether the values are considered a guaranteed API.
+The value should be a CamelCase string.
+This field may not be empty. |
+| **conditions.&#x200b;status** (required) | string | status of the condition, one of True, False, Unknown. |
+| **conditions.&#x200b;type** (required) | string | type of condition in CamelCase or in foo.example.com/CamelCase. |
 | **state** (required) | string |  |
 | **url**  | string |  |
 
