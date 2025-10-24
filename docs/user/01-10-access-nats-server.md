@@ -1,4 +1,4 @@
-# Accessing the NATS Server System Events
+# Accessing the NATS Server Using CLI
 
 ## Context
 
