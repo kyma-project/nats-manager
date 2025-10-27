@@ -238,7 +238,7 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
 CONTROLLER_TOOLS_VERSION ?= v0.16.1
-GOLANG_CI_LINT_VERSION ?= v2.1.6 # Keept this the same as in .github/workflows/codequality.yml
+GOLANG_CI_LINT_VERSION ?= v2.4.0 # Keept this the same as in .github/workflows/codequality.yml
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
