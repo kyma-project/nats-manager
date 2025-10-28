@@ -1,6 +1,6 @@
 module github.com/kyma-project/nats-manager
 
-go 1.24.4
+go 1.25.3
 
 require (
 	dario.cat/mergo v1.0.2

@@ -30,6 +30,9 @@ linters:
     - varnamelen
     - wrapcheck
     - wsl
+    - wsl_v5
+    - noinlineerr
+    - embeddedstructfieldcheck
     # TODO re-enable:
     - err113
     - funcorder

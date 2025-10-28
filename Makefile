@@ -105,7 +105,7 @@ generate-and-test: vendor manifests generate fmt imports vet lint test;
 
 .PHONY: test
 test: envtest ## Run only tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out
+	GOTOOLCHAIN=go1.25.3+auto KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test ./... -coverprofile cover.out
 
 
 .PHONY: lint
@@ -237,8 +237,8 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
-CONTROLLER_TOOLS_VERSION ?= v0.16.1
-GOLANG_CI_LINT_VERSION ?= v2.1.6 # Keept this the same as in .github/workflows/codequality.yml
+CONTROLLER_TOOLS_VERSION ?= v0.19.0
+GOLANG_CI_LINT_VERSION ?= v2.4.0 # Keept this the same as in .github/workflows/codequality.yml
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
@@ -320,13 +320,13 @@ e2e-only: e2e-setup e2e-bench e2e-nats-server e2e-cleanup
 e2e: install docker-build docker-push deploy e2e-setup e2e-bench e2e-nats-server e2e-cleanup
 
 TABLE_GEN ?= $(LOCALBIN)/table-gen
-TABLE_GEN_VERSION ?= v0.0.0-20230523174756-3dae9f177ffd
+TABLE_GEN_VERSION = fb4e2cac1148290e30bc8f294435f9cf9bb18ba8
 
 .PHONY: tablegen
-tablegen: $(TABLE_GEN) ## Download table-gen locally if necessary.
+tablegen: $(TABLE_GEN) ## Download table-gen locally
 $(TABLE_GEN): $(LOCALBIN)
-	test -s $(TABLE_GEN) || GOBIN=$(LOCALBIN) go install github.com/kyma-project/kyma/hack/table-gen@$(TABLE_GEN_VERSION)
+	GOBIN=$(LOCALBIN) go install github.com/kyma-project/kyma/hack/table-gen@$(TABLE_GEN_VERSION)
 
 .PHONY: crd-docs-gen
 crd-docs-gen: tablegen ## Generates CRD spec into docs folder
-	${TABLE_GEN} --crd-filename ./config/crd/bases/operator.kyma-project.io_nats.yaml --md-filename ./docs/user/02-configuration.md
+	${TABLE_GEN} --crd-filename ./config/crd/bases/operator.kyma-project.io_nats.yaml --md-filename ./docs/user/01-05-nats-custom-resource.md
