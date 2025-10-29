@@ -1,4 +1,4 @@
 - [Back to Kyma Home](/)
-- [NATS Manager](/nats-manager/user/README.md)
+- [NATS Module](/nats-manager/user/README.md)
 - [NATS Custom Resource](/nats-manager/user/01-05-nats-custom-resource.md)
 - [Accessing the NATS Server Using CLI](/nats-manager/user/01-10-access-nats-server.md)
