@@ -1,5 +1,4 @@
 - [Back to Kyma Home](/)
-- [NATS Manager](/nats-manager/user/README.md)
-- [Module Lifecycle](/nats-manager/user/01-manager.md)
-- [Module Configuration](/nats-manager/user/02-configuration.md)
-- [Acquiring NATS Server System Account Credentials](/nats-manager/user/10-nats-server-system-events.md)
+- [NATS Module](/nats-manager/user/README.md)
+- [NATS Custom Resource](/nats-manager/user/01-05-nats-custom-resource.md)
+- [Accessing the NATS Server Using CLI](/nats-manager/user/01-10-access-nats-server.md)

@@ -50,7 +50,7 @@ The NATS Manager is responsible for starting the Controller which creates, watch
 
 ## API/Custom Resource Definitions
 
-The `nats.operator.kyma-project.io` CustomResourceDefinition (CRD) describes the NATS custom resource (CR) that NATS Manager uses to manage the module. See [NATS Custom Resource](01-nats-custom-resource.md).
+The `nats.operator.kyma-project.io` CustomResourceDefinition (CRD) describes the NATS custom resource (CR) that NATS Manager uses to manage the module. See [NATS Custom Resource](01-05-nats-custom-resource.md).
 
 ## Resource Consumption
 
