@@ -15,7 +15,7 @@ Sometimes replicas can go out of sync with the other replicas. As a result, mess
 
 To fix the "broken" consumers with pending messages, trigger a leader reelection. You can do this either on the consumers that have pending messages, or if that fails, on the stream level.
 
-You need the latest version of [NATS CLI](https://github.com/nats-io/natscli) and access to the NATS server (see [Acquiring NATS Server System Account Credentials](https://kyma-project.io/#/nats-manager/user/10-nats-server-system-events)).
+You need the latest version of [NATS CLI](https://github.com/nats-io/natscli) and access to the NATS server (see [Accessing the NATS Server Using CLI](https://github.com/kyma-project/nats-manager/blob/main/docs/user/01-10-access-nats-server.md)).
 
 ### Consumer Leader Reelection
 

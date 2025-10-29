@@ -10,9 +10,9 @@ Troubleshoot problems related to the NATS module:
 For issues with the Eventing module, see the Eventing troubleshooting guides:
 - [General Diagnostics: Event Not Delivered](https://github.com/kyma-project/eventing-manager/blob/main/docs/user/troubleshooting/evnt-01-eventing-troubleshooting.md)
   Start here if your events are not reaching their destination or your Subscription is not Ready.
-- [Subscriber Receives Irrelevant Events](https://github.com/kyma-project/eventing-manager/blob/main/docs/user/troubleshooting/evnt-03-type-collision.md)
+- [Subscriber Receives Irrelevant Events](https://github.com/kyma-project/eventing-manager/blob/main/docs/user/troubleshooting/evnt-03-type-collision.md) <!--can't find the doc; remove?-->
   Use this guide if a subscriber receives events it did not subscribe to.
-- [NATS Backend Storage Is Full](https://github.com/kyma-project/eventing-manager/blob/main/docs/user/troubleshooting/evnt-04-free-jetstream-storage.md)
+- [NATS Backend Storage Is Full](https://github.com/kyma-project/eventing-manager/blob/main/docs/user/troubleshooting/evnt-03-free-jetstream-storage.md)
   Follow these steps if the Eventing Publisher Proxy returns a 507 Insufficient Storage error.
 
 If you can't find a solution, don't hesitate to create a [GitHub issue](https://github.com/kyma-project/nats-manager/issues).
