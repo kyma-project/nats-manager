@@ -1,4 +1,4 @@
-# Published Events are Pending in the Stream
+# Published Events Are Pending in the Stream
 
 ## Symptom
 
@@ -91,6 +91,7 @@ Sometimes triggering the leader reelection on the broken consumers doesn't work.
 
 
 ### Restart the NATS Pods
+
 If none of the previous steps work, perform a restart of the NATS Pods:
 
 ```bash

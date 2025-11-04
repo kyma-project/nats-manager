@@ -1,6 +1,6 @@
 # NATS Module
 
-Use the NATS module to manage and configure the message-oriented middleware, NATS.
+Learn more about the NATS Module. Use it to manage and configure the message-oriented middleware, NATS.
 
 ## What is NATS?
 
@@ -42,11 +42,11 @@ The NATS module uses a [Kubernetes operator](https://kubernetes.io/docs/concepts
 
 The NATS Manager is responsible for starting the Controller which creates, watches, and reconciles the relevant resources.
 
-  - ConfigMap
-  - Secret
-  - Service
-  - Stateful Set
-  - DestinationRule
+  - ConfigMaps
+  - Secrets
+  - Services
+  - StatefulSets
+  - DestinationRules
 
 ## API/Custom Resource Definitions
 

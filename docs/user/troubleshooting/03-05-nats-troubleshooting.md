@@ -1,8 +1,8 @@
-# Troubleshooting the NATS Module
+# General Diagnostics
 
 ## Symptom
 
-- The NATS module is not in a Ready state.
+- The NATS module is not in a `Ready` state.
 - The Eventing module reports that it cannot connect to the NATS backend.
 - NATS Pods are in a `CrashLoopBackOff` or `Pending` state.
 
