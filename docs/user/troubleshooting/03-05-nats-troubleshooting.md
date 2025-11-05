@@ -8,7 +8,7 @@
 
 ## Cause
 
-Issues with the NATS module can stem from misconfigurations in the NATS custom resource, problems with the underlying Kubernetes nodes, or storage issues with Persistent Volume Claims (PVCs).
+Issues with the NATS module can stem from misconfigurations in the NATS custom resource (CR), problems with the underlying Kubernetes nodes, or storage issues with Persistent Volume Claims (PVCs).
 
 ## Solution
 
@@ -83,4 +83,4 @@ If the cluster appears healthy, you can inspect the JetStream components directl
 
    To correlate the consumer to the Subscription and the specific event type, check the `description` field of the consumer.
 
-6. If the PVC storage is fully consumed and matches the stream size as shown above, the stream can no longer receive messages. Either increase the PVC storage size (see [NATS Backend Storage Is Full](https://github.com/kyma-project/eventing-manager/blob/main/docs/user/troubleshooting/evnt-03-free-jetstream-storage.md)) or set the `MaxBytes` property which removes the old messages.
+6. If the PVC storage is fully consumed and matches the stream size as shown above, the stream can no longer receive messages. Either increase the PVC storage size (see [NATS Backend Storage Is Full](https://kyma-project.io/#/eventing-manager/user/troubleshooting/evnt-03-free-jetstream-storage)) or set the `MaxBytes` property which removes the old messages.

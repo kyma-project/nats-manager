@@ -13,13 +13,13 @@ For more information about NATS and NATS JetStream, see the [official NATS docum
 The [Eventing module](https://kyma-project.io/#/eventing-manager/user/README) can use NATS as a backend to process events and send them to subscribers.
 
 > [!WARNING]
-> Reaching the NATS storage size limits may cause the Eventing module to stop receiving events or delay them. For more information on the troubleshooting, see NATS Backend Storage Is Full.
+> Reaching the NATS storage size limits may cause the Eventing module to stop receiving events or delay them. For more information on the troubleshooting, see [NATS Backend Storage Is Full](https://kyma-project.io/#/eventing-manager/user/troubleshooting/evnt-03-free-jetstream-storage).
 
 ## Features
 
 * Automated NATS JetStream Deployment: Deploys a production-ready NATS JetStream cluster without manual setup.
 * Persistent Messaging: Use file-based storage to ensure messages are retained even if a Pod restarts. Memory-based storage is available for higher throughput scenarios.
-* Declarative Configuration: Manage your NATS cluster configuration, including cluster size and storage options, through a simple Kubernetes CR.
+* Declarative Configuration: Manage your NATS cluster configuration, including cluster size and storage options, through a simple Kubernetes custom resource (CR).
 * Configurable Resource Allocation: Define specific CPU and memory requests and limits for the NATS Pods to fit your cluster's capacity.
 * Seamless integration with the Eventing module.
 
@@ -50,7 +50,7 @@ The NATS Manager is responsible for starting the Controller which creates, watch
 
 ## API/Custom Resource Definitions
 
-The `nats.operator.kyma-project.io` CustomResourceDefinition (CRD) describes the NATS custom resource (CR) that NATS Manager uses to manage the module. See [NATS Custom Resource](01-05-nats-custom-resource.md).
+The `nats.operator.kyma-project.io` CustomResourceDefinition (CRD) describes the NATS CR that NATS Manager uses to manage the module. See [NATS Custom Resource](01-05-nats-custom-resource.md).
 
 ## Resource Consumption
 
