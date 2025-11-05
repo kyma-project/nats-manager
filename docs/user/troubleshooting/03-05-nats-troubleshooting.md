@@ -14,13 +14,13 @@ Issues with the NATS module can stem from misconfigurations in the NATS custom r
 
 ### 1. Check the NATS CR Status
 
-1. To verify the health of the NATS cluster, check the NATS CR:
+1. To verify the health of the NATS cluster, check the NATS CR.
 
    ```bash
    kubectl get nats -n kyma-system
    ````
 
-2. Look for `STATE: Ready`. If the state is `Error` or `Processing`, inspect the CR for detailed error messages:
+2. Look for `STATE: Ready`. If the state is `Error` or `Processing`, inspect the CR for detailed error messages.
 
    ```bash
    kubectl get nats {NATS_CR_NAME} -n kyma-system -o yaml
@@ -54,7 +54,7 @@ If the cluster appears healthy, you can inspect the JetStream components directl
 
 1. Ensure that you have access to the NATS server (see [Accessing the NATS Server Using CLI](https://github.com/kyma-project/nats-manager/blob/main/docs/user/01-10-access-nats-server.md)).
 
-2. Port-forward to a NATS Pod:
+2. Port-forward to a NATS Pod.
 
    ```bash
    kubectl -n kyma-system port-forward svc/eventing-nats 4222

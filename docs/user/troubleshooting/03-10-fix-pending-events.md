@@ -19,12 +19,13 @@ You need the latest version of [NATS CLI](https://github.com/nats-io/natscli) an
 
 ### Consumer Leader Reelection
 
-First, find out which consumers have pending messages:
+First, find out which consumers have pending messages.
 
-1. Port forward to a NATS replica:
+1. Port forward to a NATS replica.
 
    ```bash
-   kubectl port-forward -n kyma-system eventing-nats-0 4222  
+   kubectl port-forward -n kyma-system eventing-nats-0 4222
+   ```
 
 2. Run this shell script:
 
@@ -44,13 +45,13 @@ First, find out which consumers have pending messages:
 
 3. Note the name of the consumer with a non-zero pending count and the name of its leader (in this example, `ebcabfe5c902612f0ba3ebde7653f30b`).
 
-4. Port-forward to the identified leader Pod:
+4. Port-forward to the identified leader Pod.
 
    ```bash
    kubectl port-forward -n kyma-system eventing-nats-1 4222  
    ```
 
-5. Trigger the leader reelection for that broken consumer:
+5. Trigger the leader reelection for that broken consumer.
 
    ```bash
    nats consumer cluster step-down sap ebcabfe5c902612f0ba3ebde7653f30b
@@ -70,7 +71,7 @@ First, find out which consumers have pending messages:
 
 Sometimes triggering the leader reelection on the broken consumers doesn't work. In that case, you must restart the NATS Pods to trigger leader reelection on the stream level.
 
-1. Command the stream to step down:
+1. Command the stream to step down.
 
    ```bash
    nats stream cluster step-down sap
@@ -92,7 +93,7 @@ Sometimes triggering the leader reelection on the broken consumers doesn't work.
 
 ### Restart the NATS Pods
 
-If none of the previous steps work, perform a restart of the NATS Pods:
+If none of the previous steps work, perform a restart of the NATS Pods.
 
 ```bash
 # assuming we have 3 NATS instances

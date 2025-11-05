@@ -4,7 +4,7 @@ Interact directly with your NATS server deployment in Kyma using the NATS comman
 
 ## Prerequisites
 
-- You have installed kubectl and [nats cli](https://docs.nats.io/using-nats/nats-tools/nats_cli). 
+- You have installed kubectl and [NATS CLI](https://github.com/nats-io/natscli). 
 
 ## Context
 
@@ -27,7 +27,7 @@ Accessing certain resources in NATS requires [system account privileges](https:/
    user: admin, password: <your password>
    ```
 
-2. To access the NATS server with the nats-cli tool, forward its port:
+2. To access the NATS server with the NATS CLI tool, forward its port:
 
    ```bash
    kubectl port-forward -n kyma-system svc/eventing-nats 4222
