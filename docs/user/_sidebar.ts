@@ -1,5 +1,8 @@
 export default [
-  { text: 'Module Lifecycle', link: './01-manager' },
-  { text: 'Module Configuration', link: './02-configuration' },
-  { text: 'Acquiring NATS Server System Account Credentials', link: './10-nats-server-system-events' }
-];
+  { text: 'Accessing the NATS Server Using CLI', link: './01-10-access-nats-server.md' },
+  { text: 'NATS Custom Resource', link: './01-05-nats-custom-resource.md' },
+  { text: 'Troubleshooting', link: './troubleshooting/README.md', collapsed: true, items: [
+    { text: 'General Diagnostics', link: './troubleshooting/03-05-nats-troubleshooting.md' },
+    { text: 'Published Events Are Pending in the Stream', link: './troubleshooting/03-10-fix-pending-events.md)' }
+    ] },
+  ]
