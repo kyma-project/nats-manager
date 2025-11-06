@@ -1,26 +1,26 @@
-# Troubleshooting the NATS Module
+# General Diagnostics
 
 ## Symptom
 
-- The NATS module is not in a Ready state.
+- The NATS module is not in a `Ready` state.
 - The Eventing module reports that it cannot connect to the NATS backend.
 - NATS Pods are in a `CrashLoopBackOff` or `Pending` state.
 
 ## Cause
 
-Issues with the NATS module can stem from misconfigurations in the NATS custom resource, problems with the underlying Kubernetes nodes, or storage issues with Persistent Volume Claims (PVCs).
+Issues with the NATS module can stem from misconfigurations in the NATS custom resource (CR), problems with the underlying Kubernetes nodes, or storage issues with Persistent Volume Claims (PVCs).
 
 ## Solution
 
 ### 1. Check the NATS CR Status
 
-1. To verify the health of the NATS cluster, check the NATS CR:
+1. To verify the health of the NATS cluster, check the NATS CR.
 
    ```bash
    kubectl get nats -n kyma-system
    ````
 
-2. Look for `STATE: Ready`. If the state is `Error` or `Processing`, inspect the CR for detailed error messages:
+2. Look for `STATE: Ready`. If the state is `Error` or `Processing`, inspect the CR for detailed error messages.
 
    ```bash
    kubectl get nats {NATS_CR_NAME} -n kyma-system -o yaml
@@ -54,7 +54,7 @@ If the cluster appears healthy, you can inspect the JetStream components directl
 
 1. Ensure that you have access to the NATS server (see [Accessing the NATS Server Using CLI](https://github.com/kyma-project/nats-manager/blob/main/docs/user/01-10-access-nats-server.md)).
 
-2. Port-forward to a NATS Pod:
+2. Port-forward to a NATS Pod.
 
    ```bash
    kubectl -n kyma-system port-forward svc/eventing-nats 4222
@@ -83,4 +83,4 @@ If the cluster appears healthy, you can inspect the JetStream components directl
 
    To correlate the consumer to the Subscription and the specific event type, check the `description` field of the consumer.
 
-6. If the PVC storage is fully consumed and matches the stream size as shown above, the stream can no longer receive messages. Either increase the PVC storage size (see [NATS Backend Storage Is Full](https://github.com/kyma-project/eventing-manager/blob/main/docs/user/troubleshooting/evnt-03-free-jetstream-storage.md)) or set the `MaxBytes` property which removes the old messages.
+6. If the PVC storage is fully consumed and matches the stream size as shown above, the stream can no longer receive messages. Either increase the PVC storage size (see [NATS Backend Storage Is Full](https://kyma-project.io/#/eventing-manager/user/troubleshooting/evnt-03-free-jetstream-storage)) or set the `MaxBytes` property which removes the old messages.
