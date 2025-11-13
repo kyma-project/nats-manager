@@ -1,7 +1,0 @@
-- [Back to Kyma Home](/)
-- [NATS Module](/nats-manager/user/README.md)
-- [Accessing the NATS Server Using CLI](/nats-manager/user/01-10-access-nats-server.md)
-- [NATS Custom Resource](/nats-manager/user/01-05-nats-custom-resource.md)
-- [Troubleshooting](/nats-manager/user/troubleshooting/README.md)
-  - [General Diagnostics](/nats-manager/user/troubleshooting/03-05-nats-troubleshooting.md)
-  - [Published Events Are Pending in the Stream](/nats-manager/user/troubleshooting/03-10-fix-pending-events.md)
