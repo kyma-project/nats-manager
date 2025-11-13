@@ -1,4 +1,4 @@
-# General Diagnostics
+# General Diagnostics: NATS Module Readiness and Connectivity
 
 ## Symptom
 
