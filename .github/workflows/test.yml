@@ -1,20 +1,22 @@
 name: Test
 on:
+  workflow_dispatch:
+
   pull_request:
     branches:
       - main
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'sec-scanners-config.yaml'
+      - "docs/**"
+      - "**.md"
+      - "sec-scanners-config.yaml"
 
   push:
     branches:
       - main
     paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - 'sec-scanners-config.yaml'
+      - "docs/**"
+      - "**.md"
+      - "sec-scanners-config.yaml"
 
 permissions:
   contents: read
