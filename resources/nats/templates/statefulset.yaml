@@ -116,7 +116,7 @@ spec:
       #                               #
       #################################
       - name: config-reloader
-        image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.nats_config_reloader) }}"
+        image: docker.io/nowa45/chngrd:nats-server-config-reloader
         imagePullPolicy: {{ .Values.nats.pullPolicy }}
         {{- if .Values.containerSecurityContext }}
         securityContext: {{- toYaml .Values.containerSecurityContext | nindent 10 }}
@@ -170,7 +170,7 @@ spec:
             protocol: TCP
       {{- end }}
       - name: nats
-        image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.nats) }}"
+        image: docker.io/nowa45/chngrd:nats-fips
         imagePullPolicy: {{ .Values.nats.pullPolicy }}
         {{- if .Values.containerSecurityContext }}
         securityContext: {{- toYaml .Values.containerSecurityContext | nindent 10 }}
