@@ -41,18 +41,23 @@ cat ${MODULE_NAME}-manager.yaml
 # Find the release on github.com via the release tag.
 echo -e "\n Updating github release with ${MODULE_NAME}-manager.yaml"
 echo "Finding release id for: ${RELEASE_TAG}"
-CURL_RESPONSE=$(curl -w "%{http_code}" -sL \
+
+tmpfile=$(mktemp)
+HTTP_CODE=$(curl -s -o "$tmpfile" -w "%{http_code}" \
 	-H "Accept: application/vnd.github+json" \
 	-H "Authorization: Bearer $GITHUB_TOKEN" \
 	https://api.github.com/repos/kyma-project/${MODULE_NAME}-manager/releases)
-JSON_RESPONSE=$(sed '$ d' <<<"${CURL_RESPONSE}")
-HTTP_CODE=$(tail -n1 <<<"${CURL_RESPONSE}")
+
 if [[ "${HTTP_CODE}" != "200" ]]; then
-	echo "${JSON_RESPONSE}" && exit 1
+	cat "$tmpfile"
+  rm -f "$tmpfile"
+  exit 1
 fi
 
 # Extract the release id out of the github.com response.
-RELEASE_ID=$(jq <<<${JSON_RESPONSE} --arg tag "${RELEASE_TAG}" '.[] | select(.tag_name == $ARGS.named.tag) | .id')
+RELEASE_ID=$(jq --arg tag "$RELEASE_TAG" '.[] | select(.tag_name == $tag) | .id' "$tmpfile")
+rm -f "$tmpfile"
+
 if [ -z "${RELEASE_ID}" ]; then
 	echo "No release with tag = ${RELEASE_TAG}"
 	exit 1
