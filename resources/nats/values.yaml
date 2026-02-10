@@ -10,19 +10,19 @@ global:
   images:
     nats:
       name: nats
-      version: v20240102-2.10.7-alpine3.18
+      version: 2.12.4-alpine3.22
       directory: prod/external
     nats_config_reloader:
       name: natsio/nats-server-config-reloader
-      version: 0.14.1
+      version: 0.22.1
       directory: prod/external
     prometheus_nats_exporter:
       name: natsio/prometheus-nats-exporter
-      version: 0.14.0
+      version: 0.18.0
       directory: prod/external
     alpine:
       name: alpine
-      version: 3.19.1
+      version: 3.22
       directory: prod/external
 
   jetstream:
