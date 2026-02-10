@@ -11,7 +11,7 @@ global:
     nats:
       name: nats
       version: 2.12.4-alpine3.22
-      directory: prod/external
+      directory: prod/external/library
     nats_config_reloader:
       name: natsio/nats-server-config-reloader
       version: 0.22.1
@@ -22,8 +22,8 @@ global:
       directory: prod/external
     alpine:
       name: alpine
-      version: 3.22
-      directory: prod/external
+      version: "3.22"
+      directory: prod/external/library
 
   jetstream:
     # Storage type of the stream, memory or file.
