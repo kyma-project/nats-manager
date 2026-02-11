@@ -170,7 +170,7 @@ spec:
             protocol: TCP
       {{- end }}
       - name: nats
-        image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.nats) }}"
+        image: {{ .Values.global.natsImageUrl }}
         imagePullPolicy: {{ .Values.nats.pullPolicy }}
         {{- if .Values.containerSecurityContext }}
         securityContext: {{- toYaml .Values.containerSecurityContext | nindent 10 }}
