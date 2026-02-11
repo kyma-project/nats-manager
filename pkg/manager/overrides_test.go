@@ -43,6 +43,7 @@ func Test_GenerateOverrides(t *testing.T) {
 				ResourceRequestsMemKey: "0",
 				ResourceLimitsCPUKey:   "0",
 				ResourceLimitsMemKey:   "0",
+				NatsImageUrl:           "nats_image_url",
 			},
 		},
 		{
@@ -98,6 +99,7 @@ func Test_GenerateOverrides(t *testing.T) {
 				CommonAnnotationsKey: map[string]string{
 					"key2": "value2",
 				},
+				NatsImageUrl: "nats_image_url",
 			},
 		},
 	}

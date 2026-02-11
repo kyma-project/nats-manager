@@ -20,6 +20,7 @@ const (
 	ResourceRequestsMemKey = "nats.resources.requests.memory"
 	ResourceLimitsCPUKey   = "nats.resources.limits.cpu"
 	ResourceLimitsMemKey   = "nats.resources.limits.memory"
+	NatsImageUrl           = "global.natsImageUrl"
 )
 
 func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnabled bool,
@@ -75,6 +76,10 @@ func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnable
 	// common annotations to all the deployed resources.
 	if len(spec.Annotations) > 0 {
 		overrides[CommonAnnotationsKey] = spec.Annotations
+	}
+
+	if m.NATSImageUrl != "" {
+		overrides[NatsImageUrl] = m.NATSImageUrl
 	}
 
 	return overrides

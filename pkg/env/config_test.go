@@ -23,6 +23,7 @@ func Test_GetConfig(t *testing.T) {
 	givenEnvs["LOG_LEVEL"] = "info"
 	givenEnvs["NATS_IMAGE"] = "nats-image-url"
 	givenEnvs["NATS_IMAGE_FIPS"] = "nats-image-fips-url"
+	givenEnvs["KYMA_FIPS_MODE_ENABLED"] = "true"
 
 	for k, v := range givenEnvs {
 		t.Setenv(k, v)
@@ -34,4 +35,6 @@ func Test_GetConfig(t *testing.T) {
 	// then, should pass when required envs are defined.
 	require.NoError(t, err)
 	require.Equal(t, givenEnvs["NATS_CHART_DIR"], config.NATSChartDir)
+	require.Equal(t, givenEnvs["NATS_IMAGE_FIPS"], config.NATSImageFIPS)
+	require.Equal(t, true, config.FIPSModeEnabled)
 }
