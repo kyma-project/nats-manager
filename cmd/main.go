@@ -149,7 +149,11 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 
 	kubeClient := k8s.NewKubeClient(mgr.GetClient(), apiClientSet, "nats-manager")
 
-	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+	natsImageUrl := envConfigs.NATSImage
+	if envConfigs.FIPSModeEnabled {
+		natsImageUrl = envConfigs.NATSImageFIPS
+	}
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger, natsImageUrl)
 
 	collector := metrics.NewPrometheusCollector()
 	collector.RegisterMetrics()

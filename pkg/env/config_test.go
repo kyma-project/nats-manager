@@ -21,6 +21,8 @@ func Test_GetConfig(t *testing.T) {
 	givenEnvs["NATS_CR_NAME"] = "name1"
 	givenEnvs["NATS_CR_NAMESPACE"] = "namespace1"
 	givenEnvs["LOG_LEVEL"] = "info"
+	givenEnvs["NATS_IMAGE"] = "nats-image-url"
+	givenEnvs["NATS_IMAGE_FIPS"] = "nats-image-fips-url"
 
 	for k, v := range givenEnvs {
 		t.Setenv(k, v)

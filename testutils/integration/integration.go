@@ -142,7 +142,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 	}
 
 	// create NATS manager instance
-	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger, "nats_image_url")
 
 	// create metrics collector.
 	collector := metrics.NewPrometheusCollector()

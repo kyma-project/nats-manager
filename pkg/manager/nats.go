@@ -32,13 +32,15 @@ type NATSManager struct {
 	kubeClient    k8s.Client
 	chartRenderer chart.Renderer
 	logger        *zap.SugaredLogger
+	NATSImageUrl  string
 }
 
-func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *zap.SugaredLogger) Manager {
+func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *zap.SugaredLogger, NATSImageUrl string) Manager {
 	return NATSManager{
 		kubeClient:    kubeClient,
 		chartRenderer: chartRenderer,
 		logger:        logger,
+		NATSImageUrl:  NATSImageUrl,
 	}
 }
 

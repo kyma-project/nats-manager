@@ -108,7 +108,7 @@ func Test_GenerateOverrides(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			manager := NewNATSManger(nil, nil, nil)
+			manager := NewNATSManger(nil, nil, nil, "nats_image_url")
 
 			// when
 			overrides := manager.GenerateOverrides(&tc.givenNATS.Spec, tc.givenIstioEnabled, tc.givenRotatePassword)
