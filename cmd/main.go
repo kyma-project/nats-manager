@@ -149,6 +149,7 @@ func main() { //nolint:funlen // main function needs to initialize many objects
 
 	kubeClient := k8s.NewKubeClient(mgr.GetClient(), apiClientSet, "nats-manager")
 
+	setupLog.Info("Init NATS manager", "fipsEnabled", envConfigs.FIPSModeEnabled)
 	natsImageUrl := envConfigs.NATSImage
 	if envConfigs.FIPSModeEnabled {
 		natsImageUrl = envConfigs.NATSImageFIPS
