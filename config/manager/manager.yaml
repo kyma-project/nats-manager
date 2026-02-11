@@ -59,6 +59,10 @@ spec:
           value: "eventing-nats"
         - name: NATS_CR_NAMESPACE
           value: "kyma-system"
+        - name: NATS_IMAGE
+          value: "europe-docker.pkg.dev/kyma-project/prod/external/nats:2.12.4-alpine3.22"
+        - name: NATS_IMAGE_FIPS
+          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/nats-fips:2.12.3"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
