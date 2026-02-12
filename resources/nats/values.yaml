@@ -5,28 +5,6 @@
 ####################################
 
 global:
-  natsImageUrl: europe-docker.pkg.dev/kyma-project/prod/external/library/nats:default-from-config
-
-  containerRegistry:
-    path: europe-docker.pkg.dev/kyma-project
-  images:
-    nats:
-      name: nats
-      version: v20240102-2.10.7-alpine3.18
-      directory: prod/external
-    nats_config_reloader:
-      name: natsio/nats-server-config-reloader
-      version: 0.14.1
-      directory: prod/external
-    prometheus_nats_exporter:
-      name: natsio/prometheus-nats-exporter
-      version: 0.14.0
-      directory: prod/external
-    alpine:
-      name: alpine
-      version: 3.19.1
-      directory: prod/external
-
   jetstream:
     # Storage type of the stream, memory or file.
     storage: file
