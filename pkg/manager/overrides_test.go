@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"strings"
 	"testing"
 
@@ -31,19 +32,22 @@ func Test_GenerateOverrides(t *testing.T) {
 			givenIstioEnabled:   true,
 			givenRotatePassword: true,
 			wantOverrides: map[string]interface{}{
-				IstioEnabledKey:        true,
-				RotatePasswordKey:      true,
-				ClusterSizeKey:         0,
-				ClusterEnabledKey:      false,
-				FileStorageSizeKey:     "0",
-				MemStorageEnabledKey:   false,
-				DebugEnabledKey:        false,
-				TraceEnabledKey:        false,
-				ResourceRequestsCPUKey: "0",
-				ResourceRequestsMemKey: "0",
-				ResourceLimitsCPUKey:   "0",
-				ResourceLimitsMemKey:   "0",
-				NatsImageUrl:           "nats_image_url",
+				IstioEnabledKey:                  true,
+				RotatePasswordKey:                true,
+				ClusterSizeKey:                   0,
+				ClusterEnabledKey:                false,
+				FileStorageSizeKey:               "0",
+				MemStorageEnabledKey:             false,
+				DebugEnabledKey:                  false,
+				TraceEnabledKey:                  false,
+				ResourceRequestsCPUKey:           "0",
+				ResourceRequestsMemKey:           "0",
+				ResourceLimitsCPUKey:             "0",
+				ResourceLimitsMemKey:             "0",
+				NatsImageUrl:                     "NATSImage",
+				AlpineImageUrl:                   "AlpineImage",
+				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
+				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
 			},
 		},
 		{
@@ -99,7 +103,10 @@ func Test_GenerateOverrides(t *testing.T) {
 				CommonAnnotationsKey: map[string]string{
 					"key2": "value2",
 				},
-				NatsImageUrl: "nats_image_url",
+				NatsImageUrl:                     "NATSImage",
+				AlpineImageUrl:                   "AlpineImage",
+				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
+				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
 			},
 		},
 	}
@@ -110,7 +117,13 @@ func Test_GenerateOverrides(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
-			manager := NewNATSManger(nil, nil, nil, "nats_image_url")
+			envContainerImages := env.ContainerImages{
+				NATS:               "NATSImage",
+				Alpine:             "AlpineImage",
+				PrometheusExporter: "PrometheusExporterImage",
+				NATSConfigReloader: "NATSSrvCfgReloaderImage",
+			}
+			manager := NewNATSManger(nil, nil, nil, envContainerImages)
 
 			// when
 			overrides := manager.GenerateOverrides(&tc.givenNATS.Spec, tc.givenIstioEnabled, tc.givenRotatePassword)

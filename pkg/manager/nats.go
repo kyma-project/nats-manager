@@ -3,8 +3,8 @@ package manager
 import (
 	"context"
 	"errors"
-
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	"go.uber.org/zap"
@@ -32,15 +32,15 @@ type NATSManager struct {
 	kubeClient    k8s.Client
 	chartRenderer chart.Renderer
 	logger        *zap.SugaredLogger
-	NATSImageUrl  string
+	images        env.ContainerImages
 }
 
-func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *zap.SugaredLogger, NATSImageUrl string) Manager {
+func NewNATSManger(kubeClient k8s.Client, chartRenderer chart.Renderer, logger *zap.SugaredLogger, images env.ContainerImages) Manager {
 	return NATSManager{
 		kubeClient:    kubeClient,
 		chartRenderer: chartRenderer,
 		logger:        logger,
-		NATSImageUrl:  NATSImageUrl,
+		images:        images,
 	}
 }
 

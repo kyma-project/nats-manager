@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"fmt"
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"log"
 	"path/filepath"
 	"reflect"
@@ -141,8 +142,15 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		return nil, err
 	}
 
+	envContainerImages := env.ContainerImages{
+		NATS:               "NATSImage",
+		Alpine:             "AlpineImage",
+		PrometheusExporter: "PrometheusExporterImage",
+		NATSConfigReloader: "NATSSrvCfgReloaderImage",
+	}
+
 	// create NATS manager instance
-	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger, "nats_image_url")
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger, envContainerImages)
 
 	// create metrics collector.
 	collector := metrics.NewPrometheusCollector()

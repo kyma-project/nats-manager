@@ -28,3 +28,27 @@ func GetConfig() (Config, error) {
 	}
 	return cfg, nil
 }
+
+type ContainerImages struct {
+	NATS               string
+	Alpine             string
+	PrometheusExporter string
+	NATSConfigReloader string
+}
+
+func (cfg Config) GetImageConfig() ContainerImages {
+	if cfg.FIPSModeEnabled {
+		return ContainerImages{
+			NATS:               cfg.NATSImageFIPS,
+			Alpine:             cfg.AlpineImageFIPS,
+			PrometheusExporter: cfg.PrometheusExporterImageFIPS,
+			NATSConfigReloader: cfg.NATSSrvCfgReloaderImageFIPS,
+		}
+	}
+	return ContainerImages{
+		NATS:               cfg.NATSImage,
+		Alpine:             cfg.AlpineImage,
+		PrometheusExporter: cfg.PrometheusExporterImage,
+		NATSConfigReloader: cfg.NATSSrvCfgReloaderImage,
+	}
+}

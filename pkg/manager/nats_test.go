@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"testing"
 
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
@@ -68,7 +69,14 @@ func Test_GenerateNATSResources(t *testing.T) {
 			mockHelmRenderer.On("RenderManifestAsUnstructured",
 				releaseInstance).Return(manifestResources, nil).Once()
 
-			manager := NewNATSManger(nmkmocks.NewClient(t), mockHelmRenderer, sugaredLogger, "nats_image_url")
+			envContainerImages := env.ContainerImages{
+				NATS:               "NATSImage",
+				Alpine:             "AlpineImage",
+				PrometheusExporter: "PrometheusExporterImage",
+				NATSConfigReloader: "NATSSrvCfgReloaderImage",
+			}
+
+			manager := NewNATSManger(nmkmocks.NewClient(t), mockHelmRenderer, sugaredLogger, envContainerImages)
 
 			// when
 			gotManifests, err := manager.GenerateNATSResources(releaseInstance, tc.givenOptions...)
@@ -146,7 +154,14 @@ func Test_DeployInstance(t *testing.T) {
 					len(releaseInstance.RenderedManifests.Items))
 			}
 
-			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger, "nats_image_url")
+			envContainerImages := env.ContainerImages{
+				NATS:               "NATSImage",
+				Alpine:             "AlpineImage",
+				PrometheusExporter: "PrometheusExporterImage",
+				NATSConfigReloader: "NATSSrvCfgReloaderImage",
+			}
+
+			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger, envContainerImages)
 
 			// when
 			err = manager.DeployInstance(context.Background(), releaseInstance)
@@ -211,7 +226,14 @@ func Test_DeleteInstance(t *testing.T) {
 					len(releaseInstance.RenderedManifests.Items))
 			}
 
-			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger, "nats_image_url")
+			envContainerImages := env.ContainerImages{
+				NATS:               "NATSImage",
+				Alpine:             "AlpineImage",
+				PrometheusExporter: "PrometheusExporterImage",
+				NATSConfigReloader: "NATSSrvCfgReloaderImage",
+			}
+
+			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger, envContainerImages)
 
 			// when
 			err = manager.DeleteInstance(context.Background(), releaseInstance)
@@ -328,7 +350,14 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 				Items: items,
 			})
 
-			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger, "nats_image_url")
+			envContainerImages := env.ContainerImages{
+				NATS:               "NATSImage",
+				Alpine:             "AlpineImage",
+				PrometheusExporter: "PrometheusExporterImage",
+				NATSConfigReloader: "NATSSrvCfgReloaderImage",
+			}
+
+			manager := NewNATSManger(mockKubeClient, nmkchartmocks.NewRenderer(t), sugaredLogger, envContainerImages)
 
 			// when
 			isReady, err := manager.IsNATSStatefulSetReady(context.Background(), releaseInstance)
