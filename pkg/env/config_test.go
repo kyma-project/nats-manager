@@ -37,6 +37,7 @@ func Test_GetConfig(t *testing.T) {
 
 	// when
 	config, err := GetConfig()
+	imageConfig := config.GetImageConfig()
 
 	// then, should pass when required envs are defined.
 	require.NoError(t, err)
@@ -46,4 +47,7 @@ func Test_GetConfig(t *testing.T) {
 	require.Equal(t, givenEnvs["PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS"], config.PrometheusExporterImageFIPS)
 	require.Equal(t, givenEnvs["NATS_SERVER_CONFIG_RELOADER_IMAGE_FIPS"], config.NATSSrvCfgReloaderImageFIPS)
 	require.Equal(t, true, config.FIPSModeEnabled)
+
+	require.Equal(t, givenEnvs["ALPINE_IMAGE_FIPS"], imageConfig.Alpine)
+	require.Equal(t, givenEnvs["PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS"], imageConfig.PrometheusExporter)
 }
