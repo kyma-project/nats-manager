@@ -275,7 +275,6 @@ func Test_handleNATSState(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -464,7 +463,6 @@ func Test_handleNATSReconcile(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -498,7 +496,7 @@ func Test_handleNATSReconcile(t *testing.T) {
 				mock.Anything, mock.Anything).Return(tc.givenDeployError)
 			testEnv.natsManager.On("GenerateOverrides",
 				mock.Anything, mock.Anything, mock.Anything).Return(
-				map[string]interface{}{
+				map[string]any{
 					nmmgr.IstioEnabledKey:   tc.wantDestinationRuleWatchStarted,
 					nmmgr.RotatePasswordKey: true, // do not recreate secret if it exists
 				},

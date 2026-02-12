@@ -201,7 +201,6 @@ func Test_Validate_CreateNATS(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -298,7 +297,6 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			g := gomega.NewGomegaWithT(t)
 
@@ -462,7 +460,6 @@ func Test_NATS_Defaulting(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			g := gomega.NewGomegaWithT(t)

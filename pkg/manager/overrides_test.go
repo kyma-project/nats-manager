@@ -1,11 +1,11 @@
 package manager
 
 import (
-	"github.com/kyma-project/nats-manager/pkg/env"
 	"strings"
 	"testing"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/testutils"
 	"github.com/stretchr/testify/require"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -22,7 +22,7 @@ func Test_GenerateOverrides(t *testing.T) {
 		givenNATS           *nmapiv1alpha1.NATS
 		givenIstioEnabled   bool
 		givenRotatePassword bool
-		wantOverrides       map[string]interface{}
+		wantOverrides       map[string]any
 	}{
 		{
 			name: "should override when spec values are not provided in spec",
@@ -31,7 +31,7 @@ func Test_GenerateOverrides(t *testing.T) {
 			),
 			givenIstioEnabled:   true,
 			givenRotatePassword: true,
-			wantOverrides: map[string]interface{}{
+			wantOverrides: map[string]any{
 				IstioEnabledKey:                  true,
 				RotatePasswordKey:                true,
 				ClusterSizeKey:                   0,
@@ -82,7 +82,7 @@ func Test_GenerateOverrides(t *testing.T) {
 			),
 			givenIstioEnabled:   true,
 			givenRotatePassword: true,
-			wantOverrides: map[string]interface{}{
+			wantOverrides: map[string]any{
 				IstioEnabledKey:        true,
 				RotatePasswordKey:      true,
 				ClusterSizeKey:         5,
@@ -113,7 +113,6 @@ func Test_GenerateOverrides(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
@@ -144,7 +143,7 @@ func Test_Overrides_Keys(t *testing.T) {
 	require.NoError(t, err)
 
 	// these are the default values as defined in NATS helm chart.
-	keysToTest := map[string]interface{}{
+	keysToTest := map[string]any{
 		IstioEnabledKey:        true,
 		RotatePasswordKey:      true,
 		ClusterSizeKey:         float64(3),
@@ -159,19 +158,18 @@ func Test_Overrides_Keys(t *testing.T) {
 		ResourceRequestsMemKey: "64Mi",
 		ResourceLimitsCPUKey:   "500m",
 		ResourceLimitsMemKey:   "1Gi",
-		CommonLabelsKey: map[string]interface{}{
+		CommonLabelsKey: map[string]any{
 			"app.kubernetes.io/component":  "nats-manager",
 			"app.kubernetes.io/created-by": "nats-manager",
 			"app.kubernetes.io/managed-by": "nats-manager",
 			"app.kubernetes.io/part-of":    "nats-manager",
 			"control-plane":                "nats-manager",
 		},
-		CommonAnnotationsKey: map[string]interface{}{},
+		CommonAnnotationsKey: map[string]any{},
 	}
 
 	// run test cases
 	for key := range keysToTest {
-		key := key
 		t.Run("Testing key: "+key, func(t *testing.T) {
 			t.Parallel()
 
@@ -182,7 +180,7 @@ func Test_Overrides_Keys(t *testing.T) {
 	}
 }
 
-func getValueFromNestedMap(t *testing.T, key string, data map[string]interface{}) interface{} {
+func getValueFromNestedMap(t *testing.T, key string, data map[string]any) any {
 	t.Helper()
 	tokens := strings.Split(key, ".")
 	lastNestedData := data
@@ -192,7 +190,7 @@ func getValueFromNestedMap(t *testing.T, key string, data map[string]interface{}
 			return lastNestedData[token]
 		default:
 			var ok bool
-			lastNestedData, ok = lastNestedData[token].(map[string]interface{})
+			lastNestedData, ok = lastNestedData[token].(map[string]any)
 			require.True(t, ok, "failed to convert to map[string]interface{}")
 		}
 	}

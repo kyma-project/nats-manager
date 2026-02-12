@@ -18,15 +18,15 @@ type Option func(*unstructured.Unstructured) error
 func WithOwnerReference(nats nmapiv1alpha1.NATS) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
-			o.Object["metadata"] = make(map[string]interface{})
+			o.Object["metadata"] = make(map[string]any)
 		}
 
-		metadata, ok := o.Object["metadata"].(map[string]interface{})
+		metadata, ok := o.Object["metadata"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertMetadataToMap
 		}
 
-		metadata["ownerReferences"] = []map[string]interface{}{
+		metadata["ownerReferences"] = []map[string]any{
 			{
 				"apiVersion":         nats.APIVersion,
 				"kind":               nats.Kind,
@@ -44,19 +44,19 @@ func WithOwnerReference(nats nmapiv1alpha1.NATS) Option {
 func WithLabel(key, value string) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
-			o.Object["metadata"] = make(map[string]interface{})
+			o.Object["metadata"] = make(map[string]any)
 		}
 
-		metadata, ok := o.Object["metadata"].(map[string]interface{})
+		metadata, ok := o.Object["metadata"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertMetadataToMap
 		}
 
 		if _, exists := metadata["labels"]; !exists {
-			metadata["labels"] = make(map[string]interface{})
+			metadata["labels"] = make(map[string]any)
 		}
 
-		labels, ok := metadata["labels"].(map[string]interface{})
+		labels, ok := metadata["labels"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertLabelsToMap
 		}

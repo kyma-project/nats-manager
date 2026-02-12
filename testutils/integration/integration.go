@@ -3,7 +3,6 @@ package integration
 import (
 	"context"
 	"fmt"
-	"github.com/kyma-project/nats-manager/pkg/env"
 	"log"
 	"path/filepath"
 	"reflect"
@@ -14,6 +13,7 @@ import (
 	"github.com/avast/retry-go/v3"
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
@@ -256,7 +256,7 @@ func (env TestEnvironment) UpdatedNATSInK8s(nats *nmapiv1alpha1.NATS, options ..
 	}
 
 	for _, o := range options {
-		if er := o(&natsOnK8s); er != nil {
+		if err := o(&natsOnK8s); err != nil {
 			log.Fatal(err)
 		}
 	}

@@ -6,19 +6,19 @@ import (
 
 // Config represents the environment config for the NATS Manager.
 type Config struct {
-	LogLevel                    string `envconfig:"LOG_LEVEL"         required:"true"`
-	NATSChartDir                string `envconfig:"NATS_CHART_DIR"    required:"true"`
-	NATSCRName                  string `envconfig:"NATS_CR_NAME"      required:"true"`
-	NATSCRNamespace             string `envconfig:"NATS_CR_NAMESPACE" required:"true"`
-	FIPSModeEnabled             bool   `envconfig:"KYMA_FIPS_MODE_ENABLED" default:"false"`
-	NATSImage                   string `envconfig:"NATS_IMAGE"        required:"true"`
-	NATSImageFIPS               string `envconfig:"NATS_IMAGE_FIPS"   required:"true"`
-	NATSSrvCfgReloaderImage     string `envconfig:"NATS_SERVER_CONFIG_RELOADER_IMAGE"        required:"true"`
-	NATSSrvCfgReloaderImageFIPS string `envconfig:"NATS_SERVER_CONFIG_RELOADER_IMAGE_FIPS"   required:"true"`
-	PrometheusExporterImage     string `envconfig:"PROMETHEUS_NATS_EXPORTER_IMAGE"        required:"true"`
-	PrometheusExporterImageFIPS string `envconfig:"PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS"   required:"true"`
-	AlpineImage                 string `envconfig:"ALPINE_IMAGE"        required:"true"`
-	AlpineImageFIPS             string `envconfig:"ALPINE_IMAGE_FIPS"   required:"true"`
+	LogLevel                    string `envconfig:"LOG_LEVEL"                              required:"true"`
+	NATSChartDir                string `envconfig:"NATS_CHART_DIR"                         required:"true"`
+	NATSCRName                  string `envconfig:"NATS_CR_NAME"                           required:"true"`
+	NATSCRNamespace             string `envconfig:"NATS_CR_NAMESPACE"                      required:"true"`
+	FIPSModeEnabled             bool   `default:"false"                                    envconfig:"KYMA_FIPS_MODE_ENABLED"`
+	NATSImage                   string `envconfig:"NATS_IMAGE"                             required:"true"`
+	NATSImageFIPS               string `envconfig:"NATS_IMAGE_FIPS"                        required:"true"`
+	NATSSrvCfgReloaderImage     string `envconfig:"NATS_SERVER_CONFIG_RELOADER_IMAGE"      required:"true"`
+	NATSSrvCfgReloaderImageFIPS string `envconfig:"NATS_SERVER_CONFIG_RELOADER_IMAGE_FIPS" required:"true"`
+	PrometheusExporterImage     string `envconfig:"PROMETHEUS_NATS_EXPORTER_IMAGE"         required:"true"`
+	PrometheusExporterImageFIPS string `envconfig:"PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS"    required:"true"`
+	AlpineImage                 string `envconfig:"ALPINE_IMAGE"                           required:"true"`
+	AlpineImageFIPS             string `envconfig:"ALPINE_IMAGE_FIPS"                      required:"true"`
 }
 
 func GetConfig() (Config, error) {

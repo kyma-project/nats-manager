@@ -3,9 +3,9 @@ package manager
 import (
 	"context"
 	"errors"
-	"github.com/kyma-project/nats-manager/pkg/env"
 	"testing"
 
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmkchartmocks "github.com/kyma-project/nats-manager/pkg/k8s/chart/mocks"
 	nmkmocks "github.com/kyma-project/nats-manager/pkg/k8s/mocks"
@@ -50,12 +50,11 @@ func Test_GenerateNATSResources(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			// given
-			releaseInstance := chart.NewReleaseInstance("test", "test", false, map[string]interface{}{})
+			releaseInstance := chart.NewReleaseInstance("test", "test", false, map[string]any{})
 			sugaredLogger, err := testutils.NewSugaredLogger()
 			require.NoError(t, err)
 
@@ -87,12 +86,12 @@ func Test_GenerateNATSResources(t *testing.T) {
 			if tc.wantOwnerRef {
 				unstructuredObj := gotManifests.Items[0]
 				require.NotNil(t, unstructuredObj.Object["metadata"])
-				metadata, ok := unstructuredObj.Object["metadata"].(map[string]interface{})
+				metadata, ok := unstructuredObj.Object["metadata"].(map[string]any)
 				require.True(t, ok)
 				require.NotNil(t, metadata["ownerReferences"])
 				require.Len(t, metadata["ownerReferences"], 1)
 				// match values of owner reference
-				ownerReferences, ok := metadata["ownerReferences"].([]map[string]interface{})
+				ownerReferences, ok := metadata["ownerReferences"].([]map[string]any)
 				require.True(t, ok)
 				require.Equal(t, givenNATSCR.Kind, ownerReferences[0]["kind"])
 				require.Equal(t, givenNATSCR.APIVersion, ownerReferences[0]["apiVersion"])
@@ -126,7 +125,6 @@ func Test_DeployInstance(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
@@ -134,7 +132,7 @@ func Test_DeployInstance(t *testing.T) {
 			require.NoError(t, err)
 
 			releaseInstance := chart.NewReleaseInstance("test", "test",
-				false, map[string]interface{}{})
+				false, map[string]any{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
 					testutils.NewNATSStatefulSetUnStruct(),
@@ -198,7 +196,6 @@ func Test_DeleteInstance(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
@@ -206,7 +203,7 @@ func Test_DeleteInstance(t *testing.T) {
 			require.NoError(t, err)
 
 			releaseInstance := chart.NewReleaseInstance("test", "test",
-				false, map[string]interface{}{})
+				false, map[string]any{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: []*unstructured.Unstructured{
 					testutils.NewNATSStatefulSetUnStruct(),
@@ -317,7 +314,6 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -345,7 +341,7 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 			}
 
 			releaseInstance := chart.NewReleaseInstance("test", "test",
-				false, map[string]interface{}{})
+				false, map[string]any{})
 			releaseInstance.SetRenderedManifests(chart.ManifestResources{
 				Items: items,
 			})

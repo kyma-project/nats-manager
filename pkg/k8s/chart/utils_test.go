@@ -21,7 +21,7 @@ func Test_IsStatefulSetObject(t *testing.T) {
 		{
 			name: "should return false when it is not StatefulSet",
 			givenObject: unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"kind": "Deployment",
 				},
 			},
@@ -30,7 +30,7 @@ func Test_IsStatefulSetObject(t *testing.T) {
 		{
 			name: "should return true when it is StatefulSet",
 			givenObject: unstructured.Unstructured{
-				Object: map[string]interface{}{
+				Object: map[string]any{
 					"kind": "StatefulSet",
 				},
 			},
@@ -39,7 +39,6 @@ func Test_IsStatefulSetObject(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			require.Equal(t, tc.wantResult, IsStatefulSetObject(tc.givenObject))
@@ -56,13 +55,13 @@ func Test_ParseManifestStringToObjects(t *testing.T) {
 		require.NoError(t, err)
 
 		unstructuredObj := unstructured.Unstructured{
-			Object: map[string]interface{}{
+			Object: map[string]any{
 				"apiVersion": "v1",
 				"kind":       "ConfigMap",
-				"metadata": map[string]interface{}{
+				"metadata": map[string]any{
 					"name": "component-1",
 				},
-				"data": map[string]interface{}{
+				"data": map[string]any{
 					"key1": "value1 from values.yaml",
 					"key2": "value2 from override",
 				},

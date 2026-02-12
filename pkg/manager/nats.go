@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
@@ -25,7 +26,7 @@ type Manager interface {
 	DeployInstance(context.Context, *chart.ReleaseInstance) error
 	DeleteInstance(context.Context, *chart.ReleaseInstance) error
 	IsNATSStatefulSetReady(context.Context, *chart.ReleaseInstance) (bool, error)
-	GenerateOverrides(*nmapiv1alpha1.NATSSpec, bool, bool) map[string]interface{}
+	GenerateOverrides(*nmapiv1alpha1.NATSSpec, bool, bool) map[string]any
 }
 
 type NATSManager struct {

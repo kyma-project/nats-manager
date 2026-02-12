@@ -11,7 +11,7 @@ import (
 var ErrFailedToConvertToNestedMap = errors.New("failed to convert to nestedMap to map[string]interface{}")
 
 func NewReleaseInstance(name, namespace string, istioEnabled bool,
-	configuration map[string]interface{},
+	configuration map[string]any,
 ) *ReleaseInstance {
 	return &ReleaseInstance{
 		Name:          name,
@@ -25,12 +25,12 @@ type ReleaseInstance struct {
 	Name              string
 	Namespace         string
 	IstioEnabled      bool
-	Configuration     map[string]interface{}
+	Configuration     map[string]any
 	RenderedManifests ManifestResources
 }
 
-func (c *ReleaseInstance) GetConfiguration() (map[string]interface{}, error) {
-	result := make(map[string]interface{})
+func (c *ReleaseInstance) GetConfiguration() (map[string]any, error) {
+	result := make(map[string]any)
 	for key, value := range c.Configuration {
 		nestedMap, err := c.convertToNestedMap(key, value)
 		if err != nil {
@@ -59,8 +59,8 @@ func (c *ReleaseInstance) SetRenderedManifests(renderedManifests ManifestResourc
 }
 
 // convertToNestedMap converts a key with dot-notation into a nested map (e.g. a.b.c=value become [a:[b:[c:value]]]).
-func (c *ReleaseInstance) convertToNestedMap(key string, value interface{}) (map[string]interface{}, error) {
-	result := make(map[string]interface{})
+func (c *ReleaseInstance) convertToNestedMap(key string, value any) (map[string]any, error) {
+	result := make(map[string]any)
 	tokens := strings.Split(key, ".")
 	lastNestedMap := result
 	for depth, token := range tokens {
@@ -68,9 +68,9 @@ func (c *ReleaseInstance) convertToNestedMap(key string, value interface{}) (map
 		case len(tokens) - 1: // last token reached, stop nesting
 			lastNestedMap[token] = value
 		default:
-			lastNestedMap[token] = make(map[string]interface{})
+			lastNestedMap[token] = make(map[string]any)
 			var ok bool
-			lastNestedMap, ok = lastNestedMap[token].(map[string]interface{})
+			lastNestedMap, ok = lastNestedMap[token].(map[string]any)
 			if !ok {
 				return result, ErrFailedToConvertToNestedMap
 			}

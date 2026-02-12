@@ -78,7 +78,7 @@ func (r *Reconciler) updateStatus(ctx context.Context, oldNATS, newNATS *nmapiv1
 func (r *Reconciler) watchDestinationRule(logger *zap.SugaredLogger) error {
 	// define DestinationRule type.
 	destinationRuleType := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"kind":       k8s.DestinationRuleKind,
 			"apiVersion": k8s.DestinationRuleAPIVersion,
 		},

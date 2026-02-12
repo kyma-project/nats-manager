@@ -74,7 +74,6 @@ func Test_initNATSInstance(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -106,7 +105,7 @@ func Test_initNATSInstance(t *testing.T) {
 
 			testEnv.natsManager.On("GenerateOverrides",
 				mock.Anything, mock.Anything, mock.Anything).Return(
-				map[string]interface{}{
+				map[string]any{
 					nmmgr.IstioEnabledKey:   tc.wantIstioEnabled,
 					nmmgr.RotatePasswordKey: tc.wantRotatePassword, // do not recreate secret if it exists
 				},
@@ -175,7 +174,6 @@ func Test_handleNATSCRAllowedCheck(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

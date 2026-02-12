@@ -54,7 +54,6 @@ func Test_syncNATSStatus(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -120,7 +119,6 @@ func Test_syncNATSStatusWithErr(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -187,7 +185,6 @@ func Test_updateStatus(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
