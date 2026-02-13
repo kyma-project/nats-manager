@@ -33,6 +33,8 @@ linters:
     - wsl_v5
     - noinlineerr
     - embeddedstructfieldcheck
+    - interfacebloat
+    - godoclint
     # TODO re-enable:
     - err113
     - funcorder

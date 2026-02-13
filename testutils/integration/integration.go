@@ -13,6 +13,7 @@ import (
 	"github.com/avast/retry-go/v3"
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	nmctrl "github.com/kyma-project/nats-manager/internal/controller/nats"
+	"github.com/kyma-project/nats-manager/pkg/env"
 	"github.com/kyma-project/nats-manager/pkg/k8s"
 	"github.com/kyma-project/nats-manager/pkg/k8s/chart"
 	nmmgr "github.com/kyma-project/nats-manager/pkg/manager"
@@ -141,8 +142,15 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		return nil, err
 	}
 
+	envContainerImages := env.ContainerImages{
+		NATS:               "NATSImage",
+		Alpine:             "AlpineImage",
+		PrometheusExporter: "PrometheusExporterImage",
+		NATSConfigReloader: "NATSSrvCfgReloaderImage",
+	}
+
 	// create NATS manager instance
-	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger)
+	natsManager := nmmgr.NewNATSManger(kubeClient, helmRenderer, sugaredLogger, envContainerImages)
 
 	// create metrics collector.
 	collector := metrics.NewPrometheusCollector()
@@ -248,7 +256,7 @@ func (env TestEnvironment) UpdatedNATSInK8s(nats *nmapiv1alpha1.NATS, options ..
 	}
 
 	for _, o := range options {
-		if er := o(&natsOnK8s); er != nil {
+		if err := o(&natsOnK8s); err != nil {
 			log.Fatal(err)
 		}
 	}

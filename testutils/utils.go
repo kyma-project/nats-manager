@@ -82,10 +82,10 @@ func NewSugaredLogger() (*zap.SugaredLogger, error) {
 
 func NewNATSStatefulSetUnStruct(opts ...Option) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"kind":       "StatefulSet",
 			"apiVersion": "apps/v1",
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"name":      "test1",
 				"namespace": "test1",
 			},
@@ -102,10 +102,10 @@ func NewNATSStatefulSetUnStruct(opts ...Option) *unstructured.Unstructured {
 
 func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"kind":       "Secret",
 			"apiVersion": "v1",
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"name":      "test1",
 				"namespace": "test1",
 			},
@@ -122,10 +122,10 @@ func NewSecretUnStruct(opts ...Option) *unstructured.Unstructured {
 
 func NewNodeUnStruct(opts ...Option) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"kind":       "Node",
 			"apiVersion": "v1",
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"name": "test1",
 			},
 		},
@@ -141,15 +141,15 @@ func NewNodeUnStruct(opts ...Option) *unstructured.Unstructured {
 
 func NewPodUnStruct(opts ...Option) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"kind":       "Pod",
 			"apiVersion": "v1",
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"name":      "test1",
 				"namespace": "test1",
 			},
-			"spec": map[string]interface{}{
-				"containers": []map[string]interface{}{
+			"spec": map[string]any{
+				"containers": []map[string]any{
 					{
 						"name":            "test1",
 						"image":           "test1",

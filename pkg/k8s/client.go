@@ -21,7 +21,7 @@ import (
 // Perform a compile time check.
 var _ Client = &KubeClient{}
 
-// nolint: interfacebloat // this interface is wrapper for the k8s client, therefore it has many methods.
+// Client - nolint: interfacebloat // this interface is wrapper for the k8s client, therefore it has many methods.
 //
 //go:generate go run github.com/vektra/mockery/v2 --name=Client --outpkg=mocks --case=underscore
 type Client interface {

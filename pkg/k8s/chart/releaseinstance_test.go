@@ -15,14 +15,14 @@ func Test_GetConfiguration(t *testing.T) {
 		t.Parallel()
 		// given
 		releaseInstance := NewReleaseInstance("main", "unittest-kyma", false,
-			map[string]interface{}{
+			map[string]any{
 				"test.key1.subkey1": "test value 1",
 				"test.key1.subkey2": "test value 2",
 				"test.key2.subkey1": "test value 3",
 				"test.key2.subkey2": "test value 4",
 			})
 
-		expected := make(map[string]interface{})
+		expected := make(map[string]any)
 		err := json.Unmarshal([]byte(`{
 			"test":{
 				"key1":{
@@ -53,12 +53,12 @@ func Test_SetRenderedManifests(t *testing.T) {
 		t.Parallel()
 		// given
 		releaseInstance := NewReleaseInstance("main", "unittest-kyma",
-			false, map[string]interface{}{})
+			false, map[string]any{})
 
 		sampleManifests := ManifestResources{
 			Items: []*unstructured.Unstructured{
 				{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"name": "test",
 					},
 				},
@@ -86,7 +86,7 @@ func Test_convertToNestedMap(t *testing.T) {
 
 		got, err := releaseInstance.convertToNestedMap("this.is.a.test", "the test value")
 		require.NoError(t, err)
-		expected := make(map[string]interface{})
+		expected := make(map[string]any)
 		err = json.Unmarshal([]byte(`{
 			"this":{
 				"is":{
@@ -107,13 +107,13 @@ func Test_GetStatefulSets(t *testing.T) {
 	t.Parallel()
 
 	sampleSTS := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"kind": "StatefulSet",
 		},
 	}
 
 	sampleObj := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+		Object: map[string]any{
 			"kind": "Deployment",
 		},
 	}
@@ -157,12 +157,11 @@ func Test_GetStatefulSets(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
 			releaseInstance := NewReleaseInstance("main", "test",
-				false, map[string]interface{}{})
+				false, map[string]any{})
 			releaseInstance.SetRenderedManifests(tc.manifests)
 
 			// when
