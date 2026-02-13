@@ -135,7 +135,6 @@ func Test_CreateNATSCR(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			g := gomega.NewGomegaWithT(t)
@@ -233,7 +232,6 @@ func Test_UpdateNATSCR(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			// given
@@ -319,7 +317,6 @@ func Test_DeleteNATSCR(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -442,7 +439,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -530,7 +526,6 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			g := gomega.NewGomegaWithT(t)

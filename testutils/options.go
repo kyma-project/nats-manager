@@ -44,10 +44,10 @@ func WithNATSCRDefaults() NATSOption {
 func WithName(name string) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
-			o.Object["metadata"] = make(map[string]interface{})
+			o.Object["metadata"] = make(map[string]any)
 		}
 
-		metadata, ok := o.Object["metadata"].(map[string]interface{})
+		metadata, ok := o.Object["metadata"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertMetadataToMap
 		}
@@ -59,10 +59,10 @@ func WithName(name string) Option {
 func WithNamespace(namespace string) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
-			o.Object["metadata"] = make(map[string]interface{})
+			o.Object["metadata"] = make(map[string]any)
 		}
 
-		metadata, ok := o.Object["metadata"].(map[string]interface{})
+		metadata, ok := o.Object["metadata"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertMetadataToMap
 		}
@@ -74,10 +74,10 @@ func WithNamespace(namespace string) Option {
 func WithLabels(labels map[string]string) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["metadata"]; !exists {
-			o.Object["metadata"] = make(map[string]interface{})
+			o.Object["metadata"] = make(map[string]any)
 		}
 
-		metadata, ok := o.Object["metadata"].(map[string]interface{})
+		metadata, ok := o.Object["metadata"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertMetadataToMap
 		}
@@ -90,10 +90,10 @@ func WithLabels(labels map[string]string) Option {
 func WithSpecNodeName(nodeName string) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["spec"]; !exists {
-			o.Object["spec"] = make(map[string]interface{})
+			o.Object["spec"] = make(map[string]any)
 		}
 
-		spec, ok := o.Object["spec"].(map[string]interface{})
+		spec, ok := o.Object["spec"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertSpecToMap
 		}
@@ -105,10 +105,10 @@ func WithSpecNodeName(nodeName string) Option {
 func WithSpecReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["spec"]; !exists {
-			o.Object["spec"] = make(map[string]interface{})
+			o.Object["spec"] = make(map[string]any)
 		}
 
-		spec, ok := o.Object["spec"].(map[string]interface{})
+		spec, ok := o.Object["spec"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertSpecToMap
 		}
@@ -120,10 +120,10 @@ func WithSpecReplicas(replicas int) Option {
 func WithStatefulSetStatusCurrentReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["status"]; !exists {
-			o.Object["status"] = make(map[string]interface{})
+			o.Object["status"] = make(map[string]any)
 		}
 
-		status, ok := o.Object["status"].(map[string]interface{})
+		status, ok := o.Object["status"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertStatusToMap
 		}
@@ -135,10 +135,10 @@ func WithStatefulSetStatusCurrentReplicas(replicas int) Option {
 func WithStatefulSetStatusUpdatedReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["status"]; !exists {
-			o.Object["status"] = make(map[string]interface{})
+			o.Object["status"] = make(map[string]any)
 		}
 
-		status, ok := o.Object["status"].(map[string]interface{})
+		status, ok := o.Object["status"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertStatusToMap
 		}
@@ -150,10 +150,10 @@ func WithStatefulSetStatusUpdatedReplicas(replicas int) Option {
 func WithStatefulSetStatusReadyReplicas(replicas int) Option {
 	return func(o *unstructured.Unstructured) error {
 		if _, exists := o.Object["status"]; !exists {
-			o.Object["status"] = make(map[string]interface{})
+			o.Object["status"] = make(map[string]any)
 		}
 
-		status, ok := o.Object["status"].(map[string]interface{})
+		status, ok := o.Object["status"].(map[string]any)
 		if !ok {
 			return ErrFailedToConvertStatusToMap
 		}

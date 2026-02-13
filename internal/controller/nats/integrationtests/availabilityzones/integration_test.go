@@ -201,7 +201,6 @@ func Test_DifferentAvailabilityZones(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// these tests should not run in parallel.
 

@@ -98,7 +98,7 @@ spec:
       - name: change-storage-permissions
         securityContext:
           runAsUser: 0
-        image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.alpine) }}"
+        image: {{ .Values.global.alpineImageUrl }}
         command: ["sh", "-c", "chown -R 1000:10001 {{ .Values.nats.jetstream.fileStorage.storageDirectory }} && chmod -R 755 {{ .Values.nats.jetstream.fileStorage.storageDirectory }} && echo 'Done!'"]
         volumeMounts:
           - name: {{ include "nats.fullname" . }}-js-pvc
@@ -116,7 +116,7 @@ spec:
       #                               #
       #################################
       - name: config-reloader
-        image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.nats_config_reloader) }}"
+        image: {{ .Values.global.natsServerConfigReloaderImageUrl }}
         imagePullPolicy: {{ .Values.nats.pullPolicy }}
         {{- if .Values.containerSecurityContext }}
         securityContext: {{- toYaml .Values.containerSecurityContext | nindent 10 }}
@@ -146,7 +146,7 @@ spec:
       ##############################
       {{- if .Values.exporter.enabled }}
       - name: metrics
-        image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.prometheus_nats_exporter) }}"
+        image: {{ .Values.global.prometheusNatsExporterImageUrl }}
         imagePullPolicy: {{ .Values.exporter.pullPolicy }}
         {{- if .Values.containerSecurityContext }}
         securityContext: {{- toYaml .Values.containerSecurityContext | nindent 10 }}
@@ -170,7 +170,7 @@ spec:
             protocol: TCP
       {{- end }}
       - name: nats
-        image: "{{ include "imageurl" (dict "reg" .Values.global.containerRegistry "img" .Values.global.images.nats) }}"
+        image: {{ .Values.global.natsImageUrl }}
         imagePullPolicy: {{ .Values.nats.pullPolicy }}
         {{- if .Values.containerSecurityContext }}
         securityContext: {{- toYaml .Values.containerSecurityContext | nindent 10 }}

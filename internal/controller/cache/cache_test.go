@@ -114,7 +114,7 @@ func deepEqualByObject(a, b map[client.Object]cache.ByObject) bool {
 }
 
 func computeTypeMap(byObjectMap map[client.Object]cache.ByObject, typeMap map[string]cache.ByObject) {
-	keyOf := func(i interface{}) string { return fmt.Sprintf(">>> %T", i) }
+	keyOf := func(i any) string { return fmt.Sprintf(">>> %T", i) }
 	for k, v := range byObjectMap {
 		if obj, ok := k.(*kappsv1.Deployment); ok {
 			key := keyOf(obj)

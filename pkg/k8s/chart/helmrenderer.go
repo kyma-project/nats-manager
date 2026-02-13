@@ -101,11 +101,11 @@ func (c *HelmRenderer) newActionConfig(namespace string) (*action.Configuration,
 	return cfg, nil
 }
 
-func (c *HelmRenderer) getChartConfiguration() map[string]interface{} {
+func (c *HelmRenderer) getChartConfiguration() map[string]any {
 	return c.helmChart.Values
 }
 
-func (c *HelmRenderer) overrideChartConfiguration(releaseInstance *ReleaseInstance) (map[string]interface{}, error) {
+func (c *HelmRenderer) overrideChartConfiguration(releaseInstance *ReleaseInstance) (map[string]any, error) {
 	result := c.getChartConfiguration()
 	releaseInstanceConfig, err := releaseInstance.GetConfiguration()
 	if err != nil {

@@ -29,10 +29,10 @@ func Test_WithOwnerReference(t *testing.T) {
 			},
 		}
 		unstructuredObj := &unstructured.Unstructured{
-			Object: map[string]interface{}{
+			Object: map[string]any{
 				"apiVersion": "v1",
 				"kind":       "ConfigMap",
-				"metadata": map[string]interface{}{
+				"metadata": map[string]any{
 					"name": "component-1",
 				},
 			},
@@ -45,12 +45,12 @@ func Test_WithOwnerReference(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		require.NotNil(t, unstructuredObj.Object["metadata"])
-		metadata, ok := unstructuredObj.Object["metadata"].(map[string]interface{})
+		metadata, ok := unstructuredObj.Object["metadata"].(map[string]any)
 		require.True(t, ok)
 		require.NotNil(t, metadata["ownerReferences"])
 		require.Len(t, metadata["ownerReferences"], 1)
 		// match values of owner reference
-		ownerReferences, ok := metadata["ownerReferences"].([]map[string]interface{})
+		ownerReferences, ok := metadata["ownerReferences"].([]map[string]any)
 		require.True(t, ok)
 		require.Equal(t, natsCR.Kind, ownerReferences[0]["kind"])
 		require.Equal(t, natsCR.APIVersion, ownerReferences[0]["apiVersion"])
@@ -69,10 +69,10 @@ func Test_WithLabel(t *testing.T) {
 
 		// given
 		unstructuredObj := &unstructured.Unstructured{
-			Object: map[string]interface{}{
+			Object: map[string]any{
 				"apiVersion": "v1",
 				"kind":       "ConfigMap",
-				"metadata": map[string]interface{}{
+				"metadata": map[string]any{
 					"name": "component-1",
 				},
 			},
@@ -85,10 +85,10 @@ func Test_WithLabel(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		require.NotNil(t, unstructuredObj.Object["metadata"])
-		metadata, ok := unstructuredObj.Object["metadata"].(map[string]interface{})
+		metadata, ok := unstructuredObj.Object["metadata"].(map[string]any)
 		require.True(t, ok)
 		require.NotNil(t, metadata["labels"])
-		labels, ok := metadata["labels"].(map[string]interface{})
+		labels, ok := metadata["labels"].(map[string]any)
 		require.True(t, ok)
 		require.Equal(t, "value1", labels["key1"])
 	})

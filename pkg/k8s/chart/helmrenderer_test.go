@@ -37,7 +37,7 @@ func Test_getChartConfiguration(t *testing.T) {
 			helmChart: loadHelmChart(t),
 		}
 
-		var expected map[string]interface{}
+		var expected map[string]any
 		err = json.Unmarshal([]byte(`{
 			"config": {
 				"key1": "value1 from values.yaml",
@@ -65,12 +65,12 @@ func Test_overrideChartConfiguration(t *testing.T) {
 	// define test cases
 	testCases := []struct {
 		name       string
-		overrides  map[string]interface{}
+		overrides  map[string]any
 		wantValues []byte
 	}{
 		{
 			name:      "should return default values when no overrides are provided",
-			overrides: map[string]interface{}{},
+			overrides: map[string]any{},
 			wantValues: []byte(`{
 				"config": {
 					"key1": "value1 from values.yaml",
@@ -81,7 +81,7 @@ func Test_overrideChartConfiguration(t *testing.T) {
 		},
 		{
 			name: "should override values as provided",
-			overrides: map[string]interface{}{
+			overrides: map[string]any{
 				"config.key1": "123.4",
 				"config.key2": "overridden",
 			},
@@ -97,7 +97,6 @@ func Test_overrideChartConfiguration(t *testing.T) {
 
 	// run test cases
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -112,7 +111,7 @@ func Test_overrideChartConfiguration(t *testing.T) {
 				Configuration: tc.overrides,
 			}
 
-			var expected map[string]interface{}
+			var expected map[string]any
 			err = json.Unmarshal(tc.wantValues, &expected)
 
 			// when
@@ -138,7 +137,7 @@ func Test_RenderManifest(t *testing.T) {
 		releaseInstance := &ReleaseInstance{
 			Name:      testChartName,
 			Namespace: "test",
-			Configuration: map[string]interface{}{
+			Configuration: map[string]any{
 				"config.key2": "value2 from override",
 				"showKey2":    true,
 			},
@@ -149,12 +148,12 @@ func Test_RenderManifest(t *testing.T) {
 
 		// then
 		require.NoError(t, err)
-		gotAsMap := make(map[string]interface{})
+		gotAsMap := make(map[string]any)
 		require.NoError(t, yaml.Unmarshal([]byte(got), &gotAsMap)) // use for equality check (avoids whitespace diffs)
 
 		expected, err := os.ReadFile(filepath.Join(testChartDir, "configmap-expected.yaml"))
 		require.NoError(t, err)
-		expectedAsMap := make(map[string]interface{})
+		expectedAsMap := make(map[string]any)
 		require.NoError(t, yaml.Unmarshal(expected, &expectedAsMap)) // use for equality check (avoids whitespace diffs)
 
 		require.Equal(t, expectedAsMap, gotAsMap)
@@ -174,7 +173,7 @@ func Test_RenderManifestAsUnstructured(t *testing.T) {
 		releaseInstance := &ReleaseInstance{
 			Name:      testChartName,
 			Namespace: "test",
-			Configuration: map[string]interface{}{
+			Configuration: map[string]any{
 				"config.key2": "value2 from override",
 				"showKey2":    true,
 			},
@@ -182,7 +181,7 @@ func Test_RenderManifestAsUnstructured(t *testing.T) {
 
 		expected, err := os.ReadFile(filepath.Join(testChartDir, "configmap-expected.yaml"))
 		require.NoError(t, err)
-		expectedAsMap := make(map[string]interface{})
+		expectedAsMap := make(map[string]any)
 		require.NoError(t, yaml.Unmarshal(expected, &expectedAsMap)) // use for equality check (avoids whitespace diffs)
 		unstructuredObj := unstructured.Unstructured{
 			Object: expectedAsMap,
