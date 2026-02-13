@@ -60,7 +60,7 @@ spec:
         - name: NATS_CR_NAMESPACE
           value: "kyma-system"
         - name: NATS_IMAGE
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/nats:2.12.4-alpine3.22"
+          value: "europe-docker.pkg.dev/kyma-project/prod/external/library/nats:2.12.4-alpine3.22"
         - name: NATS_IMAGE_FIPS
           value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/nats-fips:2.12.3"
         - name: NATS_SERVER_CONFIG_RELOADER_IMAGE
@@ -70,11 +70,11 @@ spec:
         - name: PROMETHEUS_NATS_EXPORTER_IMAGE
           value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.18.0"
         - name: PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS
-          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/prometheus-nats-exporter-fips:0.18.0"
+          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/prometheus-nats-exporter-fips:0.19.1"
         - name: ALPINE_IMAGE
           value: "europe-docker.pkg.dev/kyma-project/prod/external/library/alpine:3.22"
         - name: ALPINE_IMAGE_FIPS
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/library/alpine:3.22"
+          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/bash-fips:5.3"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
