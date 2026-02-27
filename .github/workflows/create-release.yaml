@@ -34,6 +34,8 @@ jobs:
     name: Create a draft release
     needs: verify-release-status
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -49,8 +51,6 @@ jobs:
 
       - name: Create draft release
         id: create-draft
-        permissions:
-          contents: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
