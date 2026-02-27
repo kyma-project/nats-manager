@@ -49,6 +49,8 @@ jobs:
 
       - name: Create draft release
         id: create-draft
+        permissions:
+          contents: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
