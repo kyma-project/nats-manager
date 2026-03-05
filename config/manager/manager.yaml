@@ -64,11 +64,11 @@ spec:
         - name: NATS_IMAGE_FIPS
           value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/nats-fips:2.12.3"
         - name: NATS_SERVER_CONFIG_RELOADER_IMAGE
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/nats-server-config-reloader:0.22.1"
+          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/nats-server-config-reloader:0.22.3"
         - name: NATS_SERVER_CONFIG_RELOADER_IMAGE_FIPS
           value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/nats-server-config-reloader-fips:0.22.1"
         - name: PROMETHEUS_NATS_EXPORTER_IMAGE
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.18.0"
+          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.19.1"
         - name: PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS
           value: "europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/prometheus-nats-exporter-fips:0.19.1"
         - name: ALPINE_IMAGE
