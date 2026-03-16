@@ -19,6 +19,7 @@ labels:
       app.kubernetes.io/name: nats-manager
       app.kubernetes.io/part-of: Kyma
       control-plane: nats-manager
+      kyma-project.io/module: nats
 
 resources:
 - ../crd
