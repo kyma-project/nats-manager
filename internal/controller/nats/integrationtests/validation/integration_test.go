@@ -1,9 +1,11 @@
 package validation_test
 
 import (
+	"context"
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -41,7 +43,10 @@ const (
 	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
 )
 
-var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
+var (
+	testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
+	cancel          context.CancelFunc
+)
 
 // TestMain pre-hook and post-hook to run before and after all tests.
 func TestMain(m *testing.M) {
@@ -50,13 +55,24 @@ func TestMain(m *testing.M) {
 
 	// setup env test
 	var err error
-	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, true, nil)
+	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// run tests
 	code := m.Run()
+
+	// Stop the Manager FIRST
+	// This gives your controller a chance to exit gracefully
+	// while the API server is still alive.
+	if cancel != nil {
+		cancel()
+	}
+
+	// Add a tiny sleep or use a WaitGroup
+	// to let the Manager goroutine actually finish.
+	time.Sleep(2000 * time.Millisecond)
 
 	// tear down test env
 	if err = testEnvironment.TearDown(); err != nil {
