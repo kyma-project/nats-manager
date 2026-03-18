@@ -75,7 +75,7 @@ type TestEnvironment struct {
 }
 
 //nolint:funlen // Used in testing
-func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
+func NewTestEnvironment(projectRootDir string,
 	allowedNATSCR *nmapiv1alpha1.NATS,
 ) (*TestEnvironment, error) {
 	var err error
@@ -88,7 +88,7 @@ func NewTestEnvironment(projectRootDir string, celValidationEnabled bool,
 		return nil, err
 	}
 
-	testEnv, envTestKubeCfg, err := StartEnvTest(projectRootDir, celValidationEnabled)
+	testEnv, envTestKubeCfg, err := StartEnvTest(projectRootDir)
 	if err != nil {
 		return nil, err
 	}
@@ -770,7 +770,7 @@ func (env TestEnvironment) GetK8sEventsAssert(g *gomega.GomegaWithT, nats *nmapi
 	}, BigTimeOut, SmallPollingInterval)
 }
 
-func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.Environment, *rest.Config, error) {
+func StartEnvTest(projectRootDir string) (*envtest.Environment, *rest.Config, error) {
 	// Reference: https://book.kubebuilder.io/reference/envtest.html
 	useExistingCluster := useExistingCluster
 	testEnv := &envtest.Environment{
@@ -781,13 +781,6 @@ func StartEnvTest(projectRootDir string, celValidationEnabled bool) (*envtest.En
 		ErrorIfCRDPathMissing:    true,
 		AttachControlPlaneOutput: attachControlPlaneOutput,
 		UseExistingCluster:       &useExistingCluster,
-	}
-
-	args := testEnv.ControlPlane.GetAPIServer().Configure()
-	if celValidationEnabled {
-		args.Set("feature-gates", "CustomResourceValidationExpressions=true")
-	} else {
-		args.Set("feature-gates", "CustomResourceValidationExpressions=false")
 	}
 
 	var cfg *rest.Config
