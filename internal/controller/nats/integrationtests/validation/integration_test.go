@@ -43,8 +43,10 @@ const (
 	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
 )
 
-var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
-var cancel context.CancelFunc
+var (
+	testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
+	cancel          context.CancelFunc
+)
 
 // TestMain pre-hook and post-hook to run before and after all tests.
 func TestMain(m *testing.M) {
