@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 
 	// setup env test
 	var err error
-	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, false, nil)
+	testEnvironment, err = integration.NewTestEnvironment(projectRootDir, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
