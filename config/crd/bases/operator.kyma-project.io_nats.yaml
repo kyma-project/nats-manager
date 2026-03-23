@@ -252,11 +252,6 @@ spec:
             properties:
               availabilityZonesUsed:
                 type: integer
-              cloudProvider:
-                description: |-
-                  CloudProvider holds the provider name read from the shoot-info ConfigMap (e.g. gcp, azure, aws, alicloud).
-                  Empty when not running on a Gardener-managed cluster.
-                type: string
               conditions:
                 items:
                   description: Condition contains details for one aspect of the current

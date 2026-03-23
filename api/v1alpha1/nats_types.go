@@ -94,13 +94,10 @@ type NATS struct {
 
 // NATSStatus defines the observed state of NATS.
 type NATSStatus struct {
-	State                 string `json:"state"`
-	URL                   string `json:"url,omitempty"`
-	AvailabilityZonesUsed int    `json:"availabilityZonesUsed,omitempty"`
-	// CloudProvider holds the provider name read from the shoot-info ConfigMap (e.g. gcp, azure, aws, alicloud).
-	// Empty when not running on a Gardener-managed cluster.
-	CloudProvider string              `json:"cloudProvider,omitempty"`
-	Conditions    []kmetav1.Condition `json:"conditions,omitempty"`
+	State                 string              `json:"state"`
+	URL                   string              `json:"url,omitempty"`
+	AvailabilityZonesUsed int                 `json:"availabilityZonesUsed,omitempty"`
+	Conditions            []kmetav1.Condition `json:"conditions,omitempty"`
 }
 
 // NATSSpec defines the desired state of NATS.

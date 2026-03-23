@@ -72,6 +72,10 @@ type Reconciler struct {
 	destinationRuleWatchStarted bool
 	allowedNATSCR               *nmapiv1alpha1.NATS
 	collector                   metrics.Collector
+	// cloudProvider caches the provider name read from the Gardener shoot-info ConfigMap.
+	// nil means not yet resolved; pointer to empty string means non-Gardener cluster.
+	// Since shoot-info never changes, it is read at most once per controller process lifetime.
+	cloudProvider *string
 }
 
 func NewReconciler(
@@ -222,7 +226,11 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.N
 	log.Infof("NATS account secret (name: %s) exists: %t", accountSecretName, accountSecret != nil)
 
 	// Generate overrides for helm chart.
-	overrides, err := r.natsManager.GenerateOverrides(&nats.Spec, istioExists, accountSecret == nil, nats.Status.CloudProvider)
+	cloudProvider := ""
+	if r.cloudProvider != nil {
+		cloudProvider = *r.cloudProvider
+	}
+	overrides, err := r.natsManager.GenerateOverrides(&nats.Spec, istioExists, accountSecret == nil, cloudProvider)
 	if err != nil {
 		return nil, err
 	}
