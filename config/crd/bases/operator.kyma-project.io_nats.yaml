@@ -54,7 +54,6 @@ spec:
                 size: 3
               jetStream:
                 fileStorage:
-                  size: 1Gi
                   storageClassName: default
                 memStorage:
                   enabled: true
@@ -96,7 +95,6 @@ spec:
               jetStream:
                 default:
                   fileStorage:
-                    size: 1Gi
                     storageClassName: default
                   memStorage:
                     enabled: true
@@ -106,7 +104,6 @@ spec:
                 properties:
                   fileStorage:
                     default:
-                      size: 1Gi
                       storageClassName: default
                     description: FileStorage defines configurations to file storage
                       in NATS JetStream.
@@ -115,8 +112,9 @@ spec:
                         anyOf:
                         - type: integer
                         - type: string
-                        default: 1Gi
-                        description: Size defines the file storage size.
+                        description: |-
+                          Size defines the file storage size.
+                          If not set, defaults to 20Gi on alicloud and 1Gi on all other providers.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
                         x-kubernetes-validations:
@@ -254,6 +252,11 @@ spec:
             properties:
               availabilityZonesUsed:
                 type: integer
+              cloudProvider:
+                description: |-
+                  CloudProvider holds the provider name read from the shoot-info ConfigMap (e.g. gcp, azure, aws, alicloud).
+                  Empty when not running on a Gardener-managed cluster.
+                type: string
               conditions:
                 items:
                   description: Condition contains details for one aspect of the current

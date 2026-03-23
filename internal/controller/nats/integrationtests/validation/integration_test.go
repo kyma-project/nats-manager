@@ -520,7 +520,7 @@ func defaultMemStorage() nmapiv1alpha1.MemStorage {
 func defaultFileStorage() nmapiv1alpha1.FileStorage {
 	return nmapiv1alpha1.FileStorage{
 		StorageClassName: "default",
-		Size:             resource.MustParse("1Gi"),
+		Size:             resource.Quantity{}, // size has no kubebuilder default; controller resolves it at reconcile time
 	}
 }
 

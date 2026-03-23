@@ -243,11 +243,12 @@ func Test_handleNATSDeletion(t *testing.T) {
 			testEnv.natsManager.On("GenerateNATSResources",
 				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
 			testEnv.natsManager.On("GenerateOverrides",
-				mock.Anything, mock.Anything, mock.Anything).Return(
+				mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(
 				map[string]any{
 					nmmgr.IstioEnabledKey:   false,
 					nmmgr.RotatePasswordKey: true, // do not recreate secret if it exists
 				},
+				nil,
 			)
 
 			if tc.mockNatsClientFunc != nil {

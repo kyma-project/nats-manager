@@ -44,7 +44,7 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 | **cluster.&#x200b;size**  | integer | Size of a NATS cluster, i.e. number of NATS nodes. |
 | **jetStream**  | object | JetStream defines configurations that are specific to NATS JetStream. |
 | **jetStream.&#x200b;fileStorage**  | object | FileStorage defines configurations to file storage in NATS JetStream. |
-| **jetStream.&#x200b;fileStorage.&#x200b;size**  | \{integer or string\} | Size defines the file storage size. |
+| **jetStream.&#x200b;fileStorage.&#x200b;size**  | \{integer or string\} | Size defines the file storage size. If not set, defaults to 20Gi on alicloud and 1Gi on all other providers. |
 | **jetStream.&#x200b;fileStorage.&#x200b;storageClassName**  | string | StorageClassName defines the file storage class name. |
 | **jetStream.&#x200b;memStorage**  | object | MemStorage defines configurations to memory storage in NATS JetStream. |
 | **jetStream.&#x200b;memStorage.&#x200b;enabled**  | boolean | Enabled allows the enablement of memory storage. |
@@ -65,6 +65,7 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 | Parameter | Type | Description |
 | ---- | ----------- | ---- |
 | **availabilityZonesUsed**  | integer |  |
+| **cloudProvider**  | string | CloudProvider holds the provider name read from the shoot-info ConfigMap (e.g. gcp, azure, aws, alicloud). Empty when not running on a Gardener-managed cluster. |
 | **conditions**  | \[\]object | Condition contains details for one aspect of the current state of this API Resource. |
 | **conditions.&#x200b;lastTransitionTime** (required) | string | lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable. |
 | **conditions.&#x200b;message** (required) | string | message is a human readable message indicating details about the transition. This may be an empty string. |
