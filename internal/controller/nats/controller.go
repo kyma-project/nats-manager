@@ -72,6 +72,10 @@ type Reconciler struct {
 	destinationRuleWatchStarted bool
 	allowedNATSCR               *nmapiv1alpha1.NATS
 	collector                   metrics.Collector
+	// cloudProvider caches the provider name read from the Gardener shoot-info ConfigMap.
+	// nil means not yet resolved; pointer to empty string means non-Gardener cluster.
+	// Since shoot-info never changes, it is read at most once per controller process lifetime.
+	cloudProvider *string
 }
 
 func NewReconciler(
@@ -106,6 +110,7 @@ func NewReconciler(
 //+kubebuilder:rbac:groups="",resourceNames=eventing-nats-secret,resources=secrets,verbs=get;list;watch;update;patch;create;delete
 //+kubebuilder:rbac:groups="",resourceNames=eventing-nats,resources=services,verbs=get;list;watch;update;patch;create;delete
 //+kubebuilder:rbac:groups="",resourceNames=eventing-nats-config,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resourceNames=shoot-info,resources=configmaps,verbs=get
 //+kubebuilder:rbac:groups="apps",resourceNames=eventing-nats,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="networking.istio.io",resourceNames=eventing-nats,resources=destinationrules,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="policy",resourceNames=eventing-nats,resources=poddisruptionbudgets,verbs=get;list;watch;update;patch;create;delete
@@ -221,7 +226,14 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.N
 	log.Infof("NATS account secret (name: %s) exists: %t", accountSecretName, accountSecret != nil)
 
 	// Generate overrides for helm chart.
-	overrides := r.natsManager.GenerateOverrides(&nats.Spec, istioExists, accountSecret == nil)
+	cloudProvider := ""
+	if r.cloudProvider != nil {
+		cloudProvider = *r.cloudProvider
+	}
+	overrides, err := r.natsManager.GenerateOverrides(&nats.Spec, istioExists, accountSecret == nil, cloudProvider)
+	if err != nil {
+		return nil, err
+	}
 	log.Debugw("using overrides", "overrides", overrides)
 
 	// Init a release instance.

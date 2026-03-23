@@ -44,7 +44,7 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 | **cluster.&#x200b;size**  | integer | Size of a NATS cluster, i.e. number of NATS nodes. |
 | **jetStream**  | object | JetStream defines configurations that are specific to NATS JetStream. |
 | **jetStream.&#x200b;fileStorage**  | object | FileStorage defines configurations to file storage in NATS JetStream. |
-| **jetStream.&#x200b;fileStorage.&#x200b;size**  | \{integer or string\} | Size defines the file storage size. |
+| **jetStream.&#x200b;fileStorage.&#x200b;size**  | \{integer or string\} | Size defines the file storage size. If not set, defaults to 20Gi on alicloud and 1Gi on all other providers. |
 | **jetStream.&#x200b;fileStorage.&#x200b;storageClassName**  | string | StorageClassName defines the file storage class name. |
 | **jetStream.&#x200b;memStorage**  | object | MemStorage defines configurations to memory storage in NATS JetStream. |
 | **jetStream.&#x200b;memStorage.&#x200b;enabled**  | boolean | Enabled allows the enablement of memory storage. |

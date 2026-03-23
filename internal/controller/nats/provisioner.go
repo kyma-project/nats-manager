@@ -27,6 +27,9 @@ func (r *Reconciler) handleNATSReconcile(ctx context.Context,
 	// record metric.
 	r.collector.RecordClusterSizeMetric(nats.Spec.Cluster.Size)
 
+	// read cloud provider from shoot-info and store in reconciler.
+	r.syncCloudProvider(ctx, log)
+
 	// set status to processing
 	nats.Status.Initialize()
 	events.Normal(r.recorder, nats, nmapiv1alpha1.ConditionReasonProcessing, "Initializing NATS resource.")

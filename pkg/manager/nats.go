@@ -26,7 +26,7 @@ type Manager interface {
 	DeployInstance(context.Context, *chart.ReleaseInstance) error
 	DeleteInstance(context.Context, *chart.ReleaseInstance) error
 	IsNATSStatefulSetReady(context.Context, *chart.ReleaseInstance) (bool, error)
-	GenerateOverrides(*nmapiv1alpha1.NATSSpec, bool, bool) map[string]any
+	GenerateOverrides(*nmapiv1alpha1.NATSSpec, bool, bool, string) (map[string]any, error)
 }
 
 type NATSManager struct {

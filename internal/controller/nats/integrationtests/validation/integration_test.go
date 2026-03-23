@@ -72,7 +72,7 @@ func TestMain(m *testing.M) {
 
 	// Add a tiny sleep or use a WaitGroup
 	// to let the Manager goroutine actually finish.
-	time.Sleep(2000 * time.Millisecond)
+	time.Sleep(7000 * time.Millisecond)
 
 	// tear down test env
 	if err = testEnvironment.TearDown(); err != nil {
@@ -520,7 +520,7 @@ func defaultMemStorage() nmapiv1alpha1.MemStorage {
 func defaultFileStorage() nmapiv1alpha1.FileStorage {
 	return nmapiv1alpha1.FileStorage{
 		StorageClassName: "default",
-		Size:             resource.MustParse("1Gi"),
+		Size:             resource.Quantity{}, // size has no kubebuilder default; controller resolves it at reconcile time
 	}
 }
 
