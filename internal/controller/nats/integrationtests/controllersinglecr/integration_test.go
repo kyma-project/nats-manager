@@ -51,7 +51,6 @@ func TestMain(m *testing.M) {
 
 // Test_PreventMultipleNATSCRs tests that only single NATS CR is allowed to be reconciled in a kyma cluster.
 func Test_PreventMultipleNATSCRs(t *testing.T) {
-
 	errMsg := fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s "+
 		"is allowed to be created in a Kyma cluster.", "eventing-nats",
 		"kyma-system")

@@ -67,7 +67,6 @@ func TestMain(m *testing.M) {
 }
 
 func Test_Validate_CreateNATS(t *testing.T) {
-
 	testCases := []struct {
 		name string
 		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
@@ -201,7 +200,6 @@ func Test_Validate_CreateNATS(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-
 			// given
 			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
 
@@ -325,7 +323,6 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 }
 
 func Test_NATS_Defaulting(t *testing.T) {
-
 	testCases := []struct {
 		name string
 		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
