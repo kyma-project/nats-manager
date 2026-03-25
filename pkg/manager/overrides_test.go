@@ -22,7 +22,9 @@ func Test_GenerateOverrides(t *testing.T) {
 		givenNATS           *nmapiv1alpha1.NATS
 		givenIstioEnabled   bool
 		givenRotatePassword bool
+		givenCloudProvider  string
 		wantOverrides       map[string]any
+		wantError           bool
 	}{
 		{
 			name: "should override when spec values are not provided in spec",
@@ -31,12 +33,84 @@ func Test_GenerateOverrides(t *testing.T) {
 			),
 			givenIstioEnabled:   true,
 			givenRotatePassword: true,
+			givenCloudProvider:  "",
 			wantOverrides: map[string]any{
 				IstioEnabledKey:                  true,
 				RotatePasswordKey:                true,
 				ClusterSizeKey:                   0,
 				ClusterEnabledKey:                false,
-				FileStorageSizeKey:               "0",
+				FileStorageSizeKey:               "1Gi",
+				MemStorageEnabledKey:             false,
+				DebugEnabledKey:                  false,
+				TraceEnabledKey:                  false,
+				ResourceRequestsCPUKey:           "0",
+				ResourceRequestsMemKey:           "0",
+				ResourceLimitsCPUKey:             "0",
+				ResourceLimitsMemKey:             "0",
+				NatsImageUrl:                     "NATSImage",
+				AlpineImageUrl:                   "AlpineImage",
+				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
+				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
+			},
+		},
+		{
+			name: "should default to 20Gi on alicloud when size is not provided",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSEmptySpec(),
+			),
+			givenIstioEnabled:   false,
+			givenRotatePassword: false,
+			givenCloudProvider:  CloudProviderAlicloud,
+			wantOverrides: map[string]any{
+				IstioEnabledKey:                  false,
+				RotatePasswordKey:                false,
+				ClusterSizeKey:                   0,
+				ClusterEnabledKey:                false,
+				FileStorageSizeKey:               "20Gi",
+				MemStorageEnabledKey:             false,
+				DebugEnabledKey:                  false,
+				TraceEnabledKey:                  false,
+				ResourceRequestsCPUKey:           "0",
+				ResourceRequestsMemKey:           "0",
+				ResourceLimitsCPUKey:             "0",
+				ResourceLimitsMemKey:             "0",
+				NatsImageUrl:                     "NATSImage",
+				AlpineImageUrl:                   "AlpineImage",
+				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
+				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
+			},
+		},
+		{
+			name: "should return error when alicloud size is below 20Gi",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
+					Size:             resource.MustParse("5Gi"),
+					StorageClassName: "default",
+				}),
+			),
+			givenIstioEnabled:   false,
+			givenRotatePassword: false,
+			givenCloudProvider:  CloudProviderAlicloud,
+			wantError:           true,
+		},
+		{
+			name: "should accept sub-1Gi size on non-alicloud provider",
+			givenNATS: testutils.NewNATSCR(
+				testutils.WithNATSFileStorage(nmapiv1alpha1.FileStorage{
+					Size:             resource.MustParse("500Mi"),
+					StorageClassName: "default",
+				}),
+			),
+			givenIstioEnabled:   false,
+			givenRotatePassword: false,
+			givenCloudProvider:  "gcp",
+			wantOverrides: map[string]any{
+				IstioEnabledKey:                  false,
+				RotatePasswordKey:                false,
+				ClusterSizeKey:                   0,
+				ClusterEnabledKey:                false,
+				FileStorageClassKey:              "default",
+				FileStorageSizeKey:               "500Mi",
 				MemStorageEnabledKey:             false,
 				DebugEnabledKey:                  false,
 				TraceEnabledKey:                  false,
@@ -82,6 +156,7 @@ func Test_GenerateOverrides(t *testing.T) {
 			),
 			givenIstioEnabled:   true,
 			givenRotatePassword: true,
+			givenCloudProvider:  "",
 			wantOverrides: map[string]any{
 				IstioEnabledKey:        true,
 				RotatePasswordKey:      true,
@@ -125,9 +200,14 @@ func Test_GenerateOverrides(t *testing.T) {
 			manager := NewNATSManger(nil, nil, nil, envContainerImages)
 
 			// when
-			overrides := manager.GenerateOverrides(&tc.givenNATS.Spec, tc.givenIstioEnabled, tc.givenRotatePassword)
+			overrides, err := manager.GenerateOverrides(&tc.givenNATS.Spec, tc.givenIstioEnabled, tc.givenRotatePassword, tc.givenCloudProvider)
 
 			// then
+			if tc.wantError {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
 			require.Equal(t, tc.wantOverrides, overrides)
 		})
 	}
