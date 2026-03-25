@@ -12,6 +12,8 @@ import (
 	ptestutil "github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	kcorev1 "k8s.io/api/core/v1"
+	kapierrors "k8s.io/apimachinery/pkg/api/errors"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -476,6 +478,8 @@ func Test_handleNATSReconcile(t *testing.T) {
 				mock.Anything, mock.Anything).Return(tc.givenStatefulSetReady, nil)
 			testEnv.kubeClient.On("DestinationRuleCRDExists",
 				mock.Anything).Return(tc.wantDestinationRuleWatchStarted, nil)
+			testEnv.kubeClient.On("GetConfigMap",
+				mock.Anything, mock.Anything, mock.Anything).Return(nil, kapierrors.NewNotFound(kcorev1.Resource("configmap"), "shoot-info"))
 			testEnv.controller.On("Watch",
 				mock.Anything, mock.Anything,
 				mock.Anything, mock.Anything,
@@ -495,11 +499,12 @@ func Test_handleNATSReconcile(t *testing.T) {
 			testEnv.natsManager.On("DeployInstance",
 				mock.Anything, mock.Anything).Return(tc.givenDeployError)
 			testEnv.natsManager.On("GenerateOverrides",
-				mock.Anything, mock.Anything, mock.Anything).Return(
+				mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(
 				map[string]any{
 					nmmgr.IstioEnabledKey:   tc.wantDestinationRuleWatchStarted,
 					nmmgr.RotatePasswordKey: true, // do not recreate secret if it exists
 				},
+				nil,
 			)
 			testEnv.kubeClient.On("GetNumberOfAvailabilityZonesUsedByPods",
 				mock.Anything, mock.Anything, mock.Anything).Return(tc.givenNATS.Spec.Cluster.Size, nil)

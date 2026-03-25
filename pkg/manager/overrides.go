@@ -1,6 +1,11 @@
 package manager
 
-import nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+import (
+	"fmt"
+
+	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/api/resource"
+)
 
 const (
 	MinClusterSize                   = 3
@@ -24,11 +29,45 @@ const (
 	AlpineImageUrl                   = "global.alpineImageUrl"
 	PrometheusNATSExporterImageUrl   = "global.prometheusNatsExporterImageUrl"
 	NATSServerConfigReloaderImageUrl = "global.natsServerConfigReloaderImageUrl"
+
+	CloudProviderAlicloud = "alicloud"
+
+	defaultFileSizeAlicloud = "20Gi"
+	defaultFileSizeDefault  = "1Gi"
+
+	minFileSizeAlicloud = "20Gi"
 )
 
+// resolveFileStorageSize returns the effective file storage size given the spec value and cloud provider.
+// If the spec value is empty it is defaulted; if it is set it is validated against the minimum.
+// An error is returned when the spec value is below the minimum.
+func resolveFileStorageSize(spec *nmapiv1alpha1.NATSSpec, cloudProvider string) (resource.Quantity, error) {
+	isAlicloud := cloudProvider == CloudProviderAlicloud
+
+	if spec.FileStorage.Size.IsZero() {
+		// No value supplied – apply provider-specific default.
+		if isAlicloud {
+			return resource.MustParse(defaultFileSizeAlicloud), nil
+		}
+		return resource.MustParse(defaultFileSizeDefault), nil
+	}
+
+	// Value supplied – validate minimum only for alicloud.
+	if isAlicloud {
+		minimum := resource.MustParse(minFileSizeAlicloud)
+		if spec.FileStorage.Size.Cmp(minimum) < 0 {
+			return resource.Quantity{}, fmt.Errorf(
+				"spec.jetStream.fileStorage.size %s is below the minimum required size of %s for alicloud",
+				spec.FileStorage.Size.String(), minFileSizeAlicloud,
+			)
+		}
+	}
+	return spec.FileStorage.Size, nil
+}
+
 func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnabled bool,
-	rotatePassword bool,
-) map[string]any {
+	rotatePassword bool, cloudProvider string,
+) (map[string]any, error) {
 	overrides := map[string]any{
 		IstioEnabledKey:   istioEnabled,
 		RotatePasswordKey: rotatePassword,
@@ -41,8 +80,12 @@ func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnable
 		overrides[ClusterEnabledKey] = false
 	}
 
-	// file storage
-	overrides[FileStorageSizeKey] = spec.FileStorage.Size.String()
+	// file storage – resolve size with defaulting and validation
+	fileStorageSize, err := resolveFileStorageSize(spec, cloudProvider)
+	if err != nil {
+		return nil, err
+	}
+	overrides[FileStorageSizeKey] = fileStorageSize.String()
 	if spec.FileStorage.StorageClassName != "" {
 		overrides[FileStorageClassKey] = spec.FileStorage.StorageClassName
 	}
@@ -94,5 +137,5 @@ func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnable
 		overrides[NATSServerConfigReloaderImageUrl] = m.images.NATSConfigReloader
 	}
 
-	return overrides
+	return overrides, nil
 }

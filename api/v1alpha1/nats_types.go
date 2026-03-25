@@ -87,7 +87,7 @@ type NATS struct {
 	kmetav1.TypeMeta   `json:",inline"`
 	kmetav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"1Gi",enabled:true}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"500m",memory:"1Gi"}, requests:{cpu:"40m",memory:"64Mi"}}}
+	// +kubebuilder:default:={jetStream:{fileStorage:{storageClassName:"default"},memStorage:{size:"1Gi",enabled:true}}, cluster:{size:3},logging:{trace:false,debug:false}, resources:{limits:{cpu:"500m",memory:"1Gi"}, requests:{cpu:"40m",memory:"64Mi"}}}
 	Spec   NATSSpec   `json:"spec,omitempty"`
 	Status NATSStatus `json:"status,omitempty"`
 }
@@ -107,7 +107,7 @@ type NATSSpec struct {
 	Cluster `json:"cluster,omitempty"`
 
 	// JetStream defines configurations that are specific to NATS JetStream.
-	// +kubebuilder:default:={fileStorage:{storageClassName:"default", size:"1Gi"},memStorage:{size:"1Gi",enabled:true}}
+	// +kubebuilder:default:={fileStorage:{storageClassName:"default"},memStorage:{size:"1Gi",enabled:true}}
 	// +kubebuilder:validation:XValidation:rule="self.fileStorage == oldSelf.fileStorage",message="fileStorage is immutable once it was set"
 	JetStream `json:"jetStream,omitempty"`
 
@@ -144,7 +144,7 @@ type JetStream struct {
 	MemStorage `json:"memStorage,omitempty"`
 
 	// FileStorage defines configurations to file storage in NATS JetStream.
-	// +kubebuilder:default:={storageClassName:"default",size:"1Gi"}
+	// +kubebuilder:default:={storageClassName:"default"}
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="fileStorage is immutable once it was set"
 	FileStorage `json:"fileStorage,omitempty"`
 }
@@ -168,8 +168,9 @@ type FileStorage struct {
 	StorageClassName string `json:"storageClassName,omitempty"`
 
 	// Size defines the file storage size.
-	// +kubebuilder:default:="1Gi"
+	// If not set, defaults to 20Gi on alicloud and 1Gi on all other providers.
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="fileStorage is immutable once it was set"
+	// +kubebuilder:validation:Optional
 	Size resource.Quantity `json:"size,omitempty"`
 }
 

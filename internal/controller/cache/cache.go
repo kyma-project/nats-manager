@@ -7,10 +7,16 @@ import (
 	kcorev1 "k8s.io/api/core/v1"
 	kapipolicyv1 "k8s.io/api/policy/v1"
 	krbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	shootInfoConfigMapName      = "shoot-info"
+	shootInfoConfigMapNamespace = "kube-system"
 )
 
 // New returns a cache with the cache-options applied, generade form the rest-config.
@@ -29,12 +35,22 @@ func applySelectors(options cache.Options) cache.Options {
 		&kcorev1.ServiceAccount{}:                 managedByNATS,
 		&kcorev1.Secret{}:                         managedByNATS,
 		&kcorev1.Service{}:                        managedByNATS,
-		&kcorev1.ConfigMap{}:                      managedByNATS,
 		&krbacv1.ClusterRole{}:                    managedByNATS,
 		&krbacv1.ClusterRoleBinding{}:             managedByNATS,
 		&kautoscalingv1.HorizontalPodAutoscaler{}: managedByNATS,
 		&kapipolicyv1.PodDisruptionBudget{}:       managedByNATS,
 		&kcorev1.Pod{}:                            managedByNATS,
+		// ConfigMaps: managed ones (by label) + shoot-info in kube-system (by field selector).
+		&kcorev1.ConfigMap{}: {
+			Namespaces: map[string]cache.Config{
+				// Empty string key means "all namespaces" — applies the label selector broadly.
+				cache.AllNamespaces: {LabelSelector: nmlabels.SelectorManagedByNATS()},
+				// Explicitly watch shoot-info in kube-system by name.
+				shootInfoConfigMapNamespace: {
+					FieldSelector: fields.OneTermEqualSelector("metadata.name", shootInfoConfigMapName),
+				},
+			},
+		},
 	}
 	return options
 }
