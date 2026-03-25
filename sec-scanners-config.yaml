@@ -7,10 +7,10 @@ bdba:
   - europe-docker.pkg.dev/kyma-project/prod/external/natsio/nats-server-config-reloader:0.22.3
   - europe-docker.pkg.dev/kyma-project/prod/external/library/nats:2.12.4-alpine3.22
   - europe-docker.pkg.dev/kyma-project/prod/external/library/alpine:3.22
-  - europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/nats-fips:2.12.5
-  - europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/nats-server-config-reloader-fips:0.22.2
-  - europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/prometheus-nats-exporter-fips:0.19.1
-  - europe-docker.pkg.dev/kyma-project/restricted-prod/sap.com/bash-fips:5.3
+  - europe-docker.pkg.dev/kyma-project/restricted-prod/nats-fips:2.12.500
+  - europe-docker.pkg.dev/kyma-project/restricted-prod/nats-server-config-reloader-fips:0.22.200
+  - europe-docker.pkg.dev/kyma-project/restricted-prod/prometheus-nats-exporter-fips:0.19.100
+  - europe-docker.pkg.dev/kyma-project/restricted-prod/bash-fips:5.300
 mend:
   language: golang-mod
   exclude:
