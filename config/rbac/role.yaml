@@ -20,6 +20,16 @@ rules:
   - watch
 - apiGroups:
   - ""
+  resourceNames:
+  - shoot-info
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
   resources:
   - configmaps
   - secrets

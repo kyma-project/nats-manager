@@ -194,24 +194,34 @@ func (_c *Manager_GenerateNATSResources_Call) RunAndReturn(run func(*chart.Relea
 	return _c
 }
 
-// GenerateOverrides provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Manager) GenerateOverrides(_a0 *v1alpha1.NATSSpec, _a1 bool, _a2 bool) map[string]interface{} {
-	ret := _m.Called(_a0, _a1, _a2)
+// GenerateOverrides provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *Manager) GenerateOverrides(_a0 *v1alpha1.NATSSpec, _a1 bool, _a2 bool, _a3 string) (map[string]interface{}, error) {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateOverrides")
 	}
 
 	var r0 map[string]interface{}
-	if rf, ok := ret.Get(0).(func(*v1alpha1.NATSSpec, bool, bool) map[string]interface{}); ok {
-		r0 = rf(_a0, _a1, _a2)
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*v1alpha1.NATSSpec, bool, bool, string) (map[string]interface{}, error)); ok {
+		return rf(_a0, _a1, _a2, _a3)
+	}
+	if rf, ok := ret.Get(0).(func(*v1alpha1.NATSSpec, bool, bool, string) map[string]interface{}); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(map[string]interface{})
 		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(*v1alpha1.NATSSpec, bool, bool, string) error); ok {
+		r1 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // Manager_GenerateOverrides_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GenerateOverrides'
@@ -223,23 +233,24 @@ type Manager_GenerateOverrides_Call struct {
 //   - _a0 *v1alpha1.NATSSpec
 //   - _a1 bool
 //   - _a2 bool
-func (_e *Manager_Expecter) GenerateOverrides(_a0 interface{}, _a1 interface{}, _a2 interface{}) *Manager_GenerateOverrides_Call {
-	return &Manager_GenerateOverrides_Call{Call: _e.mock.On("GenerateOverrides", _a0, _a1, _a2)}
+//   - _a3 string
+func (_e *Manager_Expecter) GenerateOverrides(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *Manager_GenerateOverrides_Call {
+	return &Manager_GenerateOverrides_Call{Call: _e.mock.On("GenerateOverrides", _a0, _a1, _a2, _a3)}
 }
 
-func (_c *Manager_GenerateOverrides_Call) Run(run func(_a0 *v1alpha1.NATSSpec, _a1 bool, _a2 bool)) *Manager_GenerateOverrides_Call {
+func (_c *Manager_GenerateOverrides_Call) Run(run func(_a0 *v1alpha1.NATSSpec, _a1 bool, _a2 bool, _a3 string)) *Manager_GenerateOverrides_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*v1alpha1.NATSSpec), args[1].(bool), args[2].(bool))
+		run(args[0].(*v1alpha1.NATSSpec), args[1].(bool), args[2].(bool), args[3].(string))
 	})
 	return _c
 }
 
-func (_c *Manager_GenerateOverrides_Call) Return(_a0 map[string]interface{}) *Manager_GenerateOverrides_Call {
-	_c.Call.Return(_a0)
+func (_c *Manager_GenerateOverrides_Call) Return(_a0 map[string]interface{}, _a1 error) *Manager_GenerateOverrides_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Manager_GenerateOverrides_Call) RunAndReturn(run func(*v1alpha1.NATSSpec, bool, bool) map[string]interface{}) *Manager_GenerateOverrides_Call {
+func (_c *Manager_GenerateOverrides_Call) RunAndReturn(run func(*v1alpha1.NATSSpec, bool, bool, string) (map[string]interface{}, error)) *Manager_GenerateOverrides_Call {
 	_c.Call.Return(run)
 	return _c
 }
