@@ -28,6 +28,7 @@ type Client interface {
 	GetStatefulSet(context.Context, string, string) (*kappsv1.StatefulSet, error)
 	Delete(context.Context, *unstructured.Unstructured) error
 	GetSecret(context.Context, string, string) (*kcorev1.Secret, error)
+	GetConfigMap(context.Context, string, string) (*kcorev1.ConfigMap, error)
 	GetCRD(context.Context, string) (*kapiextv1.CustomResourceDefinition, error)
 	DestinationRuleCRDExists(context.Context) (bool, error)
 	DeletePVCsWithLabel(context.Context, string, string, string) error
@@ -88,6 +89,18 @@ func (c *KubeClient) GetSecret(ctx context.Context, name, namespace string) (*kc
 		Namespace: namespace,
 	}
 	result := &kcorev1.Secret{}
+	if err := c.client.Get(ctx, nn, result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (c *KubeClient) GetConfigMap(ctx context.Context, name, namespace string) (*kcorev1.ConfigMap, error) {
+	nn := ktypes.NamespacedName{
+		Name:      name,
+		Namespace: namespace,
+	}
+	result := &kcorev1.ConfigMap{}
 	if err := c.client.Get(ctx, nn, result); err != nil {
 		return nil, err
 	}

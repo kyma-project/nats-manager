@@ -104,11 +104,12 @@ func Test_initNATSInstance(t *testing.T) {
 				mock.Anything, mock.Anything, mock.Anything).Return(natsResources, nil)
 
 			testEnv.natsManager.On("GenerateOverrides",
-				mock.Anything, mock.Anything, mock.Anything).Return(
+				mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(
 				map[string]any{
 					nmmgr.IstioEnabledKey:   tc.wantIstioEnabled,
 					nmmgr.RotatePasswordKey: tc.wantRotatePassword, // do not recreate secret if it exists
 				},
+				nil,
 			)
 
 			// when
