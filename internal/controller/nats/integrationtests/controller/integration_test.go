@@ -48,8 +48,6 @@ func TestMain(m *testing.M) {
 }
 
 func Test_CreateNATSCR(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name                  string
 		givenNATS             *nmapiv1alpha1.NATS
@@ -136,7 +134,6 @@ func Test_CreateNATSCR(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := gomega.NewGomegaWithT(t)
 
 			// given
@@ -189,7 +186,6 @@ func Test_CreateNATSCR(t *testing.T) {
 // Test_UpdateNATSCR tests if updating the NATS CR will trigger reconciliation
 // and k8s objects are updated accordingly.
 func Test_UpdateNATSCR(t *testing.T) {
-	t.Parallel()
 	testCases := []struct {
 		name            string
 		givenNATS       *nmapiv1alpha1.NATS
@@ -233,7 +229,6 @@ func Test_UpdateNATSCR(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			// given
 			// Create Namespace in k8s.
 			givenNamespace := tc.givenNATS.GetNamespace()
@@ -271,8 +266,6 @@ func Test_UpdateNATSCR(t *testing.T) {
 }
 
 func Test_DeleteNATSCR(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name      string
 		givenNATS *nmapiv1alpha1.NATS
@@ -318,8 +311,6 @@ func Test_DeleteNATSCR(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
 			// given
 			// create unique namespace for this test run.
 			givenNamespace := tc.givenNATS.GetNamespace()
@@ -362,8 +353,6 @@ func Test_DeleteNATSCR(t *testing.T) {
 // Test_WatcherNATSCRK8sObjects tests that deleting the k8s objects deployed by NATS CR
 // should trigger reconciliation.
 func Test_WatcherNATSCRK8sObjects(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name                 string
 		givenNATS            *nmapiv1alpha1.NATS
@@ -440,8 +429,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
 			// given
 			// create unique namespace for this test run.
 			givenNamespace := tc.givenNATS.GetNamespace()
@@ -479,8 +466,6 @@ func Test_WatcherNATSCRK8sObjects(t *testing.T) {
 
 // Test_DoubleReconcileNATSCR tests that controller should be able to reconcile NATS again.
 func Test_DoubleReconcileNATSCR(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name         string
 		givenNATS    *nmapiv1alpha1.NATS
@@ -527,7 +512,6 @@ func Test_DoubleReconcileNATSCR(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := gomega.NewGomegaWithT(t)
 
 			// given

@@ -1,11 +1,9 @@
 package validation_test
 
 import (
-	"context"
 	"log"
 	"os"
 	"testing"
-	"time"
 
 	nmapiv1alpha1 "github.com/kyma-project/nats-manager/api/v1alpha1"
 	"github.com/kyma-project/nats-manager/testutils"
@@ -43,10 +41,7 @@ const (
 	apiVersionNATS = "operator.kyma-project.io/v1alpha1"
 )
 
-var (
-	testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
-	cancel          context.CancelFunc
-)
+var testEnvironment *integration.TestEnvironment //nolint:gochecknoglobals // used in tests
 
 // TestMain pre-hook and post-hook to run before and after all tests.
 func TestMain(m *testing.M) {
@@ -63,17 +58,6 @@ func TestMain(m *testing.M) {
 	// run tests
 	code := m.Run()
 
-	// Stop the Manager FIRST
-	// This gives your controller a chance to exit gracefully
-	// while the API server is still alive.
-	if cancel != nil {
-		cancel()
-	}
-
-	// Add a tiny sleep or use a WaitGroup
-	// to let the Manager goroutine actually finish.
-	time.Sleep(7000 * time.Millisecond)
-
 	// tear down test env
 	if err = testEnvironment.TearDown(); err != nil {
 		log.Fatal(err)
@@ -83,8 +67,6 @@ func TestMain(m *testing.M) {
 }
 
 func Test_Validate_CreateNATS(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name string
 		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
@@ -218,8 +200,6 @@ func Test_Validate_CreateNATS(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
 			// given
 			testEnvironment.EnsureNamespaceCreation(t, tc.givenUnstructuredNATS.GetNamespace())
 
@@ -343,8 +323,6 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 }
 
 func Test_NATS_Defaulting(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name string
 		// We use Unstructured instead of NATS to ensure that all undefined properties are nil and not Go defaults.
@@ -477,7 +455,6 @@ func Test_NATS_Defaulting(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := gomega.NewGomegaWithT(t)
 
 			// given

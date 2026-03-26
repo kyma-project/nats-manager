@@ -51,8 +51,6 @@ func TestMain(m *testing.M) {
 
 // Test_PreventMultipleNATSCRs tests that only single NATS CR is allowed to be reconciled in a kyma cluster.
 func Test_PreventMultipleNATSCRs(t *testing.T) {
-	t.Parallel()
-
 	errMsg := fmt.Sprintf("Only a single NATS CR with name: %s and namespace: %s "+
 		"is allowed to be created in a Kyma cluster.", "eventing-nats",
 		"kyma-system")
@@ -118,7 +116,6 @@ func Test_PreventMultipleNATSCRs(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
 			g := gomega.NewGomegaWithT(t)
 
 			// given
