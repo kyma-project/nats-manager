@@ -1,0 +1,23 @@
+# permissions for end users to view nats resources.
+# Aggregated into the standard Kubernetes "view" ClusterRole.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kyma-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+- apiGroups:
+  - operator.kyma-project.io
+  resources:
+  - nats
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - operator.kyma-project.io
+  resources:
+  - nats/status
+  verbs:
+  - get

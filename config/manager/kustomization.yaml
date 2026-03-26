@@ -17,4 +17,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: op-skr-registry.localhost:8888/unsigned/manager-images/nats-manager
-  newTag: 0.1.1
+  newTag: 1.0.2

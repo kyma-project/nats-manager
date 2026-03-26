@@ -44,3 +44,4 @@ module-config.yaml
 .env.dev
 
 lint-report.json
+/copilot-context/
