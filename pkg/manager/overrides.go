@@ -26,7 +26,6 @@ const (
 	ResourceLimitsCPUKey             = "nats.resources.limits.cpu"
 	ResourceLimitsMemKey             = "nats.resources.limits.memory"
 	NatsImageUrl                     = "global.natsImageUrl"
-	AlpineImageUrl                   = "global.alpineImageUrl"
 	PrometheusNATSExporterImageUrl   = "global.prometheusNatsExporterImageUrl"
 	NATSServerConfigReloaderImageUrl = "global.natsServerConfigReloaderImageUrl"
 
@@ -126,9 +125,6 @@ func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnable
 
 	if m.images.NATS != "" {
 		overrides[NatsImageUrl] = m.images.NATS
-	}
-	if m.images.Alpine != "" {
-		overrides[AlpineImageUrl] = m.images.Alpine
 	}
 	if m.images.PrometheusExporter != "" {
 		overrides[PrometheusNATSExporterImageUrl] = m.images.PrometheusExporter

@@ -48,7 +48,6 @@ func Test_GenerateOverrides(t *testing.T) {
 				ResourceLimitsCPUKey:             "0",
 				ResourceLimitsMemKey:             "0",
 				NatsImageUrl:                     "NATSImage",
-				AlpineImageUrl:                   "AlpineImage",
 				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
 				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
 			},
@@ -75,7 +74,6 @@ func Test_GenerateOverrides(t *testing.T) {
 				ResourceLimitsCPUKey:             "0",
 				ResourceLimitsMemKey:             "0",
 				NatsImageUrl:                     "NATSImage",
-				AlpineImageUrl:                   "AlpineImage",
 				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
 				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
 			},
@@ -119,7 +117,6 @@ func Test_GenerateOverrides(t *testing.T) {
 				ResourceLimitsCPUKey:             "0",
 				ResourceLimitsMemKey:             "0",
 				NatsImageUrl:                     "NATSImage",
-				AlpineImageUrl:                   "AlpineImage",
 				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
 				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
 			},
@@ -179,7 +176,6 @@ func Test_GenerateOverrides(t *testing.T) {
 					"key2": "value2",
 				},
 				NatsImageUrl:                     "NATSImage",
-				AlpineImageUrl:                   "AlpineImage",
 				PrometheusNATSExporterImageUrl:   "PrometheusExporterImage",
 				NATSServerConfigReloaderImageUrl: "NATSSrvCfgReloaderImage",
 			},
@@ -193,7 +189,6 @@ func Test_GenerateOverrides(t *testing.T) {
 			// given
 			envContainerImages := env.ContainerImages{
 				NATS:               "NATSImage",
-				Alpine:             "AlpineImage",
 				PrometheusExporter: "PrometheusExporterImage",
 				NATSConfigReloader: "NATSSrvCfgReloaderImage",
 			}

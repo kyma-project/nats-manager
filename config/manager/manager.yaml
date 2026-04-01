@@ -71,10 +71,6 @@ spec:
           value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.19.2"
         - name: PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS
           value: "europe-docker.pkg.dev/kyma-project/restricted-prod/prometheus-nats-exporter-fips:0.19.200"
-        - name: ALPINE_IMAGE
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/library/alpine:3.22"
-        - name: ALPINE_IMAGE_FIPS
-          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/bash-fips:5.301"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
