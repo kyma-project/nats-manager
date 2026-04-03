@@ -144,7 +144,6 @@ func NewTestEnvironment(projectRootDir string,
 
 	envContainerImages := env.ContainerImages{
 		NATS:               "NATSImage",
-		Alpine:             "AlpineImage",
 		PrometheusExporter: "PrometheusExporterImage",
 		NATSConfigReloader: "NATSSrvCfgReloaderImage",
 	}

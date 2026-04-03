@@ -70,7 +70,6 @@ func Test_GenerateNATSResources(t *testing.T) {
 
 			envContainerImages := env.ContainerImages{
 				NATS:               "NATSImage",
-				Alpine:             "AlpineImage",
 				PrometheusExporter: "PrometheusExporterImage",
 				NATSConfigReloader: "NATSSrvCfgReloaderImage",
 			}
@@ -154,7 +153,6 @@ func Test_DeployInstance(t *testing.T) {
 
 			envContainerImages := env.ContainerImages{
 				NATS:               "NATSImage",
-				Alpine:             "AlpineImage",
 				PrometheusExporter: "PrometheusExporterImage",
 				NATSConfigReloader: "NATSSrvCfgReloaderImage",
 			}
@@ -225,7 +223,6 @@ func Test_DeleteInstance(t *testing.T) {
 
 			envContainerImages := env.ContainerImages{
 				NATS:               "NATSImage",
-				Alpine:             "AlpineImage",
 				PrometheusExporter: "PrometheusExporterImage",
 				NATSConfigReloader: "NATSSrvCfgReloaderImage",
 			}
@@ -348,7 +345,6 @@ func Test_IsNATSStatefulSetReady(t *testing.T) {
 
 			envContainerImages := env.ContainerImages{
 				NATS:               "NATSImage",
-				Alpine:             "AlpineImage",
 				PrometheusExporter: "PrometheusExporterImage",
 				NATSConfigReloader: "NATSSrvCfgReloaderImage",
 			}
