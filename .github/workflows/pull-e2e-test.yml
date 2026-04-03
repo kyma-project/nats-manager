@@ -171,7 +171,10 @@ jobs:
       - name: Install latest NATS manager from main branch
         run: |
           make -C hack/ci/ create-kyma-system-ns
-          make deploy IMG=europe-docker.pkg.dev/kyma-project/prod/nats-manager:main
+          # Apply the main branch's pre-rendered manifest to deploy with its own matching config.
+          kubectl apply -f https://raw.githubusercontent.com/kyma-project/nats-manager/main/nats-manager.yaml
+          # Patch the manager image to the latest main build.
+          kubectl set image deployment/nats-manager -n kyma-system manager=europe-docker.pkg.dev/kyma-project/prod/nats-manager:main
 
       - name: Setup & test NATS CR
         run: |
