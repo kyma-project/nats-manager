@@ -322,6 +322,57 @@ func Test_Validate_UpdateNATS(t *testing.T) {
 	}
 }
 
+// Test_Validate_UpdateNATS_WithoutFileStorageSize reproduces the bug where updating a NATS CR
+// that was created without fileStorage.size triggers "fileStorage is immutable once it was set".
+// The root cause is that the API server stores fileStorage without the size key, but when the
+// Go client fetches and re-submits the object, the zero-value resource.Quantity gets serialized,
+// causing the CEL struct comparison (self == oldSelf) to see a difference.
+func Test_Validate_UpdateNATS_WithoutFileStorageSize(t *testing.T) {
+	// given: create NATS CR using unstructured (no fileStorage.size key at all)
+	ns := testutils.GetRandK8sName(7)
+	natsName := testutils.GetRandK8sName(7)
+	testEnvironment.EnsureNamespaceCreation(t, ns)
+
+	givenUnstructuredNATS := unstructured.Unstructured{
+		Object: map[string]any{
+			kind:       kindNATS,
+			apiVersion: apiVersionNATS,
+			metadata: map[string]any{
+				name:      natsName,
+				namespace: ns,
+			},
+			spec: map[string]any{
+				jetStream: map[string]any{
+					fileStorage: map[string]any{
+						"storageClassName": "default",
+						// NOTE: size is intentionally NOT set
+					},
+				},
+			},
+		},
+	}
+	testEnvironment.EnsureK8sUnStructResourceCreated(t, &givenUnstructuredNATS)
+
+	// when: fetch as typed NATS object and update with only an annotation change
+	natsObj := &nmapiv1alpha1.NATS{
+		ObjectMeta: kmetav1.ObjectMeta{
+			Name:      natsName,
+			Namespace: ns,
+		},
+	}
+
+	var err error
+	require.Eventually(t, func() bool {
+		err = testEnvironment.UpdatedNATSInK8s(natsObj,
+			testutils.WithNATSAnnotations(map[string]string{"test": "annotation"}),
+		)
+		return !kapierrors.IsConflict(err)
+	}, integration.SmallTimeOut, integration.SmallPollingInterval, "failed to update NATS CR")
+
+	// then: the update should succeed — no fileStorage field was changed
+	require.NoError(t, err, "updating NATS CR with only an annotation change should not trigger fileStorage immutability validation")
+}
+
 func Test_NATS_Defaulting(t *testing.T) {
 	testCases := []struct {
 		name string
