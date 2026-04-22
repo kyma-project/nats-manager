@@ -32,7 +32,7 @@ func loadClusterRole(t *testing.T, filename string) clusterRole {
 	require.True(t, ok)
 	dir := filepath.Dir(currentFile)
 
-	data, err := os.ReadFile(filepath.Join(dir, filename))
+	data, err := os.ReadFile(filepath.Join(dir, "..", "customer_rbac", filename))
 	require.NoError(t, err)
 
 	var role clusterRole
@@ -46,7 +46,7 @@ func TestViewRoleStructure(t *testing.T) {
 	// Verify basic metadata.
 	assert.Equal(t, "rbac.authorization.k8s.io/v1", role.APIVersion)
 	assert.Equal(t, "ClusterRole", role.Kind)
-	assert.Equal(t, "kyma-view", role.Metadata.Name)
+	assert.Equal(t, "kyma-nats-view", role.Metadata.Name)
 
 	// Verify aggregation label.
 	assert.Equal(t, "true", role.Metadata.Labels["rbac.authorization.k8s.io/aggregate-to-view"])
@@ -79,7 +79,7 @@ func TestEditRoleStructure(t *testing.T) {
 	// Verify basic metadata.
 	assert.Equal(t, "rbac.authorization.k8s.io/v1", role.APIVersion)
 	assert.Equal(t, "ClusterRole", role.Kind)
-	assert.Equal(t, "kyma-edit", role.Metadata.Name)
+	assert.Equal(t, "kyma-nats-edit", role.Metadata.Name)
 
 	// Verify aggregation label.
 	assert.Equal(t, "true", role.Metadata.Labels["rbac.authorization.k8s.io/aggregate-to-edit"])
