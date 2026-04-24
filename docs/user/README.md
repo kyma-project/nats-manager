@@ -52,6 +52,13 @@ The NATS Manager is responsible for starting the Controller which creates, watch
 
 The `nats.operator.kyma-project.io` CustomResourceDefinition (CRD) describes the NATS CR that NATS Manager uses to manage the module. See [NATS Custom Resource](01-05-nats-custom-resource.md).
 
+## Authorization
+
+To assign access permissions to NATS module resources, use the following [aggregated ClusterRoles](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles):
+
+- `kyma-nats-view` - Grants read-only access to NATS CRs and their status.
+- `kyma-nats-edit` - Grants full access to NATS CRs and read-only access to their status.
+
 ## Resource Consumption
 
 To learn more about the resources used by the NATS module, see [NATS](https://help.sap.com/docs/btp/sap-business-technology-platform-internal/kyma-modules-sizing?state=DRAFT&version=Internal#nats).

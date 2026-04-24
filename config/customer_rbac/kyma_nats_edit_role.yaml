@@ -1,0 +1,29 @@
+# permissions for end users to edit nats resources.
+# Aggregated into the standard Kubernetes "edit" ClusterRole.
+# Note: admin role automatically aggregates all rules from edit.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kyma-nats-edit
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+rules:
+- apiGroups:
+  - operator.kyma-project.io
+  resources:
+  - nats
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+  - deletecollection
+- apiGroups:
+  - operator.kyma-project.io
+  resources:
+  - nats/status
+  verbs:
+  - get

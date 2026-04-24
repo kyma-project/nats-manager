@@ -1,0 +1,3 @@
+resources:
+- kyma_nats_view_role.yaml
+- kyma_nats_edit_role.yaml
