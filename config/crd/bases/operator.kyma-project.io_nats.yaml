@@ -129,9 +129,6 @@ spec:
                         - message: fileStorage is immutable once it was set
                           rule: self == oldSelf
                     type: object
-                    x-kubernetes-validations:
-                    - message: fileStorage is immutable once it was set
-                      rule: self == oldSelf
                   memStorage:
                     default:
                       enabled: true
@@ -156,9 +153,6 @@ spec:
                     - message: can only be enabled if size is not 0
                       rule: '!self.enabled || self.size != 0'
                 type: object
-                x-kubernetes-validations:
-                - message: fileStorage is immutable once it was set
-                  rule: self.fileStorage == oldSelf.fileStorage
               labels:
                 additionalProperties:
                   type: string

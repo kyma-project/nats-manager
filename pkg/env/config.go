@@ -17,8 +17,6 @@ type Config struct {
 	NATSSrvCfgReloaderImageFIPS string `envconfig:"NATS_SERVER_CONFIG_RELOADER_IMAGE_FIPS" required:"true"`
 	PrometheusExporterImage     string `envconfig:"PROMETHEUS_NATS_EXPORTER_IMAGE"         required:"true"`
 	PrometheusExporterImageFIPS string `envconfig:"PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS"    required:"true"`
-	AlpineImage                 string `envconfig:"ALPINE_IMAGE"                           required:"true"`
-	AlpineImageFIPS             string `envconfig:"ALPINE_IMAGE_FIPS"                      required:"true"`
 }
 
 func GetConfig() (Config, error) {
@@ -31,7 +29,6 @@ func GetConfig() (Config, error) {
 
 type ContainerImages struct {
 	NATS               string
-	Alpine             string
 	PrometheusExporter string
 	NATSConfigReloader string
 }
@@ -40,14 +37,12 @@ func (cfg Config) GetImageConfig() ContainerImages {
 	if cfg.FIPSModeEnabled {
 		return ContainerImages{
 			NATS:               cfg.NATSImageFIPS,
-			Alpine:             cfg.AlpineImageFIPS,
 			PrometheusExporter: cfg.PrometheusExporterImageFIPS,
 			NATSConfigReloader: cfg.NATSSrvCfgReloaderImageFIPS,
 		}
 	}
 	return ContainerImages{
 		NATS:               cfg.NATSImage,
-		Alpine:             cfg.AlpineImage,
 		PrometheusExporter: cfg.PrometheusExporterImage,
 		NATSConfigReloader: cfg.NATSSrvCfgReloaderImage,
 	}

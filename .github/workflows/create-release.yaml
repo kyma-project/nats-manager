@@ -24,9 +24,6 @@ jobs:
       - name: Verify that the current branch's name starts with 'release-'
         run: ./.github/scripts/verify_is_on_release_branch.sh
 
-      - name: Validate content of sec-scanners-config.yaml
-        run: ./.github/scripts/check_sec-scanners-config.sh ${{ github.event.inputs.version }}
-
       - name: Verify that the tag ${{ github.event.inputs.version }} does not exist
         run: ./.github/scripts/check_tag_does_not_exist.sh ${{ github.event.inputs.version }}
 
