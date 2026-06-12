@@ -10,7 +10,7 @@ set -o pipefail # prevents errors in a pipeline from being masked
 
 RELEASE_TAG=${1}
 MODULE_NAME=${2}
-GITHUB_TOKEN=${3}
+# GITHUB_TOKEN is read from the environment (not a positional argument) to avoid exposure in process listings.
 
 # uploadFile uploads the rendered assets to the github release.
 uploadFile() {
