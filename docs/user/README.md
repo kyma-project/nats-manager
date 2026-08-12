@@ -54,10 +54,10 @@ The `nats.operator.kyma-project.io` CustomResourceDefinition (CRD) describes the
 
 ## Authorization
 
-To assign access permissions to NATS module resources, use the following [aggregated ClusterRoles](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles):
+To assign access permissions to the NATS module resources, use the following [aggregated ClusterRoles](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles):
 
-- `kyma-nats-view` - Grants read-only access to NATS CRs and their status.
-- `kyma-nats-edit` - Grants full access to NATS CRs and read-only access to their status.
+- `kyma-nats-view` - Grants read-only access to the NATS custom resources and their statuses.
+- `kyma-nats-edit` - Grants full access to the NATS custom resources and read-only access to their statuses.
 
 ## Resource Consumption
 
