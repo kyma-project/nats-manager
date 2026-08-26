@@ -130,5 +130,5 @@ jobs:
     uses: kyma-project/compliancy/.github/workflows/notify-component-sbom.yml@main
     secrets: inherit
     with:
-      component: kyma-project.io/module/nats-manager
+      component: kyma-project.io/module/nats
       version: ${{ inputs.version }}
