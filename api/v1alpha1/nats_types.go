@@ -118,11 +118,44 @@ type NATSSpec struct {
 	// +kubebuilder:default:={limits:{cpu:"500m",memory:"1Gi"}, requests:{cpu:"40m",memory:"64Mi"}}
 	Resources kcorev1.ResourceRequirements `json:"resources,omitempty"`
 
+	// Metrics defines resource settings for the NATS metrics exporter sidecar.
+	Metrics `json:"metrics,omitempty"`
+
 	// Annotations allows to add annotations to NATS.
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// Labels allows to add Labels to NATS.
 	Labels map[string]string `json:"labels,omitempty"`
+}
+
+// Metrics defines configurations for the NATS metrics exporter sidecar.
+type Metrics struct {
+	// Resources defines the CPU and memory requests and limits for the metrics exporter
+	// sidecar. When unset, the chart default applies. For clusters with many JetStream
+	// consumers, raising the memory limit (for example, limits.memory=128Mi) prevents the
+	// exporter from being OOMKilled.
+	Resources MetricsResources `json:"resources,omitempty"`
+}
+
+// MetricsResources defines the CPU and memory requests and limits for the metrics
+// exporter sidecar container.
+type MetricsResources struct {
+	// Limits describes the maximum amount of CPU and memory the sidecar is allowed to use.
+	// When unset, the defaults are cpu=50m and memory=32Mi.
+	Limits MetricsResourceValues `json:"limits,omitempty"`
+
+	// Requests describes the minimum amount of CPU and memory the sidecar requests.
+	// When unset, the defaults are cpu=10m and memory=20Mi.
+	Requests MetricsResourceValues `json:"requests,omitempty"`
+}
+
+// MetricsResourceValues defines the CPU and memory values for a resource requirement.
+type MetricsResourceValues struct {
+	// CPU defines the CPU value, for example, 50m.
+	CPU resource.Quantity `json:"cpu,omitempty"`
+
+	// Memory defines the memory value, for example, 128Mi.
+	Memory resource.Quantity `json:"memory,omitempty"`
 }
 
 // Cluster defines configurations that are specific to NATS clusters.

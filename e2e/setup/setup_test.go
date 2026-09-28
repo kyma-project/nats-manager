@@ -21,6 +21,7 @@ import (
 	kappsv1 "k8s.io/api/apps/v1"
 	kcorev1 "k8s.io/api/core/v1"
 	kapierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	kmetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
@@ -122,10 +123,43 @@ func Test_CR(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	require.True(t,
-		reflect.DeepEqual(want.Spec, actual.Spec),
-		fmt.Sprintf("wanted spec.cluster to be \n\t%v\n but got \n\t%v", want.Spec, actual.Spec),
-	)
+	// Compare the spec field by field. resource.Quantity carries an unexported Format
+	// field that the API server normalizes on round-trip (e.g. a zero-value quantity
+	// comes back as "0" DecimalSI), so reflect.DeepEqual on the whole spec reports false
+	// positives. Compare the resource-bearing fields with quantity-aware equality instead.
+	require.Equal(t, want.Spec.Cluster, actual.Spec.Cluster)
+	require.Equal(t, want.Spec.JetStream, actual.Spec.JetStream)
+	require.Equal(t, want.Spec.Logging, actual.Spec.Logging)
+	require.Equal(t, want.Spec.Annotations, actual.Spec.Annotations)
+	require.Equal(t, want.Spec.Labels, actual.Spec.Labels)
+	requireResourceRequirementsEqual(t, want.Spec.Resources, actual.Spec.Resources)
+	requireMetricsResourcesEqual(t, want.Spec.Metrics.Resources, actual.Spec.Metrics.Resources)
+}
+
+// requireResourceRequirementsEqual compares two ResourceRequirements using semantic
+// quantity equality, avoiding the resource.Quantity Format normalization pitfall.
+func requireResourceRequirementsEqual(t *testing.T, want, actual kcorev1.ResourceRequirements) {
+	t.Helper()
+	requireQuantityEqual(t, want.Limits.Cpu(), actual.Limits.Cpu(), "limits.cpu")
+	requireQuantityEqual(t, want.Limits.Memory(), actual.Limits.Memory(), "limits.memory")
+	requireQuantityEqual(t, want.Requests.Cpu(), actual.Requests.Cpu(), "requests.cpu")
+	requireQuantityEqual(t, want.Requests.Memory(), actual.Requests.Memory(), "requests.memory")
+}
+
+// requireMetricsResourcesEqual compares two MetricsResources using semantic quantity
+// equality.
+func requireMetricsResourcesEqual(t *testing.T, want, actual nmapiv1alpha1.MetricsResources) {
+	t.Helper()
+	requireQuantityEqual(t, &want.Limits.CPU, &actual.Limits.CPU, "metrics.limits.cpu")
+	requireQuantityEqual(t, &want.Limits.Memory, &actual.Limits.Memory, "metrics.limits.memory")
+	requireQuantityEqual(t, &want.Requests.CPU, &actual.Requests.CPU, "metrics.requests.cpu")
+	requireQuantityEqual(t, &want.Requests.Memory, &actual.Requests.Memory, "metrics.requests.memory")
+}
+
+func requireQuantityEqual(t *testing.T, want, actual *resource.Quantity, field string) {
+	t.Helper()
+	require.Truef(t, want.Equal(*actual),
+		"wanted %s to be %s but got %s", field, want.String(), actual.String())
 }
 
 // Test_PriorityClass will get the PriorityClass name from the StatefulSet and checks if a PriorityClass with that

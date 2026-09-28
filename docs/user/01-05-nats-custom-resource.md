@@ -53,6 +53,14 @@ Use the following sample CRs as guidance. Each can be applied immediately when y
 | **logging**  | object | JetStream defines configurations that are specific to NATS logging in NATS. |
 | **logging.&#x200b;debug**  | boolean | Debug allows debug logging. |
 | **logging.&#x200b;trace**  | boolean | Trace allows trace logging. |
+| **metrics**  | object | Metrics defines configurations for the NATS metrics exporter sidecar. |
+| **metrics.&#x200b;resources**  | object | Resources defines the CPU and memory requests and limits for the metrics exporter sidecar. When unset, the chart default is used. For clusters with many JetStream consumers, raising the memory limit (for example, limits.memory=128Mi) prevents the exporter from being OOMKilled. |
+| **metrics.&#x200b;resources.&#x200b;limits**  | object | Limits describes the maximum amount of CPU and memory the sidecar is allowed to use. When unset, the defaults are cpu=50m and memory=32Mi. |
+| **metrics.&#x200b;resources.&#x200b;limits.&#x200b;cpu**  | \{integer or string\} | CPU defines the CPU value, for example, 50m. |
+| **metrics.&#x200b;resources.&#x200b;limits.&#x200b;memory**  | \{integer or string\} | Memory defines the memory value, for example, 128Mi. |
+| **metrics.&#x200b;resources.&#x200b;requests**  | object | Requests describes the minimum amount of CPU and memory the sidecar requests. When unset, the defaults are cpu=10m and memory=20Mi. |
+| **metrics.&#x200b;resources.&#x200b;requests.&#x200b;cpu**  | \{integer or string\} | CPU defines the CPU value, for example, 50m. |
+| **metrics.&#x200b;resources.&#x200b;requests.&#x200b;memory**  | \{integer or string\} | Memory defines the memory value, for example, 128Mi. |
 | **resources**  | object | Resources defines resources for NATS. |
 | **resources.&#x200b;claims**  | \[\]object | Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.  This field depends on the DynamicResourceAllocation feature gate.  This field is immutable. It can only be set for containers. |
 | **resources.&#x200b;claims.&#x200b;name** (required) | string | Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container. |

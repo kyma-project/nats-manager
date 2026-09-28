@@ -25,6 +25,10 @@ const (
 	ResourceRequestsMemKey           = "nats.resources.requests.memory"
 	ResourceLimitsCPUKey             = "nats.resources.limits.cpu"
 	ResourceLimitsMemKey             = "nats.resources.limits.memory"
+	MetricsResourceRequestsCPUKey    = "exporter.resources.requests.cpu"
+	MetricsResourceRequestsMemKey    = "exporter.resources.requests.memory"
+	MetricsResourceLimitsCPUKey      = "exporter.resources.limits.cpu"
+	MetricsResourceLimitsMemKey      = "exporter.resources.limits.memory"
 	NatsImageUrl                     = "global.natsImageUrl"
 	PrometheusNATSExporterImageUrl   = "global.prometheusNatsExporterImageUrl"
 	NATSServerConfigReloaderImageUrl = "global.natsServerConfigReloaderImageUrl"
@@ -62,6 +66,24 @@ func resolveFileStorageSize(spec *nmapiv1alpha1.NATSSpec, cloudProvider string) 
 		}
 	}
 	return spec.FileStorage.Size, nil
+}
+
+// setMetricsResourceOverrides adds override entries for the metrics exporter sidecar
+// resources. Only fields that are set are added, so unset fields keep the chart default.
+// An unset Quantity is the zero value, so IsZero() is used to detect omitted fields.
+func setMetricsResourceOverrides(overrides map[string]any, res nmapiv1alpha1.MetricsResources) {
+	if !res.Requests.CPU.IsZero() {
+		overrides[MetricsResourceRequestsCPUKey] = res.Requests.CPU.String()
+	}
+	if !res.Requests.Memory.IsZero() {
+		overrides[MetricsResourceRequestsMemKey] = res.Requests.Memory.String()
+	}
+	if !res.Limits.CPU.IsZero() {
+		overrides[MetricsResourceLimitsCPUKey] = res.Limits.CPU.String()
+	}
+	if !res.Limits.Memory.IsZero() {
+		overrides[MetricsResourceLimitsMemKey] = res.Limits.Memory.String()
+	}
 }
 
 func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnabled bool,
@@ -112,6 +134,9 @@ func (m NATSManager) GenerateOverrides(spec *nmapiv1alpha1.NATSSpec, istioEnable
 	if spec.Resources.Limits.Memory() != nil {
 		overrides[ResourceLimitsMemKey] = spec.Resources.Limits.Memory().String()
 	}
+
+	// metrics exporter sidecar resources – only override the chart default when set.
+	setMetricsResourceOverrides(overrides, spec.Metrics.Resources)
 
 	// common labels to all the deployed resources.
 	if len(spec.Labels) > 0 {

@@ -174,6 +174,61 @@ spec:
                     description: Trace allows trace logging.
                     type: boolean
                 type: object
+              metrics:
+                description: Metrics defines configurations for the NATS metrics exporter
+                  sidecar.
+                properties:
+                  resources:
+                    description: |-
+                      Resources defines the CPU and memory requests and limits for the metrics exporter
+                      sidecar. When unset, the chart default is used. For clusters with many JetStream
+                      consumers, raising the memory limit (for example, limits.memory=128Mi) prevents the
+                      exporter from being OOMKilled.
+                    properties:
+                      limits:
+                        description: |-
+                          Limits describes the maximum amount of CPU and memory the sidecar is allowed to use.
+                          When unset, the defaults are cpu=50m and memory=32Mi.
+                        properties:
+                          cpu:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: CPU defines the CPU value, for example, 50m.
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          memory:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Memory defines the memory value, for example,
+                              128Mi.
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                        type: object
+                      requests:
+                        description: |-
+                          Requests describes the minimum amount of CPU and memory the sidecar requests.
+                          When unset, the defaults are cpu=10m and memory=20Mi.
+                        properties:
+                          cpu:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: CPU defines the CPU value, for example, 50m.
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          memory:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Memory defines the memory value, for example,
+                              128Mi.
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                        type: object
+                    type: object
+                type: object
               resources:
                 default:
                   limits:
