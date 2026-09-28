@@ -105,7 +105,7 @@ generate-and-test: vendor manifests generate fmt imports vet lint test;
 
 .PHONY: test
 test: envtest ## Run only tests.
-	GOTOOLCHAIN=go1.26.1+auto KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test -count=1 ./... -coverprofile cover.out
+	GOTOOLCHAIN=go1.27.1+auto KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test -count=1 ./... -coverprofile cover.out
 
 
 .PHONY: lint
@@ -238,7 +238,7 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
 CONTROLLER_TOOLS_VERSION ?= v0.19.0
-GOLANG_CI_LINT_VERSION ?= v2.9.0 # Keept this the same as in .github/workflows/codequality.yml
+GOLANG_CI_LINT_VERSION ?= v2.14.0 # Keept this the same as in .github/workflows/codequality.yml
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
