@@ -33,13 +33,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write # required to dispatch tag-build-image workflow
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          token: ${{ secrets.GIT_BOT_TOKEN }} # creating git tag using bot token because GITHUB_TOKEN would not trigger build workflow (https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
 
       - name: Create changelog
         env:
@@ -54,18 +54,22 @@ jobs:
           RELEASE_ID=$(./.github/scripts/create_draft_release.sh ${{ github.event.inputs.version }}) # this will use the CHANGELOG.md from the step 'Create changelog'
           echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
 
-      - name: Add lightweight tag to trigger release build job
+      - name: Add lightweight tag and trigger release build job
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_BOT_TOKEN }} # creating git tag using bot token because GITHUB_TOKEN would not trigger build workflow (https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git tag ${{ github.event.inputs.version }}
           git push origin ${{ github.event.inputs.version }}
+          # Explicitly dispatch the build workflow because tag push events created by GITHUB_TOKEN do not trigger other workflows automatically.
+          # workflow_dispatch CAN be triggered by GITHUB_TOKEN, unlike push/tag events.
+          gh workflow run tag-build-image.yaml --ref ${{ github.event.inputs.version }}
 
       - name: Create and upload nats-manager.yaml and nats-default-cr.yaml
         env:
           KUSTOMIZE_VERSION: "v4.5.6"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # passed as env var, not CLI arg, to avoid exposure in process listings
         run: |
-          ./.github/scripts/render_and_upload_manifests.sh ${{ github.event.inputs.version }} nats ${{ secrets.GITHUB_TOKEN }}
+          ./.github/scripts/render_and_upload_manifests.sh ${{ github.event.inputs.version }} nats
 
     outputs:
       release_id: ${{ steps.create-draft.outputs.release_id }}
