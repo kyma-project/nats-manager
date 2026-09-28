@@ -167,7 +167,7 @@ func NewTestEnvironment(projectRootDir string,
 		allowedNATSCR,
 		collector,
 	)
-	if err = (natsReconciler).SetupWithManager(ctrlMgr); err != nil {
+	if err = natsReconciler.SetupWithManager(ctrlMgr); err != nil {
 		return nil, err
 	}
 
