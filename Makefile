@@ -105,7 +105,7 @@ generate-and-test: vendor manifests generate fmt imports vet lint test;
 
 .PHONY: test
 test: envtest ## Run only tests.
-	GOTOOLCHAIN=go1.27.1+auto KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test -count=1 ./... -coverprofile cover.out
+	GOTOOLCHAIN=go1.27.2+auto KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test -count=1 ./... -coverprofile cover.out
 
 
 .PHONY: lint
@@ -263,7 +263,7 @@ $(ENVTEST): $(LOCALBIN)
 
 golangci_lint:
 	test -s $(LOCALBIN)/golangci-lint && $(LOCALBIN)/golangci-lint version | grep -q $(GOLANG_CI_LINT_VERSION) || \
-		GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANG_CI_LINT_VERSION)
+		GOTOOLCHAIN=go1.27.2 GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANG_CI_LINT_VERSION)
 
 go-gen:
 	go generate ./...
