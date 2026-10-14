@@ -144,6 +144,10 @@ lint-report-clean: ## Clean lint report
 build: manifests generate fmt vet
 	go build -o bin/manager cmd/main.go
 
+.PHONY: build-for-codeql
+build-for-codeql: ## Build all packages for CodeQL analysis (no generators, no output).
+	go build -o /dev/null ./...
+
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./cmd/main.go
