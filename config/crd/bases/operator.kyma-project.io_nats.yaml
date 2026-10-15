@@ -175,13 +175,13 @@ spec:
                     type: boolean
                 type: object
               metrics:
-                description: Metrics defines configurations for the NATS metrics exporter
-                  sidecar.
+                description: Metrics defines resource settings for the NATS metrics
+                  exporter sidecar.
                 properties:
                   resources:
                     description: |-
                       Resources defines the CPU and memory requests and limits for the metrics exporter
-                      sidecar. When unset, the chart default is used. For clusters with many JetStream
+                      sidecar. When unset, the chart default applies. For clusters with many JetStream
                       consumers, raising the memory limit (for example, limits.memory=128Mi) prevents the
                       exporter from being OOMKilled.
                     properties:
