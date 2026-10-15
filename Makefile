@@ -105,7 +105,7 @@ generate-and-test: vendor manifests generate fmt imports vet lint test;
 
 .PHONY: test
 test: envtest ## Run only tests.
-	GOTOOLCHAIN=go1.26.1+auto KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test -count=1 ./... -coverprofile cover.out
+	GOTOOLCHAIN=go1.27.2+auto KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test -count=1 ./... -coverprofile cover.out
 
 
 .PHONY: lint
@@ -143,6 +143,10 @@ lint-report-clean: ## Clean lint report
 .PHONY: build
 build: manifests generate fmt vet
 	go build -o bin/manager cmd/main.go
+
+.PHONY: build-for-codeql
+build-for-codeql: ## Build all packages for CodeQL analysis (no generators, no output).
+	go build -o /dev/null ./...
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
@@ -238,7 +242,7 @@ ENVTEST ?= $(LOCALBIN)/setup-envtest
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
 CONTROLLER_TOOLS_VERSION ?= v0.19.0
-GOLANG_CI_LINT_VERSION ?= v2.9.0 # Keept this the same as in .github/workflows/codequality.yml
+GOLANG_CI_LINT_VERSION ?= v2.14.0 # Keept this the same as in .github/workflows/codequality.yml
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
@@ -263,7 +267,7 @@ $(ENVTEST): $(LOCALBIN)
 
 golangci_lint:
 	test -s $(LOCALBIN)/golangci-lint && $(LOCALBIN)/golangci-lint version | grep -q $(GOLANG_CI_LINT_VERSION) || \
-		GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANG_CI_LINT_VERSION)
+		GOTOOLCHAIN=go1.27.2 GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANG_CI_LINT_VERSION)
 
 go-gen:
 	go generate ./...
