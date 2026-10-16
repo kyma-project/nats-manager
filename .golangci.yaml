@@ -35,6 +35,9 @@ linters:
     - embeddedstructfieldcheck
     - interfacebloat
     - godoclint
+    - exhaustruct_v5
+    - goconst
+    - modernize
     # TODO re-enable:
     - err113
     - funcorder
