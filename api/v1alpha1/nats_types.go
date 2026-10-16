@@ -132,7 +132,7 @@ type NATSSpec struct {
 type Metrics struct {
 	// Resources defines the CPU and memory requests and limits for the metrics exporter
 	// sidecar. When unset, the chart default applies. For clusters with many JetStream
-	// consumers, raising the memory limit (for example, limits.memory=128Mi) prevents the
+	// consumers, raising the memory limit, for example, limits.memory=128Mi, prevents the
 	// exporter from being OOMKilled.
 	Resources MetricsResources `json:"resources,omitempty"`
 }
@@ -140,7 +140,7 @@ type Metrics struct {
 // MetricsResources defines the CPU and memory requests and limits for the metrics
 // exporter sidecar container.
 type MetricsResources struct {
-	// Limits describes the maximum amount of CPU and memory the sidecar is allowed to use.
+	// Limits describes the maximum amount of CPU and memory the sidecar can use.
 	// When unset, the defaults are cpu=50m and memory=32Mi.
 	Limits MetricsResourceValues `json:"limits,omitempty"`
 
