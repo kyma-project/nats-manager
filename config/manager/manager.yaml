@@ -60,17 +60,17 @@ spec:
         - name: NATS_CR_NAMESPACE
           value: "kyma-system"
         - name: NATS_IMAGE
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/library/nats:2.15.0-scratch"
+          value: "europe-docker.pkg.dev/kyma-project/prod/external/library/nats:2.15.1-scratch"
         - name: NATS_IMAGE_FIPS
-          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/nats-fips:2.15.100"
+          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/nats-fips:2.15.101"
         - name: NATS_SERVER_CONFIG_RELOADER_IMAGE
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/nats-server-config-reloader:0.24.0"
+          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/nats-server-config-reloader:0.25.0"
         - name: NATS_SERVER_CONFIG_RELOADER_IMAGE_FIPS
-          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/nats-server-config-reloader-fips:0.24.100"
+          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/nats-server-config-reloader-fips:0.25.100"
         - name: PROMETHEUS_NATS_EXPORTER_IMAGE
-          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.20.2"
+          value: "europe-docker.pkg.dev/kyma-project/prod/external/natsio/prometheus-nats-exporter:0.20.3"
         - name: PROMETHEUS_NATS_EXPORTER_IMAGE_FIPS
-          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/prometheus-nats-exporter-fips:0.20.200"
+          value: "europe-docker.pkg.dev/kyma-project/restricted-prod/prometheus-nats-exporter-fips:0.20.300"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
