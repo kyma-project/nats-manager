@@ -234,7 +234,14 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.N
 	if err != nil {
 		return nil, err
 	}
-	log.Debugw("using overrides", "overrides", overrides)
+	// Log overrides without auth keys to avoid sensitive-data-in-log findings.
+	safeOverrides := make(map[string]any, len(overrides))
+	for k, v := range overrides {
+		if k != nmmgr.RotatePasswordKey {
+			safeOverrides[k] = v
+		}
+	}
+	log.Debugw("using overrides", "overrides", safeOverrides)
 
 	// Init a release instance.
 	instance := chart.NewReleaseInstance(nats.Name, nats.Namespace, istioExists, overrides)
