@@ -18,7 +18,8 @@ jobs:
   wait-for-build-job:
     name: Wait for build job
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout eventing-tools
         uses: actions/checkout@v5
@@ -53,6 +54,8 @@ jobs:
   e2e-upgrade: # This job tests the upgrade of NATS module from latest release from fast channel to current commit.
     needs: [ wait-for-build-job ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v5
