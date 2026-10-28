@@ -234,7 +234,6 @@ func (r *Reconciler) initNATSInstance(ctx context.Context, nats *nmapiv1alpha1.N
 	if err != nil {
 		return nil, err
 	}
-	log.Debugw("using overrides", "overrides", overrides)
 
 	// Init a release instance.
 	instance := chart.NewReleaseInstance(nats.Name, nats.Namespace, istioExists, overrides)

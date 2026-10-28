@@ -12,6 +12,8 @@ jobs:
   verify-release-status:
     name: Validate release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -81,7 +83,8 @@ jobs:
     name: Wait for build job
     needs: [ create-draft ]
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout eventing-tools
         uses: actions/checkout@v5
@@ -117,7 +120,8 @@ jobs:
     name: Publish release
     needs: [verify-release-status, create-draft, wait-for-build-job]
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
